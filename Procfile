@@ -1,0 +1,1 @@
+web: target/universal/stage/bin/seanmcapp -Dhttp.port=${PORT}
