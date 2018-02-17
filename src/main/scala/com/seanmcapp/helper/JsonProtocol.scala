@@ -22,4 +22,6 @@ trait JsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
 
   implicit val telegramMessageFormat = TelegramProtocol.TelegramMessageFormat
 
+  implicit val broadcastMessageFormat = BroadcastMessageProtocol.BroadcastMessageFormat
+
 }

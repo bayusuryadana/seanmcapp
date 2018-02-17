@@ -1,8 +1,8 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.config.TelegramConf
+import com.seanmcapp.config.{BroadcastConf, TelegramConf}
 import com.seanmcapp.helper.HttpRequestBuilder
-import com.seanmcapp.model.{Customer, TelegramMessage, TelegramMessageEntity}
+import com.seanmcapp.model.{BroadcastMessage, Customer, TelegramMessage}
 import com.seanmcapp.repository._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -13,6 +13,7 @@ object TelegramService extends HttpRequestBuilder {
   private val SUPERGROUP = "supergroup"
 
   private val telegramConf = TelegramConf()
+  private val broadcastConf = BroadcastConf()
 
   def flow(request: TelegramMessage) = {
     val customerId = request.chat.id
@@ -53,6 +54,25 @@ object TelegramService extends HttpRequestBuilder {
           case _ => new Throwable("No command found ToT")
         }
       }
+    }
+  }
+
+  def flowBroadcast(request: BroadcastMessage): (Int, String) = {
+    if (broadcastConf.key == request.key) {
+      val customerRepoFuture = CustomerRepo.getAllSubscribedCust
+      for {
+        customerRepo <- customerRepoFuture
+      } yield {
+        customerRepo.map { subscriber =>
+          TelegramService.sendMessege(subscriber.id, request.message)
+        }
+
+        // uncomment this for dev env
+        // TelegramService.sendMessege(274852283L, request.message)
+      }
+      (200, "sent all the message")
+    } else {
+      (403, "wrong key")
     }
   }
 

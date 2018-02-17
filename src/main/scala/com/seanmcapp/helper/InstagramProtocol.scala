@@ -25,7 +25,7 @@ object InstagramProtocol extends DefaultJsonProtocol {
 
   }
 
-  implicit object InstagramUserFormat extends RootJsonFormat[InstagramUser] {
+  object InstagramUserFormat extends RootJsonFormat[InstagramUser] {
 
     override def write(obj: InstagramUser) = {
       JsObject(
