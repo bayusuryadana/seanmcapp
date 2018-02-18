@@ -23,5 +23,5 @@ case class Photo(id: String, thumbnailSrc: String, date: Long, caption: String)
 
 case class Customer(id: Long, name: String, isSubscribed: Boolean, hitCount: Long)
 
-case class BroadcastMessage(message: String, key: String)
+case class BroadcastMessage(recipient: Long, message: String, key: String)
 

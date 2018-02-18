@@ -12,6 +12,8 @@ object TelegramService extends HttpRequestBuilder {
   private val GROUP = "group"
   private val SUPERGROUP = "supergroup"
 
+  private val ALL = 0
+
   private val telegramConf = TelegramConf()
   private val broadcastConf = BroadcastConf()
 
@@ -59,16 +61,19 @@ object TelegramService extends HttpRequestBuilder {
 
   def flowBroadcast(request: BroadcastMessage): (Int, String) = {
     if (broadcastConf.key == request.key) {
-      val customerRepoFuture = CustomerRepo.getAllSubscribedCust
-      for {
-        customerRepo <- customerRepoFuture
-      } yield {
-        customerRepo.map { subscriber =>
-          TelegramService.sendMessege(subscriber.id, request.message)
+      if (request.recipient == ALL) {
+        val customerRepoFuture = CustomerRepo.getAllSubscribedCust
+        for {
+          customerRepo <- customerRepoFuture
+        } yield {
+          customerRepo.map { subscriber =>
+            TelegramService.sendMessege(subscriber.id, request.message)
+          }
         }
-
+      } else {
         // uncomment this for dev env
-        // TelegramService.sendMessege(274852283L, request.message)
+        // my telegram id = 274852283L
+        TelegramService.sendMessege(request.recipient, request.message)
       }
       (200, "sent all the message")
     } else {
