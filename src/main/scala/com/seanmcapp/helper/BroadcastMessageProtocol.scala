@@ -15,7 +15,7 @@ object BroadcastMessageProtocol extends DefaultJsonProtocol {
     }
 
     override def read(value: JsValue): BroadcastMessage = {
-      value.asJsObject.getFields("message", "key") match {
+      value.asJsObject.getFields("recipient" ,"message", "key") match {
         case Seq(JsNumber(recipient), JsString(message), JsString(key)) => BroadcastMessage(recipient.toLong, message, key)
         case _ => throw new DeserializationException("failed to deserialize BroadcastMessage")
       }
