@@ -14,11 +14,15 @@ import spray.json._
 object InstagramService extends HttpRequestBuilder with JsonProtocol {
 
   private val instagramConf = InstagramConf()
+  private val instagramAccounts = Map(
+    "ui.cantik" -> "[\\w]+'\\d\\d".r,
+    "ugmcantik" -> "\\d\\d\\d\\d\\n#ugmcantik".r
+  )
 
-  def flow(account: String): Future[InstagramUser] = {
+  def flow: Future[InstagramUser] = {
 
     val auth = None //InstagramService.getAuth(instagramConf.username, instagramConf.password)
-    val fetchResult = getPage(account, auth, None)
+    val fetchResult = getPage("ui.cantik", None)
     val photoRepoFuture = PhotoRepo.getAll
     val customerRepoFuture = CustomerRepo.getAllSubscribedCust
 
@@ -46,49 +50,19 @@ object InstagramService extends HttpRequestBuilder with JsonProtocol {
   }
 
   def getPage(account: String,
-              auth: Option[InstagramAuthToken] = None,
               lastId: Option[String] = None): InstagramUser = {
 
-    val request = getInstagramPageRequest(account, auth, lastId)
+    val request = getInstagramPageRequest(account, lastId)
     val response = request.asString
     val instagramUser = response.body.parseJson.convertTo[InstagramUser]
     val tmpResult = instagramUser.nodes
     val lastIdRes = tmpResult.lastOption.map(_.id)
     val nextResult = if (tmpResult.nonEmpty)
-      getPage(account, auth, lastIdRes).nodes
+      getPage(account, lastIdRes).nodes
     else
       Seq.empty
 
     instagramUser.copy(nodes = tmpResult ++ nextResult)
   }
 
-  def getAuth(username: String, password: String): Option[InstagramAuthToken] = {
-    val csrftokenPattern = new Regex("(?<=csrftoken=)[^;]+")
-    val sessionidPattern = new Regex("(?<=sessionid=)[^;]+")
-
-    //init
-    val requestInit = getInstagramHome
-    val responseInit = requestInit.asString
-    val csrftokenInit = getPatternFromCookie(responseInit, csrftokenPattern)
-
-    //auth
-    csrftokenInit match {
-      case Some(tokenInit:String) =>
-        val requestAuth = getInstagramAuth(username, password, tokenInit)
-        val responseAuth = requestAuth.asString
-        val csrftoken = getPatternFromCookie(responseAuth, csrftokenPattern)
-        val sessionId = getPatternFromCookie(responseAuth, sessionidPattern)
-
-        (csrftoken, sessionId) match {
-          case (Some(token:String), Some(session:String)) => Some(InstagramAuthToken(token, session))
-          case _ => None
-        }
-      case _ => None
-    }
-  }
-
-  private def getPatternFromCookie(input: HttpResponse[String], pattern: Regex): Option[String] = {
-    val cookie = input.headers("Set-Cookie").mkString("; ")
-    pattern.findFirstIn(cookie)
-  }
 }

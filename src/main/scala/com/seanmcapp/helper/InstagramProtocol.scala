@@ -19,6 +19,8 @@ object InstagramProtocol extends DefaultJsonProtocol {
       value.asJsObject.getFields("id", "caption", "thumbnail_src", "date") match {
         case Seq(JsString(id), JsString(caption), JsString(thumbnail_src), JsNumber(date)) =>
           InstagramNode(id, caption, thumbnail_src, date.toLong)
+        case Seq(JsString(id), JsString(thumbnail_src), JsNumber(date)) =>
+          InstagramNode(id, "", thumbnail_src, date.toLong)
         case _ => throw new DeserializationException("failed to deserialize InstagramNode")
       }
     }

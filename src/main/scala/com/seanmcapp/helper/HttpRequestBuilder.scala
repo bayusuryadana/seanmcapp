@@ -10,16 +10,10 @@ trait HttpRequestBuilder {
   private val telegramConf = TelegramConf()
 
   def getInstagramPageRequest(account: String,
-                              auth: Option[InstagramAuthToken],
                               lastId: Option[String]): HttpRequest = {
 
     Http("https://www.instagram.com/" + account + "/")
       .params(Seq(("__a", "1"), ("max_id", lastId.getOrElse(""))))
-      .headers(auth match {
-        case Some(auth: InstagramAuthToken) =>
-          Seq(("cookie", "csrftoken=" + auth.csrftoken + "; sessionid=" + auth.sessionId))
-        case None => Seq.empty
-      })
       .option(HttpOptions.allowUnsafeSSL)
   }
 

@@ -20,7 +20,7 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
       } ~
         path("sync") {
           complete {
-            InstagramService.flow("ui.cantik").map(_.toJson)
+            InstagramService.flow.map(_.toJson)
           }
         } ~
       path("getLatest") {
