@@ -38,21 +38,19 @@ object TelegramService extends HttpRequestBuilder {
          command match {
           case "/latest" =>
             PhotoRepo.getLatest.map(_.map { photo =>
-                sendPhoto(request.chat.id, photo.thumbnailSrc, photo.caption)
+              sendPhoto(request.chat.id, photo.thumbnailSrc, photo.caption)
             })
           case "/cari_bahan_ciol" =>
             PhotoRepo.getRandom.map(_.map { photo =>
-              sendPhoto(request.chat.id, photo.thumbnailSrc, photo.caption)
               CustomerRepo.update(customer.copy(hitCount = customer.hitCount + 1))
+              sendPhoto(request.chat.id, photo.thumbnailSrc, photo.caption)
             })
-          case "/subscribe" => {
+          case "/subscribe" =>
             CustomerRepo.update(customer.copy(isSubscribed = true))
             sendMessege(request.chat.id, "selamat berciol ria")
-          }
-          case "/unsubscribe" => {
+          case "/unsubscribe" =>
             CustomerRepo.update(customer.copy(isSubscribed = false))
             sendMessege(request.chat.id, "yah :( yakin udah puas ciolnya?")
-          }
           case _ => new Throwable("No command found ToT")
         }
       }

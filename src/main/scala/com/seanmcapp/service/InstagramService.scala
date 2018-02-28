@@ -34,7 +34,9 @@ object InstagramService extends HttpRequestBuilder with JsonProtocol {
         val regexFilter = accountRegex
         val unsavedPhotos = fetchResult.nodes.collect {
           case item if !(photoRepo.contains(item.id) || regexFilter.findFirstIn(item.caption).isEmpty) =>
-            item.copy(caption = regexFilter.findFirstIn(item.caption).get)
+            item.copy(caption = regexFilter.findFirstIn(item.caption).get
+              .replace("\\n","%0A")
+              .replace("#", "%23"))
         }
 
         unsavedPhotos.map { node =>

@@ -37,8 +37,9 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     post {
       (path("webhook") & entity(as[TelegramMessage])) { request =>
         complete {
-          TelegramService.flow(request)
-          200 -> "No Throwable supposed to be mean succeed"
+          TelegramService.flow(request).map { f =>
+            200 -> "No Throwable supposed to be mean succeed".toJson
+          }
         }
       } ~
       (path("broadcast") & entity(as[BroadcastMessage])) { request =>
