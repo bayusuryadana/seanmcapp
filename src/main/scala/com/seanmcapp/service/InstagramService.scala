@@ -17,7 +17,7 @@ object InstagramService extends HttpRequestBuilder with JsonProtocol {
 
   def flow(account: String): Future[InstagramUser] = {
 
-    val auth = InstagramService.getAuth(instagramConf.username, instagramConf.password)
+    val auth = None //InstagramService.getAuth(instagramConf.username, instagramConf.password)
     val fetchResult = getPage(account, auth, None)
     val photoRepoFuture = PhotoRepo.getAll
     val customerRepoFuture = CustomerRepo.getAllSubscribedCust
