@@ -15,38 +15,44 @@ object InstagramService extends HttpRequestBuilder with JsonProtocol {
 
   private val instagramConf = InstagramConf()
   private val instagramAccounts = Map(
-    "ui.cantik" -> "[\\w]+'\\d\\d".r,
-    "ugmcantik" -> "\\d\\d\\d\\d\\n#ugmcantik".r
+    "ui.cantik" -> "\\w. ]+[\\w]+'\\d\\d".r,
+    "ugmcantik" -> "[\\w. ]+\\d\\d\\d\\d\\n#ugmcantik".r
   )
 
-  def flow: Future[InstagramUser] = {
+  def flow: Future[Iterable[InstagramUser]] = {
+    Future.sequence(instagramAccounts.map { account =>
+      val accountName = account._1
+      val accountRegex = account._2
+      val fetchResult = getPage(accountName, None)
+      val photoRepoFuture = PhotoRepo.getAll
+      //val customerRepoFuture = CustomerRepo.getAllSubscribedCust
 
-    val auth = None //InstagramService.getAuth(instagramConf.username, instagramConf.password)
-    val fetchResult = getPage("ui.cantik", None)
-    val photoRepoFuture = PhotoRepo.getAll
-    val customerRepoFuture = CustomerRepo.getAllSubscribedCust
-
-    for {
-      photoRepo <- photoRepoFuture
-      customerRepo <- customerRepoFuture
-    } yield {
-      val regexFilter = "[\\w]+'\\d\\d".r
-      val unsavedPhotos = fetchResult.nodes
-        .filterNot(item => photoRepo.contains(item.id) || regexFilter.findFirstIn(item.caption).isEmpty)
-
-      unsavedPhotos.map { node =>
-        val photo = Photo(node.id, node.thumbnailSrc, node.date, node.caption)
-        PhotoRepo.update(photo)
-
-        customerRepo.map { subscriber =>
-          TelegramService.sendPhoto(subscriber.id, photo.thumbnailSrc, "bahan ciol baru : " + photo.caption)
+      for {
+        photoRepo <- photoRepoFuture
+        //customerRepo <- customerRepoFuture
+      } yield {
+        val regexFilter = accountRegex
+        val unsavedPhotos = fetchResult.nodes.collect {
+          case item if !(photoRepo.contains(item.id) || regexFilter.findFirstIn(item.caption).isEmpty) =>
+            item.copy(caption = regexFilter.findFirstIn(item.caption).get)
         }
 
-        // uncomment this for dev env
-        // TelegramService.sendPhoto(274852283L, photo.thumbnailSrc, "bahan ciol baru : " + photo.caption)
+        unsavedPhotos.map { node =>
+          val photo = Photo(node.id, node.thumbnailSrc, node.date, node.caption)
+          PhotoRepo.update(photo)
+
+          /* fetching new account
+          customerRepo.map { subscriber =>
+            TelegramService.sendPhoto(subscriber.id, photo.thumbnailSrc, "bahan ciol baru : " + photo.caption)
+          }
+          */
+
+          // uncomment this for dev env
+          // TelegramService.sendPhoto(274852283L, photo.thumbnailSrc, "bahan ciol baru : " + photo.caption)
+        }
+        fetchResult.copy(nodes = unsavedPhotos)
       }
-      fetchResult.copy(nodes = unsavedPhotos)
-    }
+    })
   }
 
   def getPage(account: String,
