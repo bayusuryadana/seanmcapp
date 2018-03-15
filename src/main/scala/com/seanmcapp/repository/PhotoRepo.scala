@@ -13,8 +13,9 @@ class PhotoInfo(tag: Tag) extends Table[Photo](tag, "photos") {
   val thumbnailSrc = column[String]("thumbnail_src")
   val date = column[Long]("date")
   val caption = column[String]("caption")
+  val account = column[String]("account")
 
-  def * = (id, thumbnailSrc, date, caption) <> (Photo.tupled, Photo.unapply)
+  def * = (id, thumbnailSrc, date, caption, account) <> (Photo.tupled, Photo.unapply)
 }
 
 object PhotoRepo extends TableQuery(new PhotoInfo(_)) with DBComponent {

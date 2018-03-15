@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives
 import akka.stream.Materializer
 import com.seanmcapp.helper.JsonProtocol
-import com.seanmcapp.model.{BroadcastMessage, TelegramMessage}
+import com.seanmcapp.model.{BroadcastMessage, TelegramUpdate}
 import com.seanmcapp.repository.PhotoRepo
 import com.seanmcapp.service.{InstagramService, TelegramService}
 import spray.json._
@@ -35,11 +35,10 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
       }
     } ~
     post {
-      (path("webhook") & entity(as[TelegramMessage])) { request =>
+      (path("webhook") & entity(as[TelegramUpdate])) { request =>
         complete {
-          TelegramService.flow(request).map { f =>
-            200 -> "No Throwable supposed to be mean succeed".toJson
-          }
+          TelegramService.flow(request)
+          200 -> "No Throwable supposed to be mean succeed".toJson
         }
       } ~
       (path("broadcast") & entity(as[BroadcastMessage])) { request =>
