@@ -15,7 +15,9 @@ class CustomerInfo(tag: Tag) extends Table[Customer](tag, "customers") {
     (id, name, isSubscribed, hitCount) <> (Customer.tupled, Customer.unapply)
 }
 
-object CustomerRepo extends TableQuery(new CustomerInfo(_)) with DBComponent {
+object CustomerRepo extends TableQuery(new CustomerInfo(_)) {
+
+  val db = DBComponent.db
 
   def get(id: Long): Future[Option[Customer]] = {
     db.run {

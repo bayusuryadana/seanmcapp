@@ -2,7 +2,7 @@ package com.seanmcapp.repository
 
 import slick.jdbc.PostgresProfile.api._
 
-trait DBComponent {
+object DBComponent {
 
   val db: Database = Database.forConfig("db")
 

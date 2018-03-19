@@ -14,7 +14,9 @@ class VoteInfo(tag: Tag) extends Table[Vote](tag, "votes") {
   def * = (id, photoId, customerId, rating) <> (Vote.tupled, Vote.unapply)
 }
 
-object VoteRepo extends TableQuery(new VoteInfo(_)) with DBComponent {
+object VoteRepo extends TableQuery(new VoteInfo(_)) {
+
+  val db = DBComponent.db
 
   def update(vote: Vote): Future[Option[Vote]] = {
     db.run {

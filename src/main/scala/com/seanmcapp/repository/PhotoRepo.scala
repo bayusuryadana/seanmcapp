@@ -18,7 +18,9 @@ class PhotoInfo(tag: Tag) extends Table[Photo](tag, "photos") {
   def * = (id, thumbnailSrc, date, caption, account) <> (Photo.tupled, Photo.unapply)
 }
 
-object PhotoRepo extends TableQuery(new PhotoInfo(_)) with DBComponent {
+object PhotoRepo extends TableQuery(new PhotoInfo(_)) {
+
+  val db = DBComponent.db
 
   def getAll: Future[Set[String]] = {
     db.run {
