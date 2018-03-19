@@ -1,22 +1,22 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.config.InstagramConf
+import com.seanmcapp.config.{InstagramConf, TelegramConf}
 import com.seanmcapp.helper.{HttpRequestBuilder, JsonProtocol}
 import com.seanmcapp.model._
 import com.seanmcapp.repository._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.matching.Regex
-import scalaj.http.HttpResponse
 import spray.json._
 
 object InstagramService extends HttpRequestBuilder with JsonProtocol {
 
+  private val telegramConf = TelegramConf()
   private val instagramConf = InstagramConf()
   private val instagramAccounts = Map(
-    "ui.cantik" -> "\\w. ]+[\\w]+'\\d\\d".r,
-    "ugmcantik" -> "[\\w. ]+\\d\\d\\d\\d\\n#ugmcantik".r
+    "ui.cantik" -> "[\\w. ]+[\\w]'\\d\\d".r,
+    "ugmcantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
+    "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r
   )
 
   def flow: Future[Iterable[InstagramUser]] = {
@@ -25,11 +25,11 @@ object InstagramService extends HttpRequestBuilder with JsonProtocol {
       val accountRegex = account._2
       val fetchResult = getPage(accountName, None)
       val photoRepoFuture = PhotoRepo.getAll
-      //val customerRepoFuture = CustomerRepo.getAllSubscribedCust
+      val customerRepoFuture = CustomerRepo.getAllSubscribedCust
 
       for {
         photoRepo <- photoRepoFuture
-        //customerRepo <- customerRepoFuture
+        customerRepo <- customerRepoFuture
       } yield {
         val regexFilter = accountRegex
         val unsavedPhotos = fetchResult.nodes.collect {
@@ -40,17 +40,17 @@ object InstagramService extends HttpRequestBuilder with JsonProtocol {
         }
 
         unsavedPhotos.map { node =>
-          val photo = Photo(node.id, node.thumbnailSrc, node.date, node.caption)
+          val photo = Photo(node.id, node.thumbnailSrc, node.date, node.caption, accountName)
           PhotoRepo.update(photo)
 
-          /* fetching new account
+          /*
           customerRepo.map { subscriber =>
-            TelegramService.sendPhoto(subscriber.id, photo.thumbnailSrc, "bahan ciol baru : " + photo.caption)
+            getTelegramSendPhoto(telegramConf.endpoint, subscriber.id, photo, "bahan ciol baru: ")
           }
           */
 
           // uncomment this for dev env
-          // TelegramService.sendPhoto(274852283L, photo.thumbnailSrc, "bahan ciol baru : " + photo.caption)
+          // getTelegramSendPhoto(telegramConf.endpoint, 274852283L, photo, "bahan ciol baru: ")
         }
         fetchResult.copy(nodes = unsavedPhotos)
       }

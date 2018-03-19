@@ -3,7 +3,6 @@ package com.seanmcapp.repository
 import com.seanmcapp.model.Customer
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CustomerInfo(tag: Tag) extends Table[Customer](tag, "customers") {
