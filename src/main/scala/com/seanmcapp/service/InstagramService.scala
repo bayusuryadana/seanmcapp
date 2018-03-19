@@ -14,8 +14,9 @@ object InstagramService extends HttpRequestBuilder with JsonProtocol {
   private val telegramConf = TelegramConf()
   private val instagramConf = InstagramConf()
   private val instagramAccounts = Map(
-    "ui.cantik" -> "\\w. ]+[\\w]+'\\d\\d".r,
-    "ugmcantik" -> "[\\w. ]+\\d\\d\\d\\d\\n#ugmcantik".r
+    "ui.cantik" -> "[\\w. ]+[\\w]'\\d\\d".r,
+    "ugmcantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
+    "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r
   )
 
   def flow: Future[Iterable[InstagramUser]] = {
