@@ -1,4 +1,4 @@
-package com.seanmcapp.util
+package com.seanmcapp.util.requestbuilder
 
 import scalaj.http.{Http, HttpOptions, HttpRequest}
 

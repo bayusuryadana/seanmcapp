@@ -1,4 +1,4 @@
-package com.seanmcapp.util
+package com.seanmcapp.util.requestbuilder
 
 trait HttpRequestBuilder {
 

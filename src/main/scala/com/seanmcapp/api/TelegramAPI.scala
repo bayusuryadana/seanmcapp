@@ -1,19 +1,22 @@
-package com.seanmcapp.service
+package com.seanmcapp.api
 
-import com.seanmcapp.model._
 import com.seanmcapp.repository._
-import com.seanmcapp.util.TelegramRequestBuilder
+import com.seanmcapp.util.parser.{BroadcastMessage, TelegramUpdate}
+import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
+import spray.json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object TelegramService extends TelegramRequestBuilder {
+object TelegramAPI extends API with TelegramRequestBuilder {
 
   private val GROUP = "group"
   private val SUPERGROUP = "supergroup"
 
   private val ALL = 0
 
-  def flow(request: TelegramUpdate) = {
+  def flow(input: JsValue): (Int, String) = {
+    import com.seanmcapp.util.parser.TelegramJson._
+    val request = input.convertTo[TelegramUpdate]
     request.message.map { message =>
       val customerId = message.chat.id
       val customerName =
@@ -64,9 +67,13 @@ object TelegramService extends TelegramRequestBuilder {
 
       getAnswerCallbackQuery(telegramConf.endpoint, queryId, "Vote received, thank you!")
     }
+
+    (200, "No Throwable supposed to be mean succeed")
   }
 
-  def flowBroadcast(request: BroadcastMessage): (Int, String) = {
+  def flowBroadcast(input: JsValue): (Int, String) = {
+    import com.seanmcapp.util.parser.BroadcastJson._
+    val request = input.convertTo[BroadcastMessage]
     if (telegramConf.key == request.key) {
       if (request.recipient == ALL) {
         val customerRepoFuture = CustomerRepo.getAllSubscribedCust
@@ -82,7 +89,7 @@ object TelegramService extends TelegramRequestBuilder {
         // my telegram id = 274852283L
         getTelegramSendMessege(request.recipient, request.message).asString.code
       }
-      (200, "sent all the message")
+      (200, "all messages sent")
     } else {
       (403, "wrong key")
     }

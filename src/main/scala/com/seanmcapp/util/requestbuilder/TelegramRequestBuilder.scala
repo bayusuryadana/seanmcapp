@@ -1,4 +1,4 @@
-package com.seanmcapp.util
+package com.seanmcapp.util.requestbuilder
 
 import com.seanmcapp.config.TelegramConf
 import com.seanmcapp.repository.Photo

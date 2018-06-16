@@ -1,14 +1,17 @@
-package com.seanmcapp.service
+package com.seanmcapp.fetcher
 
-import com.seanmcapp.model._
 import com.seanmcapp.repository._
-import com.seanmcapp.util.{InstagramRequestBuilder, JsonProtocol}
+import com.seanmcapp.util.parser.InstagramUser
+import com.seanmcapp.util.requestbuilder.InstagramRequestBuilder
+import spray.json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import spray.json._
 
-object InstagramService extends InstagramRequestBuilder with JsonProtocol {
+object InstagramFetcher extends InstagramRequestBuilder {
+
+  case class InstagramAuthToken(csrftoken: String, sessionId: String)
+  import com.seanmcapp.util.parser.InstagramJson._
 
   private val instagramAccounts = Map(
     "ui.cantik" -> "[\\w. ]+[\\w]'\\d\\d".r,
@@ -16,7 +19,7 @@ object InstagramService extends InstagramRequestBuilder with JsonProtocol {
     "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r
   )
 
-  def flow: Future[Iterable[InstagramUser]] = {
+  def flow: Future[JsValue] = {
     Future.sequence(instagramAccounts.map { account =>
       val accountName = account._1
       val accountRegex = account._2
@@ -49,9 +52,9 @@ object InstagramService extends InstagramRequestBuilder with JsonProtocol {
           // uncomment this for dev env
           // getTelegramSendPhoto(telegramConf.endpoint, 274852283L, photo, "bahan ciol baru: ")
         }
-        fetchResult.copy(nodes = unsavedPhotos)
+        fetchResult.copy(nodes = unsavedPhotos).toJson
       }
-    })
+    }).map(_.toJson)
   }
 
   def getPage(account: String,
