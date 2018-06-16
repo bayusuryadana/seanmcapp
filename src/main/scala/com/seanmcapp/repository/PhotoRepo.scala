@@ -1,12 +1,12 @@
 package com.seanmcapp.repository
 
-import com.seanmcapp.model.Photo
-
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 import slick.jdbc.PostgresProfile.api._
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.Random
+
+case class Photo(id: String, thumbnailSrc: String, date: Long, caption: String, account: String)
 
 class PhotoInfo(tag: Tag) extends Table[Photo](tag, "photos") {
   val id = column[String]("id", O.PrimaryKey)
@@ -18,37 +18,25 @@ class PhotoInfo(tag: Tag) extends Table[Photo](tag, "photos") {
   def * = (id, thumbnailSrc, date, caption, account) <> (Photo.tupled, Photo.unapply)
 }
 
-object PhotoRepo extends TableQuery(new PhotoInfo(_)) {
-
-  val db = DBComponent.db
+object PhotoRepo extends TableQuery(new PhotoInfo(_)) with DBComponent {
 
   def getAll: Future[Set[String]] = {
-    db.run {
-      this.map(_.id).result //TODO: masukin cache
-    }.map(_.toSet)
+    run(this.map(_.id).result).map(_.toSet) //TODO: masukin cache
   }
 
   def getLatest: Future[Option[Photo]] = {
-    db.run {
-      this.sortBy(_.date.desc).take(1).result.headOption
-    }
+    run(this.sortBy(_.date.desc).take(1).result.headOption)
   }
 
   def getRandom: Future[Option[Photo]] = {
     for {
-      size <- db.run {
-        this.size.result //TODO: masukin cache
-      }
-      result <- db.run {
-        this.drop(Random.nextInt(size)).result.headOption
-      }
+      size <- run(this.size.result) //TODO: masukin cache
+      result <- run(this.drop(Random.nextInt(size)).result.headOption)
     } yield result
   }
 
   def update(photo: Photo): Future[Option[Photo]] = {
-    db.run {
-      this.returning(this).insertOrUpdate(photo)
-    }
+    run(this.returning(this).insertOrUpdate(photo))
   }
 
 }

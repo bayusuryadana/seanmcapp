@@ -1,9 +1,15 @@
 package com.seanmcapp.repository
 
-import slick.jdbc.PostgresProfile.api._
+import slick.basic.DatabaseConfig
+import slick.dbio.DBIO
+import slick.jdbc.JdbcProfile
 
-object DBComponent {
+import scala.concurrent.Future
 
-  val db: Database = Database.forConfig("db")
+trait DBComponent {
+
+  val db = DatabaseConfig.forConfig[JdbcProfile]("database").db
+
+  def run[T](query: DBIO[T]): Future[T] = try db.run(query)
 
 }

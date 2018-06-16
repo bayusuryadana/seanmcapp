@@ -1,9 +1,10 @@
 package com.seanmcapp.repository
 
-import com.seanmcapp.model.Vote
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.Future
+
+case class Vote(id: String, photoId: String, customerId: Long, rating:Long)
 
 class VoteInfo(tag: Tag) extends Table[Vote](tag, "votes") {
   val id = column[String]("id", O.PrimaryKey)
@@ -14,14 +15,10 @@ class VoteInfo(tag: Tag) extends Table[Vote](tag, "votes") {
   def * = (id, photoId, customerId, rating) <> (Vote.tupled, Vote.unapply)
 }
 
-object VoteRepo extends TableQuery(new VoteInfo(_)) {
-
-  val db = DBComponent.db
+object VoteRepo extends TableQuery(new VoteInfo(_)) with DBComponent {
 
   def update(vote: Vote): Future[Option[Vote]] = {
-    db.run {
-      this.returning(this).insertOrUpdate(vote)
-    }
+    run(this.returning(this).insertOrUpdate(vote))
   }
 
 }

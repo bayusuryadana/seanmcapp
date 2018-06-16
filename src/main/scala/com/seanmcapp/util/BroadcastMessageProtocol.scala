@@ -1,4 +1,4 @@
-package com.seanmcapp.helper
+package com.seanmcapp.util
 
 import com.seanmcapp.model.BroadcastMessage
 import spray.json._

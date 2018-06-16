@@ -5,7 +5,7 @@ import config.Configuration
 
 import scala.util.Try
 
-case class TelegramConf(endpoint: String, botname: String)
+case class TelegramConf(endpoint: String, botname: String, key: String)
 
 object TelegramConf extends Configuration[TelegramConf] {
 
@@ -16,7 +16,8 @@ object TelegramConf extends Configuration[TelegramConf] {
   override def fromSubConfig(c: Config): TelegramConf = {
     TelegramConf(
       Try(c.getString("bot-endpoint")).getOrElse(""),
-      Try(c.getString("bot-name")).getOrElse("")
+      Try(c.getString("bot-name")).getOrElse(""),
+      Try(c.getString("broadcast-key")).getOrElse("")
     )
   }
 }
