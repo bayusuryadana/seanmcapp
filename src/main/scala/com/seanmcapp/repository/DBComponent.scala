@@ -8,8 +8,10 @@ import scala.concurrent.Future
 
 trait DBComponent {
 
-  val db = DatabaseConfig.forConfig[JdbcProfile]("database").db
+  val config = DatabaseConfig.forConfig[JdbcProfile]("database")
 
-  def run[T](query: DBIO[T]): Future[T] = try db.run(query)
+  val db = config.db
+
+  def run[T](query: DBIO[T]): Future[T] = db.run(query)
 
 }
