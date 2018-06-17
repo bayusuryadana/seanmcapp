@@ -1,4 +1,4 @@
-package com.seanmcapp.repository
+package com.seanmcapp.repository.postgre
 
 import slick.basic.DatabaseConfig
 import slick.dbio.DBIO

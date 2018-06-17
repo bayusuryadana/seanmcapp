@@ -1,6 +1,7 @@
 package com.seanmcapp
 
 import com.seanmcapp.repository._
+import com.seanmcapp.repository.postgre.{CustomerInfo, DBComponent, PhotoInfo, VoteInfo}
 import slick.lifted.TableQuery
 
 import scala.concurrent.Future

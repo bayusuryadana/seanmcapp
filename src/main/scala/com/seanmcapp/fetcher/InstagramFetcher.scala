@@ -8,7 +8,7 @@ import spray.json._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object InstagramFetcher extends InstagramRequestBuilder {
+class InstagramFetcher(customerRepo: CustomerRepo, photoRepo: PhotoRepo) extends InstagramRequestBuilder {
 
   case class InstagramAuthToken(csrftoken: String, sessionId: String)
   import com.seanmcapp.util.parser.InstagramJson._
@@ -24,16 +24,16 @@ object InstagramFetcher extends InstagramRequestBuilder {
       val accountName = account._1
       val accountRegex = account._2
       val fetchResult = getPage(accountName, None)
-      val photoRepoFuture = PhotoRepo.getAll
-      val customerRepoFuture = CustomerRepo.getAllSubscribedCust
+      val photoRepoFuture = photoRepo.getAll
+      val customerRepoFuture = customerRepo.getAllSubscribedCust
 
       for {
-        photoRepo <- photoRepoFuture
+        photoRepoResult <- photoRepoFuture
         customerRepo <- customerRepoFuture
       } yield {
         val regexFilter = accountRegex
         val unsavedPhotos = fetchResult.nodes.collect {
-          case item if !(photoRepo.contains(item.id) || regexFilter.findFirstIn(item.caption).isEmpty) =>
+          case item if !(photoRepoResult.contains(item.id) || regexFilter.findFirstIn(item.caption).isEmpty) =>
             item.copy(caption = regexFilter.findFirstIn(item.caption).get
               .replace("\\n","%0A")
               .replace("#", "%23"))
@@ -41,7 +41,7 @@ object InstagramFetcher extends InstagramRequestBuilder {
 
         unsavedPhotos.map { node =>
           val photo = Photo(node.id, node.thumbnailSrc, node.date, node.caption, accountName)
-          PhotoRepo.update(photo)
+          photoRepo.update(photo)
 
           /*
           customerRepo.map { subscriber =>

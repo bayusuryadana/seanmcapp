@@ -1,18 +1,16 @@
 package com.seanmcapp.api
 
 import com.seanmcapp.repository._
-import com.seanmcapp.util.parser.{BroadcastMessage, TelegramUpdate}
+import com.seanmcapp.util.parser.TelegramUpdate
 import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
 import spray.json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object TelegramAPI extends API with TelegramRequestBuilder {
+class TelegramAPI(customerRepo: CustomerRepo, photoRepo: PhotoRepo, voteRepo: VoteRepo) extends API with TelegramRequestBuilder {
 
   private val GROUP = "group"
   private val SUPERGROUP = "supergroup"
-
-  private val ALL = 0
 
   def flow(input: JsValue): (Int, String) = {
     import com.seanmcapp.util.parser.TelegramJson._
@@ -25,7 +23,7 @@ object TelegramAPI extends API with TelegramRequestBuilder {
         } else {
           message.from.firstName + " " + message.from.lastName
         }
-      val customerFuture = CustomerRepo.get(customerId).map(_.getOrElse(
+      val customerFuture = customerRepo.get(customerId).map(_.getOrElse(
         Customer(customerId, customerName, isSubscribed = false, 0)
       ))
 
@@ -37,19 +35,19 @@ object TelegramAPI extends API with TelegramRequestBuilder {
             .stripSuffix(telegramConf.botname)
           command match {
             case "/latest" =>
-              PhotoRepo.getLatest.map(_.map { photo =>
+              photoRepo.getLatest.map(_.map { photo =>
                 getTelegramSendPhoto(message.chat.id, photo).asString.code
               })
             case "/cari_bahan_ciol" =>
-              PhotoRepo.getRandom.map(_.map { photo =>
-                CustomerRepo.update(customer.copy(hitCount = customer.hitCount + 1))
+              photoRepo.getRandom.map(_.map { photo =>
+                customerRepo.update(customer.copy(hitCount = customer.hitCount + 1))
                 getTelegramSendPhoto(message.chat.id, photo).asString.code
               })
             case "/subscribe" =>
-              CustomerRepo.update(customer.copy(isSubscribed = true))
+              customerRepo.update(customer.copy(isSubscribed = true))
               getTelegramSendMessege(message.chat.id, "selamat berciol ria").asString.code
             case "/unsubscribe" =>
-              CustomerRepo.update(customer.copy(isSubscribed = false))
+              customerRepo.update(customer.copy(isSubscribed = false))
               getTelegramSendMessege(message.chat.id, "yah :( yakin udah puas ciolnya?").asString.code
             case _ => new Throwable("No command found ToT")
           }
@@ -63,35 +61,11 @@ object TelegramAPI extends API with TelegramRequestBuilder {
       val photoId = cb.data.split(":").head
       val rating = cb.data.split(":").last.toLong
 
-      VoteRepo.update(Vote(customerId + ":" + photoId, photoId, customerId, rating))
+      voteRepo.update(Vote(customerId + ":" + photoId, photoId, customerId, rating))
 
       getAnswerCallbackQuery(telegramConf.endpoint, queryId, "Vote received, thank you!")
     }
 
     (200, "No Throwable supposed to be mean succeed")
-  }
-
-  def flowBroadcast(input: JsValue): (Int, String) = {
-    import com.seanmcapp.util.parser.BroadcastJson._
-    val request = input.convertTo[BroadcastMessage]
-    if (telegramConf.key == request.key) {
-      if (request.recipient == ALL) {
-        val customerRepoFuture = CustomerRepo.getAllSubscribedCust
-        for {
-          customerRepo <- customerRepoFuture
-        } yield {
-          customerRepo.map { subscriber =>
-            getTelegramSendMessege(subscriber.id, request.message).asString.code
-          }
-        }
-      } else {
-        // uncomment this for dev env
-        // my telegram id = 274852283L
-        getTelegramSendMessege(request.recipient, request.message).asString.code
-      }
-      (200, "all messages sent")
-    } else {
-      (403, "wrong key")
-    }
   }
 }
