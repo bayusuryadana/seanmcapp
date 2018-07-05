@@ -44,6 +44,11 @@ object DBGenerator extends DBComponent {
     Customer(203988626, "Muhammad Arrasy Rahman", false, 156)
   )
 
+  val voteData = Seq(
+    Vote(98387528+":1734075033692644433", "1734075033692644433", 98387528, 3)
+  )
+
+
   def generate: Future[Unit] = {
 
     val photo = TableQuery[PhotoInfo]
@@ -54,7 +59,8 @@ object DBGenerator extends DBComponent {
     val setup = DBIO.seq(
       (photo.schema ++ customer.schema ++ vote.schema).create,
       photo ++= photoData,
-      customer ++= customerData
+      customer ++= customerData,
+      vote ++= voteData
     )
 
     run(setup)

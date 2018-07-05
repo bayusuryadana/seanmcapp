@@ -13,7 +13,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.3",
 
   // http builder
-  "org.scalaj" % "scalaj-http_2.12" % "2.4.0",
+  "org.scalaj" %% "scalaj-http" % "2.4.0",
 
   //ORM
   "com.typesafe.slick" %% "slick" % "3.2.3",

@@ -11,28 +11,28 @@ trait TelegramRequestBuilder extends HttpRequestBuilder {
   override val baseUrl = telegramConf.endpoint
 
   def getTelegramSendPhoto(chatId: Long, photo: Photo, prefix: String =""): HttpRequest = {
+    val photoId = photo.id
     val inlineKeyboard =
-      """
+      s"""
         |{
-        |inline_keyboard: [
+        |"inline_keyboard":[
         |[
-        |{text: "1", callback_data: "1:#{photo['id']}"},
-        |{text: "2", callback_data: "2:#{photo['id']}"},
-        |{text: "3", callback_data: "3:#{photo['id']}"},
-        |{text: "4", callback_data: "4:#{photo['id']}"},
-        |{text: "5", callback_data: "5:#{photo['id']}"}
+        |{"text":"1","callback_data":"1:$photoId"},
+        |{"text":"2","callback_data":"2:$photoId"},
+        |{"text":"3","callback_data":"3:$photoId"},
+        |{"text":"4","callback_data":"4:$photoId"},
+        |{"text":"5","callback_data":"5:$photoId"}
         |]
         |]
         |}
-      """.stripMargin
+      """.stripMargin.replaceAll("\n", "")
 
     val urlString = baseUrl + "/sendphoto" +
       "?chat_id=" + chatId +
       "&photo=" + photo.thumbnailSrc +
       "&caption=" + prefix + photo.caption +
-      "%0A%40" +
+      "%0A%40" + photo.account +
       "&reply_markup=" + inlineKeyboard
-
     Http(urlString)
   }
 
@@ -41,7 +41,7 @@ trait TelegramRequestBuilder extends HttpRequestBuilder {
     Http(urlString)
   }
 
-  def getAnswerCallbackQuery(telegramBotEndPoint: String, queryId: String, notificationText: String) = {
+  def getAnswerCallbackQuery(queryId: String, notificationText: String) = {
     val urlString = baseUrl + "/answerCallbackQuery?callback_query_id=" + queryId + "&text=" + notificationText
     Http(urlString)
   }

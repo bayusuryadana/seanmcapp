@@ -6,15 +6,18 @@ import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
 import spray.json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class TelegramAPI(customerRepo: CustomerRepo, photoRepo: PhotoRepo, voteRepo: VoteRepo) extends API with TelegramRequestBuilder {
 
   private val GROUP = "group"
   private val SUPERGROUP = "supergroup"
 
-  def flow(input: JsValue): (Int, String) = {
+  def flow(input: JsValue): Future[JsValue] = {
+    println("===== INPUT =====\n" + input + "\n")
     import com.seanmcapp.util.parser.TelegramJson._
     val request = input.convertTo[TelegramUpdate]
+
     request.message.map { message =>
       val customerId = message.chat.id
       val customerName =
@@ -31,8 +34,7 @@ class TelegramAPI(customerRepo: CustomerRepo, photoRepo: PhotoRepo, voteRepo: Vo
         customer <- customerFuture
       } yield {
         message.entities.map { entity =>
-          val command = message.text.substring(entity.offset, entity.offset + entity.length)
-            .stripSuffix(telegramConf.botname)
+          val command = message.text.substring(entity.offset, entity.offset + entity.length).stripSuffix(telegramConf.botname)
           command match {
             case "/latest" =>
               photoRepo.getLatest.map(_.map { photo =>
@@ -49,7 +51,7 @@ class TelegramAPI(customerRepo: CustomerRepo, photoRepo: PhotoRepo, voteRepo: Vo
             case "/unsubscribe" =>
               customerRepo.update(customer.copy(isSubscribed = false))
               getTelegramSendMessege(message.chat.id, "yah :( yakin udah puas ciolnya?").asString.code
-            case _ => new Throwable("No command found ToT")
+            case _ => 404
           }
         }
       }
@@ -62,10 +64,9 @@ class TelegramAPI(customerRepo: CustomerRepo, photoRepo: PhotoRepo, voteRepo: Vo
       val rating = cb.data.split(":").last.toLong
 
       voteRepo.update(Vote(customerId + ":" + photoId, photoId, customerId, rating))
-
-      getAnswerCallbackQuery(telegramConf.endpoint, queryId, "Vote received, thank you!")
+      getAnswerCallbackQuery(queryId, "Vote received, thank you!").asString.code
     }
 
-    (200, "No Throwable supposed to be mean succeed")
+    Future.successful(JsNumber(200))
   }
 }

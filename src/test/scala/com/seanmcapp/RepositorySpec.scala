@@ -1,11 +1,15 @@
 package com.seanmcapp
 
+import com.seanmcapp.repository.Vote
 import com.seanmcapp.startup.Injection
 import org.scalatest.{AsyncFlatSpec, Matchers}
 
 class RepositorySpec extends AsyncFlatSpec with Matchers with Injection {
 
   DBGenerator.generate
+
+  val photoId = "1734075033692644433"
+  val customerId = 98387528L
 
   "Photo repo" should "get all id" in {
     photoRepo.getAll.map { res =>
@@ -15,7 +19,7 @@ class RepositorySpec extends AsyncFlatSpec with Matchers with Injection {
 
   "Photo repo" should "get latest" in {
     photoRepo.getLatest.map { res =>
-      res.map(_.id) should contain("1734075033692644433")
+      res.map(_.id) should contain(photoId)
     }
   }
 
@@ -26,7 +30,6 @@ class RepositorySpec extends AsyncFlatSpec with Matchers with Injection {
   }
 
   "Customer repo" should "get id" in {
-    val customerId = 98387528L
     customerRepo.get(customerId).map { res =>
       res.map(_.name) should contain("Krisna Dibyo")
     }
@@ -37,5 +40,7 @@ class RepositorySpec extends AsyncFlatSpec with Matchers with Injection {
       res.size shouldBe 4
     }
   }
+
+  // all update method can't be tested due to limited slick capability
 
 }
