@@ -19,17 +19,21 @@ class PhotoInfo(tag: Tag) extends Table[Photo](tag, "photos") {
 
 class PhotoRepoImpl extends TableQuery(new PhotoInfo(_)) with PhotoRepo with DBComponent {
 
-  def getAll: Future[Set[String]] = {
-    run(this.map(_.id).result).map(_.toSet) //TODO: masukin cache
+  def getAll(account: String): Future[Set[String]] = {
+    run(this.filter(_.account === account).map(_.id).result).map(_.toSet)
   }
 
   def getLatest: Future[Option[Photo]] = {
     run(this.sortBy(_.date.desc).take(1).result.headOption)
   }
 
+  def getLatest(account: String): Future[Option[Photo]] = {
+    run(this.filter(_.account === account).sortBy(_.date.desc).take(1).result.headOption)
+  }
+
   def getRandom: Future[Option[Photo]] = {
     for {
-      size <- run(this.size.result) //TODO: masukin cache
+      size <- run(this.size.result)
       result <- run(this.drop(Random.nextInt(size)).result.headOption)
     } yield result
   }
@@ -37,5 +41,4 @@ class PhotoRepoImpl extends TableQuery(new PhotoInfo(_)) with PhotoRepo with DBC
   def update(photo: Photo): Future[Option[Photo]] = {
     run(this.returning(this).insertOrUpdate(photo))
   }
-
 }

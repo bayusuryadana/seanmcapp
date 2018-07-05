@@ -6,9 +6,11 @@ case class Photo(id: String, thumbnailSrc: String, date: Long, caption: String, 
 
 trait PhotoRepo {
 
-  def getAll: Future[Set[String]]
+  def getAll(account: String): Future[Set[String]]
 
   def getLatest: Future[Option[Photo]]
+
+  def getLatest(account: String): Future[Option[Photo]]
 
   def getRandom: Future[Option[Photo]]
 
