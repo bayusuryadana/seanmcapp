@@ -60,7 +60,7 @@ class InstagramFetcher(customerRepo: CustomerRepo, photoRepo: PhotoRepo) extends
           // getTelegramSendPhoto(telegramConf.endpoint, 274852283L, photo, "bahan ciol baru: ")
         }
         println("[DONE] fetching " + accountName)
-        fetchResult
+        unsavedResult
       }
     }).map(_.toJson)
   }
