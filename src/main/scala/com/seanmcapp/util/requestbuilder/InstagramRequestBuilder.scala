@@ -6,10 +6,9 @@ trait InstagramRequestBuilder extends HttpRequestBuilder {
 
   override val baseUrl = "https://www.instagram.com/"
 
-  def getInstagramPageRequest(account: String, lastId: Option[String]): HttpRequest = {
-
-    Http(baseUrl + account + "/")
-      .params(Seq(("__a", "1"), ("max_id", lastId.getOrElse(""))))
+  def getInstagramPageRequest(account: String, lastId: Option[String], csrftoken: String, sessionid: String): HttpRequest = {
+    Http(baseUrl + "graphql/query/?query_id=17888483320059182&variables={\"id\":" + account + ",\"first\":50,\"after\":" + lastId.getOrElse("null") + "}")
+      .header("Cookie", "sessionid=" + sessionid + "; csrftoken=" + csrftoken)
       .option(HttpOptions.allowUnsafeSSL)
   }
 

@@ -2,7 +2,7 @@ package com.seanmcapp.fetcher
 
 import com.seanmcapp.config.InstagramConf
 import com.seanmcapp.repository._
-import com.seanmcapp.util.parser.InstagramUser
+import com.seanmcapp.util.parser._
 import com.seanmcapp.util.requestbuilder.InstagramRequestBuilder
 import spray.json._
 
@@ -23,7 +23,7 @@ class InstagramFetcher(customerRepo: CustomerRepo, photoRepo: PhotoRepo) extends
   )
 
   def flow: Future[JsValue] = {
-    val auth = getAuth
+    val auth = getAuth.get // TODO: fix this option
     println("[AUTH] " + auth)
     Future.sequence(instagramAccounts.map { account =>
       val accountName = account._1
@@ -36,19 +36,17 @@ class InstagramFetcher(customerRepo: CustomerRepo, photoRepo: PhotoRepo) extends
       println("[START] fetching " + accountName)
       for {
         latestPhoto <- photoRepo.getLatest(accountName)
-        fetchResult <- getPage(accountId, auth.get, None, latestPhoto.map(_.date).getOrElse(0))
         photoRepoResult <- photoRepoFuture
         customerRepo <- customerRepoFuture
       } yield {
-        val regexFilter = accountRegex
-        val unsavedPhotos = fetchResult.nodes.collect {
-          case item if !(photoRepoResult.contains(item.id) || regexFilter.findFirstIn(item.caption).isEmpty) =>
-            item.copy(caption = regexFilter.findFirstIn(item.caption).get
-              .replace("\\n","%0A")
-              .replace("#", "%23"))
-        }
+        val fetchResult = getPage(accountId, auth, None, latestPhoto.map(_.date).getOrElse(0))
+        def regexResult = (node: InstagramNodeResult) => accountRegex.findFirstIn(node.caption)
+        val unsavedResult = fetchResult
+          .filter(node => !(photoRepoResult.contains(node.id) || regexResult(node).isEmpty))
+          .map(node => node.copy(caption = regexResult(node).get.replace("\\n","%0A").replace("#", "%23")))
 
-        unsavedPhotos.map { node =>
+        println("[SAVING] saving " + accountName)
+        unsavedResult.map { node =>
           val photo = Photo(node.id, node.thumbnailSrc, node.date, node.caption, accountName)
           photoRepo.update(photo)
 
@@ -61,27 +59,29 @@ class InstagramFetcher(customerRepo: CustomerRepo, photoRepo: PhotoRepo) extends
           // uncomment this for dev env
           // getTelegramSendPhoto(telegramConf.endpoint, 274852283L, photo, "bahan ciol baru: ")
         }
-        fetchResult.copy(nodes = unsavedPhotos).toJson
+        println("[DONE] fetching " + accountName)
+        fetchResult
       }
     }).map(_.toJson)
   }
 
-  private def getPage(accountId: String,
-                      auth: InstagramAuthToken,
-                      lastId: Option[String] = None,
-                      latestDate: Long): InstagramUser = {
+  private def getPage(accountId: String, auth: InstagramAuthToken, lastId: Option[String] = None, latestDate: Long): Seq[InstagramNodeResult] = {
 
-    val request = getInstagramPageRequest(accountId, lastId)
+    val request = getInstagramPageRequest(accountId, lastId, auth.csrftoken, auth.sessionId)
+    println("[INFO] request url: " + request.url)
     val response = request.asString
-    val instagramUser = response.body.parseJson.convertTo[InstagramUser]
-    val tmpResult = instagramUser.nodes
-    val lastIdRes = tmpResult.lastOption.map(_.id)
-    val nextResult = if (tmpResult.nonEmpty)
-      getPage(accountId, auth, lastIdRes, latestDate).nodes
+    val instagramUpdate = response.body.parseJson.convertTo[InstagramUpdate]
+    val result = instagramUpdate.data.user.edgeToOwnerMedia.edges.map{ edge =>
+      val node = edge.node
+      InstagramNodeResult(node.id, node.caption.edges.headOption.map(_.node.text).getOrElse(""), node.thumbnailSrc, node.date)
+    }
+    val lastIdResult = result.lastOption.map(_.id)
+    val nextResult = if (result.nonEmpty && latestDate < result.last.date)
+      getPage(accountId, auth, lastIdResult, latestDate)
     else
       Seq.empty
 
-    instagramUser.copy(nodes = tmpResult ++ nextResult)
+    result ++ nextResult
   }
 
   def getAuth: Option[InstagramAuthToken] = {
