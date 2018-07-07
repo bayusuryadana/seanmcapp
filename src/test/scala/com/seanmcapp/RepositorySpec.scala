@@ -1,6 +1,5 @@
 package com.seanmcapp
 
-import com.seanmcapp.repository.Vote
 import com.seanmcapp.startup.Injection
 import org.scalatest.{AsyncFlatSpec, Matchers}
 
@@ -12,8 +11,8 @@ class RepositorySpec extends AsyncFlatSpec with Matchers with Injection {
   val customerId = 98387528L
 
   "Photo repo" should "get all id" in {
-    photoRepo.getAll.map { res =>
-      res.size shouldBe DBGenerator.photoData.size
+    photoRepo.getAll("ui.cantik").map { res =>
+      res.size shouldBe 8
     }
   }
 
