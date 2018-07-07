@@ -6,6 +6,7 @@ import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
 
 import scala.concurrent.Future
+import scala.util.Try
 
 object Boot extends App {
 
@@ -15,14 +16,14 @@ object Boot extends App {
 
   lazy val route = new Route().routePath
 
-  val serverBinding = start(System.getenv("PORT").toInt)
+  val serverBinding = start(Try(System.getenv("PORT").toInt).toOption.getOrElse(8080))
 
   scala.sys.addShutdownHook {
     stop(serverBinding)
     println("Server stopped...")
   }
 
-  def start(port: Int = 8080): Future[ServerBinding] = {
+  def start(port: Int): Future[ServerBinding] = {
     println(s"Server is started on port $port")
     Http().bindAndHandle(route, "0.0.0.0", port)
   }
