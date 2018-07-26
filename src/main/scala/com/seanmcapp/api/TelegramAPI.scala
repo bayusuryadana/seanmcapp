@@ -24,7 +24,7 @@ class TelegramAPI(customerRepo: CustomerRepo, photoRepo: PhotoRepo, voteRepo: Vo
         if (message.chat.chatType == GROUP || message.chat.chatType == SUPERGROUP) {
           message.chat.title.get
         } else {
-          message.from.firstName + " " + message.from.lastName
+          message.from.firstName + " " + message.from.lastName.getOrElse("")
         }
       val customerFuture = customerRepo.get(customerId).map(_.getOrElse(
         Customer(customerId, customerName, isSubscribed = false, 0)
@@ -33,7 +33,7 @@ class TelegramAPI(customerRepo: CustomerRepo, photoRepo: PhotoRepo, voteRepo: Vo
       for {
         customer <- customerFuture
       } yield {
-        message.entities.map { entity =>
+        message.entities.getOrElse(Seq.empty).map { entity =>
           val command = message.text.substring(entity.offset, entity.offset + entity.length).stripSuffix(telegramConf.botname)
           command match {
             case "/latest" =>

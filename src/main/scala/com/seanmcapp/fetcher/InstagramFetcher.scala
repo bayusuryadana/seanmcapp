@@ -18,8 +18,7 @@ class InstagramFetcher(customerRepo: CustomerRepo, photoRepo: PhotoRepo) extends
     ("ui.cantik", "[\\w. ]+[\\w]'\\d\\d".r, "1435973343"),
     ("ugmcantik", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r, "1446646264"),
     ("undip.cantik", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r, "1816652927"),
-    ("unpad.geulis", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r, "1620166782"),
-    ("unsoedcantik", "[a-zA-Z ]+\\,[a-zA-Z ]+(\\'| )[\\d]+".r, "1457526826")
+    ("unpad.geulis", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r, "1620166782")
   )
 
   def flow: Future[JsValue] = {
@@ -59,8 +58,9 @@ class InstagramFetcher(customerRepo: CustomerRepo, photoRepo: PhotoRepo) extends
           // uncomment this for dev env
           // getTelegramSendPhoto(telegramConf.endpoint, 274852283L, photo, "bahan ciol baru: ")
         }
+
         println("[DONE] fetching " + accountName)
-        unsavedResult
+        accountName -> unsavedResult
       }
     }).map(_.toJson)
   }
@@ -86,8 +86,8 @@ class InstagramFetcher(customerRepo: CustomerRepo, photoRepo: PhotoRepo) extends
 
   def getAuth: Option[InstagramAuthToken] = {
 
-    val csrfRegex = "(?<=csrftoken=)[^;]+".r
-    val sessionIdRegex = "(?<=sessionid=)[^;]+".r
+    val csrfRegex = "(?<=csrftoken=)[^;\"]+".r
+    val sessionIdRegex = "(?<=sessionid=)[^;\"]+".r
 
     val initF = getInstagramHome.asString.headers.get("set-cookie").flatMap(r => csrfRegex.findFirstIn(r.reduce(_ + _)))
     val authF = (csrf: String) => {
