@@ -34,7 +34,7 @@ class TelegramAPI(customerRepo: CustomerRepo, photoRepo: PhotoRepo, voteRepo: Vo
         customer <- customerFuture
       } yield {
         message.entities.getOrElse(Seq.empty).map { entity =>
-          val command = message.text.substring(entity.offset, entity.offset + entity.length).stripSuffix(telegramConf.botname)
+          val command = message.text.getOrElse("").substring(entity.offset, entity.offset + entity.length).stripSuffix(telegramConf.botname)
           command match {
             case "/latest" =>
               photoRepo.getLatest.map(_.map { photo =>
