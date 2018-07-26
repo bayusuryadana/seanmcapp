@@ -2,12 +2,12 @@
 API that provide something that you need for your future. Currently im hosting in heroku (free). 
 These are the endpoint lists:
 - **GET** / --> welcome screen
-- **GET** /api?method= --> fill it with `latest` and `random`, it will give you a photo respectively with the name itself
-- **GET** /sync --> sync data from source to DB (which mostly cause timeout for the response, 
-but the information will fetch properly). I have cron job for trigger this endpoint every 2 hours.
-- **POST** /webhook --> endpoint for telegram api, which has 4 commands (/getRandom (*cbc*), /getLatest, /subscribe, 
-/unsubscribe). Subscribed user will get new notification if sync process have new data.
-- **POST** /broadcast --> endpoint for broadcasting to all telegram users
+- **GET** /api/{method} --> fill it with `latest` and `random`, it will give you a photo respectively with the name itself
+- **POST** /api/{method} --> fill it with `broadcast` for broadcasting to all users
+- **GET** /sync --> sync data from source to DB. I (will) have cron job for trigger this endpoint every 2 hours.
+- **POST** /webhook --> endpoint for bot api, which has 4 commands (/getRandom (*cbc*), /getLatest, /subscribe, 
+/unsubscribe). Subscribed user will get new notification if sync process got new data.
+
 
 ## Prerequisites
 1. Scala & SBT (usually it will be automatically installed if u are using intellij)
