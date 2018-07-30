@@ -2,7 +2,7 @@ package com.seanmcapp.repository
 
 import scala.concurrent.Future
 
-case class Customer(id: Long, name: String, isSubscribed: Boolean, hitCount: Long)
+case class Customer(id: Long, name: String, isSubscribed: Boolean)
 
 trait CustomerRepo {
 
