@@ -9,10 +9,9 @@ class CustomerInfo(tag: Tag) extends Table[Customer](tag, "customers") {
   val id = column[Long]("id", O.PrimaryKey)
   val name = column[String]("name")
   val isSubscribed = column[Boolean]("is_subscribed")
-  val hitCount = column[Long]("hit_count")
 
   def * =
-    (id, name, isSubscribed, hitCount) <> (Customer.tupled, Customer.unapply)
+    (id, name, isSubscribed) <> (Customer.tupled, Customer.unapply)
 }
 
 class CustomerRepoImpl extends TableQuery(new CustomerInfo(_)) with CustomerRepo with DBComponent {
