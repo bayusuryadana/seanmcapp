@@ -16,7 +16,7 @@ class RepositorySpec extends AsyncWordSpec with Matchers with InjectionTest {
 
   "Photo repo should get all id" in {
     photoRepoImpl.getAll("ui.cantik").map { res =>
-      res.size shouldBe 8
+      res.size shouldBe 7
     }
   }
 

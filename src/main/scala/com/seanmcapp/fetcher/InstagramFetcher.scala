@@ -22,8 +22,8 @@ abstract class InstagramFetcher extends InstagramRequest {
     ("ub.cantik", "[\\w ]+\\. [\\w ]+['’]\\d\\d".r, "4769955827"),
     ("ugmcantik", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r, "1446646264"),
     ("undip.cantik", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r, "1816652927"),
-    ("unpad.geulis", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r, "1620166782")
-    //("anakstancantik", "".r, "1661936926")
+    ("unpad.geulis", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r, "1620166782"),
+    ("anakstancantik", "[\\w ]+\\n[.]*\\nD[\\w ]+\\d\\d\\d\\d".r, "1661936926")
   )
 
   def flow: Future[JsValue] = {
