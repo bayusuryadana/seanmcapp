@@ -1,7 +1,7 @@
 package com.seanmcapp
 
-import com.seanmcapp.repository._
 import com.seanmcapp.repository.postgre.{CustomerInfo, DBComponent, PhotoInfo, VoteInfo}
+import com.seanmcapp.repository.{Customer, Photo, Vote}
 import slick.lifted.TableQuery
 
 import scala.concurrent.Future
@@ -32,16 +32,16 @@ object DBGenerator extends DBComponent {
   )
 
   val customerData = Seq(
-    Customer(-209240150, "OMOM", true, 712),
-    Customer(98387528, "Krisna Dibyo", true, 640),
-    Customer(143635997, "Muhammad Redho Ayassa ", false, 326),
-    Customer(146316672, "Arif Harsa", false, 278),
-    Customer(88836419, "Faiz Hafidzuddin", false, 245),
-    Customer(-111546505, "fuckin' deadline", true, 244),
-    Customer(199902499, "Cahaya Ikhwan Putra", false, 239),
-    Customer(186373768, "Rahmat Rasyidi Hakim", false, 236),
-    Customer(274852283, "Bayu Suryadana", true, 226),
-    Customer(203988626, "Muhammad Arrasy Rahman", false, 156)
+    Customer(-209240150, "OMOM", true),
+    Customer(98387528, "Krisna Dibyo", true),
+    Customer(143635997, "Muhammad Redho Ayassa ", false),
+    Customer(146316672, "Arif Harsa", false),
+    Customer(88836419, "Faiz Hafidzuddin", false),
+    Customer(-111546505, "fuckin' deadline", true),
+    Customer(199902499, "Cahaya Ikhwan Putra", false),
+    Customer(186373768, "Rahmat Rasyidi Hakim", false),
+    Customer(274852283, "Bayu Suryadana", true),
+    Customer(203988626, "Muhammad Arrasy Rahman", false)
   )
 
   val voteData = Seq(

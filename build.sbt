@@ -26,7 +26,8 @@ libraryDependencies ++= Seq(
 
   // scalatest
   "org.scalactic" %% "scalactic" % "3.0.5",
-  "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+  "org.scalatest" %% "scalatest" % "3.0.5" % Test,
+  "org.mockito" % "mockito-core" % "2.20.1" % Test
 )
 
 fork in Test := true
