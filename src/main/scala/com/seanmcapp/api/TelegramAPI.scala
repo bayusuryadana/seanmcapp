@@ -2,12 +2,12 @@ package com.seanmcapp.api
 
 import com.seanmcapp.repository._
 import com.seanmcapp.util.parser.{TelegramMessage, TelegramUpdate}
-import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
+import com.seanmcapp.util.requestbuilder.TelegramRequest
 import spray.json._
 
 import scala.concurrent.Future
 
-abstract class TelegramAPI extends Bot with TelegramRequestBuilder {
+abstract class TelegramAPI extends Bot with TelegramRequest {
 
   private val GROUP = "group"
   private val SUPERGROUP = "supergroup"
@@ -30,15 +30,15 @@ abstract class TelegramAPI extends Bot with TelegramRequestBuilder {
         val command = message.text.getOrElse("").substring(entity.offset, entity.offset + entity.length).stripSuffix(telegramConf.botname)
         command match {
           case "/latest" =>
-            getLatest(photo => getTelegramSendPhoto(message.chat.id, photo).asString.code)
+            getLatest(photo => getTelegramSendPhoto(message.chat.id, photo).code)
           case "/cari_bahan_ciol" =>
-            getRandom(userDefault, photo => getTelegramSendPhoto(message.chat.id, photo).asString.code)
+            getRandom(userDefault, photo => getTelegramSendPhoto(message.chat.id, photo).code)
           case "/subscribe" =>
             subscribe(customerDefault)
-            getTelegramSendMessege(message.chat.id, "selamat berciol ria").asString.code
+            getTelegramSendMessege(message.chat.id, "selamat berciol ria").code
           case "/unsubscribe" =>
             resetCustomer(customerDefault)
-            getTelegramSendMessege(message.chat.id, "yah :( yakin udah puas ciolnya?").asString.code
+            getTelegramSendMessege(message.chat.id, "yah :( yakin udah puas ciolnya?").code
           case _ => 404
         }
       }
@@ -51,7 +51,7 @@ abstract class TelegramAPI extends Bot with TelegramRequestBuilder {
       val rating = cb.data.split(":").last.toLong
 
       vote(Vote(customerId + ":" + photoId, photoId, customerId, rating))
-      getAnswerCallbackQuery(queryId, "Vote received, thank you!").asString.code
+      getAnswerCallbackQuery(queryId, "Vote received, thank you!").code
     }
 
     Future.successful(JsNumber(200))

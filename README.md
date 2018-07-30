@@ -6,7 +6,7 @@ These are the endpoint lists:
 - **POST** /api/{method} --> fill it with `broadcast` for broadcasting to all users
 - **GET** /sync --> sync data from source to DB. I (will) have cron job for trigger this endpoint every 2 hours.
 - **POST** /webhook --> endpoint for bot api, which has 4 commands (/getRandom (*cbc*), /getLatest, /subscribe, 
-/unsubscribe). Subscribed user will get new notification if sync process got new data.
+/unsubscribe and callback query for vote). Subscribed user will get new notification if sync process got new data.
 
 
 ## Prerequisites
@@ -17,9 +17,11 @@ These are the endpoint lists:
 1. PostgreSQL 
 2. instagram account (username and password)
 3. telegram bot (api and bot name)
+4. LINE bot (coming soon)
 
 ## How to run (locally)
 1. `sbt -Dconfig.resource=/dev.conf run` (it will run using all mock in your local)
+and actually it doesn't do anything :( it is hard to make all the mocks (DB, telegram, instagram, line)
 
 ## How to run (production)
 1. replace all those variables at `/src/main/resources/application.conf`

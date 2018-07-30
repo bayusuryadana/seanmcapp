@@ -1,6 +1,6 @@
 package com.seanmcapp.util.requestbuilder
 
-trait HttpRequestBuilder {
+trait HttpRequest {
 
   val baseUrl: String
 

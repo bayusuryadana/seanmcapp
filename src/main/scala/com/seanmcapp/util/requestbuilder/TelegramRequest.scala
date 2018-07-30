@@ -3,14 +3,14 @@ package com.seanmcapp.util.requestbuilder
 import com.seanmcapp.config.TelegramConf
 import com.seanmcapp.repository.Photo
 
-import scalaj.http.{Http, HttpRequest}
+import scalaj.http.{Http, HttpResponse}
 
-trait TelegramRequestBuilder extends HttpRequestBuilder {
+trait TelegramRequest extends HttpRequest {
 
   val telegramConf = TelegramConf()
   override val baseUrl = telegramConf.endpoint
 
-  def getTelegramSendPhoto(chatId: Long, photo: Photo, prefix: String =""): HttpRequest = {
+  def getTelegramSendPhoto(chatId: Long, photo: Photo, prefix: String =""): HttpResponse[String] = {
     val photoId = photo.id
     val inlineKeyboard =
       s"""
@@ -33,17 +33,17 @@ trait TelegramRequestBuilder extends HttpRequestBuilder {
       "&caption=" + prefix + photo.caption +
       "%0A%40" + photo.account +
       "&reply_markup=" + inlineKeyboard
-    Http(urlString)
+    Http(urlString).asString
   }
 
-  def getTelegramSendMessege(chatId: Long, text: String): HttpRequest = {
+  def getTelegramSendMessege(chatId: Long, text: String): HttpResponse[String] = {
     val urlString = baseUrl + "/sendmessage?chat_id=" + chatId + "&text=" + text
-    Http(urlString)
+    Http(urlString).asString
   }
 
-  def getAnswerCallbackQuery(queryId: String, notificationText: String) = {
+  def getAnswerCallbackQuery(queryId: String, notificationText: String): HttpResponse[String] = {
     val urlString = baseUrl + "/answerCallbackQuery?callback_query_id=" + queryId + "&text=" + notificationText
-    Http(urlString)
+    Http(urlString).asString
   }
 
 }

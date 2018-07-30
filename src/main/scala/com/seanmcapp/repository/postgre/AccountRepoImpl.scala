@@ -6,7 +6,7 @@ import slick.jdbc.PostgresProfile.api._
 import scala.concurrent.Future
 
 class AccountInfo (tag: Tag) extends Table[Account](tag, "accounts") {
-  val id = column[Long]("id", O.PrimaryKey)
+  val id = column[String]("id", O.PrimaryKey)
   val name = column[String]("name")
   val regex = column[String]("regex")
 

@@ -2,13 +2,13 @@ package com.seanmcapp.api
 
 import com.seanmcapp.repository.{CustomerRepo, Photo, PhotoRepo}
 import com.seanmcapp.util.parser.BroadcastMessage
-import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
+import com.seanmcapp.util.requestbuilder.TelegramRequest
 import spray.json._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-abstract class WebAPI extends DefaultJsonProtocol with TelegramRequestBuilder {
+abstract class WebAPI extends DefaultJsonProtocol with TelegramRequest {
 
   val customerRepo: CustomerRepo
   val photoRepo: PhotoRepo
@@ -35,13 +35,13 @@ abstract class WebAPI extends DefaultJsonProtocol with TelegramRequestBuilder {
           customerRepo <- customerRepoFuture
         } yield {
           val result = customerRepo.map { subscriber =>
-            getTelegramSendMessege(subscriber.id, request.message).asString.isSuccess
+            getTelegramSendMessege(subscriber.id, request.message).isSuccess
           }.reduce { (a, b) => a && b }
           JsBoolean(result)
         }
       } else {
         // my telegram id = 274852283L
-        Future.successful(JsBoolean(getTelegramSendMessege(request.recipient, request.message).asString.isSuccess))
+        Future.successful(JsBoolean(getTelegramSendMessege(request.recipient, request.message).isSuccess))
       }
     } else {
       Future.successful(JsString("wrong key"))
