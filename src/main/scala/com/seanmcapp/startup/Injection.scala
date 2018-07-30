@@ -7,10 +7,10 @@ import com.seanmcapp.repository.postgre._
 
 trait Injection {
 
-  protected val customerRepoImpl = new CustomerRepoImpl
-  protected val photoRepoImpl = new PhotoRepoImpl
-  protected val voteRepoImpl = new VoteRepoImpl
-  protected val accRepoImpl = new AccountRepoImpl
+  private val customerRepoImpl = new CustomerRepoImpl
+  private val photoRepoImpl = new PhotoRepoImpl
+  private val voteRepoImpl = new VoteRepoImpl
+  private val accountRepoImpl = new AccountRepoImpl
 
   val webAPI = new WebAPI {
     override val customerRepo: CustomerRepo = customerRepoImpl
@@ -23,5 +23,8 @@ trait Injection {
     override val customerRepo: CustomerRepo = customerRepoImpl
   }
 
-  val instagramFetcher = new InstagramFetcher(customerRepoImpl, photoRepoImpl)
+  val instagramFetcher = new InstagramFetcher {
+    override val customerRepo: CustomerRepo = customerRepoImpl
+    override val photoRepo: PhotoRepo = photoRepoImpl
+  }
 }

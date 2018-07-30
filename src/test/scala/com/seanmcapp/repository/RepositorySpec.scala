@@ -1,16 +1,17 @@
 package com.seanmcapp.repository
 
-import com.seanmcapp.DBGenerator
+import com.seanmcapp.{DBGenerator, InjectionTest}
 import com.seanmcapp.startup.Injection
 import org.scalatest.{AsyncWordSpec, Matchers}
 
-class RepositorySpec extends AsyncWordSpec with Matchers with Injection {
+class RepositorySpec extends AsyncWordSpec with Matchers with InjectionTest {
 
   // all insert method can't be tested due to limited slick capability
 
   DBGenerator.generate
 
   val photoId = "1734075033692644433"
+  val photoId2 = "1733941761435551783"
   val customerId = 98387528L
 
   "Photo repo should get all id" in {
@@ -38,7 +39,7 @@ class RepositorySpec extends AsyncWordSpec with Matchers with Injection {
   }
 
   "Photo repo should update photo" in {
-    val photo = Photo(photoId, "1", 123, "Fawwaz Afifanto", "ui.jancok")
+    val photo = Photo(photoId2, "1", 123, "Fawwaz Afifanto", "ui.jancok")
     photoRepoImpl.update(photo).map { res =>
       res should equal (None)
     }
@@ -98,7 +99,7 @@ class RepositorySpec extends AsyncWordSpec with Matchers with Injection {
   */
 
   "Account repo should get all row" in {
-    accRepoImpl.getAll.map { res =>
+    accountRepoImpl.getAll.map { res =>
       res.size shouldBe 5
     }
   }

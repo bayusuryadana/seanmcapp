@@ -3,18 +3,21 @@ package com.seanmcapp.fetcher
 import com.seanmcapp.config.InstagramConf
 import com.seanmcapp.repository._
 import com.seanmcapp.util.parser._
-import com.seanmcapp.util.requestbuilder.InstagramRequestBuilder
+import com.seanmcapp.util.requestbuilder.InstagramRequest
 import spray.json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class InstagramFetcher(customerRepo: CustomerRepo, photoRepo: PhotoRepo) extends InstagramRequestBuilder {
+abstract class InstagramFetcher extends InstagramRequest {
+
+  val customerRepo: CustomerRepo
+  val photoRepo: PhotoRepo
 
   case class InstagramAuthToken(csrftoken: String, sessionId: String)
   import com.seanmcapp.util.parser.InstagramJson._
 
-  private val instagramAccounts = List(
+  val instagramAccounts = List(
     ("ui.cantik", "[\\w ]+\\. [\\w ]+['’]\\d\\d".r, "1435973343"),
     ("ub.cantik", "[\\w ]+\\. [\\w ]+['’]\\d\\d".r, "4769955827"),
     ("ugmcantik", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r, "1446646264"),
@@ -69,9 +72,7 @@ class InstagramFetcher(customerRepo: CustomerRepo, photoRepo: PhotoRepo) extends
 
   private def getPage(accountId: String, auth: InstagramAuthToken, lastId: Option[String] = None, latestDate: Long): Seq[InstagramNodeResult] = {
 
-    val request = getInstagramPageRequest(accountId, lastId, auth.csrftoken, auth.sessionId)
-    println("[INFO] request url: " + request.url)
-    val response = request.asString
+    val response = getInstagramPageRequest(accountId, lastId, auth.csrftoken, auth.sessionId)
     val instagramUpdate = response.body.parseJson.convertTo[InstagramUpdate]
     val result = instagramUpdate.data.user.edgeToOwnerMedia.edges.map{ edge =>
       val node = edge.node
@@ -91,12 +92,12 @@ class InstagramFetcher(customerRepo: CustomerRepo, photoRepo: PhotoRepo) extends
     val csrfRegex = "(?<=csrftoken=)[^;\"]+".r
     val sessionIdRegex = "(?<=sessionid=)[^;\"]+".r
 
-    val initF = getInstagramHome.asString.headers.get("set-cookie").flatMap(r => csrfRegex.findFirstIn(r.reduce(_ + _)))
+    val initF = getInstagramHome.headers.get("set-cookie").flatMap(r => csrfRegex.findFirstIn(r.reduce(_ + _)))
     val authF = (csrf: String) => {
       // authentication
       val username = InstagramConf().username
       val password = InstagramConf().password
-      getInstagramAuth(username, password, csrf).asString.headers.get("set-cookie").map(r => r.reduce(_ + _))
+      getInstagramAuth(username, password, csrf).headers.get("set-cookie").map(r => r.reduce(_ + _))
     }
 
     for {

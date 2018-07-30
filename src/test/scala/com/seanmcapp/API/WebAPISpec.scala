@@ -1,17 +1,11 @@
 package com.seanmcapp.API
 
-import com.seanmcapp.DBGenerator
+import com.seanmcapp.{DBGenerator, InjectionTest}
 import com.seanmcapp.config.TelegramConf
-import com.seanmcapp.startup.Injection
-import org.mockito.Mockito
-import org.mockito.ArgumentMatchers._
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{AsyncWordSpec, Matchers}
 import spray.json.JsString
 
-import scalaj.http.{HttpRequest, HttpResponse}
-import scala.concurrent.ExecutionContext.Implicits.global
-
-class WebAPISpec extends WordSpec with Matchers with Injection {
+class WebAPISpec extends AsyncWordSpec with Matchers with InjectionTest {
 
   DBGenerator.generate
 
@@ -27,23 +21,31 @@ class WebAPISpec extends WordSpec with Matchers with Injection {
     }
   }
 
-  /*
   "broadcast" should {
+    import spray.json._
     val key = TelegramConf().key
     val request = JsString("broadcast")
-    val httpRequestMock = Mockito.mock(classOf[HttpRequest])
-    Mockito.when(webAPI.getTelegramSendMessege(anyLong(), anyString())).thenReturn(httpRequestMock)
-    val httpResponseMock = Mockito.mock(classOf[HttpResponse[String]])
-    Mockito.when(httpRequestMock.asString).thenReturn(httpResponseMock)
-    Mockito.when(httpResponseMock.isSuccess).thenReturn(true)
 
-    "succeed broadcast" in {
-      val input = JsString("{\"recipient\": 274852283, \"message\": \"hi :)\", \"key\": \"" + key + "\"}")
+    "succeed multiple" in {
+      val input = s"""{"recipient":0,"message":"hi :)","key":"$key"}""".parseJson
       webAPI.flow(request, input).map { res =>
-        res.toString shouldBe "true"
+        res.toString should equal ("true")
+      }
+    }
+
+    "succeed single" in {
+      val input = s"""{"recipient":274852283,"message":"hi :)","key":"$key"}""".parseJson
+      webAPI.flow(request, input).map { res =>
+        res.toString should equal ("true")
+      }
+    }
+
+    "wrong key" in {
+      val input = s"""{"recipient":274852283,"message":"hi :)","key":"ngasal broh"}""".parseJson
+      webAPI.flow(request, input).map { res =>
+        res should equal (JsString("wrong key"))
       }
     }
   }
-  */
 
 }
