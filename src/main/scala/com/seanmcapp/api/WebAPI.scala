@@ -8,9 +8,10 @@ import spray.json._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-abstract class WebAPI extends API with TelegramRequestBuilder {
+abstract class WebAPI extends DefaultJsonProtocol with TelegramRequestBuilder {
 
   val customerRepo: CustomerRepo
+  val photoRepo: PhotoRepo
 
   implicit val photoFormat = jsonFormat5(Photo)
   private val ALL = 0

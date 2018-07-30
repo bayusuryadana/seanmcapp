@@ -7,7 +7,7 @@ import spray.json._
 
 import scala.concurrent.Future
 
-abstract class TelegramAPI extends API with Bot with TelegramRequestBuilder {
+abstract class TelegramAPI extends Bot with TelegramRequestBuilder {
 
   private val GROUP = "group"
   private val SUPERGROUP = "supergroup"
@@ -32,7 +32,6 @@ abstract class TelegramAPI extends API with Bot with TelegramRequestBuilder {
           case "/latest" =>
             getLatest(photo => getTelegramSendPhoto(message.chat.id, photo).asString.code)
           case "/cari_bahan_ciol" =>
-            userDefault.foreach(resetCustomer)
             getRandom(userDefault, photo => getTelegramSendPhoto(message.chat.id, photo).asString.code)
           case "/subscribe" =>
             subscribe(customerDefault)
