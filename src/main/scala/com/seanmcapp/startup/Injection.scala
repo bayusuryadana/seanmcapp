@@ -10,6 +10,7 @@ trait Injection {
   protected val customerRepoImpl = new CustomerRepoImpl
   protected val photoRepoImpl = new PhotoRepoImpl
   protected val voteRepoImpl = new VoteRepoImpl
+  protected val accRepoImpl = new AccountRepoImpl
 
   val webAPI = new WebAPI {
     override val customerRepo: CustomerRepo = customerRepoImpl

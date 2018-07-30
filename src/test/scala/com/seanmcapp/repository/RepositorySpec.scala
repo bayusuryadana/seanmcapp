@@ -2,11 +2,11 @@ package com.seanmcapp.repository
 
 import com.seanmcapp.DBGenerator
 import com.seanmcapp.startup.Injection
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{AsyncWordSpec, Matchers}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+class RepositorySpec extends AsyncWordSpec with Matchers with Injection {
 
-class RepositorySpec extends WordSpec with Matchers with Injection {
+  // all insert method can't be tested due to limited slick capability
 
   DBGenerator.generate
 
@@ -25,11 +25,33 @@ class RepositorySpec extends WordSpec with Matchers with Injection {
     }
   }
 
+  "Photo repo should get latest with account filter" in {
+    photoRepoImpl.getLatest("ugmcantik").map { res =>
+      res.map(_.id) should contain("1733941761435551783")
+    }
+  }
+
   "Photo repo should get random" in {
     photoRepoImpl.getRandom.map { res =>
       res shouldNot equal (None)
     }
   }
+
+  "Photo repo should update photo" in {
+    val photo = Photo(photoId, "1", 123, "Fawwaz Afifanto", "ui.jancok")
+    photoRepoImpl.update(photo).map { res =>
+      res should equal (None)
+    }
+  }
+
+  /*
+  "Photo repo should insert photo" in {
+    val photo = Photo("1", "1", 123, "Fawwaz Afifanto", "ui.jancok")
+    photoRepoImpl.update(photo).map { res =>
+      res shouldNot equal (None)
+    }
+  }
+  */
 
   "Customer repo should get id" in {
     customerRepoImpl.get(customerId).map { res =>
@@ -43,6 +65,42 @@ class RepositorySpec extends WordSpec with Matchers with Injection {
     }
   }
 
-  // all update method can't be tested due to limited slick capability
+  "Customer repo should update customer" in {
+    val customer = Customer(customerId, "Praw", true)
+    customerRepoImpl.update(customer).map { res =>
+      res should be (None)
+    }
+  }
+
+  /*
+  "Customer repo should insert customer" in {
+    val customer = Customer(1, "Piccha", false)
+    customerRepoImpl.update(customer).map { res =>
+      res shouldNot be (None)
+    }
+  }
+  */
+
+  "Vote repo should update customer" in {
+    val vote = Vote(customerId+":"+photoId, photoId, customerId, 5)
+    voteRepoImpl.update(vote).map { res =>
+      res should be (None)
+    }
+  }
+
+  /*
+  "Vote repo should insert customer" in {
+    val vote = Vote(1+":"+2, "2", 1, 1)
+    voteRepoImpl.update(vote).map { res =>
+      res shouldNot be (None)
+    }
+  }
+  */
+
+  "Account repo should get all row" in {
+    accRepoImpl.getAll.map { res =>
+      res.size shouldBe 5
+    }
+  }
 
 }

@@ -1,7 +1,7 @@
 package com.seanmcapp
 
-import com.seanmcapp.repository.postgre.{CustomerInfo, DBComponent, PhotoInfo, VoteInfo}
-import com.seanmcapp.repository.{Customer, Photo, Vote}
+import com.seanmcapp.repository.postgre._
+import com.seanmcapp.repository.{Account, Customer, Photo, Vote}
 import slick.lifted.TableQuery
 
 import scala.concurrent.Future
@@ -48,19 +48,29 @@ object DBGenerator extends DBComponent {
     Vote(98387528+":1734075033692644433", "1734075033692644433", 98387528, 3)
   )
 
+  val accountData = Seq(
+    Account("1435973343", "ui.cantik", "[\\w ]+\\. [\\w ]+['’]\\d\\d"),
+    Account("4769955827", "ub.cantik", "[\\w ]+\\. [\\w ]+['’]\\d\\d"),
+    Account("1446646264", "ugmcantik", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d"),
+    Account("1816652927", "undip.cantik", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d"),
+    Account("1620166782", "unpad.geulis", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d")
+  )
+
 
   def generate: Future[Unit] = {
 
     val photo = TableQuery[PhotoInfo]
     val customer = TableQuery[CustomerInfo]
     val vote = TableQuery[VoteInfo]
+    val account = TableQuery[AccountInfo]
 
     import config.profile.api._
     val setup = DBIO.seq(
-      (photo.schema ++ customer.schema ++ vote.schema).create,
+      (photo.schema ++ customer.schema ++ vote.schema ++ account.schema).create,
       photo ++= photoData,
       customer ++= customerData,
-      vote ++= voteData
+      vote ++= voteData,
+      account ++= accountData
     )
 
     run(setup)
