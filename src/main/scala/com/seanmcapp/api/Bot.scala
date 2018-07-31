@@ -20,6 +20,11 @@ trait Bot {
     photoRepo.getRandom.map(_.map(callback))
   }
 
+  def getRandom(account: String, user: Option[Customer], callback: Photo => Int): Future[Option[Int]] = {
+    user.foreach(resetCustomer)
+    photoRepo.getRandom(account).map(_.map(callback))
+  }
+
   def subscribe(customerDefault: Customer): Unit = {
     customerRepo.update(customerDefault.copy(isSubscribed = true))
   }

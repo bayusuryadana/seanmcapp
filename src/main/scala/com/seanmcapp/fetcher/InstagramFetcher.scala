@@ -48,9 +48,11 @@ abstract class InstagramFetcher extends InstagramRequest {
 
         val unsavedResult = fetchResult
           .filter(node => !(allPhotoSet.contains(node.id) || regexResult(node).isEmpty))
-          .map(node => node.copy(caption = regexResult(node).get.replace("\\n", "%0A").replace("#", "%23")))
+          .map(node => node.copy(caption = regexResult(node).get
+            .replace("\n.\n",". ").replace("\n\n",". ")) // only for fuckin' anakstancantik
+          )
 
-        println("[SAVING] saving " + account.name)
+        println("[SAVING] saving " + account.name + " " + unsavedResult.size + " photo(s)")
         unsavedResult.map { node =>
           val photo = Photo(node.id, node.thumbnailSrc, node.date, node.caption, account.name)
           photoRepo.update(photo)

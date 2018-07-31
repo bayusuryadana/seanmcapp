@@ -38,7 +38,15 @@ class PhotoRepoImpl extends TableQuery(new PhotoInfo(_)) with PhotoRepo with DBC
     } yield result
   }
 
+  def getRandom(account: String): Future[Option[Photo]] = {
+    for {
+      size <- run(this.filter(_.account === account).size.result)
+      result <- run(this.filter(_.account === account).drop(Random.nextInt(size)).result.headOption)
+    } yield result
+  }
+
   def update(photo: Photo): Future[Option[Photo]] = {
     run(this.returning(this).insertOrUpdate(photo))
   }
+
 }
