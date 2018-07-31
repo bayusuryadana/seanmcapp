@@ -2,7 +2,7 @@ package com.seanmcapp.startup
 
 import com.seanmcapp.api.{TelegramAPI, WebAPI}
 import com.seanmcapp.fetcher.InstagramFetcher
-import com.seanmcapp.repository.{CustomerRepo, PhotoRepo, VoteRepo}
+import com.seanmcapp.repository.{AccountRepo, CustomerRepo, PhotoRepo, VoteRepo}
 import com.seanmcapp.repository.postgre._
 
 trait Injection {
@@ -26,5 +26,6 @@ trait Injection {
   val instagramFetcher = new InstagramFetcher {
     override val customerRepo: CustomerRepo = customerRepoImpl
     override val photoRepo: PhotoRepo = photoRepoImpl
+    override val accountRepo: AccountRepo = accountRepoImpl
   }
 }

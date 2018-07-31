@@ -28,13 +28,19 @@ class RepositorySpec extends AsyncWordSpec with Matchers with InjectionTest {
 
   "Photo repo should get latest with account filter" in {
     photoRepoImpl.getLatest("ugmcantik").map { res =>
-      res.map(_.id) should contain("1733941761435551783")
+      res.map(_.id) shouldBe Some("1733941761435551783")
     }
   }
 
   "Photo repo should get random" in {
     photoRepoImpl.getRandom.map { res =>
       res shouldNot equal (None)
+    }
+  }
+
+  "Photo repo should get random with account filter" in {
+    photoRepoImpl.getRandom("ui.cantik").map { res =>
+      res.map(_.account) shouldBe Some("ui.cantik")
     }
   }
 
@@ -100,7 +106,7 @@ class RepositorySpec extends AsyncWordSpec with Matchers with InjectionTest {
 
   "Account repo should get all row" in {
     accountRepoImpl.getAll.map { res =>
-      res.size shouldBe 5
+      res.size shouldBe 1
     }
   }
 

@@ -27,12 +27,20 @@ abstract class TelegramAPI extends Bot with TelegramRequest {
       val customerDefault = Customer(customerId, customerName, isSubscribed = false)
 
       message.entities.getOrElse(Seq.empty).map { entity =>
-        val command = message.text.getOrElse("").substring(entity.offset, entity.offset + entity.length).stripSuffix(telegramConf.botname)
-        command match {
+        val command = message.text.getOrElse("")
+          .substring(entity.offset, entity.offset + entity.length)
+          .stripSuffix(telegramConf.botname)
+
+        command.split("_").head match {
           case "/latest" =>
             getLatest(photo => getTelegramSendPhoto(message.chat.id, photo).code)
-          case "/cari_bahan_ciol" =>
-            getRandom(userDefault, photo => getTelegramSendPhoto(message.chat.id, photo).code)
+          case "/cbc" =>
+            if (command.split("_").length > 1) {
+              val account = command.replace("_", ".").stripPrefix("/cbc.")
+              getRandom(account, userDefault, photo => getTelegramSendPhoto(message.chat.id, photo).code)
+            } else {
+              getRandom(userDefault, photo => getTelegramSendPhoto(message.chat.id, photo).code)
+            }
           case "/subscribe" =>
             subscribe(customerDefault)
             getTelegramSendMessege(message.chat.id, "selamat berciol ria").code

@@ -49,11 +49,7 @@ object DBGenerator extends DBComponent {
   )
 
   val accountData = Seq(
-    Account("1435973343", "ui.cantik", "[\\w ]+\\. [\\w ]+['’]\\d\\d"),
-    Account("4769955827", "ub.cantik", "[\\w ]+\\. [\\w ]+['’]\\d\\d"),
-    Account("1446646264", "ugmcantik", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d"),
-    Account("1816652927", "undip.cantik", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d"),
-    Account("1620166782", "unpad.geulis", "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d")
+    Account("1435973343", "ui.cantik", "[\\w ]+\\. [\\w ]+['’]\\d\\d")
   )
 
 

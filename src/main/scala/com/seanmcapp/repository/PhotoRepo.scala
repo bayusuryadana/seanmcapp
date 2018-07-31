@@ -14,6 +14,8 @@ trait PhotoRepo {
 
   def getRandom: Future[Option[Photo]]
 
+  def getRandom(account: String): Future[Option[Photo]]
+
   def update(photo: Photo): Future[Option[Photo]]
 
 }
