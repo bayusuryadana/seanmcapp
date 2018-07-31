@@ -100,7 +100,7 @@ class RepositorySpec extends AsyncWordSpec with Matchers with InjectionTest {
 
   "Account repo should get all row" in {
     accountRepoImpl.getAll.map { res =>
-      res.size shouldBe 5
+      res.size shouldBe 1
     }
   }
 

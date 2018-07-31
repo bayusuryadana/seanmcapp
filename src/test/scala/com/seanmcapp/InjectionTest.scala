@@ -2,7 +2,7 @@ package com.seanmcapp
 
 import com.seanmcapp.api.{TelegramAPI, WebAPI}
 import com.seanmcapp.fetcher.InstagramFetcher
-import com.seanmcapp.repository.{CustomerRepo, Photo, PhotoRepo, VoteRepo}
+import com.seanmcapp.repository._
 import com.seanmcapp.repository.postgre.{AccountRepoImpl, CustomerRepoImpl, PhotoRepoImpl, VoteRepoImpl}
 
 import scala.concurrent.Future
@@ -32,7 +32,7 @@ trait InjectionTest {
         Future.successful(None)
       }
     }
-    override val instagramAccounts = List(("ui.cantik", "[\\w ]+\\. [\\w ]+['’]\\d\\d".r, "1435973343"))
+    override val accountRepo: AccountRepo = accountRepoImpl
   }
 
 }
