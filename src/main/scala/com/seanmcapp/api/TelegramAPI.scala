@@ -47,8 +47,8 @@ abstract class TelegramAPI extends Bot with TelegramRequest {
     request.callbackQuery.map { cb =>
       val queryId = cb.id
       val customerId = cb.from.id
-      val photoId = cb.data.split(":").head
-      val rating = cb.data.split(":").last.toLong
+      val rating = cb.data.split(":").head.toLong
+      val photoId = cb.data.split(":").last
 
       vote(Vote(customerId + ":" + photoId, photoId, customerId, rating))
       getAnswerCallbackQuery(queryId, "Vote received, thank you!").code
