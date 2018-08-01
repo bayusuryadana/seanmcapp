@@ -32,16 +32,16 @@ object DBGenerator extends DBComponent {
   )
 
   val customerData = Seq(
-    Customer(-209240150, "OMOM", true),
-    Customer(98387528, "Krisna Dibyo", true),
-    Customer(143635997, "Muhammad Redho Ayassa ", false),
-    Customer(146316672, "Arif Harsa", false),
-    Customer(88836419, "Faiz Hafidzuddin", false),
-    Customer(-111546505, "fuckin' deadline", true),
-    Customer(199902499, "Cahaya Ikhwan Putra", false),
-    Customer(186373768, "Rahmat Rasyidi Hakim", false),
-    Customer(274852283, "Bayu Suryadana", true),
-    Customer(203988626, "Muhammad Arrasy Rahman", false)
+    Customer(-209240150, "OMOM"),
+    Customer(98387528, "Krisna Dibyo"),
+    Customer(143635997, "Muhammad Redho Ayassa "),
+    Customer(146316672, "Arif Harsa"),
+    Customer(88836419, "Faiz Hafidzuddin"),
+    Customer(-111546505, "fuckin' deadline"),
+    Customer(199902499, "Cahaya Ikhwan Putra"),
+    Customer(186373768, "Rahmat Rasyidi Hakim"),
+    Customer(274852283, "Bayu Suryadana"),
+    Customer(203988626, "Muhammad Arrasy Rahman")
   )
 
   val voteData = Seq(

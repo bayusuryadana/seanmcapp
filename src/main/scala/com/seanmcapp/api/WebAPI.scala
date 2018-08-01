@@ -30,7 +30,7 @@ abstract class WebAPI extends DefaultJsonProtocol with TelegramRequest {
     val request = input.convertTo[BroadcastMessage]
     if (telegramConf.key == request.key) {
       if (request.recipient == ALL) {
-        val customerRepoFuture = customerRepo.getAllSubscribedCust
+        val customerRepoFuture = customerRepo.getAll
         for {
           customerRepo <- customerRepoFuture
         } yield {

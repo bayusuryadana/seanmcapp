@@ -18,35 +18,22 @@ abstract class TelegramAPI extends Bot with TelegramRequest {
     val request = input.convertTo[TelegramUpdate]
 
     request.message.map { message =>
-      val customerId = message.chat.id
-      val (customerName, userDefault) = if (message.chat.chatType == GROUP || message.chat.chatType == SUPERGROUP) {
-        (message.chat.title.get, Some(Customer(message.from.id, getName(message), isSubscribed = false)))
-      } else {
-        (getName(message), None)
-      }
-      val customerDefault = Customer(customerId, customerName, isSubscribed = false)
-
       message.entities.getOrElse(Seq.empty).map { entity =>
         val command = message.text.getOrElse("")
           .substring(entity.offset, entity.offset + entity.length)
           .stripSuffix(telegramConf.botname)
 
         command.split("_").head match {
-          case "/latest" =>
-            getLatest(photo => getTelegramSendPhoto(message.chat.id, photo).code)
           case "/cbc" =>
+            val userDefault = if (message.chat.chatType == GROUP || message.chat.chatType == SUPERGROUP)
+              Some(Customer(message.from.id, getName(message))) else None
+
             if (command.split("_").length > 1) {
               val account = command.replace("_", ".").stripPrefix("/cbc.")
               getRandom(account, userDefault, photo => getTelegramSendPhoto(message.chat.id, photo).code)
             } else {
               getRandom(userDefault, photo => getTelegramSendPhoto(message.chat.id, photo).code)
             }
-          case "/subscribe" =>
-            subscribe(customerDefault)
-            getTelegramSendMessege(message.chat.id, "selamat berciol ria").code
-          case "/unsubscribe" =>
-            resetCustomer(customerDefault)
-            getTelegramSendMessege(message.chat.id, "yah :( yakin udah puas ciolnya?").code
           case _ => 404
         }
       }

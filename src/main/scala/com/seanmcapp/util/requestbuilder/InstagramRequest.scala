@@ -15,7 +15,7 @@ trait InstagramRequest extends HttpRequest {
   }
 
   def getInstagramHome: HttpResponse[String] = {
-    Http("https://www.instagram.com").method("HEAD").asString
+    Http(baseUrl + "accounts/login/ajax/").method("HEAD").asString
   }
 
   def getInstagramAuth(username: String, password: String, csrfToken: String): HttpResponse[String] = {
