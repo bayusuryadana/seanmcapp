@@ -20,17 +20,15 @@ abstract class InstagramFetcher extends InstagramRequest {
 
   def flow: Future[JsValue] = {
     val accountsFuture = accountRepo.getAll
-    val customerRepoFuture = customerRepo.getAllSubscribedCust
     for {
       accounts <- accountsFuture
-      customers <- customerRepoFuture
-      results <- fetch(accounts, customers)
+      results <- fetch(accounts)
     } yield {
       results
     }
   }
 
-  private def fetch(accounts: Seq[Account], customers: Seq[Customer]): Future[JsValue] = {
+  private def fetch(accounts: Seq[Account]): Future[JsValue] = {
     val auth = getAuth.get // TODO: fix this option
     println("[AUTH] " + auth)
 
@@ -56,15 +54,6 @@ abstract class InstagramFetcher extends InstagramRequest {
         unsavedResult.map { node =>
           val photo = Photo(node.id, node.thumbnailSrc, node.date, node.caption, account.name)
           photoRepo.update(photo)
-
-          /*
-          customerRepo.map { subscriber =>
-            getTelegramSendPhoto(telegramConf.endpoint, subscriber.id, photo, "bahan ciol baru: ")
-          }
-          */
-
-          // uncomment this for dev env
-          // getTelegramSendPhoto(telegramConf.endpoint, 274852283L, photo, "bahan ciol baru: ")
         }
 
         println("[DONE] fetching " + account.name)

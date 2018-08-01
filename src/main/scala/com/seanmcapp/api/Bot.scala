@@ -11,10 +11,6 @@ trait Bot {
   val voteRepo: VoteRepo
   val photoRepo: PhotoRepo
 
-  def getLatest(callback: Photo => Int): Future[Option[Int]] = {
-    photoRepo.getLatest.map(_.map(callback))
-  }
-
   def getRandom(user: Option[Customer], callback: Photo => Int): Future[Option[Int]] = {
     user.foreach(resetCustomer)
     photoRepo.getRandom.map(_.map(callback))
@@ -25,11 +21,7 @@ trait Bot {
     photoRepo.getRandom(account).map(_.map(callback))
   }
 
-  def subscribe(customerDefault: Customer): Unit = {
-    customerRepo.update(customerDefault.copy(isSubscribed = true))
-  }
-
-  def resetCustomer(customerDefault: Customer): Unit = {
+  private def resetCustomer(customerDefault: Customer): Unit = {
     customerRepo.update(customerDefault)
   }
 

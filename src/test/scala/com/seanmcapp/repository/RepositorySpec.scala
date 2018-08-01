@@ -67,13 +67,13 @@ class RepositorySpec extends AsyncWordSpec with Matchers with InjectionTest {
   }
 
   "Customer repo should get all subscribed customer" in {
-    customerRepoImpl.getAllSubscribedCust.map { res =>
-      res.size shouldBe 4
+    customerRepoImpl.getAll.map { res =>
+      res.size shouldBe 10
     }
   }
 
   "Customer repo should update customer" in {
-    val customer = Customer(customerId, "Praw", true)
+    val customer = Customer(customerId, "Praw")
     customerRepoImpl.update(customer).map { res =>
       res should be (None)
     }
