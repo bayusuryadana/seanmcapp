@@ -1,13 +1,11 @@
 package com.seanmcapp.API
 
-import com.seanmcapp.{DBGenerator, InjectionTest}
+import com.seanmcapp.InjectionTest
 import com.seanmcapp.config.TelegramConf
 import org.scalatest.{AsyncWordSpec, Matchers}
 import spray.json.JsString
 
 class WebAPISpec extends AsyncWordSpec with Matchers with InjectionTest {
-
-  DBGenerator.generate
 
   "get latest" in {
     val request = JsString("latest")

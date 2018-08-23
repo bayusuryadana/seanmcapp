@@ -3,12 +3,11 @@ package com.seanmcapp
 import com.seanmcapp.api.{TelegramAPI, WebAPI}
 import com.seanmcapp.fetcher.InstagramFetcher
 import com.seanmcapp.repository._
-import com.seanmcapp.repository.postgre.{AccountRepoImpl, CustomerRepoImpl, PhotoRepoImpl, VoteRepoImpl}
-
-import scala.concurrent.Future
+import com.seanmcapp.repository.mongodb.{AccountRepoImpl, CustomerRepoImpl, PhotoRepoImpl, VoteRepoImpl}
 
 trait InjectionTest {
 
+  // TODO: Mock services
   protected val customerRepoImpl = new CustomerRepoImpl
   protected val photoRepoImpl = new PhotoRepoImpl
   protected val voteRepoImpl = new VoteRepoImpl
@@ -27,11 +26,7 @@ trait InjectionTest {
 
   val instagramFetcher = new InstagramFetcher with InstagramRequestMock {
     override val customerRepo: CustomerRepo = customerRepoImpl
-    override val photoRepo: PhotoRepo = new PhotoRepoImpl {
-      override def update(photo: Photo): Future[Option[Photo]] = {
-        Future.successful(None)
-      }
-    }
+    override val photoRepo: PhotoRepo = photoRepoImpl
     override val accountRepo: AccountRepo = accountRepoImpl
   }
 

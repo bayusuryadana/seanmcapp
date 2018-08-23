@@ -1,12 +1,15 @@
 package com.seanmcapp.repository
 
+import org.mongodb.scala.Completed
+import org.mongodb.scala.bson.annotations.BsonProperty
+
 import scala.concurrent.Future
 
-case class Photo(id: String, thumbnailSrc: String, date: Long, caption: String, account: String)
+case class Photo(@BsonProperty("_id") id: Long, @BsonProperty("thumbnail_src") thumbnailSrc: String, date: Long, caption: String, account: String)
 
 trait PhotoRepo {
 
-  def getAll(account: String): Future[Set[String]]
+  def getAll(account: String): Future[Set[Long]]
 
   def getLatest: Future[Option[Photo]]
 
@@ -16,6 +19,6 @@ trait PhotoRepo {
 
   def getRandom(account: String): Future[Option[Photo]]
 
-  def update(photo: Photo): Future[Option[Photo]]
+  def insert(photos: Seq[Photo]): Future[Completed]
 
 }
