@@ -1,5 +1,6 @@
 package com.seanmcapp.util.parser
 
+import com.seanmcapp.repository.Photo
 import spray.json._
 
 case class InstagramUpdate(data: InstagramData)
@@ -12,10 +13,12 @@ case class InstagramKontolCaption(edges: Seq[InstagramNodeCaption])
 case class InstagramNodeCaption(node: InstagramCaption)
 case class InstagramCaption(text: String)
 
-case class InstagramNodeResult(id: String, caption: String, thumbnailSrc: String, date: Long)
+case class InstagramNodeResult(id: Long, caption: String, thumbnailSrc: String, date: Long)
 
 
 object InstagramJson extends DefaultJsonProtocol {
+
+  implicit val photoFormat = jsonFormat5(Photo)
 
   implicit val instagramNodeResult = jsonFormat(InstagramNodeResult, "id", "caption", "thumbnail_src", "date")
 

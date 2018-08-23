@@ -40,43 +40,35 @@ abstract class InstagramFetcher extends InstagramRequest {
         allPhotoSet <- allPhotoFuture
       } yield {
         println("[START] fetching " + account.name)
-        val fetchResult = getPage(account.id, auth, None, latestPhoto.map(_.date).getOrElse(0))
+        val fetchResult = getPage(account, auth, None, latestPhoto.map(_.date).getOrElse(0))
 
         def regexResult = (node: InstagramNodeResult) => account.regex.r.findFirstIn(node.caption)
 
         val unsavedResult = fetchResult
           .filter(node => !(allPhotoSet.contains(node.id) || regexResult(node).isEmpty))
-          .map(node => node.copy(caption = regexResult(node).get
-            .replace("\n.\n",". ").replace("\n\n",". ")) // only for fuckin' anakstancantik
-          )
+          .map(node => Photo(node.id, node.thumbnailSrc, node.date, regexResult(node).get, account.name))
 
         println("[SAVING] saving " + account.name + " " + unsavedResult.size + " photo(s)")
-        unsavedResult.map { node =>
-          val photo = Photo(node.id, node.thumbnailSrc, node.date, node.caption, account.name)
-          photoRepo.update(photo)
-        }
-
-        println("[DONE] fetching " + account.name)
+        photoRepo.insert(unsavedResult).map(_ => println("[DONE] fetching " + account.name))
         account.name -> unsavedResult
       }
     }
-
     Future.sequence(results).map(_.toJson)
   }
 
-  private def getPage(accountId: String, auth: InstagramAuthToken, lastId: Option[String] = None, latestDate: Long): Seq[InstagramNodeResult] = {
+  private def getPage(account: Account, auth: InstagramAuthToken, lastId: Option[Long] = None, latestDate: Long): Seq[InstagramNodeResult] = {
 
-    val response = getInstagramPageRequest(accountId, lastId, auth.csrftoken, auth.sessionId)
+    val response = getInstagramPageRequest(account, lastId, auth.csrftoken, auth.sessionId)
     val instagramUpdate = response.body.parseJson.convertTo[InstagramUpdate]
     val result = instagramUpdate.data.user.edgeToOwnerMedia.edges.map{ edge =>
       val node = edge.node
-      InstagramNodeResult(node.id, node.caption.edges.headOption.map(_.node.text).getOrElse(""), node.thumbnailSrc, node.date)
+      InstagramNodeResult(node.id.toLong, node.caption.edges.headOption.map(_.node.text).getOrElse(""), node.thumbnailSrc, node.date)
     }
     val lastIdResult = result.lastOption.map(_.id)
-    val nextResult = if (result.nonEmpty && latestDate < result.last.date)
-      getPage(accountId, auth, lastIdResult, latestDate)
-    else
-      Seq.empty
+    val nextResult = if (result.nonEmpty && latestDate < result.last.date) {
+      println(account.name + " :::: " + latestDate + " >< " + result.last.date)
+      getPage(account, auth, lastIdResult, latestDate)
+    } else Seq.empty
 
     result ++ nextResult
   }

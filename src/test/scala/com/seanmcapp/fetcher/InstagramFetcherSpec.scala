@@ -1,11 +1,9 @@
 package com.seanmcapp.fetcher
 
-import com.seanmcapp.{DBGenerator, InjectionTest}
+import com.seanmcapp.InjectionTest
 import org.scalatest.{AsyncWordSpec, Matchers}
 
 class InstagramFetcherSpec extends AsyncWordSpec with Matchers with InjectionTest {
-
-  DBGenerator.generate
 
   "sync call" in {
     instagramFetcher.flow.map { res =>

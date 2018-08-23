@@ -3,7 +3,7 @@ package com.seanmcapp.startup
 import com.seanmcapp.api.{TelegramAPI, WebAPI}
 import com.seanmcapp.fetcher.InstagramFetcher
 import com.seanmcapp.repository.{AccountRepo, CustomerRepo, PhotoRepo, VoteRepo}
-import com.seanmcapp.repository.postgre._
+import com.seanmcapp.repository.mongodb.{AccountRepoImpl, CustomerRepoImpl, PhotoRepoImpl, VoteRepoImpl}
 
 trait Injection {
 

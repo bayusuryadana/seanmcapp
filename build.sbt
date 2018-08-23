@@ -15,21 +15,13 @@ libraryDependencies ++= Seq(
   // http builder
   "org.scalaj" %% "scalaj-http" % "2.4.0",
 
-  //ORM
-  "com.typesafe.slick" %% "slick" % "3.2.3",
-  "com.typesafe.slick" %% "slick-hikaricp" % "3.2.3",
-  "org.slf4j" % "slf4j-nop" % "1.6.4",
-
   // DB Driver
-  "org.postgresql" % "postgresql" % "42.1.3",
-  "com.h2database" % "h2" % "1.4.192",
+  "org.mongodb.scala" %% "mongo-scala-driver" % "2.4.1",
+  "io.netty" % "netty-all" % "4.1.28.Final",
 
   // scalatest
   "org.scalactic" %% "scalactic" % "3.0.5",
   "org.scalatest" %% "scalatest" % "3.0.5" % Test
 )
-
-fork in Test := true
-javaOptions in Test += "-Dconfig.resource=/dev.conf"
 
 enablePlugins(JavaAppPackaging)
