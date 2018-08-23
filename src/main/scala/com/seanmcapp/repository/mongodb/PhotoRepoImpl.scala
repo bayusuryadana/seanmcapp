@@ -23,7 +23,7 @@ class PhotoRepoImpl extends DBComponent[Photo]("photos") with PhotoRepo {
   } yield result
 
   override def getRandom(account: String): Future[Option[Photo]] = for {
-    size <- collection.countDocuments().toFuture()
+    size <- collection.countDocuments(equal("account", account)).toFuture()
     result <- collection.find(equal("account", account)).skip(Random.nextInt(size.toInt)).first().toFutureOption()
   } yield result
 
