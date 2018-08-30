@@ -1,8 +1,10 @@
 package com.seanmcapp.repository
 
+import org.mongodb.scala.bson.annotations.BsonProperty
+
 import scala.concurrent.Future
 
-case class Customer(id: Long, name: String)
+case class Customer(@BsonProperty("_id") id: Long, name: String, platform: String)
 
 trait CustomerRepo {
 

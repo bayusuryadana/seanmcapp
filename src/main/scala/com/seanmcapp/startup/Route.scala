@@ -15,13 +15,13 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     get(path("sync")(complete(instagramFetcher.flow))), //instagram
 
     // API
-    get(path("api" / Remaining)(method => complete(webAPI.flow(JsString(method))))),
-    post((path("api" / Remaining) & entity(as[JsValue]))((request, input) => complete(webAPI.flow(JsString(request), input)))),
+    get(path("api" / Remaining)(method => complete(wevAPI.get(JsString(method))))), // web API
+    post((path("api" / Remaining) & entity(as[JsValue]))((request, input) => complete(wevAPI.post(JsString(request), input)))), //mobile & broadcast API
     post((path("webhook") & entity(as[JsValue]))(request => complete(telegramAPI.flow(request)))), // telegram
 
-    // util
-    get(path("")(complete("selamat datang tot"))), // homepage
-     // broadcast
+    // homepage
+    get(path("")(complete("Life is a gift, keep smiling and giving goodness !"))),
+
   ).reduce{ (a,b) => a~b }
 
 }

@@ -6,11 +6,11 @@ import com.seanmcapp.util.requestbuilder.TelegramRequest
 import spray.json._
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
-abstract class TelegramAPI extends Bot with TelegramRequest {
+abstract class TelegramAPI extends Service with TelegramRequest {
 
-  private val GROUP = "group"
-  private val SUPERGROUP = "supergroup"
+  private val TELEGRAM_PLATFORM = "telegram"
 
   def flow(input: JsValue): Future[JsValue] = {
     println("===== INPUT =====\n" + input + "\n")
@@ -25,14 +25,13 @@ abstract class TelegramAPI extends Bot with TelegramRequest {
 
         command.split("_").head match {
           case "/cbc" =>
-            val userDefault = if (message.chat.chatType == GROUP || message.chat.chatType == SUPERGROUP)
-              Some(Customer(message.from.id, getName(message))) else None
+            val customer = Customer(message.from.id, getName(message), TELEGRAM_PLATFORM)
 
             if (command.split("_").length > 1) {
               val account = command.replace("_", ".").stripPrefix("/cbc.")
-              getRandom(account, userDefault, photo => getTelegramSendPhoto(message.chat.id, photo).code)
+              getRandom(account, customer, photo => getTelegramSendPhoto(message.chat.id, photo).code)
             } else {
-              getRandom(userDefault, photo => getTelegramSendPhoto(message.chat.id, photo).code)
+              getRandom(customer, photo => getTelegramSendPhoto(message.chat.id, photo).code)
             }
           case _ => 404
         }
@@ -45,8 +44,8 @@ abstract class TelegramAPI extends Bot with TelegramRequest {
       val rating = cb.data.split(":").head.toLong
       val photoId = cb.data.split(":").last
 
-      vote(Vote(photoId, customerId, rating))
-      getAnswerCallbackQuery(queryId, "Vote received, thank you!").code
+      val vote = Vote(photoId, customerId, rating)
+      doVote(vote).map(res => res.map(_ => getAnswerCallbackQuery(queryId, "Vote received, thank you!").code))
     }
 
     Future.successful(JsNumber(200))

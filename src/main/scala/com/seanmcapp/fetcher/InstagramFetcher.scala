@@ -29,31 +29,36 @@ abstract class InstagramFetcher extends InstagramRequest {
   }
 
   private def fetch(accounts: Seq[Account]): Future[JsValue] = {
-    val auth = getAuth.get // TODO: fix this option
-    println("[AUTH] " + auth)
+    val authOption = getAuth
+    println("[AUTH] " + authOption)
 
-    val results = accounts.map { account =>
-      val latestPhotoFuture = photoRepo.getLatest(account.name)
-      val allPhotoFuture = photoRepo.getAll(account.name)
-      for {
-        latestPhoto <- latestPhotoFuture
-        allPhotoSet <- allPhotoFuture
-      } yield {
-        println("[START] fetching " + account.name)
-        val fetchResult = getPage(account, auth, None, latestPhoto.map(_.date).getOrElse(0))
+    if (authOption.isDefined) {
+      val auth = authOption.get
+      val results = accounts.map { account =>
+        val latestPhotoFuture = photoRepo.getLatest(account.name)
+        val allPhotoFuture = photoRepo.getAll(account.name)
+        for {
+          latestPhoto <- latestPhotoFuture
+          allPhotoSet <- allPhotoFuture
+        } yield {
+          println("[START] fetching " + account.name)
+          val fetchResult = getPage(account, auth, None, latestPhoto.map(_.date).getOrElse(0))
 
-        def regexResult = (node: InstagramNodeResult) => account.regex.r.findFirstIn(node.caption)
+          def regexResult = (node: InstagramNodeResult) => account.regex.r.findFirstIn(node.caption)
 
-        val unsavedResult = fetchResult
-          .filter(node => !(allPhotoSet.contains(node.id) || regexResult(node).isEmpty))
-          .map(node => Photo(node.id, node.thumbnailSrc, node.date, regexResult(node).get, account.name))
+          val unsavedResult = fetchResult
+            .filter(node => !(allPhotoSet.contains(node.id) || regexResult(node).isEmpty))
+            .map(node => Photo(node.id, node.thumbnailSrc, node.date, regexResult(node).get, account.name))
 
-        println("[SAVING] saving " + account.name + " " + unsavedResult.size + " photo(s)")
-        photoRepo.insert(unsavedResult).map(_ => println("[DONE] fetching " + account.name))
-        account.name -> unsavedResult
+          println("[SAVING] saving " + account.name + " " + unsavedResult.size + " photo(s)")
+          photoRepo.insert(unsavedResult).map(_ => println("[DONE] fetching " + account.name))
+          account.name -> unsavedResult
+        }
       }
+      Future.sequence(results).map(_.toJson)
+    } else {
+      Future.successful(403.toJson)
     }
-    Future.sequence(results).map(_.toJson)
   }
 
   private def getPage(account: Account, auth: InstagramAuthToken, lastId: Option[Long] = None, latestDate: Long): Seq[InstagramNodeResult] = {

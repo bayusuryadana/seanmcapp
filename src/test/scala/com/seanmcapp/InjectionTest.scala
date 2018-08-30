@@ -7,7 +7,6 @@ import com.seanmcapp.repository.mongodb.{AccountRepoImpl, CustomerRepoImpl, Phot
 
 trait InjectionTest {
 
-  // TODO: Mock services
   protected val customerRepoImpl = new CustomerRepoImpl
   protected val photoRepoImpl = new PhotoRepoImpl
   protected val voteRepoImpl = new VoteRepoImpl
@@ -16,6 +15,7 @@ trait InjectionTest {
   val webAPI = new WebAPI with TelegramRequestMock {
     override val customerRepo: CustomerRepo = customerRepoImpl
     override val photoRepo: PhotoRepo = photoRepoImpl
+    override val voteRepo: VoteRepo = voteRepoImpl
   }
 
   val telegramAPI = new TelegramAPI with TelegramRequestMock {
