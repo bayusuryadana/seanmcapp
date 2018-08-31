@@ -15,8 +15,6 @@ abstract class WebAPI extends Service {
   val customerRepo: CustomerRepo
   val photoRepo: PhotoRepo
 
-  val MOBILE_APPS = "mobile"
-
   def get(request: JsValue): Future[JsValue] = {
     request.asInstanceOf[JsString].value match {
       case "latest" => photoRepo.getLatest.map(_.toJson)
@@ -36,7 +34,7 @@ abstract class WebAPI extends Service {
 
   private def randomFlow(input: JsValue): Future[JsValue] = {
     val request = input.convertTo[Customer]
-    val customer = Customer(request.id, request.name, MOBILE_APPS)
+    val customer = Customer(request.id, request.name, request.platform)
     getRandom[Photo](customer, (p:Photo) => p).map(_.toJson)
   }
 
