@@ -4,7 +4,7 @@ import org.mongodb.scala.bson.annotations.BsonProperty
 
 import scala.concurrent.Future
 
-case class Vote(@BsonProperty("photos_id") photoId: Long, @BsonProperty("customers_id") customerId: Long, rating:Long)
+case class Vote(@BsonProperty("customers_id") customerId: Long, @BsonProperty("photos_id") photoId: Long, rating:Long)
 
 trait VoteRepo {
 
