@@ -5,12 +5,12 @@ import com.seanmcapp.repository.Photo
 
 import scalaj.http.{Http, HttpResponse}
 
-trait TelegramRequest extends HttpRequest {
+trait TelegramRequest {
 
   val telegramConf = TelegramConf()
-  override val baseUrl = telegramConf.endpoint
+  val baseUrl = telegramConf.endpoint
 
-  def getTelegramSendPhoto(chatId: Long, photo: Photo, prefix: String =""): HttpResponse[String] = {
+  def getTelegramSendPhoto(chatId: Long, photo: Photo): HttpResponse[String] = {
     val photoId = photo.id
     val inlineKeyboard =
       s"""
@@ -30,7 +30,7 @@ trait TelegramRequest extends HttpRequest {
     val urlString = baseUrl + "/sendphoto" +
       "?chat_id=" + chatId +
       "&photo=" + photo.thumbnailSrc +
-      "&caption=" + prefix + photo.caption +
+      "&caption=" + photo.caption +
       "%0A%40" + photo.account +
       "&reply_markup=" + inlineKeyboard
     Http(urlString).asString

@@ -4,9 +4,9 @@ import com.seanmcapp.repository.Account
 
 import scalaj.http.{Http, HttpOptions, HttpResponse}
 
-trait InstagramRequest extends HttpRequest {
+trait InstagramRequest {
 
-  override val baseUrl = "https://www.instagram.com/"
+  val baseUrl = "https://www.instagram.com/"
 
   def getInstagramPageRequest(account: Account, lastId: Option[Long], csrftoken: String, sessionid: String): HttpResponse[String] = {
     val request = Http(baseUrl + "graphql/query/?query_id=17888483320059182&variables={\"id\":" + account.id + ",\"first\":50,\"after\":" + lastId.getOrElse("null") + "}")

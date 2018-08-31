@@ -7,7 +7,7 @@ import scalaj.http.HttpResponse
 
 trait TelegramRequestMock extends TelegramRequest {
 
-  override def getTelegramSendPhoto(chatId: Long, photo: Photo, prefix: String =""): HttpResponse[String] = {
+  override def getTelegramSendPhoto(chatId: Long, photo: Photo): HttpResponse[String] = {
     HttpResponse[String]("", 200, Map.empty)
   }
 
