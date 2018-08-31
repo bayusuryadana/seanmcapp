@@ -1,7 +1,7 @@
 package com.seanmcapp.api
 
 import com.seanmcapp.repository._
-import com.seanmcapp.util.parser.BroadcastMessage
+import com.seanmcapp.util.parser.{BroadcastMessage, Result}
 import com.seanmcapp.util.requestbuilder.TelegramRequest
 import spray.json._
 
@@ -25,6 +25,15 @@ abstract class WebAPI extends Service {
       case "random" => randomFlow(input)
       case "vote" => voteFlow(input)
       case "broadcast" => broadcastFlow(input)
+      case _ => Future.successful(JsString("no such method"))
+    }
+  }
+
+  def stats(request: JsValue): Future[JsValue] = {
+    request.asInstanceOf[JsString].value match {
+      case "account_rank" => accountRank
+      case "customer_rank" => customerRank
+      case "photo_rank" => photoRank
       case _ => Future.successful(JsString("no such method"))
     }
   }
@@ -65,5 +74,72 @@ abstract class WebAPI extends Service {
       Future.successful(JsString("wrong key"))
     }
   }
+
+  private def accountRank = {
+    val photoRepoF = photoRepo.getAll
+    val voteRepoF = voteRepo.getAll
+    for {
+      photos <- photoRepoF
+      votes <- voteRepoF
+    } yield {
+      val photoMap = votes.groupBy(v => v.photoId).map(p => (p._1, p._2.map(_.rating)))
+      val accountMap = photos.groupBy(p => p.account).map(a => (a._1, a._2.flatMap(p => photoMap.getOrElse(p.id, Seq.empty[Long]))))
+
+      val result = accountMap.map { a =>
+        val name = a._1
+        val data = a._2
+        val count = data.length
+        val avg = "%.2f".format(data.sum.toDouble / count)
+        Result(name, count, avg)
+      }(collection.breakOut)
+
+      result.sortBy(-_.count).toJson
+    }
+  }
+
+  private def customerRank = {
+    val customerRepoF = customerRepo.getAll
+    val voteRepoF = voteRepo.getAll
+    for {
+      customers <- customerRepoF
+      votes <- voteRepoF
+    } yield {
+      val customerMap = votes.groupBy(v => v.customerId).map(c => (c._1,c._2.map(_.rating)))
+      val result = customers.map { c =>
+        val data = customerMap.getOrElse(c.id, Seq.empty[Long])
+        val count = data.length
+        val avg = "%.2f".format(data.sum.toDouble / count)
+        Result(c.name, count, avg)
+      }.filter(_.count > 0)
+
+      result.sortBy(-_.count).toJson
+    }
+  }
+
+  private def photoRank = {
+    val photoRepoF = photoRepo.getAll
+    val voteRepoF = voteRepo.getAll
+    for {
+      photos <- photoRepoF
+      votes <- voteRepoF
+    } yield {
+      val photoMap = votes.groupBy(v => v.photoId).map(c => (c._1,c._2.map(_.rating)))
+      val result = photos.map { c =>
+        val data = photoMap.getOrElse(c.id, Seq.empty[Long])
+        val count = data.length
+        val avg = "%.2f".format(data.sum.toDouble / count)
+        Result(c.caption, count, avg)
+      }.sortWith { (a,b) =>
+        if (a.count == b.count) {
+          a.avg > b.avg
+        } else {
+          a.count > b.count
+        }
+      }
+
+      result .toJson
+    }
+  }
+
 
 }

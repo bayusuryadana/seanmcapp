@@ -11,6 +11,8 @@ import scala.util.Random
 
 class PhotoRepoImpl extends DBComponent[Photo]("photos") with PhotoRepo {
 
+  override def getAll(): Future[Seq[Photo]] = collection.find().toFuture()
+
   override def getAll(account: String): Future[Set[Long]] = collection.find(equal("account", account)).toFuture().map(_.map(_.id).toSet)
 
   override def getLatest: Future[Option[Photo]] = collection.find().sort(orderBy(descending("date"))).first().toFutureOption()

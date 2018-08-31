@@ -9,6 +9,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class VoteRepoImpl extends DBComponent[Vote]("votes") with VoteRepo {
 
+  override def getAll(): Future[Seq[Vote]] = collection.find().toFuture()
+
   override def update(vote: Vote): Future[Option[Vote]] = {
     collection.replaceOne(and(equal("photos_id", vote.photoId), equal("customers_id", vote.customerId)), vote, ReplaceOptions().upsert(true))
       .toFutureOption()

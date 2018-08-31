@@ -19,6 +19,9 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     post((path("api" / Remaining) & entity(as[JsValue]))((request, input) => complete(webAPI.post(JsString(request), input)))), //mobile & broadcast API
     post((path("webhook") & entity(as[JsValue]))(request => complete(telegramAPI.flow(request)))), // telegram
 
+    // Statistics
+    get(path("stats" / Remaining)(method => complete(webAPI.stats(JsString(method))))),
+
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !"))),
 

@@ -9,6 +9,8 @@ case class Photo(@BsonProperty("_id") id: Long, @BsonProperty("thumbnail_src") t
 
 trait PhotoRepo {
 
+  def getAll: Future[Seq[Photo]]
+
   def getAll(account: String): Future[Set[Long]]
 
   def getLatest: Future[Option[Photo]]
