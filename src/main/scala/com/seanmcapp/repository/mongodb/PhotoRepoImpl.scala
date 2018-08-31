@@ -29,6 +29,6 @@ class PhotoRepoImpl extends DBComponent[Photo]("photos") with PhotoRepo {
     result <- collection.find(equal("account", account)).skip(Random.nextInt(size.toInt)).first().toFutureOption()
   } yield result
 
-  def insert(photos: Seq[Photo]): Future[Completed] = collection.insertMany(photos).toFuture()
+  override def insert(photos: Seq[Photo]): Future[Completed] = collection.insertMany(photos).toFuture()
 
 }

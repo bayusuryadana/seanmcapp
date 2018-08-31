@@ -8,7 +8,7 @@ import spray.json._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-abstract class TelegramAPI extends Service with TelegramRequest {
+trait TelegramAPI extends Service with TelegramRequest {
 
   private val TELEGRAM_PLATFORM = "telegram"
 
@@ -25,13 +25,16 @@ abstract class TelegramAPI extends Service with TelegramRequest {
 
         command.split("_").head match {
           case "/cbc" =>
+            val isFromGroup = if (message.chat.chatType == "group" || message.chat.chatType == "supergroup")
+              Some(Customer(message.chat.id, message.chat.title.getOrElse(""), TELEGRAM_PLATFORM)) else None
             val customer = Customer(message.from.id, getName(message), TELEGRAM_PLATFORM)
+            val callback = (photo: Photo) => getTelegramSendPhoto(message.chat.id, photo).code
 
             if (command.split("_").length > 1) {
               val account = command.replace("_", ".").stripPrefix("/cbc.")
-              getRandom(account, customer, photo => getTelegramSendPhoto(message.chat.id, photo).code)
+              getRandom(account, customer, isFromGroup, callback)
             } else {
-              getRandom(customer, photo => getTelegramSendPhoto(message.chat.id, photo).code)
+              getRandom(customer, isFromGroup, callback)
             }
           case _ => 404
         }

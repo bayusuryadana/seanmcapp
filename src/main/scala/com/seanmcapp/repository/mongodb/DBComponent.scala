@@ -23,7 +23,7 @@ object DB {
 
   private val settings = MongoClientSettings.builder().applyConnectionString(connectionString).streamFactoryFactory(NettyStreamFactoryFactory()).build()
 
-  private val codecRegistry = fromRegistries(fromProviders(classOf[Customer], classOf[Photo], classOf[Vote], classOf[Account]), DEFAULT_CODEC_REGISTRY)
+  private val codecRegistry = fromRegistries(fromProviders(classOf[Customer], classOf[Photo], classOf[Vote], classOf[Account], classOf[Track]), DEFAULT_CODEC_REGISTRY)
 
   val database = MongoClient(settings).getDatabase(connectionString.getDatabase).withCodecRegistry(codecRegistry)
 
