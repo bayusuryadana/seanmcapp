@@ -8,7 +8,7 @@ import spray.json._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-abstract class WebAPI extends Service {
+trait WebAPI extends Service {
 
   import com.seanmcapp.util.parser.WebAPIJson._
 
@@ -32,7 +32,8 @@ abstract class WebAPI extends Service {
   def stats(request: JsValue): Future[JsValue] = {
     request.asInstanceOf[JsString].value match {
       case "account_rank" => accountRank
-      case "customer_rank" => customerRank
+      case "customer_votes_rank" => customerVotesRank
+      case "customer_tracks_rank" => customerTracksRank
       case "photo_rank" => photoRank
       case _ => Future.successful(JsString("no such method"))
     }
@@ -42,7 +43,7 @@ abstract class WebAPI extends Service {
     println("===== INPUT (RANDOM) =====\n" + input + "\n")
     val request = input.convertTo[Customer]
     val customer = Customer(request.id, request.name, request.platform)
-    getRandom[Photo](customer, (p:Photo) => p).map(_.toJson)
+    getRandom[Photo](customer, None, (p:Photo) => p).map(_.toJson)
   }
 
   private def voteFlow(input: JsValue): Future[JsValue] = {
@@ -97,7 +98,7 @@ abstract class WebAPI extends Service {
     }
   }
 
-  private def customerRank = {
+  private def customerVotesRank = {
     val customerRepoF = customerRepo.getAll
     val voteRepoF = voteRepo.getAll
     for {
@@ -113,6 +114,18 @@ abstract class WebAPI extends Service {
       }.filter(_.count > 0)
 
       result.sortBy(-_.count).toJson
+    }
+  }
+
+  private def customerTracksRank = {
+    val customerRepoF = customerRepo.getAll
+    val trackRepoF = trackRepo.getAll
+    for {
+      customers <- customerRepoF
+      tracks <- trackRepoF
+    } yield {
+      val customerMap = tracks.groupBy(t => t.customerId).map(c => (c._1,c._2.length))
+      customers.map(c => (c.name, customerMap.getOrElse(c.id, 0))).toJson
     }
   }
 

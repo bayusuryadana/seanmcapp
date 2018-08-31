@@ -1,32 +1,29 @@
 package com.seanmcapp.startup
 
-import com.seanmcapp.api.{WebAPI, TelegramAPI}
+import com.seanmcapp.api.{Service, TelegramAPI, WebAPI}
 import com.seanmcapp.fetcher.InstagramFetcher
-import com.seanmcapp.repository.{AccountRepo, CustomerRepo, PhotoRepo, VoteRepo}
-import com.seanmcapp.repository.mongodb.{AccountRepoImpl, CustomerRepoImpl, PhotoRepoImpl, VoteRepoImpl}
+import com.seanmcapp.repository.mongodb._
 
 trait Injection {
 
   private val customerRepoImpl = new CustomerRepoImpl
   private val photoRepoImpl = new PhotoRepoImpl
   private val voteRepoImpl = new VoteRepoImpl
+  private val trackRepoImpl = new TrackRepoImpl
   private val accountRepoImpl = new AccountRepoImpl
 
-  val webAPI = new WebAPI {
-    override val photoRepo: PhotoRepo = photoRepoImpl
-    override val customerRepo: CustomerRepo = customerRepoImpl
-    override val voteRepo: VoteRepo = voteRepoImpl
+  trait ServiceImpl extends Service {
+    override val customerRepo = customerRepoImpl
+    override val photoRepo = photoRepoImpl
+    override val voteRepo = voteRepoImpl
+    override val trackRepo = trackRepoImpl
+    override val accountRepo = accountRepoImpl
   }
 
-  val telegramAPI = new TelegramAPI {
-    override val photoRepo: PhotoRepo = photoRepoImpl
-    override val voteRepo: VoteRepo = voteRepoImpl
-    override val customerRepo: CustomerRepo = customerRepoImpl
-  }
+  val webAPI = new WebAPI with ServiceImpl
 
-  val instagramFetcher = new InstagramFetcher {
-    override val customerRepo: CustomerRepo = customerRepoImpl
-    override val photoRepo: PhotoRepo = photoRepoImpl
-    override val accountRepo: AccountRepo = accountRepoImpl
-  }
+  val telegramAPI = new TelegramAPI with ServiceImpl
+
+  val instagramFetcher = new InstagramFetcher with ServiceImpl
+
 }

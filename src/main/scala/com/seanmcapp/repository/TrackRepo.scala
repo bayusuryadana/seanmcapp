@@ -9,7 +9,7 @@ case class Track(@BsonProperty("customers_id") customerId: Long, @BsonProperty("
 
 trait TrackRepo {
 
-  def getCount: Future[Long]
+  def getAll: Future[Seq[Track]]
 
   def getLast100(customerId: Long): Future[Set[Long]]
 

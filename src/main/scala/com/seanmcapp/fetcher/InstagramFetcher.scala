@@ -1,5 +1,6 @@
 package com.seanmcapp.fetcher
 
+import com.seanmcapp.api.Service
 import com.seanmcapp.config.InstagramConf
 import com.seanmcapp.repository._
 import com.seanmcapp.util.parser._
@@ -9,11 +10,7 @@ import spray.json._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-abstract class InstagramFetcher extends InstagramRequest {
-
-  val customerRepo: CustomerRepo
-  val photoRepo: PhotoRepo
-  val accountRepo: AccountRepo
+trait InstagramFetcher extends Service with InstagramRequest {
 
   case class InstagramAuthToken(csrftoken: String, sessionId: String)
   import com.seanmcapp.util.parser.InstagramJson._

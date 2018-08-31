@@ -9,7 +9,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class TrackRepoImpl extends DBComponent[Track]("tracks") with TrackRepo {
 
-  override def getCount: Future[Long] = collection.estimatedDocumentCount().toFuture()
+  override def getAll: Future[Seq[Track]] = collection.find().toFuture()
 
   override def getLast100(customerId: Long): Future[Set[Long]] = collection
     .find(equal("customers_id", customerId)).limit(100).toFuture().map(_.map(_.photoId).toSet)
