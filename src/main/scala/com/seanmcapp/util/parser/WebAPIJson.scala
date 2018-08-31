@@ -11,8 +11,8 @@ object WebAPIJson extends DefaultJsonProtocol {
 
   implicit val customerFormat = jsonFormat3(Customer)
 
-  implicit val voteFormat = jsonFormat3(Vote)
+  implicit val voteFormat = jsonFormat(Vote, "photo_id", "customer_id", "rating")
 
-  implicit val photoFormat = jsonFormat5(Photo)
+  implicit val photoFormat = jsonFormat(Photo, "id", "thumbnail_src", "date", "caption", "account")
 
 }

@@ -42,7 +42,7 @@ abstract class TelegramAPI extends Service with TelegramRequest {
       val queryId = cb.id
       val customerId = cb.from.id
       val rating = cb.data.split(":").head.toLong
-      val photoId = cb.data.split(":").last
+      val photoId = cb.data.split(":").last.toLong
 
       val vote = Vote(photoId, customerId, rating)
       doVote(vote).map(res => res.map(_ => getAnswerCallbackQuery(queryId, "Vote received, thank you!").code))
