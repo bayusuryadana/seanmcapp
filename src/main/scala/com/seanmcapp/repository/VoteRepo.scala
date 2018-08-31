@@ -8,6 +8,8 @@ case class Vote(@BsonProperty("photos_id") photoId: Long, @BsonProperty("custome
 
 trait VoteRepo {
 
+  def getAll: Future[Seq[Vote]]
+
   def update(vote: Vote): Future[Option[Vote]]
 
 }
