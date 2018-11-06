@@ -20,7 +20,7 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     post((path("webhook") & entity(as[JsValue]))(request => complete(telegramAPI.flow(request)))), // telegram
 
     // Statistics
-    get(path("stats" / Remaining)(method => complete(webAPI.stats(JsString(method))))),
+    get(path("stats")(complete(webAPI.stats()))),
 
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !"))),
