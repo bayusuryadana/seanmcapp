@@ -5,7 +5,7 @@ import spray.json._
 
 case class BroadcastMessage(recipient: Long, message: String, key: String)
 
-case class Result(name: String, count: Long, avg: String)
+case class Result(name: String, count: Long, avg: Double, account: String = "")
 
 object WebAPIJson extends DefaultJsonProtocol {
 
@@ -17,6 +17,6 @@ object WebAPIJson extends DefaultJsonProtocol {
 
   implicit val photoFormat = jsonFormat(Photo, "id", "thumbnail_src", "date", "caption", "account")
 
-  implicit val resultFormat = jsonFormat3(Result)
+  implicit val resultFormat = jsonFormat4(Result)
 
 }
