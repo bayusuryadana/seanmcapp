@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives
 import akka.stream.Materializer
+import com.seanmcapp.api.AmazonS3FileUploadExample
 import spray.json._
 
 import scala.concurrent.ExecutionContext
@@ -21,6 +22,9 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
 
     // Statistics
     get(path("stats")(complete(webAPI.stats()))),
+
+    // upload image
+    get(path("ehek")(complete(AmazonS3FileUploadExample.ehek()))),
 
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !"))),

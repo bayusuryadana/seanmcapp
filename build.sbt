@@ -21,7 +21,10 @@ libraryDependencies ++= Seq(
 
   // scalatest
   "org.scalactic" %% "scalactic" % "3.0.5",
-  "org.scalatest" %% "scalatest" % "3.0.5" % Test
+  "org.scalatest" %% "scalatest" % "3.0.5" % Test,
+  
+  // image storage
+  "com.amazonaws" % "aws-java-sdk" % "1.11.444"
 )
 
 enablePlugins(JavaAppPackaging)
