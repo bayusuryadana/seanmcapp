@@ -1,6 +1,6 @@
 package com.seanmcapp.util.requestbuilder
 
-import com.seanmcapp.config.TelegramConf
+import com.seanmcapp.config.{DriveConf, TelegramConf}
 import com.seanmcapp.repository.Photo
 
 import scalaj.http.{Http, HttpResponse}
@@ -29,7 +29,7 @@ trait TelegramRequest {
 
     val urlString = baseUrl + "/sendphoto" +
       "?chat_id=" + chatId +
-      "&photo=" + photo.thumbnailSrc +
+      "&photo=" + DriveConf().url + photoId + ".jpg" +
       "&caption=" + photo.caption +
       "%0A%40" + photo.account +
       "&reply_markup=" + inlineKeyboard
