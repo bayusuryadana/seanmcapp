@@ -10,28 +10,39 @@ import com.seanmcapp.repository.mongodb.PhotoRepoImpl
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Try
 
 object AmazonS3FileUploadExample {
 
   def ehek(): Future[String] = {
+    val metadata = new ObjectMetadata()
+    metadata.setContentType("image/jpeg")
+    val awsConf = AWSConf()
+    val credentials = new BasicAWSCredentials(awsConf.access, awsConf.secret)
+    val amazonS3Client = AmazonS3ClientBuilder
+      .standard
+      .withCredentials(new AWSStaticCredentialsProvider(credentials))
+      .withRegion(awsConf.region)
+      .build
+
+    val photoRepoF = new PhotoRepoImpl
     for {
-      photoRepo <- new PhotoRepoImpl().getAll()
+      photoRepo <- photoRepoF.getAll()
     } yield {
-      val metadata = new ObjectMetadata()
-      metadata.setContentType("image/jpeg")
-      println("content-type => " + metadata.getContentType)
-      val awsConf = AWSConf()
-      val credentials = new BasicAWSCredentials(awsConf.access, awsConf.secret)
-      val amazonS3Client = AmazonS3ClientBuilder
-        .standard
-        .withCredentials(new AWSStaticCredentialsProvider(credentials))
-        .withRegion(awsConf.region)
-        .build
-      photoRepo.map { photo =>
-        val file = new URL(photo.thumbnailSrc).openStream()
-        val filename = "seanmcapp/" + photo.id + ".jpg"
-        amazonS3Client.putObject(awsConf.bucket, filename, file, metadata)
-        println("[DONE] " + photo.id)
+      var c = 0;
+      photoRepo.foreach { photo =>
+        Try(new URL(photo.thumbnailSrc).openStream()).toOption match {
+          case Some(inputStream) =>
+            val filename = "seanmcapp/" + photo.id + ".jpg"
+            amazonS3Client.putObject(awsConf.bucket, filename, inputStream, metadata)
+            c += 1
+            println("[DONE "+c+"] " + photo.id)
+          case _ =>
+            val isDeleted = photoRepoF.delete(photo.id).isCompleted
+            if (isDeleted) {
+              println("[DELETED] " + photo.id)
+            }
+        }
       }
       "100"
     }

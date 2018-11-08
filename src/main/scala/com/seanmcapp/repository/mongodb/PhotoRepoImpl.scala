@@ -4,6 +4,7 @@ import org.mongodb.scala.model.Filters._
 import org.mongodb.scala.model.Sorts._
 import com.seanmcapp.repository.{Photo, PhotoRepo}
 import org.mongodb.scala.Completed
+import org.mongodb.scala.result.DeleteResult
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -31,4 +32,5 @@ class PhotoRepoImpl extends DBComponent[Photo]("photos") with PhotoRepo {
 
   override def insert(photos: Seq[Photo]): Future[Completed] = collection.insertMany(photos).toFuture()
 
+  override def delete(id: Long): Future[DeleteResult] = collection.deleteOne(equal("_id", id)).toFuture()
 }
