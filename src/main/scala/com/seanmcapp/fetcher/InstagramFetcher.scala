@@ -1,14 +1,18 @@
 package com.seanmcapp.fetcher
 
+import java.net.URL
+
 import com.seanmcapp.api.Service
-import com.seanmcapp.config.InstagramConf
+import com.seanmcapp.config.{AWSConf, DriveConf, InstagramConf}
 import com.seanmcapp.repository._
+import com.seanmcapp.util.AWS
 import com.seanmcapp.util.parser._
 import com.seanmcapp.util.requestbuilder.InstagramRequest
 import spray.json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.Try
 
 trait InstagramFetcher extends Service with InstagramRequest {
 
@@ -45,10 +49,20 @@ trait InstagramFetcher extends Service with InstagramRequest {
 
           val unsavedResult = fetchResult
             .filter(node => !(allPhotoSet.contains(node.id) || regexResult(node).isEmpty))
-            .map(node => Photo(node.id, node.thumbnailSrc, node.date, regexResult(node).get, account.name))
+            .foldLeft(Seq.empty[Photo]) { (res, node) =>
+              val inputStream = Try(new URL(node.thumbnailSrc).openStream()).toOption
+              if (inputStream.isDefined) {
+                val filename = DriveConf().url + node.id + ".jpg"
+                AWS.client.putObject(AWSConf().bucket, filename, inputStream.get, AWS.metadata)
+                res :+ Photo(node.id, node.thumbnailSrc, node.date, regexResult(node).get, account.name)
+              } else {
+                res
+              }
+            }
 
-          println("[SAVING] saving " + account.name + " " + unsavedResult.size + " photo(s)")
+          println("[SAVING] saving " + account.name)
           photoRepo.insert(unsavedResult).map(_ => println("[DONE] fetching " + account.name))
+          println("[DONE] " + account.name + "(" + unsavedResult.size + ")" + " -> " + unsavedResult)
           account.name -> unsavedResult
         }
       }
