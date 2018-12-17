@@ -1,6 +1,6 @@
 name := "seanmcapp"
 
-version := "0.0"
+version := "latest"
 
 scalaVersion := "2.12.4"
 
@@ -27,4 +27,7 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk" % "1.11.444"
 )
 
+mainClass in Compile := Some("com.seanmcapp.startup.Boot")
+
 enablePlugins(JavaAppPackaging)
+enablePlugins(DockerPlugin)
