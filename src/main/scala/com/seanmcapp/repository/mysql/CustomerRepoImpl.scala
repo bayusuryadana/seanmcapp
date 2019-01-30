@@ -1,7 +1,7 @@
-package com.seanmcapp.repository.postgre
+package com.seanmcapp.repository.mysql
 
 import com.seanmcapp.repository.{Customer, CustomerRepo}
-import slick.jdbc.PostgresProfile.api._
+import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.Future
 

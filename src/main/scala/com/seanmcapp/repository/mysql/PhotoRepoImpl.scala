@@ -1,9 +1,9 @@
-package com.seanmcapp.repository.postgre
+package com.seanmcapp.repository.mysql
 
 import com.seanmcapp.repository.{Photo, PhotoRepo}
 import org.mongodb.scala.Completed
 import org.mongodb.scala.result.DeleteResult
-import slick.jdbc.PostgresProfile.api._
+import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

@@ -2,7 +2,7 @@ package com.seanmcapp
 
 import com.seanmcapp.api.{Service, TelegramAPI, WebAPI}
 import com.seanmcapp.fetcher.InstagramFetcher
-import com.seanmcapp.repository.postgre._
+import com.seanmcapp.repository.mysql._
 
 trait InjectionTest {
 
