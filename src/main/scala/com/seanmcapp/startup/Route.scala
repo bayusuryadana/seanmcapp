@@ -12,7 +12,7 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
 
   val routePath = Seq(
     // fetcher
-    get(path("sync")(complete(instagramFetcher.flow))), //instagram
+    //get(path("sync")(complete(instagramFetcher.flow))), //instagram
 
     // API
     get(path("api" / Remaining)(method => complete(webAPI.get(JsString(method))))), // web API
