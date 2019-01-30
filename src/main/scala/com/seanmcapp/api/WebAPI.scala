@@ -17,7 +17,7 @@ trait WebAPI extends Service {
   def get(request: JsValue): Future[JsValue] = {
     request.asInstanceOf[JsString].value match {
       case "latest" => photoRepo.getLatest.map(_.toJson)
-      case "random" => photoRepo.getRandom.map(_.toJson)
+      case "random" => photoRepo.getRandom(None).map(_.toJson)
       case _ => Future.successful(JsString("no such method"))
     }
   }
@@ -26,7 +26,6 @@ trait WebAPI extends Service {
     request.asInstanceOf[JsString].value match {
       case "random" => randomFlow(input)
       case "vote" => voteFlow(input)
-      case "broadcast" => broadcastFlow(input)
       case _ => Future.successful(JsString("no such method"))
     }
   }
@@ -109,7 +108,7 @@ trait WebAPI extends Service {
     println("===== INPUT (RANDOM) =====\n" + input + "\n")
     val request = input.convertTo[Customer]
     val customer = Customer(request.id, request.name, request.platform)
-    getRandom[Photo](customer, None, (p:Photo) => p).map(_.toJson)
+    getRandom(customer, None, None)((p:Photo) => p).map(_.toJson)
   }
 
   private def voteFlow(input: JsValue): Future[JsValue] = {
@@ -117,29 +116,6 @@ trait WebAPI extends Service {
     val request = input.convertTo[Vote]
     val vote = Vote(request.photoId, request.customerId, request.rating)
     doVote(vote).map(_ => 200.toJson)
-  }
-
-  private def broadcastFlow(input: JsValue): Future[JsValue] = {
-    val telegramRequest = new TelegramRequest {}
-    val request = input.convertTo[BroadcastMessage]
-    if (telegramRequest.telegramConf.key == request.key) {
-      if (request.recipient == 0) {
-        val customerRepoFuture = customerRepo.getAll
-        for {
-          customerRepo <- customerRepoFuture
-        } yield {
-          val result = customerRepo.map { subscriber =>
-            telegramRequest.getTelegramSendMessege(subscriber.id, request.message).isSuccess
-          }.reduce { (a, b) => a && b }
-          JsBoolean(result)
-        }
-      } else {
-        // my telegram id = 274852283L
-        Future.successful(JsBoolean(telegramRequest.getTelegramSendMessege(request.recipient, request.message).isSuccess))
-      }
-    } else {
-      Future.successful(JsString("wrong key"))
-    }
   }
 
 }

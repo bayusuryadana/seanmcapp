@@ -7,11 +7,11 @@ import com.seanmcapp.repository.mysql._
 trait Injection {
 
   trait ServiceImpl extends Service {
-    override val customerRepo = new CustomerRepoImpl
-    override val photoRepo = new PhotoRepoImpl
-    override val voteRepo = new VoteRepoImpl
-    override val trackRepo = new TrackRepoImpl
-    override val accountRepo = new AccountRepoImpl
+    override val customerRepo = CustomerRepoImpl
+    override val photoRepo = PhotoRepoImpl
+    override val voteRepo = VoteRepoImpl
+    override val trackRepo = TrackRepoImpl
+    override val accountRepo = AccountRepoImpl
   }
 
   val webAPI = new WebAPI with ServiceImpl

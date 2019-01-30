@@ -13,7 +13,7 @@ class AccountInfo (tag: Tag) extends Table[Account](tag, "accounts") {
   def * = (id, name, regex) <> (Account.tupled, Account.unapply)
 }
 
-class AccountRepoImpl extends TableQuery(new AccountInfo(_)) with AccountRepo with DBComponent {
+object AccountRepoImpl extends TableQuery(new AccountInfo(_)) with AccountRepo with DBComponent {
 
   def getAll: Future[Seq[Account]] = {
     run(this.result)

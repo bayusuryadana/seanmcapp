@@ -10,22 +10,18 @@ class CustomerInfo(tag: Tag) extends Table[Customer](tag, "customers") {
   val name = column[String]("name")
   val platform = column[String]("platform")
 
-  def * =
-    (id, name, platform) <> (Customer.tupled, Customer.unapply)
+  def * = (id, name, platform) <> (Customer.tupled, Customer.unapply)
 }
 
-class CustomerRepoImpl extends TableQuery(new CustomerInfo(_)) with CustomerRepo with DBComponent {
-
-  def get(id: Long): Future[Option[Customer]] = {
-    run(this.filter(_.id === id).result.headOption)
-  }
-
-  def getAll: Future[Seq[Customer]] = {
-    run(this.result)
-  }
+object CustomerRepoImpl extends TableQuery(new CustomerInfo(_)) with CustomerRepo with DBComponent {
 
   def update(customer: Customer): Future[Option[Customer]] = {
     run(this.returning(this).insertOrUpdate(customer))
+  }
+
+  // TODO: get rid of this to Join
+  def getAll: Future[Seq[Customer]] = {
+    run(this.result)
   }
 
 }

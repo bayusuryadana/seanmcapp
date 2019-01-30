@@ -23,10 +23,6 @@ libraryDependencies ++= Seq(
   // mysql
   "mysql" % "mysql-connector-java" % "6.0.6",
 
-  // mongodb
-  "org.mongodb.scala" %% "mongo-scala-driver" % "2.4.1",
-  "io.netty" % "netty-all" % "4.1.28.Final",
-
   // scalatest
   "org.scalactic" %% "scalactic" % "3.0.5",
   "org.scalatest" %% "scalatest" % "3.0.5" % Test,

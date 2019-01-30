@@ -36,19 +36,18 @@ trait InstagramFetcher extends Service with InstagramRequest {
     if (authOption.isDefined) {
       val auth = authOption.get
       val results = accounts.map { account =>
-        val latestPhotoFuture = photoRepo.getLatest(account.name)
         val allPhotoFuture = photoRepo.getAll(account.name)
         for {
-          latestPhoto <- latestPhotoFuture
-          allPhotoSet <- allPhotoFuture
+          allPhoto <- allPhotoFuture
         } yield {
           println("[START] fetching " + account.name)
-          val fetchResult = getPage(account, auth, None, latestPhoto.map(_.date).getOrElse(0))
+          val latestPhoto = allPhoto.lastOption
+          val fetchResult = getPage(account, auth, None, latestPhoto.map(_._2).getOrElse(0))
 
           def regexResult = (node: InstagramNodeResult) => account.regex.r.findFirstIn(node.caption)
 
           val unsavedResult = fetchResult
-            .filter(node => !(allPhotoSet.contains(node.id) || regexResult(node).isEmpty))
+            .filter(node => !(allPhoto.map(_._1).toSet.contains(node.id) || regexResult(node).isEmpty))
             .foldLeft(Seq.empty[Photo]) { (res, node) =>
               val inputStream = Try(new URL(node.thumbnailSrc).openStream()).toOption
               if (inputStream.isDefined) {
