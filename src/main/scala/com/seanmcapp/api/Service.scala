@@ -24,17 +24,22 @@ trait Service {
     voteRepo.update(vote)
   }
 
-  private def doTracking[T](customer: Customer, photo: Photo, isFromGroup: Option[Customer]): Unit = {
-    customerRepo.update(customer)
-    val customerId = if (isFromGroup.isDefined) {
+  private def doTracking[T](customer: Customer, photo: Photo, isFromGroup: Option[Customer]): Future[Seq[Any]] = {
+    // update user info
+    val (customerF, customerId) = if (isFromGroup.isDefined) {
       val groupCustomer = isFromGroup.get
-      customerRepo.update(groupCustomer)
-      groupCustomer.id
+      (customerRepo.update(groupCustomer), groupCustomer.id)
     } else {
-      customer.id
+      (customerRepo.update(customer), customer.id)
     }
+
+    println("======== TRACK ==========")
+    println("Customer ID: " + customerId)
+    println("Photo ID: " + photo.id)
     val track = Track(customerId, photo.id, System.currentTimeMillis / 1000)
-    trackRepo.update(track)
+    val trackF = trackRepo.update(track)
+
+    Future.sequence(Seq(customerF, trackF))
   }
 
 }

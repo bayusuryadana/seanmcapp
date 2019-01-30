@@ -32,7 +32,6 @@ trait TelegramAPI extends Service with TelegramRequest {
             getRandom(customer, isFromGroup, account) { photo =>
               getTelegramSendPhoto(message.chat.id, photo).code
             }
-
           case _ => 404
         }
       }
