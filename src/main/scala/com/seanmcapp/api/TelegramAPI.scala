@@ -28,13 +28,9 @@ trait TelegramAPI extends Service with TelegramRequest {
             val isFromGroup = if (message.chat.chatType == "group" || message.chat.chatType == "supergroup")
               Some(Customer(message.chat.id, message.chat.title.getOrElse(""), TELEGRAM_PLATFORM)) else None
             val customer = Customer(message.from.id, getName(message), TELEGRAM_PLATFORM)
-            val callback = (photo: Photo) => getTelegramSendPhoto(message.chat.id, photo).code
-
-            if (command.split("_").length > 1) {
-              val account = command.replace("_", ".").stripPrefix("/cbc.")
-              getRandom(account, customer, isFromGroup, callback)
-            } else {
-              getRandom(customer, isFromGroup, callback)
+            val account = if (command.split("_").length > 1) Some(command.replace("_", ".").stripPrefix("/cbc.")) else None
+            getRandom(customer, isFromGroup, account) { photo =>
+              getTelegramSendPhoto(message.chat.id, photo).code
             }
           case _ => 404
         }
@@ -48,7 +44,7 @@ trait TelegramAPI extends Service with TelegramRequest {
       val photoId = cb.data.split(":").last.toLong
 
       val vote = Vote(photoId, customerId, rating)
-      doVote(vote).map(res => res.map(_ => getAnswerCallbackQuery(queryId, "Vote received, thank you!").code))
+      doVote(vote).map(_ => getAnswerCallbackQuery(queryId, "Vote received, thank you!").code)
     }
 
     Future.successful(JsNumber(200))

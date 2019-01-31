@@ -1,6 +1,6 @@
 name := "seanmcapp"
 
-version := "0.0"
+version := "latest"
 
 scalaVersion := "2.12.4"
 
@@ -15,9 +15,13 @@ libraryDependencies ++= Seq(
   // http builder
   "org.scalaj" %% "scalaj-http" % "2.4.0",
 
-  // DB Driver
-  "org.mongodb.scala" %% "mongo-scala-driver" % "2.4.1",
-  "io.netty" % "netty-all" % "4.1.28.Final",
+  // ORM
+  "com.typesafe.slick" %% "slick" % "3.2.3",
+  "com.typesafe.slick" %% "slick-hikaricp" % "3.2.3",
+  "org.slf4j" % "slf4j-nop" % "1.6.4",
+
+  // mysql
+  "mysql" % "mysql-connector-java" % "6.0.6",
 
   // scalatest
   "org.scalactic" %% "scalactic" % "3.0.5",
@@ -27,4 +31,10 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk" % "1.11.444"
 )
 
+fork in Test := true
+javaOptions in Test += "-Dconfig.resource=/dev.conf"
+
+mainClass in Compile := Some("com.seanmcapp.startup.Boot")
+
 enablePlugins(JavaAppPackaging)
+enablePlugins(DockerPlugin)

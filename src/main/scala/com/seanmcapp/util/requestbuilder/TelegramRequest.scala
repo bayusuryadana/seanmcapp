@@ -36,11 +36,6 @@ trait TelegramRequest {
     Http(urlString).asString
   }
 
-  def getTelegramSendMessege(chatId: Long, text: String): HttpResponse[String] = {
-    val urlString = baseUrl + "/sendmessage?chat_id=" + chatId + "&text=" + text
-    Http(urlString).asString
-  }
-
   def getAnswerCallbackQuery(queryId: String, notificationText: String): HttpResponse[String] = {
     val urlString = baseUrl + "/answerCallbackQuery?callback_query_id=" + queryId + "&text=" + notificationText
     Http(urlString).asString
