@@ -17,7 +17,7 @@ class PhotoInfo(tag: Tag) extends Table[Photo](tag, "photos") {
 
 class PhotoRepoImpl extends TableQuery(new PhotoInfo(_)) with PhotoRepo with DBComponent {
 
-  // TODO: get rid of this to Join
+  // TODO: get rid of this to Grafana
   def getAll: Future[Seq[Photo]] = {
     run(this.result)
   }

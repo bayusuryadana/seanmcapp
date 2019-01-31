@@ -8,6 +8,6 @@ trait TrackRepo {
 
   def getAll: Future[Seq[Track]]
 
-  def update(track: Track): Future[Option[Track]]
+  def insert(track: Track): Future[Int]
 
 }

@@ -15,29 +15,26 @@ trait Service {
 
   def getRandom[T](customer: Customer, isFromGroup: Option[Customer], account: Option[String])(callback: Photo => T): Future[Option[T]] = {
     photoRepo.getRandom(account).map(_.map { photo =>
-      doTracking(customer, photo, isFromGroup)
+      doTracking(customer, photo, isFromGroup).map(res => println("[INFO] Track done: " + res))
       callback(photo)
     })
   }
 
-  def doVote(vote: Vote): Future[Option[Vote]] = {
-    voteRepo.update(vote)
+  def doVote(vote: Vote): Future[Int] = {
+    voteRepo.insertOrUpdate(vote)
   }
 
-  private def doTracking[T](customer: Customer, photo: Photo, isFromGroup: Option[Customer]): Future[Seq[Any]] = {
+  private def doTracking[T](customer: Customer, photo: Photo, isFromGroup: Option[Customer]): Future[Seq[Int]] = {
     // update user info
     val (customerF, customerId) = if (isFromGroup.isDefined) {
       val groupCustomer = isFromGroup.get
-      (customerRepo.update(groupCustomer), groupCustomer.id)
+      (customerRepo.insertOrUpdate(groupCustomer), groupCustomer.id)
     } else {
-      (customerRepo.update(customer), customer.id)
+      (customerRepo.insertOrUpdate(customer), customer.id)
     }
 
-    println("======== TRACK ==========")
-    println("Customer ID: " + customerId)
-    println("Photo ID: " + photo.id)
     val track = Track(customerId, photo.id, System.currentTimeMillis / 1000)
-    val trackF = trackRepo.update(track)
+    val trackF = trackRepo.insert(track)
 
     Future.sequence(Seq(customerF, trackF))
   }

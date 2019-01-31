@@ -8,6 +8,6 @@ trait VoteRepo {
 
   def getAll: Future[Seq[Vote]]
 
-  def update(vote: Vote): Future[Option[Vote]]
+  def insertOrUpdate(vote: Vote): Future[Int]
 
 }

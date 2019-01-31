@@ -8,6 +8,6 @@ trait CustomerRepo {
 
   def getAll: Future[Seq[Customer]]
 
-  def update(customer: Customer): Future[Option[Customer]]
+  def insertOrUpdate(customer: Customer): Future[Int]
 
 }

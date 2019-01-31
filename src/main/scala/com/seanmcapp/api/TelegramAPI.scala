@@ -44,7 +44,7 @@ trait TelegramAPI extends Service with TelegramRequest {
       val photoId = cb.data.split(":").last.toLong
 
       val vote = Vote(photoId, customerId, rating)
-      doVote(vote).map(res => res.map(_ => getAnswerCallbackQuery(queryId, "Vote received, thank you!").code))
+      doVote(vote).map(_ => getAnswerCallbackQuery(queryId, "Vote received, thank you!").code)
     }
 
     Future.successful(JsNumber(200))
