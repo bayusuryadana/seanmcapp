@@ -12,11 +12,11 @@ class VoteInfo(tag: Tag) extends Table[Vote](tag, "votes") {
 
   def * = (customerId, photoId, rating) <> (Vote.tupled, Vote.unapply)
   def pk = primaryKey("pk", (customerId, photoId))
-  def customerFK = foreignKey("CUS_FK", customerId, CustomerRepoImpl)(_.id, onUpdate=ForeignKeyAction.Cascade, onDelete=ForeignKeyAction.Restrict)
-  def photoFK = foreignKey("PHO_FK", photoId, PhotoRepoImpl)(_.id, onUpdate=ForeignKeyAction.Cascade, onDelete=ForeignKeyAction.Restrict)
+  def customerFK = foreignKey("CUS_FK", customerId, new CustomerRepoImpl)(_.id, onUpdate=ForeignKeyAction.Cascade, onDelete=ForeignKeyAction.Restrict)
+  def photoFK = foreignKey("PHO_FK", photoId, new PhotoRepoImpl)(_.id, onUpdate=ForeignKeyAction.Cascade, onDelete=ForeignKeyAction.Restrict)
 }
 
-object VoteRepoImpl extends TableQuery(new VoteInfo(_)) with VoteRepo with DBComponent {
+class VoteRepoImpl extends TableQuery(new VoteInfo(_)) with VoteRepo with DBComponent {
 
   def update(vote: Vote): Future[Option[Vote]] = {
     run(this.returning(this).insertOrUpdate(vote))

@@ -12,12 +12,12 @@ class TrackInfo(tag: Tag) extends Table[Track](tag, "tracks") {
 
   def * = (customerId, photoId, date) <> (Track.tupled, Track.unapply)
   def pk = primaryKey("pk", (customerId, photoId, date))
-  def customerFK = foreignKey("CUS_FK", customerId, CustomerRepoImpl)(_.id, onUpdate=ForeignKeyAction.Cascade, onDelete=ForeignKeyAction.Restrict)
-  def photoFK = foreignKey("PHO_FK", photoId, PhotoRepoImpl)(_.id, onUpdate=ForeignKeyAction.Cascade, onDelete=ForeignKeyAction.Restrict)
+  def customerFK = foreignKey("CUS_FK", customerId, new CustomerRepoImpl)(_.id, onUpdate=ForeignKeyAction.Cascade, onDelete=ForeignKeyAction.Restrict)
+  def photoFK = foreignKey("PHO_FK", photoId, new PhotoRepoImpl)(_.id, onUpdate=ForeignKeyAction.Cascade, onDelete=ForeignKeyAction.Restrict)
 
 }
 
-object TrackRepoImpl extends TableQuery(new TrackInfo(_)) with TrackRepo with DBComponent {
+class TrackRepoImpl extends TableQuery(new TrackInfo(_)) with TrackRepo with DBComponent {
 
   def update(track: Track): Future[Option[Track]] = {
     run(this.returning(this).insertOrUpdate(track))

@@ -13,7 +13,7 @@ class CustomerInfo(tag: Tag) extends Table[Customer](tag, "customers") {
   def * = (id, name, platform) <> (Customer.tupled, Customer.unapply)
 }
 
-object CustomerRepoImpl extends TableQuery(new CustomerInfo(_)) with CustomerRepo with DBComponent {
+class CustomerRepoImpl extends TableQuery(new CustomerInfo(_)) with CustomerRepo with DBComponent {
 
   def update(customer: Customer): Future[Option[Customer]] = {
     run(this.returning(this).insertOrUpdate(customer))

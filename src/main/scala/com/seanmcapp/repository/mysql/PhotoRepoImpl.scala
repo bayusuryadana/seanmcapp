@@ -4,7 +4,6 @@ import com.seanmcapp.repository.{Photo, PhotoRepo}
 import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.Future
-import scala.util.Random
 
 class PhotoInfo(tag: Tag) extends Table[Photo](tag, "photos") {
   val id = column[Long]("id", O.PrimaryKey)
@@ -16,7 +15,7 @@ class PhotoInfo(tag: Tag) extends Table[Photo](tag, "photos") {
   def * = (id, thumbnailSrc, date, caption, account) <> (Photo.tupled, Photo.unapply)
 }
 
-object PhotoRepoImpl extends TableQuery(new PhotoInfo(_)) with PhotoRepo with DBComponent {
+class PhotoRepoImpl extends TableQuery(new PhotoInfo(_)) with PhotoRepo with DBComponent {
 
   // TODO: get rid of this to Join
   def getAll: Future[Seq[Photo]] = {
