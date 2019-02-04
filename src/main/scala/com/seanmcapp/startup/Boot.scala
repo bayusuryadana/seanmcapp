@@ -1,11 +1,15 @@
 package com.seanmcapp.startup
 
+import java.util.concurrent.TimeUnit
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
+import com.seanmcapp.util.Scheduler
 
 import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 import scala.util.Try
 
 object Boot extends App {
@@ -24,6 +28,9 @@ object Boot extends App {
   }
 
   def start(port: Int): Future[ServerBinding] = {
+
+    Scheduler.init
+
     println(s"Server is started on port $port")
     Http().bindAndHandle(route, "0.0.0.0", port)
   }

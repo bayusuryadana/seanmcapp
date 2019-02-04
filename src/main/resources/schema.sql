@@ -64,3 +64,11 @@ create table matches (
 	assists integer not null,
 	skill integer not null
 );
+
+create table people (
+	id int primary key,
+	name varchar(100) not null,
+	day int not null check (day > 0 and day <= 31),
+	month int not null check (month > 0 and month <= 12),
+	is_reminded boolean not null
+);
