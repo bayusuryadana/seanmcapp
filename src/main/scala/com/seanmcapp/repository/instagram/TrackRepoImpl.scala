@@ -1,6 +1,6 @@
-package com.seanmcapp.repository.mysql
+package com.seanmcapp.repository.instagram
 
-import com.seanmcapp.repository.{Track, TrackRepo}
+import com.seanmcapp.repository.DBComponent
 import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.Future
@@ -14,7 +14,7 @@ class TrackInfo(tag: Tag) extends Table[Track](tag, "tracks") {
 
 }
 
-class TrackRepoImpl extends TableQuery(new TrackInfo(_)) with TrackRepo with DBComponent {
+object TrackRepoImpl extends TableQuery(new TrackInfo(_)) with TrackRepo with DBComponent {
 
   def insert(track: Track): Future[Int] = {
     run(this += track)

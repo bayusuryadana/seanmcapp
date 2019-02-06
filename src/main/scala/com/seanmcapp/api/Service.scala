@@ -1,6 +1,7 @@
 package com.seanmcapp.api
 
 import com.seanmcapp.repository._
+import com.seanmcapp.repository.instagram._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -11,7 +12,6 @@ trait Service {
   val voteRepo: VoteRepo
   val photoRepo: PhotoRepo
   val trackRepo: TrackRepo
-  val accountRepo: AccountRepo
 
   def getRandom[T](customer: Customer, isFromGroup: Option[Customer], account: Option[String])(callback: Photo => T): Future[Option[T]] = {
     photoRepo.getRandom(account).map(_.map { photo =>

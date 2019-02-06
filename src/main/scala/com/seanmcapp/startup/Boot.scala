@@ -28,9 +28,7 @@ object Boot extends App {
   }
 
   def start(port: Int): Future[ServerBinding] = {
-
     Scheduler.init
-
     println(s"Server is started on port $port")
     Http().bindAndHandle(route, "0.0.0.0", port)
   }

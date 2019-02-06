@@ -1,6 +1,6 @@
 package com.seanmcapp.util.parser
 
-import com.seanmcapp.repository.{Customer, Vote, Photo}
+import com.seanmcapp.repository.instagram.{Customer, Photo, Vote}
 import spray.json._
 
 case class BroadcastMessage(recipient: Long, message: String, key: String)

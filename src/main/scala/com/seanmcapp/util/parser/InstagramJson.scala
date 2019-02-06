@@ -1,6 +1,6 @@
 package com.seanmcapp.util.parser
 
-import com.seanmcapp.repository.Photo
+import com.seanmcapp.repository.instagram.Photo
 import spray.json._
 
 case class InstagramUpdate(data: InstagramData)

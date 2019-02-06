@@ -1,6 +1,6 @@
-package com.seanmcapp.repository.mysql
+package com.seanmcapp.repository.instagram
 
-import com.seanmcapp.repository.{Customer, CustomerRepo}
+import com.seanmcapp.repository.DBComponent
 import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.Future
@@ -14,7 +14,7 @@ class CustomerInfo(tag: Tag) extends Table[Customer](tag, "customers") {
   def * = (id, name, platform) <> (Customer.tupled, Customer.unapply)
 }
 
-class CustomerRepoImpl extends TableQuery(new CustomerInfo(_)) with CustomerRepo with DBComponent {
+object CustomerRepoImpl extends TableQuery(new CustomerInfo(_)) with CustomerRepo with DBComponent {
 
   def insertOrUpdate(customer: Customer): Future[Int] = {
     val q = this.filter(_.id === customer.id)

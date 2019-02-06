@@ -2,6 +2,7 @@ package com.seanmcapp.api
 
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 import com.seanmcapp.repository._
+import com.seanmcapp.repository.instagram.{Customer, Photo, Vote}
 import com.seanmcapp.util.parser.{BroadcastMessage, Result}
 import com.seanmcapp.util.requestbuilder.TelegramRequest
 import spray.json._

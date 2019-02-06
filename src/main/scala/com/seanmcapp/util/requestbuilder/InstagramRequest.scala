@@ -1,6 +1,6 @@
 package com.seanmcapp.util.requestbuilder
 
-import com.seanmcapp.repository.Account
+import com.seanmcapp.repository.instagram.Account
 
 import scalaj.http.{Http, HttpOptions, HttpResponse}
 

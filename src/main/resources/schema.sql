@@ -50,7 +50,7 @@ create table peers (
 )
 
 create table matches (
-	id int primary key,
+	id bigint primary key,
 	players_id int references players(id),
 	player_slot int not null,
 	radiant_win bit not null,
@@ -61,14 +61,12 @@ create table matches (
 	start_time integer not null,
 	kills integer not null,
 	deaths integer not null,
-	assists integer not null,
-	skill integer not null
+	assists integer not null
 );
 
 create table people (
 	id int primary key,
 	name varchar(100) not null,
 	day int not null check (day > 0 and day <= 31),
-	month int not null check (month > 0 and month <= 12),
-	is_reminded boolean not null
+	month int not null check (month > 0 and month <= 12)
 );

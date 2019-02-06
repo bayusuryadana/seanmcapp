@@ -1,13 +1,13 @@
 package com.seanmcapp
 
-import com.seanmcapp.repository.Photo
+import com.seanmcapp.repository.instagram.Photo
 import com.seanmcapp.util.requestbuilder.TelegramRequest
 
 import scalaj.http.HttpResponse
 
 trait TelegramRequestMock extends TelegramRequest {
 
-  override def getTelegramSendPhoto(chatId: Long, photo: Photo): HttpResponse[String] = {
+  override def sendPhoto(chatId: Long, photo: Photo): HttpResponse[String] = {
     HttpResponse[String]("", 200, Map.empty)
   }
 
@@ -15,7 +15,7 @@ trait TelegramRequestMock extends TelegramRequest {
     HttpResponse[String]("", 200, Map.empty)
   }
 
-  override def getAnswerCallbackQuery(queryId: String, notificationText: String): HttpResponse[String] = {
+  override def sendAnswerCallbackQuery(queryId: String, notificationText: String): HttpResponse[String] = {
     HttpResponse[String]("", 200, Map.empty)
   }
 
