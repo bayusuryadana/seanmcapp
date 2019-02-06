@@ -1,4 +1,4 @@
-package com.seanmcapp.repository.mysql
+package com.seanmcapp.repository
 
 import slick.basic.DatabaseConfig
 import slick.dbio.DBIO
@@ -14,7 +14,7 @@ trait DBComponent {
 
 object DBComponent {
 
-  val config = DatabaseConfig.forConfig[JdbcProfile]("database")
+  private val config = DatabaseConfig.forConfig[JdbcProfile]("database")
 
   val db = config.db
 

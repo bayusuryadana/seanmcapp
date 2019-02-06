@@ -1,6 +1,7 @@
 package com.seanmcapp.api
 
 import com.seanmcapp.repository._
+import com.seanmcapp.repository.instagram.{Customer, Vote}
 import com.seanmcapp.util.parser.{TelegramCallbackQuery, TelegramMessage, TelegramUpdate}
 import com.seanmcapp.util.requestbuilder.TelegramRequest
 import spray.json._
@@ -39,7 +40,7 @@ trait TelegramAPI extends Service with TelegramRequest {
           val customer = Customer(message.from.id, getName(message), TELEGRAM_PLATFORM)
           val account = if (command.split("_").length > 1) Some(command.replace("_", ".").stripPrefix("/cbc.")) else None
           getRandom(customer, isFromGroup, account) { photo =>
-            getTelegramSendPhoto(message.chat.id, photo).code
+            sendPhoto(message.chat.id, photo).code
           }
         case _ => Future.successful(None)
       }
@@ -57,7 +58,7 @@ trait TelegramAPI extends Service with TelegramRequest {
     val photoId = cb.data.split(":").last.toLong
 
     val vote = Vote(customerId, photoId, rating)
-    doVote(vote).map(_ => getAnswerCallbackQuery(queryId, "Vote received, thank you!").code)
+    doVote(vote).map(_ => sendAnswerCallbackQuery(queryId, "Vote received, thank you!").code)
   }
 
   private def getName(message: TelegramMessage): String = {

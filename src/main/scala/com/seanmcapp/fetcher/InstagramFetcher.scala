@@ -2,9 +2,9 @@ package com.seanmcapp.fetcher
 
 import java.net.URL
 
-import com.seanmcapp.api.Service
 import com.seanmcapp.config.{AWSConf, DriveConf, InstagramConf}
 import com.seanmcapp.repository._
+import com.seanmcapp.repository.instagram.{Account, Photo}
 import com.seanmcapp.util.AWS
 import com.seanmcapp.util.parser._
 import com.seanmcapp.util.requestbuilder.InstagramRequest
@@ -14,7 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Try
 
-trait InstagramFetcher extends Service with InstagramRequest {
+trait InstagramFetcher extends Fetcher with InstagramRequest {
 
   case class InstagramAuthToken(csrftoken: String, sessionId: String)
   import com.seanmcapp.util.parser.InstagramJson._

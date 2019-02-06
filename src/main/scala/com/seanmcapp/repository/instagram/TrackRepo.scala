@@ -1,4 +1,4 @@
-package com.seanmcapp.repository
+package com.seanmcapp.repository.instagram
 
 import scala.concurrent.Future
 

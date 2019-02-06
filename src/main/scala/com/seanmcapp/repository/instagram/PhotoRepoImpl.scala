@@ -1,6 +1,6 @@
-package com.seanmcapp.repository.mysql
+package com.seanmcapp.repository.instagram
 
-import com.seanmcapp.repository.{Photo, PhotoRepo}
+import com.seanmcapp.repository.DBComponent
 import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.Future
@@ -15,7 +15,7 @@ class PhotoInfo(tag: Tag) extends Table[Photo](tag, "photos") {
   def * = (id, thumbnailSrc, date, caption, account) <> (Photo.tupled, Photo.unapply)
 }
 
-class PhotoRepoImpl extends TableQuery(new PhotoInfo(_)) with PhotoRepo with DBComponent {
+object PhotoRepoImpl extends TableQuery(new PhotoInfo(_)) with PhotoRepo with DBComponent {
 
   // TODO: get rid of this to Grafana
   def getAll: Future[Seq[Photo]] = {
@@ -39,8 +39,6 @@ class PhotoRepoImpl extends TableQuery(new PhotoInfo(_)) with PhotoRepo with DBC
   }
 
   // TODO: not tested
-  def insert(photos: Seq[Photo]): Future[Seq[Photo]] = {
-    run(this.returning(this) ++= photos)
-  }
+  def insert(photos: Seq[Photo]): Future[Option[Int]] = run(this ++= photos)
 
 }

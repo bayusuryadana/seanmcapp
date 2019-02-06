@@ -1,6 +1,6 @@
-package com.seanmcapp.repository.mysql
+package com.seanmcapp.repository.instagram
 
-import com.seanmcapp.repository.{Vote, VoteRepo}
+import com.seanmcapp.repository.DBComponent
 import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.Future
@@ -14,7 +14,7 @@ class VoteInfo(tag: Tag) extends Table[Vote](tag, "votes") {
   def * = (customerId, photoId, rating) <> (Vote.tupled, Vote.unapply)
 }
 
-class VoteRepoImpl extends TableQuery(new VoteInfo(_)) with VoteRepo with DBComponent {
+object VoteRepoImpl extends TableQuery(new VoteInfo(_)) with VoteRepo with DBComponent {
 
   def insertOrUpdate(vote: Vote): Future[Int] = {
     val q = this.filter(_.customerId === vote.customerId).filter(_.photoId === vote.photoId)

@@ -1,4 +1,4 @@
-package com.seanmcapp.repository
+package com.seanmcapp.repository.instagram
 
 import scala.concurrent.Future
 
@@ -14,6 +14,6 @@ trait PhotoRepo {
 
   def getRandom(account: Option[String] = None): Future[Option[Photo]]
 
-  def insert(photos: Seq[Photo]): Future[Seq[Photo]]
+  def insert(photos: Seq[Photo]): Future[Option[Int]]
 
 }

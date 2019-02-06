@@ -1,7 +1,7 @@
 package com.seanmcapp.util.requestbuilder
 
 import com.seanmcapp.config.{DriveConf, TelegramConf}
-import com.seanmcapp.repository.Photo
+import com.seanmcapp.repository.instagram.Photo
 
 import scalaj.http.{Http, HttpResponse}
 
@@ -10,7 +10,7 @@ trait TelegramRequest {
   val telegramConf = TelegramConf()
   val baseUrl = telegramConf.endpoint
 
-  def getTelegramSendPhoto(chatId: Long, photo: Photo): HttpResponse[String] = {
+  def sendPhoto(chatId: Long, photo: Photo): HttpResponse[String] = {
     val photoId = photo.id
     val inlineKeyboard =
       s"""
@@ -36,8 +36,13 @@ trait TelegramRequest {
     Http(urlString).asString
   }
 
-  def getAnswerCallbackQuery(queryId: String, notificationText: String): HttpResponse[String] = {
+  def sendAnswerCallbackQuery(queryId: String, notificationText: String): HttpResponse[String] = {
     val urlString = baseUrl + "/answerCallbackQuery?callback_query_id=" + queryId + "&text=" + notificationText
+    Http(urlString).asString
+  }
+
+  def sendMessage(chatId: Long, text: String): HttpResponse[String] = {
+    val urlString = baseUrl + "/sendmessage?chat_id=" + chatId + "&text=" + text
     Http(urlString).asString
   }
 
