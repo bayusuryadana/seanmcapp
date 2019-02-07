@@ -1,6 +1,5 @@
-package com.seanmcapp.api
+package com.seanmcapp.service
 
-import com.seanmcapp.repository._
 import com.seanmcapp.repository.instagram.{Customer, Vote}
 import com.seanmcapp.util.parser.{TelegramCallbackQuery, TelegramMessage, TelegramUpdate}
 import com.seanmcapp.util.requestbuilder.TelegramRequest
@@ -9,7 +8,7 @@ import spray.json._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait TelegramAPI extends Service with TelegramRequest {
+trait TelegramService extends Service with TelegramRequest {
 
   private val TELEGRAM_PLATFORM = "telegram"
 

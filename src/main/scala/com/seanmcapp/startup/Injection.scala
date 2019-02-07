@@ -1,11 +1,17 @@
 package com.seanmcapp.startup
 
-import com.seanmcapp.api.{Service, TelegramAPI, WebAPI}
-import com.seanmcapp.fetcher.{DotaFetcher, Fetcher, InstagramFetcher}
-import com.seanmcapp.repository.dota.{MatchRepoImpl, PeerRepoImpl, PlayerRepoImpl}
+import com.seanmcapp.service.{Service, TelegramService, WebService}
+import com.seanmcapp.fetcher.DotaFetcher
+import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
 
 trait Injection {
+
+  val dotaFetcher = new DotaFetcher {
+    override val playerRepo = PlayerRepoImpl
+    override val matchRepo = MatchRepoImpl
+    override val peerRepo = PeerRepoImpl
+  }
 
   trait ServiceImpl extends Service {
     override val customerRepo = CustomerRepoImpl
@@ -14,20 +20,8 @@ trait Injection {
     override val trackRepo = TrackRepoImpl
   }
 
-  trait FetcherImpl extends Fetcher {
-    override val accountRepo = AccountRepoImpl
-    override val photoRepo = PhotoRepoImpl
-    override val playerRepo = PlayerRepoImpl
-    override val matchRepo = MatchRepoImpl
-    override val peerRepo = PeerRepoImpl
-  }
+  val webAPI = new WebService with ServiceImpl
 
-  val webAPI = new WebAPI with ServiceImpl
-
-  val telegramAPI = new TelegramAPI with ServiceImpl
-
-  val instagramFetcher = new InstagramFetcher with FetcherImpl
-
-  val dotaFetcher = new DotaFetcher with FetcherImpl
+  val telegramAPI = new TelegramService with ServiceImpl
 
 }

@@ -11,8 +11,6 @@ import scala.concurrent.ExecutionContext
 class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends Directives with SprayJsonSupport with Injection {
 
   val routePath = Seq(
-    // fetcher
-    //get(path("sync")(complete(instagramFetcher.flow))), //instagram
 
     // API
     get(path("api" / Remaining)(method => complete(webAPI.get(JsString(method))))), // web API

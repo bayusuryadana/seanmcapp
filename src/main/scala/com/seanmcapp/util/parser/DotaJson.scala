@@ -5,19 +5,9 @@ import spray.json._
 
 case class ArrayResponse[T](res: Seq[T])
 
-case class MatchResponse(
-                          matchId: Long,
-                          playerSlot: Int,
-                          radiantWin: Boolean,
-                          duration: Int,
-                          gameMode: Int,
-                          lobbyType: Int,
-                          heroId: Int,
-                          startTime: Int,
-                          kills: Int,
-                          deaths: Int,
-                          assists: Int
-                        ) {
+case class MatchResponse(matchId: Long, playerSlot: Int, radiantWin: Boolean, duration: Int, gameMode: Int,
+                          lobbyType: Int, heroId: Int, startTime: Int, kills: Int, deaths: Int, assists: Int) {
+
   def toMatch(playerId: Int): Match = {
     Match(
       matchId, playerId, playerSlot, radiantWin,
@@ -25,6 +15,7 @@ case class MatchResponse(
       kills, deaths, assists
     )
   }
+
 }
 
 case class PeerResponse(peerPlayerId: Int, win: Int, games:Int) {

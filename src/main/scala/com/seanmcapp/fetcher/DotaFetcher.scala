@@ -1,5 +1,6 @@
 package com.seanmcapp.fetcher
 
+import com.seanmcapp.repository.dota.{MatchRepo, PeerRepo, PlayerRepo}
 import com.seanmcapp.util.parser.{ArrayResponse, MatchResponse, PeerResponse}
 import com.seanmcapp.util.requestbuilder.DotaRequest
 import spray.json._
@@ -8,7 +9,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-trait DotaFetcher extends Fetcher with DotaRequest {
+trait DotaFetcher extends DotaRequest {
+
+  val playerRepo: PlayerRepo
+  val matchRepo: MatchRepo
+  val peerRepo: PeerRepo
 
   def fetch: Future[Unit] = {
     import com.seanmcapp.util.parser.DotaJson._

@@ -1,4 +1,4 @@
-package com.seanmcapp.api
+package com.seanmcapp.service
 
 import com.seanmcapp.repository._
 import com.seanmcapp.repository.instagram._

@@ -47,10 +47,10 @@ create table peers (
 	win int not null,
 	games int not null,
 	primary key (players_id, peer_players_id)
-)
+);
 
 create table matches (
-	id bigint primary key,
+	id bigint int not null,
 	players_id int references players(id),
 	player_slot int not null,
 	radiant_win bit not null,
@@ -61,7 +61,8 @@ create table matches (
 	start_time integer not null,
 	kills integer not null,
 	deaths integer not null,
-	assists integer not null
+	assists integer not null,
+	primary key (id, players_id)
 );
 
 create table people (
