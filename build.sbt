@@ -28,7 +28,10 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.5" % Test,
   
   // image storage
-  "com.amazonaws" % "aws-java-sdk" % "1.11.444"
+  "com.amazonaws" % "aws-java-sdk" % "1.11.444",
+
+  // caching
+  "com.github.cb372" %% "scalacache-guava" % "0.27.0"
 )
 
 fork in Test := true
