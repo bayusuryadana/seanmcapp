@@ -12,7 +12,7 @@ class PlayerInfo(tag: Tag) extends Table[Player](tag, "players") {
   val realName = column[String]("realname")
   val avatarFull = column[String]("avatarfull")
   val personaName = column[String]("personaname")
-  val MMREstimante = column[Int]("mmr_estimante")
+  val MMREstimante = column[Int]("mmr_estimate")
 
   def * = (id, realName, avatarFull, personaName, MMREstimante) <> (Player.tupled, Player.unapply)
 }

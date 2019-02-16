@@ -6,7 +6,36 @@ import spray.json._
 case class ArrayResponse[T](res: Seq[T])
 
 case class MatchResponse(matchId: Long, playerSlot: Int, radiantWin: Boolean, duration: Int, gameMode: Int,
-                          lobbyType: Int, heroId: Int, startTime: Int, kills: Int, deaths: Int, assists: Int)
+                          lobbyType: Int, heroId: Int, startTime: Int, kills: Int, deaths: Int, assists: Int) {
+
+  def getSide: String = if (playerSlot < 100) "Radiant" else "Dire"
+
+  def getWinStatus: String = if (playerSlot < 100 ^ radiantWin) "Lose" else "Win"
+
+  def getDuration: String = (duration / 60) + ":" + (duration % 60)
+
+  def getGameMode: String = {
+    gameMode match {
+      case 1 => "All Pick"
+      case 2 => "Captain's Mode"
+      case 4 => "Single Draft"
+      case 5 => "All Random"
+      case 22 => "Ranked All Pick"
+      case 23 => "Turbo"
+      case _ => "Unknown"
+    }
+  }
+
+  def getLobbyType: String = {
+    lobbyType match {
+      case 0 => "Normal"
+      case 5 => "Ranked Team"
+      case 6 => "Ranked Solo"
+      case 7 => "Ranked Party"
+    }
+  }
+
+}
 
 case class PeerResponse(peerPlayerId: Int, win: Int, games:Int)
 
