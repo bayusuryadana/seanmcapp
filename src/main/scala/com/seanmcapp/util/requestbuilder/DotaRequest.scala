@@ -2,30 +2,41 @@ package com.seanmcapp.util.requestbuilder
 
 import java.util.concurrent.TimeUnit
 
-import com.google.common.cache.CacheBuilder
-import scalacache._
-import scalacache.guava._
+import com.seanmcapp.util.parser.{ArrayResponse, MatchResponse, PeerResponse}
+
 import scalacache.memoization._
 import scalacache.modes.sync._
-import scalaj.http.{Http, HttpResponse}
-
+import scalaj.http.Http
 import scala.concurrent.duration.Duration
+import spray.json._
+
+import scalacache.Cache
 
 trait DotaRequest {
 
+  implicit val matchesCache: Cache[Seq[MatchResponse]]
+  implicit val peersCache: Cache[Seq[PeerResponse]]
+
   val baseUrl = "https://api.opendota.com/api/players/"
+  val duration = Duration(2, TimeUnit.HOURS)
+  import com.seanmcapp.util.parser.DotaJson._
 
-  val underlyingGuavaCache = CacheBuilder.newBuilder().maximumSize(10000L).build[String, Entry[HttpResponse[String]]]
-  implicit val guavaCache: Cache[HttpResponse[String]] = GuavaCache(underlyingGuavaCache)
-
-  def getMatches(id: Long): HttpResponse[String] = {
-    Http(baseUrl + id + "/matches").asString
+  def getMatches(id: Int): Seq[MatchResponse] = {
+    memoizeSync(Some(duration)) {
+      Http(baseUrl + id + "/matches").asString.body.parseJson.convertTo[ArrayResponse[MatchResponse]].res
+    }
   }
 
-  def getPeers(id: Long): HttpResponse[String] = {
-    memoizeSync(Some(Duration(2, TimeUnit.HOURS))) {
-      println("ehek")
-      Http(baseUrl + id + "/peers").asString
+  def getMatches(ids: Seq[Int]): Seq[(Int, MatchResponse)] = {
+    ids.foldLeft(Seq.empty[(Int, MatchResponse)]) { (res, id) =>
+      val matches = getMatches(id).map((id,_))
+      res ++ matches
+    }
+  }
+
+  def getPeers(id: Int): Seq[PeerResponse] = {
+    memoizeSync(Some(duration)) {
+      Http(baseUrl + id + "/peers").asString.body.parseJson.convertTo[ArrayResponse[PeerResponse]].res
     }
   }
 

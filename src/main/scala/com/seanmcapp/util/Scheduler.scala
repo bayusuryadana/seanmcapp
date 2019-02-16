@@ -23,7 +23,7 @@ object Scheduler extends TelegramRequest with Injection {
     // warmup DB
     scheduler.scheduleOnce(Duration(0, TimeUnit.SECONDS))(warmup)
     scheduler.scheduleOnce(Duration(10, TimeUnit.SECONDS))(warmup)
-    scheduler.schedule(Duration(30, TimeUnit.SECONDS), Duration(2, TimeUnit.HOURS))(task)
+    //scheduler.schedule(Duration(30, TimeUnit.SECONDS), Duration(2, TimeUnit.HOURS))(birthdayCheck)
   }
 
   private def warmup: Unit = {
@@ -34,9 +34,9 @@ object Scheduler extends TelegramRequest with Injection {
   }
 
 
-  private def task: Unit = {
+  // TODO: need another way to do scheduler
+  private def birthdayCheck: Unit = {
 
-    // birthday checking
     val now = DateTime.now // akka datetime doesn't support timezones, so this is UTC
     if (now.hour >= 5 && now.hour < 7) {
       println("---> Checking birthday")
@@ -48,10 +48,6 @@ object Scheduler extends TelegramRequest with Injection {
       }
     }
 
-    // dota fetcher
-    println("=== START DOTA FETCHING ===")
-    Await.result(dotaFetcher.fetch, Duration.Inf)
-    println("=== DONE DOTA FETCHING ===")
   }
 
 }

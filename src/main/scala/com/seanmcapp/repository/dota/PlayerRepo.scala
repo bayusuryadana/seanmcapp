@@ -4,7 +4,6 @@ import com.seanmcapp.repository.DBComponent
 import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
 case class Player(id: Int, realName: String, avatarFull: String, personaName: String, MMREstimate: Int)
 
@@ -20,14 +19,20 @@ class PlayerInfo(tag: Tag) extends Table[Player](tag, "players") {
 
 trait PlayerRepo {
 
-  def getAll: Future[Set[Int]]
+  def getAll: Future[Seq[Player]]
+
+  def get(id: Int): Future[Option[Player]]
 
 }
 
 object PlayerRepoImpl extends TableQuery(new PlayerInfo(_)) with PlayerRepo with DBComponent {
 
-  def getAll: Future[Set[Int]] = {
-    run(this.map(_.id).result).map(_.toSet)
+  def getAll: Future[Seq[Player]] = {
+    run(this.result)
+  }
+
+  def get(id: Int): Future[Option[Player]] = {
+    run(this.filter(_.id === id).result.headOption)
   }
 
 }
