@@ -1,7 +1,5 @@
 package com.seanmcapp.service
 
-import java.text.SimpleDateFormat
-
 import com.seanmcapp.repository.dota.{HeroRepo, Player, PlayerRepo}
 import com.seanmcapp.util.parser.PeerResponse
 import com.seanmcapp.util.requestbuilder.DotaRequest
