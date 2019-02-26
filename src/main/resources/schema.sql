@@ -41,30 +41,6 @@ create table players (
 	mmr_estimate int not null
 );
 
-create table peers (
-	players_id int references players(id),
-	peer_players_id int references players(id),
-	win int not null,
-	games int not null,
-	primary key (players_id, peer_players_id)
-);
-
-create table matches (
-	id bigint int not null,
-	players_id int references players(id),
-	player_slot int not null,
-	radiant_win bit not null,
-	duration integer not null,
-	game_mode integer not null,
-	lobby_type integer not null,
-	hero_id integer not null,
-	start_time integer not null,
-	kills integer not null,
-	deaths integer not null,
-	assists integer not null,
-	primary key (id, players_id)
-);
-
 create table people (
 	id int primary key,
 	name varchar(100) not null,

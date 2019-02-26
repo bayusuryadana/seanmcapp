@@ -1,17 +1,43 @@
 package com.seanmcapp.util.requestbuilder
 
-import scalaj.http.{Http, HttpResponse}
+import java.util.concurrent.TimeUnit
+
+import com.seanmcapp.util.parser.{ArrayResponse, MatchResponse, PeerResponse}
+
+import scalacache.memoization._
+import scalacache.modes.sync._
+import scalaj.http.Http
+import scala.concurrent.duration.Duration
+import spray.json._
+
+import scalacache.Cache
 
 trait DotaRequest {
 
-  val baseUrl = "https://api.opendota.com/api/players/"
+  implicit val matchesCache: Cache[Seq[MatchResponse]]
+  implicit val peersCache: Cache[Seq[PeerResponse]]
 
-  def getMatches(id: Long): HttpResponse[String] = {
-    Http(baseUrl + id + "/matches").asString
+  val baseUrl = "https://api.opendota.com/api/players/"
+  val duration = Duration(2, TimeUnit.HOURS)
+  import com.seanmcapp.util.parser.DotaJson._
+
+  def getMatches(id: Int): Seq[MatchResponse] = {
+    memoizeSync(Some(duration)) {
+      Http(baseUrl + id + "/matches").asString.body.parseJson.convertTo[ArrayResponse[MatchResponse]].res
+    }
   }
 
-  def getPeers(id: Long): HttpResponse[String] = {
-    Http(baseUrl + id + "/peers").asString
+  def getMatches(ids: Seq[Int]): Seq[(Int, MatchResponse)] = {
+    ids.foldLeft(Seq.empty[(Int, MatchResponse)]) { (res, id) =>
+      val matches = getMatches(id).map((id,_))
+      res ++ matches
+    }
+  }
+
+  def getPeers(id: Int): Seq[PeerResponse] = {
+    memoizeSync(Some(duration)) {
+      Http(baseUrl + id + "/peers").asString.body.parseJson.convertTo[ArrayResponse[PeerResponse]].res
+    }
   }
 
 }

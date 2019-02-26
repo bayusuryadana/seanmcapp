@@ -11,7 +11,7 @@ trait TelegramRequestMock extends TelegramRequest {
     HttpResponse[String]("", 200, Map.empty)
   }
 
-  override def getTelegramSendMessege(chatId: Long, text: String): HttpResponse[String] = {
+  override def sendMessage(chatId: Long, text: String): HttpResponse[String] = {
     HttpResponse[String]("", 200, Map.empty)
   }
 
