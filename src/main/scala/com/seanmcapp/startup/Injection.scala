@@ -2,27 +2,28 @@ package com.seanmcapp.startup
 
 import com.google.common.cache.CacheBuilder
 import com.seanmcapp.repository.birthday.{PeopleRepo, PeopleRepoImpl}
-import com.seanmcapp.service.{BirthdayService, DotaService, Service, TelegramService, WebService}
+import com.seanmcapp.service.{DotaService, CBCService}
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
-import com.seanmcapp.util.parser.{ArrayResponse, MatchResponse, PeerResponse}
+import com.seanmcapp.util.parser.{MatchResponse, PeerResponse}
+import com.seanmcapp.view.{BirthdayView, DotaView, TelegramView, WebView}
 import scalacache.{Cache, Entry}
 import scalacache.guava.GuavaCache
 
 trait Injection {
 
-  trait ServiceImpl extends Service {
+  trait CBCServiceImpl extends CBCService {
     override val customerRepo = CustomerRepoImpl
     override val photoRepo = PhotoRepoImpl
     override val voteRepo = VoteRepoImpl
     override val trackRepo = TrackRepoImpl
   }
 
-  val webAPI = new WebService with ServiceImpl
+  val webAPI = new WebView with CBCServiceImpl
 
-  val telegramAPI = new TelegramService with ServiceImpl
+  val telegramAPI = new TelegramView with CBCServiceImpl
 
-  val dotaAPI = new DotaService {
+  trait DotaServiceImpl extends DotaService {
     override val playerRepo = PlayerRepoImpl
     override val heroRepo = HeroRepoImpl
 
@@ -35,7 +36,9 @@ trait Injection {
     }
   }
 
-  val birthdayAPI = new BirthdayService {
+  val dotaAPP = new DotaView with DotaServiceImpl
+
+  val birthdayAPI = new BirthdayView {
     override val peopleRepo: PeopleRepo = PeopleRepoImpl
   }
 

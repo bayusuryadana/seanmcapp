@@ -1,4 +1,4 @@
-package com.seanmcapp.service
+package com.seanmcapp.view
 
 import akka.http.scaladsl.model.DateTime
 import com.seanmcapp.repository.birthday.PeopleRepo
@@ -7,7 +7,7 @@ import com.seanmcapp.util.requestbuilder.TelegramRequest
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait BirthdayService extends TelegramRequest {
+trait BirthdayView extends TelegramRequest {
 
   val peopleRepo: PeopleRepo
 
