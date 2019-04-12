@@ -4,15 +4,16 @@ import com.seanmcapp.repository.DBComponent
 import slick.jdbc.MySQLProfile.api._
 import scala.concurrent.Future
 
-case class Hero(id: Int, localizedName: String, primaryAttr: String, attackType: String)
+case class Hero(id: Int, localizedName: String, primaryAttr: String, image: String, lore: Option[String])
 
 class HeroInfo(tag: Tag) extends Table[Hero](tag, "heroes") {
   val id = column[Int]("id", O.PrimaryKey)
   val localizedName = column[String]("localized_name")
   val primaryAttr = column[String]("primary_attr")
-  val attackType = column[String]("attack_type")
+  val image = column[String]("image")
+  val lore = column[Option[String]]("lore")
 
-  def * = (id, localizedName, primaryAttr, attackType) <> (Hero.tupled, Hero.unapply)
+  def * = (id, localizedName, primaryAttr, image, lore) <> (Hero.tupled, Hero.unapply)
 }
 
 trait HeroRepo {

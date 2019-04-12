@@ -1,17 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
+    <style>
+        a { color: #000000; }
+        a:hover { color: #000000; text-decoration: none; }
+        .items-list .item { cursor: pointer; }
+        .item:hover, .wow:hover { box-shadow: 2px 2px 5px 0 rgba(0,0,0,.4); }
+        .wow { margin-bottom: 10px; padding: 0; margin: 5px; }
+    </style>
     <meta charset="UTF-8">
-    <title>seanmcdota | home</title>
+    <title>Lantai5 Gaming | home</title>
 </head>
 <body>
 <div class="container" style="margin: 50px auto">
     <h1>Recent Matches</h1>
     <br>
-
     <div class="row">
-        <table class="table row-hover table-border compact">
+        <table class="table striped">
             <thead>
             <tr>
                 <th>Id</th>
@@ -26,10 +34,24 @@
             </tr>
             </thead>
             <tbody>
-            ${matchViewModel}
+                {{matchViewModel}}
             </tbody>
         </table>
     </div>
+    <br><br>
+
+    <h1>Players</h1>
+    <div class="row">
+        {{playerViewModel}}
+    </div>
+    <br><br>
+
+    <h1>Heroes</h1>
+    <div class="row">
+        {{heroViewModel}}
+    </div>
+    <br><br>
 </div>
+
 </body>
 </html>
