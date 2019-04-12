@@ -1,7 +1,8 @@
 package com.seanmcapp.service
 
+import com.seanmcapp.model.{HeroViewModel, MatchViewModel, PeerViewModel, PlayerViewModel}
 import com.seanmcapp.repository.dota.{HeroRepo, Player, PlayerRepo}
-import com.seanmcapp.util.parser.PeerResponse
+import com.seanmcapp.util.parser.{MatchResponse, PeerResponse}
 import com.seanmcapp.util.requestbuilder.DotaRequest
 import org.joda.time.DateTime
 
@@ -13,7 +14,7 @@ trait DotaService extends DotaRequest {
   val playerRepo: PlayerRepo
   val heroRepo: HeroRepo
 
-  def getRecentMatches: Future[String] = {
+  def getRecentMatches: Future[Seq[MatchViewModel]] = {
 
     val playersF = playerRepo.getAll
     val heroesF = heroRepo.getAll
@@ -22,83 +23,87 @@ trait DotaService extends DotaRequest {
       players <- playersF
       heroes <- heroesF
     } yield {
-      val playersMap = players.map(p => (p.id, p)).toMap
       val matches = getMatches(players.map(_.id)).sortBy(m => -m._2.startTime).take(20)
       val heroesMap = heroes.map(h => (h.id, h)).toMap
-      matches.foldLeft("") { (res, matchTuple) =>
+
+      matches.map { matchTuple =>
         val m = matchTuple._2
-        res + s"${playersMap.get(matchTuple._1).map(_.personaName).getOrElse("Unknown Player")} :  ${m.matchId} " +
-          s"${m.getSide}  ${m.getWinStatus} ${m.getDuration}  ${m.getGameMode}  " +
-          s"${heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")}  " +
-          s"${new DateTime(m.startTime.toLong * 1000)} " +
-          s"${m.kills}/${m.deaths}/${m.assists} \n"
+        val playerName = players.find(_.id == matchTuple._1).map(_.personaName).getOrElse("Unknown Player")
+        val hero = heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")
+        toMatchViewModel(m, playerName, hero)
       }
     }
   }
 
-  def getHeroes: Future[String] = heroRepo.getAll.map(_.foldLeft(""){ (res,h) =>
-    res + s"${h.id} ${h.localizedName}  ${h.primaryAttr} \n"
+  def getPlayers: Future[Seq[PlayerViewModel]] = playerRepo.getAll.map(_.map { p =>
+    PlayerViewModel(p.realName, p.personaName, p.MMREstimate)
   })
 
-  def getHeroMatches(id: Int): Future[String] = {
-    val playerListF = playerRepo.getAll
-    val heroF = heroRepo.get(id)
-
-    for {
-      playerList <- playerListF
-      hero <- heroF
-    } yield {
-      val heroInfo = hero.getOrElse(throw new Exception("Hero not found"))
-      val matches = getMatches(playerList.map(_.id)).filter(_._2.heroId == id).sortBy(m => -(m._2.startTime + m._2.duration))
-      (heroInfo, matches).toString
-    }
-  }
-
-  def getPlayers: Future[String] = playerRepo.getAll.map(_.foldLeft(""){ (res,h) =>
-    res + s"${h.realName} ${h.personaName} ${h.MMREstimate} \n"
-  })
-
-  def getPlayerMatches(id: Int): Future[String] = {
-
+  def getPlayerMatches(id: Int): Future[(Seq[MatchViewModel], Seq[PeerViewModel])] = {
     val playersF = playerRepo.getAll
     val heroesF = heroRepo.getAll
-
     for {
       players <- playersF
       heroes <- heroesF
     } yield {
-      val playerInfo = players.find(_.id == id).getOrElse(throw new Exception("Player not found"))
+      val playerViewModel = players.find(_.id == id)
+        .map(p => PlayerViewModel(p.realName, p.personaName, p.MMREstimate))
+        .getOrElse(throw new Exception("Player not found"))
       val matches = getMatches(id)
       val peers = getPeers(id).foldLeft(Seq.empty[(Player, PeerResponse)]) { (res, peer) =>
         val player = players.find(_.id == peer.peerPlayerId)
         if (player.isDefined) res :+ (player.get, peer) else res
       }
-
       val heroesMap = heroes.map(h => (h.id, h)).toMap
-      val matchesS = matches.foldLeft("")( (res,m) => res + s"${m.matchId}  ${m.getSide}  ${m.getWinStatus} ${m.getDuration}  " +
-        s"${m.getGameMode}  ${heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")}  " +
-        s"${new DateTime(m.startTime.toLong * 1000)} ${m.kills}/${m.deaths}/${m.assists} \n")
 
-      val peersS = peers.foldLeft("")( (res,p) => res + s"${p._1.personaName} ${p._2.games} " +
-        s"${((p._2.win.toDouble/p._2.games) * 100).toInt / 100.0} \n")
+      val matchViewModel = matches.map { m =>
+        val hero = heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")
+        toMatchViewModel(m, playerViewModel.personaName, hero)
+      }
 
-      s"""
-        | Player Info
-        | ===========
-        | name:  ${playerInfo.realName}
-        | alias: ${playerInfo.personaName}
-        | mmr:   ${playerInfo.MMREstimate}
-        |
-        | Matches
-        | =======
-        | $matchesS
-        |
-        | Peers
-        | =====
-        | $peersS
-      """.stripMargin
+      val peerViewModel = peers.map { p =>
+        PeerViewModel(p._1.personaName, p._2.win, ((p._2.win.toDouble/p._2.games) * 100).toInt / 100.0)
+      }
 
+      (matchViewModel, peerViewModel)
     }
+  }
+
+  def getHeroes: Future[Seq[HeroViewModel]] = heroRepo.getAll.map(_.map { h =>
+    HeroViewModel(h.id, h.localizedName, h.primaryAttr, h.attackType)
+  })
+
+  def getHeroMatches(id: Int): Future[Seq[(String, Seq[MatchViewModel])]] = {
+    val playersF = playerRepo.getAll
+    val heroF = heroRepo.get(id)
+
+    for {
+      players <- playersF
+      hero <- heroF
+    } yield {
+      val heroName = hero.map(_.localizedName).getOrElse(throw new Exception("Hero not found"))
+
+      getMatches(players.map(_.id)).map {
+        case matchTuple if matchTuple._2.heroId == id =>
+          val m = matchTuple._2
+          val playerName = players.find(_.id == matchTuple._1).map(_.personaName).getOrElse("Unknown Player")
+          toMatchViewModel(m, playerName, heroName)
+      }.groupBy(_.name).toSeq // TODO: get win percentage of each player
+    }
+  }
+
+  private def toMatchViewModel(m: MatchResponse, playerName: String, hero: String): MatchViewModel = {
+    MatchViewModel(
+      name = playerName,
+      matchId = m.matchId,
+      side = m.getSide,
+      result = m.getWinStatus,
+      duration = m.getDuration,
+      mode = m.getGameMode,
+      hero = hero,
+      startTime = new DateTime(m.startTime.toLong * 1000),
+      kda = s"${m.kills}/${m.deaths}/${m.assists}"
+    )
   }
 
 }

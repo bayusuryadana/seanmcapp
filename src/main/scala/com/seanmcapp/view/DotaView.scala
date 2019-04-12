@@ -1,54 +1,22 @@
 package com.seanmcapp.view
 
-import akka.http.scaladsl.model.{HttpEntity, HttpResponse}
+import akka.http.scaladsl.model.HttpResponse
 import com.seanmcapp.service.DotaService
+import com.seanmcapp.util.viewbuilder.DotaViewBuilder
 
 import scala.concurrent.Future
-import scala.io.Source
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait DotaView extends DotaService {
+trait DotaView extends DotaService with DotaViewBuilder {
 
-  def home: Future[HttpResponse] = {
-    val template = templateSource("dota/home.html")
-    val data = getRecentMatches
+  def home: Future[HttpResponse] = getRecentMatches.map(d => HttpResponse(entity = build1(d)))
 
-    val render = HttpEntity(template)
-    Future(HttpResponse(entity = render))
-  }
+  def player: Future[HttpResponse] = getPlayers.map(d => HttpResponse(entity = build2(d)))
 
-  def player: Future[HttpResponse] = {
-    val template = templateSource("dota/player.html")
-    val data = getPlayers
+  def player(id: Int): Future[HttpResponse] = getPlayerMatches(id).map(d => HttpResponse(entity = build3(d)))
 
-    val render = HttpEntity(template)
-    Future(HttpResponse(entity = render))
-  }
+  def hero: Future[HttpResponse] = getHeroes.map(d => HttpResponse(entity = build4(d)))
 
-  def player(id: Int): Future[HttpResponse] = {
-    val template = templateSource("dota/player.html")
-    val data = getPlayerMatches(id)
-
-    val render = HttpEntity(template)
-    Future(HttpResponse(entity = render))
-  }
-
-  def hero: Future[HttpResponse] = {
-    val template = templateSource("dota/hero.html")
-    val data = getHeroes
-
-    val render = HttpEntity(template)
-    Future(HttpResponse(entity = render))
-  }
-
-  def hero(id: Int): Future[HttpResponse] = {
-    val template = templateSource("dota/hero.html")
-    val data = getHeroMatches(id)
-
-    val render = HttpEntity(template)
-    Future(HttpResponse(entity = render))
-  }
-
-  private def templateSource(source: String): String = Source.fromResource(source).mkString
+  def hero(id: Int): Future[HttpResponse] = getHeroMatches(id).map(d => HttpResponse(entity = build5(d)))
 
 }

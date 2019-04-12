@@ -3,9 +3,29 @@
 <head>
     <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
     <meta charset="UTF-8">
-    <title>SeanMcDota | Home</title>
+    <title>seanmcdota | home</title>
 </head>
 <body>
+<!-- TODO: Nav bar here -->
+<div class="container" style="margin: 50px auto">
+    <h1>Recent Matches</h1>
+    <br>
 
+    <div class="row">
+        <table class="table row-hover table-border compact">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Account</th>
+                <th>Count</th>
+                <th>Average</th>
+            </tr>
+            </thead>
+            <tbody>
+            ${recentMatchesData}
+            </tbody>
+        </table>
+    </div>
+</div>
 </body>
 </html>
