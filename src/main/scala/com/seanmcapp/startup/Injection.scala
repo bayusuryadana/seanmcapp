@@ -1,11 +1,11 @@
 package com.seanmcapp.startup
 
 import com.google.common.cache.CacheBuilder
-import com.seanmcapp.service.{DotaService, Service, TelegramService, WebService}
+import com.seanmcapp.repository.birthday.{PeopleRepo, PeopleRepoImpl}
+import com.seanmcapp.service.{BirthdayService, DotaService, Service, TelegramService, WebService}
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
 import com.seanmcapp.util.parser.{ArrayResponse, MatchResponse, PeerResponse}
-
 import scalacache.{Cache, Entry}
 import scalacache.guava.GuavaCache
 
@@ -33,6 +33,10 @@ trait Injection {
       val underlyingGuavaCache = CacheBuilder.newBuilder().maximumSize(10000L).build[String, Entry[T]]
       GuavaCache(underlyingGuavaCache)
     }
+  }
+
+  val birthdayAPI = new BirthdayService {
+    override val peopleRepo: PeopleRepo = PeopleRepoImpl
   }
 
 }

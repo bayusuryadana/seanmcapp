@@ -16,6 +16,9 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     get(path("api" / Remaining)(method => complete(webAPI.get(JsString(method))))), // web API
     post((path("webhook") & entity(as[JsValue]))(request => complete(telegramAPI.flow(request)))), // telegram
 
+    // birthday check
+    get(path("birthday")(complete(birthdayAPI.check))),
+
     // dota
     get(path("dota")(complete(dotaAPI.getRecentMatches))),
     get(path("dota" / "player")(complete(dotaAPI.getPlayers))),
