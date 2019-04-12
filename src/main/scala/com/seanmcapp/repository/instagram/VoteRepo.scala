@@ -18,8 +18,6 @@ class VoteInfo(tag: Tag) extends Table[Vote](tag, "votes") {
 
 trait VoteRepo {
 
-  def getAll: Future[Seq[Vote]]
-
   def insertOrUpdate(vote: Vote): Future[Int]
 
 }
@@ -34,11 +32,6 @@ object VoteRepoImpl extends TableQuery(new VoteInfo(_)) with VoteRepo with DBCom
     } yield {
       affectedRow
     }
-  }
-
-  // TODO: get rid of this to Grafana
-  def getAll: Future[Seq[Vote]] = {
-    run(this.result)
   }
 
 }

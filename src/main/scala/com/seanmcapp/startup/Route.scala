@@ -26,9 +26,6 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     get(path("dota" / "hero")(complete(dotaAPI.getHeroes))),
     get(path("dota" / "hero" /  Remaining)(id => complete(dotaAPI.getHeroMatches(id.toInt)))),
 
-    // Statistics
-    get(path("stats")(complete(webAPI.stats()))),
-
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !"))),
 

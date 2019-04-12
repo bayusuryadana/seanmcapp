@@ -18,8 +18,6 @@ class CustomerInfo(tag: Tag) extends Table[Customer](tag, "customers") {
 
 trait CustomerRepo {
 
-  def getAll: Future[Seq[Customer]]
-
   def insertOrUpdate(customer: Customer): Future[Int]
 
 }
@@ -34,11 +32,6 @@ object CustomerRepoImpl extends TableQuery(new CustomerInfo(_)) with CustomerRep
     } yield {
       affectedRow
     }
-  }
-
-  // TODO: get rid of this to Grafana
-  def getAll: Future[Seq[Customer]] = {
-    run(this.result)
   }
 
 }

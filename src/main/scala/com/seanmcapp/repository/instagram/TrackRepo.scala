@@ -18,8 +18,6 @@ class TrackInfo(tag: Tag) extends Table[Track](tag, "tracks") {
 
 trait TrackRepo {
 
-  def getAll: Future[Seq[Track]]
-
   def insert(track: Track): Future[Int]
 
 }
@@ -28,11 +26,6 @@ object TrackRepoImpl extends TableQuery(new TrackInfo(_)) with TrackRepo with DB
 
   def insert(track: Track): Future[Int] = {
     run(this += track)
-  }
-
-  // TODO: get rid of this to Grafana
-  def getAll: Future[Seq[Track]] = {
-    run(this.result)
   }
 
 }

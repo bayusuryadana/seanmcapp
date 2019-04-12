@@ -19,8 +19,6 @@ class PhotoInfo(tag: Tag) extends Table[Photo](tag, "photos") {
 
 trait PhotoRepo {
 
-  def getAll: Future[Seq[Photo]]
-
   def getAll(account: String): Future[Seq[(Long, Long)]]
 
   def getLatest: Future[Option[Photo]]
@@ -32,11 +30,6 @@ trait PhotoRepo {
 }
 
 object PhotoRepoImpl extends TableQuery(new PhotoInfo(_)) with PhotoRepo with DBComponent {
-
-  // TODO: get rid of this to Grafana
-  def getAll: Future[Seq[Photo]] = {
-    run(this.result)
-  }
 
   def getAll(account: String): Future[Seq[(Long, Long)]] = {
     run(this.filter(_.account === account).sortBy(_.date.desc).map(res => (res.id, res.date)).result)
