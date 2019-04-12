@@ -1,6 +1,5 @@
 package com.seanmcapp.util.parser
 
-import com.seanmcapp.model.PeerViewModel
 import com.seanmcapp.repository.dota.{Hero, Player}
 import spray.json._
 

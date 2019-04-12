@@ -1,8 +1,7 @@
 package com.seanmcapp
 
 import com.seanmcapp.repository.instagram._
-import com.seanmcapp.service._
-import com.seanmcapp.view.{TelegramView, WebView}
+import com.seanmcapp.service.{WebService, _}
 
 trait InjectionTest {
 
@@ -18,8 +17,8 @@ trait InjectionTest {
     override val trackRepo = trackRepoImpl
   }
 
-  val webService = new WebView with CBCServiceImpl
+  val webService = new WebService with CBCServiceImpl
 
-  val telegramService = new TelegramView with CBCServiceImpl
+  val telegramService = new TelegramServiceBuilder with CBCServiceImpl
 
 }

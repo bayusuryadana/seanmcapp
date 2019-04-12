@@ -21,9 +21,7 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
 
     // dota APP
     get(path("dota")(complete(dotaAPP.home))),
-    get(path("dota" / "player")(complete(dotaAPP.player))),
     get(path("dota" / "player" / Remaining)(id => complete(dotaAPP.player(id.toInt)))),
-    get(path("dota" / "hero")(complete(dotaAPP.hero))),
     get(path("dota" / "hero" /  Remaining)(id => complete(dotaAPP.hero(id.toInt)))),
 
     // homepage

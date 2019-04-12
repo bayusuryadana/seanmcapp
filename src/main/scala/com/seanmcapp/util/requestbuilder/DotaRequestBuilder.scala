@@ -12,7 +12,7 @@ import spray.json._
 
 import scalacache.Cache
 
-trait DotaRequest {
+trait DotaRequestBuilder {
 
   implicit val matchesCache: Cache[Seq[MatchResponse]]
   implicit val peersCache: Cache[Seq[PeerResponse]]

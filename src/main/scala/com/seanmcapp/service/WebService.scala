@@ -1,13 +1,12 @@
-package com.seanmcapp.view
+package com.seanmcapp.service
 
 import com.seanmcapp.repository.instagram.{Customer, Photo, Vote}
-import com.seanmcapp.service.CBCService
 import spray.json._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait WebView extends CBCService {
+trait WebService extends CBCService {
 
   import com.seanmcapp.util.parser.WebAPIJson._
 
