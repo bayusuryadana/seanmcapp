@@ -5,8 +5,8 @@ import org.joda.time.DateTime
 
 import scala.io.Source
 
-case class MatchViewModel(name: String, matchId: Long, side: String, result: String, duration: String, mode: String,
-                          hero: String, startTime: DateTime, kda: String)
+case class MatchViewModel(matchId: Long, name: String, hero: String, kda: String, mode: String, startTime: DateTime,
+                          duration: String, side: String, result: String)
 
 case class PlayerViewModel(name: String, personaName: String, mmrEstimate: Int)
 
@@ -21,8 +21,24 @@ trait DotaViewBuilder {
   private val td = "<td>"
   private val tde = "</td>"
 
+  def buildKontol: String = templateSource("dota/home.html")
+
   def buildHomeView(matches: Seq[MatchViewModel], players: Seq[PlayerViewModel], heroes: Seq[HeroViewModel]): String = {
+    val matchViewModel = matches.foldLeft("") { (res, m) =>
+      res + tr + m.getClass.getDeclaredFields.map { f =>
+        f.setAccessible(true)
+        td + f.get(m) + tde
+      } + tre
+    }
+
+    val playerViewModel = ""
+
+    val heroViewModel = ""
+
     templateSource("dota/home.html")
+      .replace("${matchViewModel}", matchViewModel)
+      .replace("${playerViewModel}", playerViewModel)
+      .replace("${heroViewModel}", heroViewModel)
   }
 
   def buildPlayerView(player: Player, matches: Seq[MatchViewModel], peers: Seq[PeerViewModel]): String = {

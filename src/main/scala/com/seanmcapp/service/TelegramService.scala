@@ -8,7 +8,7 @@ import spray.json._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait TelegramServiceBuilder extends CBCService with TelegramRequestBuilder {
+trait TelegramService extends CBCService with TelegramRequestBuilder {
 
   private val TELEGRAM_PLATFORM = "telegram"
 

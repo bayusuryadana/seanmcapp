@@ -16,7 +16,9 @@ trait DotaService extends DotaRequestBuilder with DotaViewBuilder {
   val playerRepo: PlayerRepo
   val heroRepo: HeroRepo
 
-  def home: Future[HttpResponse] = {
+  def home: HttpResponse = HttpResponse(entity = buildKontol)
+
+  def homez: Future[HttpResponse] = {
 
     val playersF = playerRepo.getAll
     val heroesF = heroRepo.getAll
@@ -41,7 +43,8 @@ trait DotaService extends DotaRequestBuilder with DotaViewBuilder {
         HeroViewModel(h.id, h.localizedName, h.primaryAttr, h.attackType)
       }
 
-      HttpResponse(entity = buildHomeView(matchViewModels, playerViewModels, heroViewModel))
+      //HttpResponse(entity = buildHomeView(matchViewModels, playerViewModels, heroViewModel))
+      HttpResponse(entity = buildKontol)
     }
   }
 
@@ -96,15 +99,15 @@ trait DotaService extends DotaRequestBuilder with DotaViewBuilder {
 
   private def toMatchViewModel(m: MatchResponse, playerName: String, hero: String): MatchViewModel = {
     MatchViewModel(
-      name = playerName,
       matchId = m.matchId,
-      side = m.getSide,
-      result = m.getWinStatus,
-      duration = m.getDuration,
-      mode = m.getGameMode,
+      name = playerName,
       hero = hero,
+      kda = s"${m.kills}/${m.deaths}/${m.assists}",
+      mode = m.getGameMode,
       startTime = new DateTime(m.startTime.toLong * 1000),
-      kda = s"${m.kills}/${m.deaths}/${m.assists}"
+      duration = m.getDuration,
+      side = m.getSide,
+      result = m.getWinStatus
     )
   }
 

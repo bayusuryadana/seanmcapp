@@ -2,7 +2,7 @@ package com.seanmcapp.startup
 
 import com.google.common.cache.CacheBuilder
 import com.seanmcapp.repository.birthday.{PeopleRepo, PeopleRepoImpl}
-import com.seanmcapp.service.{BirthdayService, CBCService, DotaService, TelegramServiceBuilder, WebService}
+import com.seanmcapp.service.{BirthdayService, CBCService, DotaService, TelegramService, WebService}
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
 import com.seanmcapp.util.parser.{MatchResponse, PeerResponse}
@@ -20,7 +20,7 @@ trait Injection {
 
   val webAPI = new WebService with CBCServiceImpl
 
-  val telegramAPI = new TelegramServiceBuilder with CBCServiceImpl
+  val telegramAPI = new TelegramService with CBCServiceImpl
 
   val dotaAPP = new DotaService {
     override val playerRepo = PlayerRepoImpl

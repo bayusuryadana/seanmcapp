@@ -6,7 +6,6 @@
     <title>seanmcdota | home</title>
 </head>
 <body>
-<!-- TODO: Nav bar here -->
 <div class="container" style="margin: 50px auto">
     <h1>Recent Matches</h1>
     <br>
@@ -15,14 +14,19 @@
         <table class="table row-hover table-border compact">
             <thead>
             <tr>
+                <th>Id</th>
                 <th>Name</th>
-                <th>Account</th>
-                <th>Count</th>
-                <th>Average</th>
+                <th>Hero</th>
+                <th>KDA</th>
+                <th>Mode</th>
+                <th>Start</th>
+                <th>Duration</th>
+                <th>Side</th>
+                <th>Result</th>
             </tr>
             </thead>
             <tbody>
-            ${recentMatchesData}
+            ${matchViewModel}
             </tbody>
         </table>
     </div>

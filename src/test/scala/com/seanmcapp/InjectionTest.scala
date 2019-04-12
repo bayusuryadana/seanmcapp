@@ -19,6 +19,6 @@ trait InjectionTest {
 
   val webService = new WebService with CBCServiceImpl
 
-  val telegramService = new TelegramServiceBuilder with CBCServiceImpl
+  val telegramService = new TelegramService with CBCServiceImpl
 
 }
