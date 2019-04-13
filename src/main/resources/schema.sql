@@ -30,15 +30,15 @@ create table heroes (
 	id SMALLINT primary key,
 	localized_name varchar(32) not null,
 	primary_attr varchar(3) not null,
-	attack_type varchar(6) not null
+	image varchar(128) not null,
+	lore text
 );
 
 create table players (
 	id int primary key,
 	realname varchar(32) not null,
 	avatarfull varchar(2083),
-	personaname varchar(64) not null,
-	mmr_estimate int not null
+	personaname varchar(64) not null
 );
 
 create table people (

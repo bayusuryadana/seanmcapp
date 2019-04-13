@@ -12,19 +12,17 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
 
   val routePath = Seq(
 
-    // API
+    // cbc API
     get(path("api" / Remaining)(method => complete(webAPI.get(JsString(method))))), // web API
     post((path("webhook") & entity(as[JsValue]))(request => complete(telegramAPI.flow(request)))), // telegram
 
-    // birthday check
+    // birthday API
     get(path("birthday")(complete(birthdayAPI.check))),
 
-    // dota
-    get(path("dota")(complete(dotaAPI.getRecentMatches))),
-    get(path("dota" / "player")(complete(dotaAPI.getPlayers))),
-    get(path("dota" / "player" / Remaining)(id => complete(dotaAPI.getPlayerMatches(id.toInt)))),
-    get(path("dota" / "hero")(complete(dotaAPI.getHeroes))),
-    get(path("dota" / "hero" /  Remaining)(id => complete(dotaAPI.getHeroMatches(id.toInt)))),
+    // dota APP
+    get(path("dota")(complete(dotaAPP.home))),
+    get(path("dota" / "player" / Remaining)(id => complete(dotaAPP.player(id.toInt)))),
+    get(path("dota" / "hero" /  Remaining)(id => complete(dotaAPP.hero(id.toInt)))),
 
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !"))),

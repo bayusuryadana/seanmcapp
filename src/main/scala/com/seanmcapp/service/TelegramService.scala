@@ -2,13 +2,13 @@ package com.seanmcapp.service
 
 import com.seanmcapp.repository.instagram.{Customer, Vote}
 import com.seanmcapp.util.parser.{TelegramCallbackQuery, TelegramMessage, TelegramUpdate}
-import com.seanmcapp.util.requestbuilder.TelegramRequest
+import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
 import spray.json._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait TelegramService extends Service with TelegramRequest {
+trait TelegramService extends CBCService with TelegramRequestBuilder {
 
   private val TELEGRAM_PLATFORM = "telegram"
 

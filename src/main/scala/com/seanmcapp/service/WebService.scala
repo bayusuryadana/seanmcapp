@@ -1,15 +1,12 @@
 package com.seanmcapp.service
 
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 import com.seanmcapp.repository.instagram.{Customer, Photo, Vote}
-import com.seanmcapp.util.parser.Result
 import spray.json._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.io.Source
 
-trait WebService extends Service {
+trait WebService extends CBCService {
 
   import com.seanmcapp.util.parser.WebAPIJson._
 

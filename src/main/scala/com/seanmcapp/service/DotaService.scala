@@ -1,19 +1,22 @@
 package com.seanmcapp.service
 
+import akka.http.scaladsl.model.HttpResponse
+import com.seanmcapp.util.viewbuilder.{HeroViewModel, MatchViewModel, PeerViewModel, PlayerViewModel}
 import com.seanmcapp.repository.dota.{HeroRepo, Player, PlayerRepo}
-import com.seanmcapp.util.parser.PeerResponse
-import com.seanmcapp.util.requestbuilder.DotaRequest
+import com.seanmcapp.util.parser.{MatchResponse, PeerResponse}
+import com.seanmcapp.util.requestbuilder.DotaRequestBuilder
+import com.seanmcapp.util.viewbuilder.DotaViewBuilder
 import org.joda.time.DateTime
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait DotaService extends DotaRequest {
+trait DotaService extends DotaRequestBuilder with DotaViewBuilder {
 
   val playerRepo: PlayerRepo
   val heroRepo: HeroRepo
 
-  def getRecentMatches: Future[String] = {
+  def home: Future[HttpResponse] = {
 
     val playersF = playerRepo.getAll
     val heroesF = heroRepo.getAll
@@ -22,83 +25,92 @@ trait DotaService extends DotaRequest {
       players <- playersF
       heroes <- heroesF
     } yield {
-      val playersMap = players.map(p => (p.id, p)).toMap
-      val matches = getMatches(players.map(_.id)).sortBy(m => -m._2.startTime).take(20)
       val heroesMap = heroes.map(h => (h.id, h)).toMap
-      matches.foldLeft("") { (res, matchTuple) =>
+      val matchViewModels = getMatches(players.map(_.id)).sortBy(m => -m._2.startTime).take(20).map { matchTuple =>
         val m = matchTuple._2
-        res + s"${playersMap.get(matchTuple._1).map(_.personaName).getOrElse("Unknown Player")} :  ${m.matchId} " +
-          s"${m.getSide}  ${m.getWinStatus} ${m.getDuration}  ${m.getGameMode}  " +
-          s"${heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")}  " +
-          s"${new DateTime(m.startTime.toLong * 1000)} " +
-          s"${m.kills}/${m.deaths}/${m.assists} \n"
+        val playerName = players.find(_.id == matchTuple._1).map(_.personaName).getOrElse("Unknown Player")
+        val hero = heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")
+        toMatchViewModel(m, playerName, hero)
       }
+
+      val playerViewModels = players.map { p =>
+        PlayerViewModel(p.id, p.realName, p.personaName, p.avatarFull)
+      }
+
+      val heroViewModel = heroes.map { h =>
+        HeroViewModel(h.id, h.localizedName, h.primaryAttr, h.image, h.lore)
+      }
+
+      HttpResponse(entity = buildHomeView(matchViewModels, playerViewModels, heroViewModel))
     }
   }
 
-  def getHeroes: Future[String] = heroRepo.getAll.map(_.foldLeft(""){ (res,h) =>
-    res + s"${h.id} ${h.localizedName}  ${h.primaryAttr} \n"
-  })
-
-  def getHeroMatches(id: Int): Future[String] = {
-    val playerListF = playerRepo.getAll
-    val heroF = heroRepo.get(id)
-
-    for {
-      playerList <- playerListF
-      hero <- heroF
-    } yield {
-      val heroInfo = hero.getOrElse(throw new Exception("Hero not found"))
-      val matches = getMatches(playerList.map(_.id)).filter(_._2.heroId == id).sortBy(m => -(m._2.startTime + m._2.duration))
-      (heroInfo, matches).toString
-    }
-  }
-
-  def getPlayers: Future[String] = playerRepo.getAll.map(_.foldLeft(""){ (res,h) =>
-    res + s"${h.realName} ${h.personaName} ${h.MMREstimate} \n"
-  })
-
-  def getPlayerMatches(id: Int): Future[String] = {
-
+  def player(id: Int): Future[HttpResponse] = {
     val playersF = playerRepo.getAll
     val heroesF = heroRepo.getAll
-
     for {
       players <- playersF
       heroes <- heroesF
     } yield {
-      val playerInfo = players.find(_.id == id).getOrElse(throw new Exception("Player not found"))
+      val player = players.find(_.id == id).getOrElse(throw new Exception("Player not found"))
+
       val matches = getMatches(id)
       val peers = getPeers(id).foldLeft(Seq.empty[(Player, PeerResponse)]) { (res, peer) =>
         val player = players.find(_.id == peer.peerPlayerId)
         if (player.isDefined) res :+ (player.get, peer) else res
       }
-
       val heroesMap = heroes.map(h => (h.id, h)).toMap
-      val matchesS = matches.foldLeft("")( (res,m) => res + s"${m.matchId}  ${m.getSide}  ${m.getWinStatus} ${m.getDuration}  " +
-        s"${m.getGameMode}  ${heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")}  " +
-        s"${new DateTime(m.startTime.toLong * 1000)} ${m.kills}/${m.deaths}/${m.assists} \n")
 
-      val peersS = peers.foldLeft("")( (res,p) => res + s"${p._1.personaName} ${p._2.games} " +
-        s"${((p._2.win.toDouble/p._2.games) * 100).toInt / 100.0} \n")
+      val matchViewModel = matches.map { m =>
+        val hero = heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")
+        toMatchViewModel(m, player.personaName, hero)
+      }
 
-      s"""
-        | Player Info
-        | ===========
-        | name:  ${playerInfo.realName}
-        | alias: ${playerInfo.personaName}
-        | mmr:   ${playerInfo.MMREstimate}
-        |
-        | Matches
-        | =======
-        | $matchesS
-        |
-        | Peers
-        | =====
-        | $peersS
-      """.stripMargin
+      val peerViewModel = peers.map { p =>
+        PeerViewModel(p._1.personaName, p._2.win, p._2.games, ((p._2.win.toDouble/p._2.games) * 100).toInt / 100.0)
+      }
 
+      HttpResponse(entity = buildPlayerView(player, matchViewModel, peerViewModel))
     }
+  }
+
+  def hero(id: Int): Future[HttpResponse] = {
+    val playersF = playerRepo.getAll
+    val heroF = heroRepo.get(id)
+
+    for {
+      players <- playersF
+      heroOption <- heroF
+    } yield {
+      val hero = heroOption.getOrElse(throw new Exception("Hero not found"))
+      val peers = getMatches(players.map(_.id)).collect {
+        case matchTuple if matchTuple._2.heroId == id =>
+          val m = matchTuple._2
+          val playerName = players.find(_.id == matchTuple._1).map(_.personaName).getOrElse("Unknown Player")
+          toMatchViewModel(m, playerName, hero.localizedName)
+      }.groupBy(_.name).map { e =>
+        val games = e._2.size
+        val win = e._2.count(_.result == "Win")
+        val percentage = (win.toDouble / games * 100).toInt / 100.0
+        PeerViewModel(e._1, win, games, percentage)
+      }.toSeq
+
+      HttpResponse(entity = buildHeroView(hero, peers))
+    }
+  }
+
+  private def toMatchViewModel(m: MatchResponse, playerName: String, hero: String): MatchViewModel = {
+    MatchViewModel(
+      matchId = m.matchId,
+      name = playerName,
+      hero = hero,
+      kda = s"${m.kills}/${m.deaths}/${m.assists}",
+      mode = m.getGameMode,
+      startTime = new DateTime(m.startTime.toLong * 1000),
+      duration = m.getDuration,
+      side = m.getSide,
+      result = m.getWinStatus
+    )
   }
 
 }

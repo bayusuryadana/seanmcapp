@@ -5,7 +5,7 @@ import com.seanmcapp.repository.instagram._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait Service {
+trait CBCService {
 
   val customerRepo: CustomerRepo
   val voteRepo: VoteRepo

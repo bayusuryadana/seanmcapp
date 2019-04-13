@@ -5,7 +5,7 @@ import com.seanmcapp.repository.instagram.Photo
 
 import scalaj.http.{Http, HttpResponse}
 
-trait TelegramRequest {
+trait TelegramRequestBuilder {
 
   val telegramConf = TelegramConf()
   val baseUrl = telegramConf.endpoint

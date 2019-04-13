@@ -41,9 +41,9 @@ case class PeerResponse(peerPlayerId: Int, win: Int, games:Int)
 
 object DotaJson extends DefaultJsonProtocol {
 
-  implicit val playerFormat = jsonFormat5(Player)
+  implicit val playerFormat = jsonFormat4(Player)
 
-  implicit val heroFormat = jsonFormat4(Hero)
+  implicit val heroFormat = jsonFormat5(Hero)
 
   implicit val matchFormat = jsonFormat(MatchResponse, "match_id", "player_slot", "radiant_win", "duration", "game_mode",
     "lobby_type", "hero_id", "start_time", "kills", "deaths", "assists")

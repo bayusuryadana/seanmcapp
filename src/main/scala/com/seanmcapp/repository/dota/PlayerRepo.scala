@@ -5,16 +5,15 @@ import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.Future
 
-case class Player(id: Int, realName: String, avatarFull: String, personaName: String, MMREstimate: Int)
+case class Player(id: Int, realName: String, avatarFull: String, personaName: String)
 
 class PlayerInfo(tag: Tag) extends Table[Player](tag, "players") {
   val id = column[Int]("id", O.PrimaryKey)
   val realName = column[String]("realname")
   val avatarFull = column[String]("avatarfull")
   val personaName = column[String]("personaname")
-  val MMREstimante = column[Int]("mmr_estimate")
 
-  def * = (id, realName, avatarFull, personaName, MMREstimante) <> (Player.tupled, Player.unapply)
+  def * = (id, realName, avatarFull, personaName) <> (Player.tupled, Player.unapply)
 }
 
 trait PlayerRepo {
