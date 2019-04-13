@@ -38,7 +38,7 @@ trait DotaService extends DotaRequestBuilder with DotaViewBuilder {
       }
 
       val heroViewModel = heroes.map { h =>
-        HeroViewModel(h.id, h.localizedName, h.primaryAttr, h.image, h.lore.getOrElse(""))
+        HeroViewModel(h.id, h.localizedName, h.primaryAttr, h.image, h.lore)
       }
 
       HttpResponse(entity = buildHomeView(matchViewModels, playerViewModels, heroViewModel))
@@ -67,7 +67,7 @@ trait DotaService extends DotaRequestBuilder with DotaViewBuilder {
       }
 
       val peerViewModel = peers.map { p =>
-        PeerViewModel(p._1.personaName, p._2.win, ((p._2.win.toDouble/p._2.games) * 100).toInt / 100.0)
+        PeerViewModel(p._1.personaName, p._2.win, p._2.games, ((p._2.win.toDouble/p._2.games) * 100).toInt / 100.0)
       }
 
       HttpResponse(entity = buildPlayerView(player, matchViewModel, peerViewModel))
@@ -83,14 +83,19 @@ trait DotaService extends DotaRequestBuilder with DotaViewBuilder {
       heroOption <- heroF
     } yield {
       val hero = heroOption.getOrElse(throw new Exception("Hero not found"))
-      val matches = getMatches(players.map(_.id)).map {
+      val peers = getMatches(players.map(_.id)).collect {
         case matchTuple if matchTuple._2.heroId == id =>
           val m = matchTuple._2
           val playerName = players.find(_.id == matchTuple._1).map(_.personaName).getOrElse("Unknown Player")
           toMatchViewModel(m, playerName, hero.localizedName)
-      }//.groupBy(_.name).toSeq // TODO: get win percentage of each player
+      }.groupBy(_.name).map { e =>
+        val games = e._2.size
+        val win = e._2.count(_.result == "Win")
+        val percentage = (win.toDouble / games * 100).toInt / 100.0
+        PeerViewModel(e._1, win, games, percentage)
+      }.toSeq
 
-      HttpResponse(entity = buildHeroView(hero, matches))
+      HttpResponse(entity = buildHeroView(hero, peers))
     }
   }
 
