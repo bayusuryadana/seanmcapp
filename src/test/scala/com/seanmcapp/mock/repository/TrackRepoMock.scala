@@ -14,7 +14,5 @@ object TrackRepoMock extends TrackRepo {
     Track(123, 784771576786862732L, 1543779535)
   )
 
-  override def getAll: Future[Seq[Track]] = Future.successful(trackList)
-
   override def insert(track: Track): Future[Int] = Future.successful(1)
 }

@@ -15,8 +15,6 @@ object PhotoRepoMock extends PhotoRepo {
     Photo(784771576786862732L, "https://someurl", 1407772083, "Nadia Raissa. FISIP'13", "ui.cantik"),
   )
 
-  override def getAll: Future[Seq[Photo]] = Future.successful(photoList)
-
   override def getAll(account: String): Future[Seq[(Long, Long)]] = {
     val result = photoList.filter(_.account == account).sortBy(p => -p.date).map(p => (p.id, p.date))
     Future.successful(result)

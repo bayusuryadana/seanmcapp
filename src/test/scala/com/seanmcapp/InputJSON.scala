@@ -2,6 +2,7 @@ package com.seanmcapp
 
 import spray.json._
 
+// TODO: implement integration test, to test serde
 object InputJSON {
 
   val telegramPrivateChatInput =

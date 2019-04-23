@@ -1,9 +1,10 @@
 package com.seanmcapp.mock.requestbuilder
 
 import com.seanmcapp.util.parser.{MatchResponse, PeerResponse}
-import com.seanmcapp.util.requestbuilder.DotaRequest
+import com.seanmcapp.util.requestbuilder.DotaRequestBuilder
 
-trait DotaRequestMock extends DotaRequest {
+// TODO: implement mock request builder
+trait DotaRequestMock extends DotaRequestBuilder {
 
   override def getMatches(id: Int): Seq[MatchResponse] = ???
 

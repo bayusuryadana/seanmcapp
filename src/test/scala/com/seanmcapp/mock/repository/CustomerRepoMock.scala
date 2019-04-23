@@ -14,7 +14,5 @@ object CustomerRepoMock extends CustomerRepo {
     Customer(274852283, "Bayu บายู", "telegram")
   )
 
-  override def getAll: Future[Seq[Customer]] = Future.successful(customerList)
-
   override def insertOrUpdate(customer: Customer): Future[Int] = Future.successful(1)
 }

@@ -7,11 +7,11 @@ import scala.concurrent.Future
 object HeroRepoMock extends HeroRepo {
 
   private val heroesList = Seq(
-    Hero(1, "Anti-Mage", "agi", "Melee"),
-    Hero(2, "Axe", "str", "Melee"),
-    Hero(3, "Bane", "int", "Ranged"),
-    Hero(4, "Bloodseeker", "agi", "Melee"),
-    Hero(5, "Crystal Maiden", "int", "Ranged")
+    Hero(1, "Anti-Mage", "agi", "Melee", "magina story here"),
+    Hero(2, "Axe", "str", "Melee", "axe story here"),
+    Hero(3, "Bane", "int", "Ranged", "bane story here"),
+    Hero(4, "Bloodseeker", "agi", "Melee", "strygwyr story here"),
+    Hero(5, "Crystal Maiden", "int", "Ranged", "rylai story here")
   )
 
   override def getAll: Future[Seq[Hero]] = Future.successful(heroesList)

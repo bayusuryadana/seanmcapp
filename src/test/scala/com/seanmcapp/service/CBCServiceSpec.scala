@@ -1,10 +1,10 @@
 package com.seanmcapp.service
 
+import com.seanmcapp.CBCServiceImpl
 import com.seanmcapp.repository.instagram.{Customer, Photo}
-import com.seanmcapp.{InjectionTest, ServiceImpl}
 import org.scalatest.{AsyncWordSpec, Matchers}
 
-class ServiceSpec extends AsyncWordSpec with Matchers with ServiceImpl with InjectionTest {
+class CBCServiceSpec extends AsyncWordSpec with Matchers with CBCServiceImpl {
 
   val customer = Customer(1, "pawas", "telegram")
 

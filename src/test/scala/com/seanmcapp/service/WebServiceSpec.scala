@@ -1,10 +1,8 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.InjectionTest
-import com.seanmcapp.config.TelegramConf
+import com.seanmcapp.CBCServiceImpl
 import org.scalatest.{AsyncWordSpec, Matchers}
-import spray.json.JsString
 
-class WebServiceSpec extends AsyncWordSpec with Matchers with InjectionTest {
+class WebServiceSpec extends AsyncWordSpec with Matchers with CBCServiceImpl {
 
 }

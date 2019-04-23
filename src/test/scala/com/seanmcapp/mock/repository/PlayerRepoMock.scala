@@ -7,11 +7,11 @@ import scala.concurrent.Future
 object PlayerRepoMock extends PlayerRepo {
 
   private val playersList = Seq(
-    Player(104466002, "Agung Putra Pasaribu", null, "hnymnky", 3122),
-    Player(104787108, "Cahaya Ikhwan", null, "travengers", 2927),
-    Player(105742997, "Bayu Suryadana", null, "SeanmcrayZ", 2901),
-    Player(131673450, "Faris Iqbal", null, "OMEGALUL", 3492),
-    Player(133805346, "Irfan Nur Afif", null, "lightzard", 2960),
+    Player(104466002, "Agung Putra Pasaribu", null, "hnymnky"),
+    Player(104787108, "Cahaya Ikhwan", null, "travengers"),
+    Player(105742997, "Bayu Suryadana", null, "SeanmcrayZ"),
+    Player(131673450, "Faris Iqbal", null, "OMEGALUL"),
+    Player(133805346, "Irfan Nur Afif", null, "lightzard"),
   )
 
   override def getAll: Future[Seq[Player]] = Future.successful(playersList)

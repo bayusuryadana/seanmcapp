@@ -9,35 +9,22 @@ import com.seanmcapp.util.parser.{MatchResponse, PeerResponse}
 import scalacache.guava.GuavaCache
 import scalacache.{Cache, Entry}
 
-trait InjectionTest {
+trait CBCServiceImpl extends CBCService {
+  override val customerRepo = CustomerRepoImpl
+  override val photoRepo = PhotoRepoImpl
+  override val voteRepo = VoteRepoImpl
+  override val trackRepo = TrackRepoImpl
+}
 
-  private val customerRepoImpl = CustomerRepoImpl
-  private val photoRepoImpl = PhotoRepoImpl
-  private val voteRepoImpl = VoteRepoImpl
-  private val trackRepoImpl = TrackRepoImpl
+trait DotaServiceImpl extends DotaService {
+  override val playerRepo: PlayerRepo = PlayerRepoMock
+  override val heroRepo: HeroRepo = HeroRepoMock
 
-  trait CBCServiceImpl extends CBCService {
-    override val customerRepo = customerRepoImpl
-    override val photoRepo = photoRepoImpl
-    override val voteRepo = voteRepoImpl
-    override val trackRepo = trackRepoImpl
+  override val matchesCache = createCache[Seq[MatchResponse]]
+  override val peersCache = createCache[Seq[PeerResponse]]
+
+  private def createCache[T]: Cache[T] = {
+    val underlyingGuavaCache = CacheBuilder.newBuilder().maximumSize(10000L).build[String, Entry[T]]
+    GuavaCache(underlyingGuavaCache)
   }
-
-  val webService = new WebService with CBCServiceImpl
-
-  val telegramService = new TelegramService with CBCServiceImpl
-
-  val dotaService = new DotaService {
-    override val playerRepo: PlayerRepo = PlayerRepoMock
-    override val heroRepo: HeroRepo = HeroRepoMock
-
-    override val matchesCache = createCache[Seq[MatchResponse]]
-    override val peersCache = createCache[Seq[PeerResponse]]
-
-    private def createCache[T]: Cache[T] = {
-      val underlyingGuavaCache = CacheBuilder.newBuilder().maximumSize(10000L).build[String, Entry[T]]
-      GuavaCache(underlyingGuavaCache)
-    }
-  }
-
 }

@@ -14,8 +14,6 @@ object VoteRepoMock extends VoteRepo {
     Vote(123, 784771576786862732L, 5)
   )
 
-  override def getAll: Future[Seq[Vote]] = Future.successful(voteList)
-
   override def insertOrUpdate(vote: Vote): Future[Int] = Future.successful(1)
 
 }
