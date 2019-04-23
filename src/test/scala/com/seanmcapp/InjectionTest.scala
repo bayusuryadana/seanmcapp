@@ -1,22 +1,24 @@
 package com.seanmcapp
 
 import com.google.common.cache.CacheBuilder
-import com.seanmcapp.mock.repository.{HeroRepoMock, PlayerRepoMock}
+import com.seanmcapp.mock.repository._
+import com.seanmcapp.mock.requestbuilder.{DotaRequestMock, TelegramRequestMock}
 import com.seanmcapp.repository.dota.{HeroRepo, PlayerRepo}
-import com.seanmcapp.repository.instagram._
 import com.seanmcapp.service._
 import com.seanmcapp.util.parser.{MatchResponse, PeerResponse}
 import scalacache.guava.GuavaCache
 import scalacache.{Cache, Entry}
 
 trait CBCServiceImpl extends CBCService {
-  override val customerRepo = CustomerRepoImpl
-  override val photoRepo = PhotoRepoImpl
-  override val voteRepo = VoteRepoImpl
-  override val trackRepo = TrackRepoImpl
+  override val customerRepo = CustomerRepoMock
+  override val photoRepo = PhotoRepoMock
+  override val voteRepo = VoteRepoMock
+  override val trackRepo = TrackRepoMock
 }
 
-trait DotaServiceImpl extends DotaService {
+trait TelegramServiceImpl extends TelegramService with CBCServiceImpl with TelegramRequestMock
+
+trait DotaServiceImpl extends DotaService with DotaRequestMock {
   override val playerRepo: PlayerRepo = PlayerRepoMock
   override val heroRepo: HeroRepo = HeroRepoMock
 

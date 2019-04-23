@@ -1,8 +1,8 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.CBCServiceImpl
+import com.seanmcapp.TelegramServiceImpl
 import org.scalatest.{AsyncWordSpec, Matchers}
 
-class TelegramServiceSpec extends AsyncWordSpec with Matchers with CBCServiceImpl {
-
+class TelegramServiceSpec extends AsyncWordSpec with Matchers with TelegramServiceImpl {
+  // TODO: implement spec
 }
