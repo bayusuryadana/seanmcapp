@@ -26,7 +26,7 @@ trait DotaService extends DotaRequestBuilder with DotaViewBuilder {
       heroes <- heroesF
     } yield {
       val heroesMap = heroes.map(h => (h.id, h)).toMap
-      val matchViewModels = getMatches(players.map(_.id)).sortBy(m => -m._2.startTime).take(20).map { matchTuple =>
+      val matchViewModels = getMatches(players.map(_.id)).sortBy(m => -m._2.startTime).take(10).map { matchTuple =>
         val m = matchTuple._2
         val playerName = players.find(_.id == matchTuple._1).map(_.personaName).getOrElse("Unknown Player")
         val hero = heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")
@@ -54,23 +54,22 @@ trait DotaService extends DotaRequestBuilder with DotaViewBuilder {
     } yield {
       val player = players.find(_.id == id).getOrElse(throw new Exception("Player not found"))
 
-      val matches = getMatches(id)
+      val heroesMap = heroes.map(h => (h.id, h)).toMap
+      val peerHeroViewModel = getMatches(id).map { m =>
+        val hero = heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")
+        toMatchViewModel(m, player.personaName, hero)
+      }.groupBy(_.hero).map(toGameSummary).toSeq
+
       val peers = getPeers(id).foldLeft(Seq.empty[(Player, PeerResponse)]) { (res, peer) =>
         val player = players.find(_.id == peer.peerPlayerId)
         if (player.isDefined) res :+ (player.get, peer) else res
-      }
-      val heroesMap = heroes.map(h => (h.id, h)).toMap
-
-      val matchViewModel = matches.map { m =>
-        val hero = heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")
-        toMatchViewModel(m, player.personaName, hero)
       }
 
       val peerViewModel = peers.map { p =>
         PeerViewModel(p._1.personaName, p._2.win, p._2.games, ((p._2.win.toDouble/p._2.games) * 100).toInt / 100.0)
       }
 
-      HttpResponse(entity = buildPlayerView(player, matchViewModel, peerViewModel))
+      HttpResponse(entity = buildPlayerView(player, peerHeroViewModel, peerViewModel))
     }
   }
 
@@ -88,12 +87,7 @@ trait DotaService extends DotaRequestBuilder with DotaViewBuilder {
           val m = matchTuple._2
           val playerName = players.find(_.id == matchTuple._1).map(_.personaName).getOrElse("Unknown Player")
           toMatchViewModel(m, playerName, hero.localizedName)
-      }.groupBy(_.name).map { e =>
-        val games = e._2.size
-        val win = e._2.count(_.result == "Win")
-        val percentage = (win.toDouble / games * 100).toInt / 100.0
-        PeerViewModel(e._1, win, games, percentage)
-      }.toSeq
+      }.groupBy(_.name).map(toGameSummary).toSeq
 
       HttpResponse(entity = buildHeroView(hero, peers))
     }
@@ -111,6 +105,13 @@ trait DotaService extends DotaRequestBuilder with DotaViewBuilder {
       side = m.getSide,
       result = m.getWinStatus
     )
+  }
+
+  private def toGameSummary(e: (String, Seq[MatchViewModel])): PeerViewModel = {
+    val games = e._2.size
+    val win = e._2.count(_.result == "Win")
+    val percentage = (win.toDouble / games * 100).toInt / 100.0
+    PeerViewModel(e._1, win, games, percentage)
   }
 
 }

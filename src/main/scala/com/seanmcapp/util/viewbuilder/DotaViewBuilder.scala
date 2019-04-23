@@ -60,7 +60,7 @@ trait DotaViewBuilder {
     HttpEntity(ContentTypes.`text/html(UTF-8)`, res)
   }
 
-  def buildPlayerView(player: Player, matches: Seq[MatchViewModel], peers: Seq[PeerViewModel]): HttpEntity.Strict = {
+  def buildPlayerView(player: Player, peerHero: Seq[PeerViewModel], peers: Seq[PeerViewModel]): HttpEntity.Strict = {
 
     val peerViewModel = peers.foldLeft("") { (res, p) =>
       res + templateSource("dota/player_peer_item.html")
@@ -70,17 +70,12 @@ trait DotaViewBuilder {
         .replace("{{peer_percentage}}", p.percentage.toString)
     }
 
-    val matchViewModel = matches.foldLeft("") { (res, m) =>
-      res + templateSource("dota/home_match_item.html")
-        .replace("{{match_id}}", m.matchId.toString)
-        .replace("{{match_name}}", m.name)
-        .replace("{{match_hero}}", m.hero)
-        .replace("{{match_kda}}", m.kda)
-        .replace("{{match_mode}}", m.mode)
-        .replace("{{match_start_time}}", DateTimeFormat.forPattern("dd/MM/yyyy HH:mm").print(m.startTime))
-        .replace("{{match_duration}}", m.duration)
-        .replace("{{match_side}}", m.side)
-        .replace("{{match_result}}", m.result)
+    val peerHeroViewModel = peerHero.foldLeft("") { (res, p) =>
+      res + templateSource("dota/player_peer_item.html")
+        .replace("{{peer_name}}", p.peerName)
+        .replace("{{peer_win}}", p.win.toString)
+        .replace("{{peer_games}}", p.games.toString)
+        .replace("{{peer_percentage}}", p.percentage.toString)
     }
 
     val res = templateSource("dota/player.html")
@@ -88,7 +83,7 @@ trait DotaViewBuilder {
       .replace("{{player_name}}", player.realName)
       .replace("{{player_persona_name}}", player.personaName)
       .replace("{{peerViewModel}}", peerViewModel)
-      .replace("{{matchViewModel}}", matchViewModel)
+      .replace("{{peerHeroViewModel}}", peerHeroViewModel)
 
     HttpEntity(ContentTypes.`text/html(UTF-8)`, res)
   }
