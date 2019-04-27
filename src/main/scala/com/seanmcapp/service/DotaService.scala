@@ -23,6 +23,8 @@ trait DotaService extends DotaRequestBuilder {
   val playerRepo: PlayerRepo
   val heroRepo: HeroRepo
 
+  protected val heroImageBaseURL = "https://api.opendota.com/apps/dota2/images/heroes/"
+
   def home: Future[HomePageResponse] = {
 
     val playersF = playerRepo.getAll
@@ -40,7 +42,7 @@ trait DotaService extends DotaRequestBuilder {
         toMatchViewModel(m, playerName, hero)
       }
 
-      HomePageResponse(matchViewModels, players, heroes.map(_.copy(lore = "")))
+      HomePageResponse(matchViewModels, players, heroes.map(hero => hero.copy(lore = "", image = heroImageBaseURL + hero.image)))
     }
   }
 
@@ -88,7 +90,7 @@ trait DotaService extends DotaRequestBuilder {
           toMatchViewModel(m, playerName, hero.localizedName)
       }.groupBy(_.name).map(toWinSummary).toSeq
 
-      HeroPageResponse(hero, playersWinSummary)
+      HeroPageResponse(hero.copy(image = heroImageBaseURL + hero.image), playersWinSummary)
     }
   }
 
