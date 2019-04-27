@@ -27,8 +27,8 @@ libraryDependencies ++= Seq(
   "org.scalactic" %% "scalactic" % "3.0.5",
   "org.scalatest" %% "scalatest" % "3.0.5" % Test,
   
-  // image storage
-  "com.amazonaws" % "aws-java-sdk" % "1.11.444",
+  // joda time
+  "joda-time" % "joda-time" % "2.10.1",
 
   // caching
   "com.github.cb372" %% "scalacache-guava" % "0.27.0"
@@ -37,7 +37,7 @@ libraryDependencies ++= Seq(
 fork in Test := true
 javaOptions in Test += "-Dconfig.resource=/dev.conf"
 
-mainClass in Compile := Some("com.seanmcapp.startup.Boot")
+mainClass in Compile := Some("com.seanmcapp.Boot")
 
 enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
