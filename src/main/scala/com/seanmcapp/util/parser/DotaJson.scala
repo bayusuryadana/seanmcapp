@@ -1,6 +1,8 @@
 package com.seanmcapp.util.parser
 
 import com.seanmcapp.repository.dota.{Hero, Player}
+import com.seanmcapp.service._
+import org.joda.time.DateTime
 import spray.json._
 
 case class ArrayResponse[T](res: Seq[T])
@@ -59,5 +61,15 @@ object DotaJson extends DefaultJsonProtocol {
     def read(value: JsValue) = ArrayResponse(value.convertTo[Seq[PeerResponse]])
     def write(obj: ArrayResponse[PeerResponse]) = obj.res.toJson
   }
+
+  implicit val matchViewModelFormat = jsonFormat9(MatchViewModel)
+
+  implicit val winSummaryFormat = jsonFormat4(WinSummary)
+
+  implicit val homePageResponseFormat = jsonFormat3(HomePageResponse)
+
+  implicit val playerPageResponseFormat = jsonFormat3(PlayerPageResponse)
+
+  implicit val heroPageResponseFormat = jsonFormat2(HeroPageResponse)
 
 }

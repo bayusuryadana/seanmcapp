@@ -37,7 +37,7 @@ libraryDependencies ++= Seq(
 fork in Test := true
 javaOptions in Test += "-Dconfig.resource=/dev.conf"
 
-mainClass in Compile := Some("com.seanmcapp.startup.Boot")
+mainClass in Compile := Some("com.seanmcapp.Boot")
 
 enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)

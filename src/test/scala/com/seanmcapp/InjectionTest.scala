@@ -16,7 +16,7 @@ trait CBCServiceImpl extends CBCService {
   override val trackRepo = TrackRepoMock
 }
 
-trait TelegramServiceImpl extends TelegramService with CBCServiceImpl with TelegramRequestMock
+trait TelegramServiceImpl extends CBCServiceImpl with TelegramRequestMock
 
 trait DotaServiceImpl extends DotaService with DotaRequestMock {
   override val playerRepo: PlayerRepo = PlayerRepoMock
