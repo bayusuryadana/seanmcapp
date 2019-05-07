@@ -45,9 +45,6 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
       complete(statusCodeF.map(n => JsNumber(n)))
     }),
 
-    // birthday API
-    get(path("birthday")(complete(birthdayAPI.check))),
-
     // dota APP
     get(path("dota")(complete(dotaAPI.home.map(_.toJson)))),
     get(path("dota" / "player" / Remaining)(id => complete(dotaAPI.player(id.toInt).map(_.toJson)))),
