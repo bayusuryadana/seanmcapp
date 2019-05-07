@@ -29,7 +29,3 @@ trait DotaServiceImpl extends DotaService with DotaRequestMock {
     GuavaCache(underlyingGuavaCache)
   }
 }
-
-trait BirthdayServiceImpl extends BirthdayService {
-  override val peopleRepo: PeopleRepo = PeopleRepoMock
-}
