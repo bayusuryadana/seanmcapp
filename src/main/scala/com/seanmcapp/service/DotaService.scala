@@ -1,5 +1,8 @@
 package com.seanmcapp.service
 
+import java.text.SimpleDateFormat
+import java.util.{Date, TimeZone}
+
 import com.seanmcapp.repository.dota.{Hero, HeroRepo, Player, PlayerRepo}
 import com.seanmcapp.util.parser.{MatchResponse, PeerResponse}
 import com.seanmcapp.util.requestbuilder.DotaRequestBuilder
@@ -7,7 +10,7 @@ import com.seanmcapp.util.requestbuilder.DotaRequestBuilder
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class MatchViewModel(matchId: Long, name: String, hero: String, kda: String, mode: String, startTime: Long,
+case class MatchViewModel(matchId: Long, name: String, hero: String, kda: String, mode: String, startTime: String,
                           duration: String, side: String, result: String)
 
 case class WinSummary(peerName: String, win: Int, games: Int, percentage:Double)
@@ -95,13 +98,19 @@ trait DotaService extends DotaRequestBuilder {
   }
 
   private def toMatchViewModel(m: MatchResponse, playerName: String, hero: String): MatchViewModel = {
+    val date = new Date(m.startTime.toLong * 1000L)
+    val fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm")
+    // fucking side effect java
+    fmt.setTimeZone(TimeZone.getTimeZone("GMT+7"))
+    val startTime = fmt.format(date.getTime)
+
     MatchViewModel(
       matchId = m.matchId,
       name = playerName,
       hero = hero,
       kda = s"${m.kills}/${m.deaths}/${m.assists}",
       mode = m.getGameMode,
-      startTime = m.startTime.toLong,
+      startTime = startTime,
       duration = m.getDuration,
       side = m.getSide,
       result = m.getWinStatus
