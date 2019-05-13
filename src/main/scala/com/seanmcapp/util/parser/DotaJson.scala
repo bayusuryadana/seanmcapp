@@ -2,7 +2,6 @@ package com.seanmcapp.util.parser
 
 import com.seanmcapp.repository.dota.{Hero, Player}
 import com.seanmcapp.service._
-import org.joda.time.DateTime
 import spray.json._
 
 case class ArrayResponse[T](res: Seq[T])

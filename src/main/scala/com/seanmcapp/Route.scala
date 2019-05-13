@@ -13,8 +13,8 @@ import scala.concurrent.ExecutionContext
 class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends Directives
   with SprayJsonSupport with DefaultJsonProtocol with Injection {
 
-  import com.seanmcapp.util.parser.DotaJson._
   import com.seanmcapp.util.parser.CBCJson._
+  import com.seanmcapp.util.parser.DotaJson._
 
   val routePath = Seq(
 

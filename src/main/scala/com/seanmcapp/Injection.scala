@@ -1,7 +1,6 @@
 package com.seanmcapp
 
 import com.google.common.cache.CacheBuilder
-import com.seanmcapp.repository.birthday.{PeopleRepo, PeopleRepoImpl}
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
 import com.seanmcapp.service.{CBCService, DotaService}
