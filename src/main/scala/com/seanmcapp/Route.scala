@@ -15,7 +15,6 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
 
   import com.seanmcapp.util.parser.CBCJson._
   import com.seanmcapp.util.parser.DotaJson._
-  import com.seanmcapp.util.parser.IgrowJson._
 
   val routePath = Seq(
 
@@ -50,9 +49,6 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     get(path("dota")(complete(dotaAPI.home.map(_.toJson)))),
     get(path("dota" / "player" / Remaining)(id => complete(dotaAPI.player(id.toInt).map(_.toJson)))),
     get(path("dota" / "hero" /  Remaining)(id => complete(dotaAPI.hero(id.toInt).map(_.toJson)))),
-
-    // igrow
-    get(path("igrow")(complete(iGrowAPI.fetch.toJson))),
 
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !"))),

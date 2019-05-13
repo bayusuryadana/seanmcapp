@@ -1,10 +1,9 @@
 package com.seanmcapp
 
 import com.google.common.cache.CacheBuilder
-import com.seanmcapp.repository.birthday.{PeopleRepo, PeopleRepoImpl}
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
-import com.seanmcapp.service.{CBCService, DotaService, IgrowService}
+import com.seanmcapp.service.{CBCService, DotaService}
 import com.seanmcapp.util.parser.{MatchResponse, PeerResponse}
 import scalacache.guava.GuavaCache
 import scalacache.{Cache, Entry}
@@ -30,7 +29,5 @@ trait Injection {
       GuavaCache(underlyingGuavaCache)
     }
   }
-
-  val iGrowAPI = new IgrowService {}
 
 }

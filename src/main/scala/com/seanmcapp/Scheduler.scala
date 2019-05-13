@@ -5,7 +5,10 @@ import java.util.concurrent.TimeUnit
 import org.joda.time.{DateTime, DateTimeZone, LocalDateTime}
 import com.seanmcapp.Boot.system
 import com.seanmcapp.repository.birthday.PeopleRepoImpl
+import com.seanmcapp.util.parser.{IgrowData, IgrowResponse}
 import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
+import scalaj.http.Http
+import spray.json._
 
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration.Duration
@@ -14,6 +17,7 @@ object Scheduler extends TelegramRequestBuilder {
 
   private val peopleRepo = PeopleRepoImpl
   private val ICT = "+07:00"
+  private val iGrowBaseUrl = "https://igrow.asia/api/public/en/v1/sponsor/seed"
 
   def start(implicit ec: ExecutionContext): Unit = {
     val scheduler = system.scheduler
@@ -39,7 +43,8 @@ object Scheduler extends TelegramRequestBuilder {
 
   private def task: Unit = {
     birthdayCheck
-    println("=== fetching news ===")
+    iGrowCheck
+    println("=== fetching news here ===")
   }
 
   private def birthdayCheck: Future[String] = {
@@ -53,6 +58,13 @@ object Scheduler extends TelegramRequestBuilder {
       people.map(person => sendMessage(274852283, "Today is " + person.name + " birthday !!"))
       result
     }
+  }
+
+  private def iGrowCheck: Seq[IgrowData] = {
+    import com.seanmcapp.util.parser.IgrowJson._
+    val response = Http(iGrowBaseUrl + "/list").asString.body.parseJson.convertTo[IgrowResponse].data.filter(_.stock > 0)
+    response.map(data => sendMessage(274852283, "ada stok " + data.name + " sisa " + data.stock + " unit%0A%40"))
+    response
   }
 
   private def now: DateTime = new DateTime().toDateTime(DateTimeZone.forID(ICT))
