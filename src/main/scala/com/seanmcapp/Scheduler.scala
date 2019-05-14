@@ -50,12 +50,11 @@ object Scheduler extends TelegramRequestBuilder {
   private def birthdayCheck: Future[String] = {
     import scala.concurrent.ExecutionContext.Implicits.global
     println("=== birthday check ===")
-    val now = DateTime.now // akka datetime doesn't support timezones, so this is UTC
     for{
       people <- peopleRepo.get(now.getDayOfMonth, now.getMonthOfYear)
     } yield {
       val result = "Today's birthday: " + people.map(_.name + ",")
-      people.map(person => sendMessage(274852283, "Today is " + person.name + " birthday !!"))
+      people.map(person => sendMessage(274852283, "Today is " + person.name + "'s birthday !!"))
       result
     }
   }
@@ -63,7 +62,10 @@ object Scheduler extends TelegramRequestBuilder {
   private def iGrowCheck: Seq[IgrowData] = {
     import com.seanmcapp.util.parser.IgrowJson._
     val response = Http(iGrowBaseUrl + "/list").asString.body.parseJson.convertTo[IgrowResponse].data.filter(_.stock > 0)
-    response.map(data => sendMessage(274852283, "ada stok " + data.name + " sisa " + data.stock + " unit%0A%40"))
+    val stringMessage = response.foldLeft("") { (res, data) =>
+      res + "ada stok " + data.name + " sisa " + data.stock + " unit%0A"
+    }
+    sendMessage(274852283, stringMessage)
     response
   }
 
