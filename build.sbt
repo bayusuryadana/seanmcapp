@@ -20,8 +20,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.slick" %% "slick-hikaricp" % "3.2.3",
   "org.slf4j" % "slf4j-nop" % "1.6.4",
 
-  // mysql
-  "mysql" % "mysql-connector-java" % "6.0.6",
+  // postgresql
+  "org.postgresql" % "postgresql" % "42.2.5",
 
   // scalatest
   "org.scalactic" %% "scalactic" % "3.0.5",

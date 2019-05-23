@@ -18,10 +18,7 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
   val routePath = Seq(
 
     // cbc API
-    post((path("cbc" / "random") & entity(as[JsValue])) { request =>
-      println("/cbc/random: \n" + request + "\n")
-      complete(cbcAPI.random.map(_.map(_.toJson)))
-    }),
+    get(path("cbc" / "random")(complete(cbcAPI.random.map(_.map(_.toJson))))),
     post((path("cbc" / "webhook") & entity(as[JsValue])) { request =>
       val telegramRequest = request.convertTo[TelegramUpdate]
 

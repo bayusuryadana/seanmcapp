@@ -1,7 +1,7 @@
 package com.seanmcapp.repository.dota
 
 import com.seanmcapp.repository.DBComponent
-import slick.jdbc.MySQLProfile.api._
+import slick.jdbc.PostgresProfile.api._
 import scala.concurrent.Future
 
 case class Hero(id: Int, localizedName: String, primaryAttr: String, image: String, lore: String)

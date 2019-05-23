@@ -1,7 +1,7 @@
 package com.seanmcapp.repository.instagram
 
 import com.seanmcapp.repository.DBComponent
-import slick.jdbc.MySQLProfile.api._
+import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.Future
 
@@ -40,9 +40,9 @@ object PhotoRepoImpl extends TableQuery(new PhotoInfo(_)) with PhotoRepo with DB
   }
 
   def getRandom(account: Option[String] = None): Future[Option[Photo]] = {
-    val rand = SimpleFunction.nullary[Double]("rand")
+    val rand = SimpleFunction.nullary[Double]("random")
     account match {
-      case Some(s:String) => run(this.filter(_.account === account).sortBy(_ => rand).result.headOption)
+      case Some(accString:String) => run(this.filter(_.account === accString).sortBy(_ => rand).result.headOption)
       case _ => run(this.sortBy(_ => rand).result.headOption)
     }
   }
