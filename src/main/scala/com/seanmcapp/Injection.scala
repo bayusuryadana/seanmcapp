@@ -11,10 +11,7 @@ import scalacache.{Cache, Entry}
 trait Injection {
 
   val cbcAPI = new CBCService {
-    override val customerRepo = CustomerRepoImpl
     override val photoRepo = PhotoRepoImpl
-    override val voteRepo = VoteRepoImpl
-    override val trackRepo = TrackRepoImpl
   }
 
   val dotaAPI = new DotaService {

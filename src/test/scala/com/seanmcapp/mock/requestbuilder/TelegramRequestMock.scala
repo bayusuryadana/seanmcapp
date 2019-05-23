@@ -14,8 +14,4 @@ trait TelegramRequestMock extends TelegramRequestBuilder {
     HttpResponse[String]("", 200, Map.empty)
   }
 
-  override def sendAnswerCallbackQuery(queryId: String, notificationText: String): HttpResponse[String] = {
-    HttpResponse[String]("", 200, Map.empty)
-  }
-
 }

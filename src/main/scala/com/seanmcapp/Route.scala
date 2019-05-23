@@ -4,7 +4,6 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives
 import akka.stream.Materializer
-import com.seanmcapp.repository.instagram.{Customer, Vote}
 import com.seanmcapp.util.parser.TelegramUpdate
 import spray.json._
 
@@ -21,13 +20,7 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     // cbc API
     post((path("cbc" / "random") & entity(as[JsValue])) { request =>
       println("/cbc/random: \n" + request + "\n")
-      val customer = request.convertTo[Customer]
-      complete(cbcAPI.random(customer).map(_.map(_.toJson)))
-    }),
-    post((path("cbc" / "vote") & entity(as[JsValue])) { request =>
-      println("/cbc/vote: \n" + request + "\n")
-      val vote = request.convertTo[Vote]
-      complete(cbcAPI.vote(vote).map(_.toJson))
+      complete(cbcAPI.random.map(_.map(_.toJson)))
     }),
     post((path("cbc" / "webhook") & entity(as[JsValue])) { request =>
       val telegramRequest = request.convertTo[TelegramUpdate]
@@ -36,9 +29,6 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
         case r if telegramRequest.message.isDefined =>
           println("/cbc/webhook(random): \n" + request + "\n")
           cbcAPI.randomFlow(r.message.get)
-        case r if telegramRequest.callbackQuery.isDefined =>
-          println("/cbc/webhook(vote): \n" + request + "\n")
-          cbcAPI.voteFlow(r.callbackQuery.get)
         case _ => throw new Exception("cannot recognized payload type")
       }
 
