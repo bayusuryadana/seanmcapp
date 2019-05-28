@@ -24,14 +24,12 @@ trait DotaRequestBuilder {
   def getMatches(id: Int): Seq[MatchResponse] = {
     memoizeSync(Some(duration)) {
       Http(baseUrl + id + "/matches").asString.body.parseJson.convertTo[ArrayResponse[MatchResponse]].res
+        .map(_.appendId(id))
     }
   }
 
-  def getMatches(ids: Seq[Int]): Seq[(Int, MatchResponse)] = {
-    ids.foldLeft(Seq.empty[(Int, MatchResponse)]) { (res, id) =>
-      val matches = getMatches(id).map((id,_))
-      res ++ matches
-    }
+  def getMatches(ids: Seq[Int]): Seq[MatchResponse] = {
+    ids.flatMap(id => getMatches(id))
   }
 
   def getPeers(id: Int): Seq[PeerResponse] = {

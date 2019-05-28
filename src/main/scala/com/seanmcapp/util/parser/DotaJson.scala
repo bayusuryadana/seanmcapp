@@ -7,7 +7,9 @@ import spray.json._
 case class ArrayResponse[T](res: Seq[T])
 
 case class MatchResponse(matchId: Long, playerSlot: Int, radiantWin: Boolean, duration: Int, gameMode: Int,
-                          lobbyType: Int, heroId: Int, startTime: Int, kills: Int, deaths: Int, assists: Int) {
+                         heroId: Int, startTime: Int, kills: Int, deaths: Int, assists: Int, playerId: Option[Long]) {
+
+  def appendId(id: Long): MatchResponse = this.copy(playerId = Some(id))
 
   def getSide: String = if (playerSlot < 100) "Radiant" else "Dire"
 
@@ -27,15 +29,6 @@ case class MatchResponse(matchId: Long, playerSlot: Int, radiantWin: Boolean, du
     }
   }
 
-  def getLobbyType: String = {
-    lobbyType match {
-      case 0 => "Normal"
-      case 5 => "Ranked Team"
-      case 6 => "Ranked Solo"
-      case 7 => "Ranked Party"
-    }
-  }
-
 }
 
 case class PeerResponse(peerPlayerId: Int, win: Int, games:Int)
@@ -47,7 +40,7 @@ object DotaJson extends DefaultJsonProtocol {
   implicit val heroFormat = jsonFormat5(Hero)
 
   implicit val matchFormat = jsonFormat(MatchResponse, "match_id", "player_slot", "radiant_win", "duration", "game_mode",
-    "lobby_type", "hero_id", "start_time", "kills", "deaths", "assists")
+    "hero_id", "start_time", "kills", "deaths", "assists", "player_id")
 
   implicit val matchesFormat = new RootJsonFormat[ArrayResponse[MatchResponse]] {
     def read(value: JsValue) = ArrayResponse(value.convertTo[Seq[MatchResponse]])
@@ -61,7 +54,9 @@ object DotaJson extends DefaultJsonProtocol {
     def write(obj: ArrayResponse[PeerResponse]) = obj.res.toJson
   }
 
-  implicit val matchViewModelFormat = jsonFormat9(MatchViewModel)
+  implicit val matchPlayerFormat = jsonFormat3(MatchPlayer)
+
+  implicit val matchViewModelFormat = jsonFormat7(MatchViewModel)
 
   implicit val winSummaryFormat = jsonFormat4(WinSummary)
 
