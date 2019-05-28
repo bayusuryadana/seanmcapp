@@ -47,7 +47,7 @@ trait DotaService extends DotaRequestBuilder {
           toMatchPlayer(m, playerName, hero)
         }
         toMatchViewModel(matchTuple._2.head, matchPlayerList)
-      }.toSeq
+      }.take(10).toSeq
 
       HomePageResponse(matchViewModels, players, heroes.map(hero => hero.copy(lore = "", image = heroImageBaseURL + hero.image)))
     }
