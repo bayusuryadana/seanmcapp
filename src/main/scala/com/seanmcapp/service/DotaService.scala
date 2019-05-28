@@ -94,7 +94,7 @@ trait DotaService extends DotaRequestBuilder {
           val playerName = players.find(_.id == m.playerId.get).map(_.personaName).getOrElse("Unknown Player")
           val playerSeq = Seq(toMatchPlayer(m, playerName, hero.localizedName))
           toMatchViewModel(m, playerSeq)
-      }.groupBy(_.players.head.hero).map(toWinSummary).toSeq
+      }.groupBy(_.players.head.name).map(toWinSummary).toSeq
 
       HeroPageResponse(hero, playersWinSummary)
     }
