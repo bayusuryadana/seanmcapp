@@ -64,7 +64,6 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers with CBCServiceImpl {
     val chatId = 274852283
     val command = "/cbc_ui_cantik"
     executeCommand(command, chatId).map { res =>
-      println(res)
       res.ok shouldEqual true
       res.result.caption.isDefined shouldEqual true
       res.result.caption.get shouldEqual "ui.cantik"
