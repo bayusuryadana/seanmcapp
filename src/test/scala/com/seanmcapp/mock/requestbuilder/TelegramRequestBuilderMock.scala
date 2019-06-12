@@ -4,7 +4,7 @@ import com.seanmcapp.repository.instagram.Photo
 import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
 import scalaj.http.HttpResponse
 
-trait TelegramRequestMock extends TelegramRequestBuilder {
+trait TelegramRequestBuilderMock extends TelegramRequestBuilder {
 
   override def sendPhoto(chatId: Long, photo: Photo): HttpResponse[String] = {
     HttpResponse[String]("", 200, Map.empty)

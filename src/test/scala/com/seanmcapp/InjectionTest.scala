@@ -2,14 +2,14 @@ package com.seanmcapp
 
 import com.google.common.cache.CacheBuilder
 import com.seanmcapp.mock.repository._
-import com.seanmcapp.mock.requestbuilder.DotaRequestBuilderMock
+import com.seanmcapp.mock.requestbuilder.{DotaRequestBuilderMock, TelegramRequestBuilderMock}
 import com.seanmcapp.repository.dota.{HeroRepo, PlayerRepo}
 import com.seanmcapp.service._
 import com.seanmcapp.util.parser.{MatchResponse, PeerResponse}
 import scalacache.guava.GuavaCache
 import scalacache.{Cache, Entry}
 
-trait CBCServiceImpl extends CBCService {
+trait CBCServiceImpl extends CBCService with TelegramRequestBuilderMock {
   override val photoRepo = PhotoRepoMock
 }
 
