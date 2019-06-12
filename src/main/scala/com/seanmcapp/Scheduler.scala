@@ -44,6 +44,7 @@ object Scheduler extends TelegramRequestBuilder {
   private def task: Unit = {
     birthdayCheck
     iGrowCheck
+    println("=== dota metadata fetcher here ===")
     println("=== fetching news here ===")
   }
 

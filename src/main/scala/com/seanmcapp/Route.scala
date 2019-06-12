@@ -22,14 +22,14 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     post((path("cbc" / "webhook") & entity(as[JsValue])) { request =>
       val telegramRequest = request.convertTo[TelegramUpdate]
 
-      val statusCodeF = telegramRequest match {
+      val responseF = telegramRequest match {
         case r if telegramRequest.message.isDefined =>
           println("/cbc/webhook(random): \n" + request + "\n")
           cbcAPI.randomFlow(r.message.get)
         case _ => throw new Exception("cannot recognized payload type")
       }
 
-      complete(statusCodeF.map(n => JsNumber(n)))
+      complete(responseF.map(_.toJson))
     }),
 
     // dota APP

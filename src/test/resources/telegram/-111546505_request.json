@@ -1,0 +1,28 @@
+{
+  "update_id": 126558029,
+  "message": {
+    "entities": [
+      {
+        "offset": 0,
+        "length": 14,
+        "type": "bot_command"
+      }
+    ],
+    "text": "/cbc@seanmcbot",
+    "chat": {
+      "id": -111546505,
+      "title": "Arrasy Abroad 2 : September Ceria ft. Seanmcukari",
+      "type": "group",
+      "all_members_are_administrators": false
+    },
+    "message_id": 23975,
+    "date": 1532868862,
+    "from": {
+      "first_name": "Muhammad Redho",
+      "is_bot": false,
+      "username": "redhoyasa",
+      "id": 143635997,
+      "last_name": "Ayassa"
+    }
+  }
+}

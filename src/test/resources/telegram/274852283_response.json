@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "result": {
+    "message_id": 33182,
+    "from": {
+      "id": 354236808,
+      "is_bot": true,
+      "first_name": "seanmcbot",
+      "username": "seanmcbot"
+    },
+    "chat": {
+      "id": 274852283,
+      "first_name": "Bayu",
+      "type": "private"
+    },
+    "date": 1560329473,
+    "photo": [
+      {
+        "file_id": "AgADBAADqakxG-idBVAqEifk9GyFuQQeHxsABPxjmnNN-WRx6uoGAAEC",
+        "file_size": 1509,
+        "width": 90,
+        "height": 90
+      },
+      {
+        "file_id": "AgADBAADqakxG-idBVAqEifk9GyFuQQeHxsABH0goZIgK2LG6-oGAAEC",
+        "file_size": 18291,
+        "width": 320,
+        "height": 320
+      },
+      {
+        "file_id": "AgADBAADqakxG-idBVAqEifk9GyFuQQeHxsABJUzaC8NTN837OoGAAEC",
+        "file_size": 67387,
+        "width": 640,
+        "height": 640
+      }
+    ],
+    "caption": "{caption}"
+  }
+}
