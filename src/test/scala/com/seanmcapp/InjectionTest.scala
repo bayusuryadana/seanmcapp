@@ -2,7 +2,7 @@ package com.seanmcapp
 
 import com.google.common.cache.CacheBuilder
 import com.seanmcapp.mock.repository._
-import com.seanmcapp.mock.requestbuilder.DotaRequestMock
+import com.seanmcapp.mock.requestbuilder.DotaRequestBuilderMock
 import com.seanmcapp.repository.dota.{HeroRepo, PlayerRepo}
 import com.seanmcapp.service._
 import com.seanmcapp.util.parser.{MatchResponse, PeerResponse}
@@ -13,7 +13,7 @@ trait CBCServiceImpl extends CBCService {
   override val photoRepo = PhotoRepoMock
 }
 
-trait DotaServiceImpl extends DotaService with DotaRequestMock {
+trait DotaServiceImpl extends DotaService with DotaRequestBuilderMock {
   override val playerRepo: PlayerRepo = PlayerRepoMock
   override val heroRepo: HeroRepo = HeroRepoMock
 
