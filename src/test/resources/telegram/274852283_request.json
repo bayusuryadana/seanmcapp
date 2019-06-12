@@ -16,11 +16,11 @@
       "type":"private"
     },
     "date":1529257485,
-    "text":"/cari_bahan_ciol",
+    "text":"/cbc",
     "entities":[
       {
         "offset":0,
-        "length":16,
+        "length":4,
         "type":"bot_command"
       }
     ]

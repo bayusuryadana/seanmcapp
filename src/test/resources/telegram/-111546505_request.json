@@ -4,11 +4,11 @@
     "entities": [
       {
         "offset": 0,
-        "length": 26,
+        "length": 14,
         "type": "bot_command"
       }
     ],
-    "text": "/cari_bahan_ciol@seanmcbot",
+    "text": "/cbc@seanmcbot",
     "chat": {
       "id": -111546505,
       "title": "Arrasy Abroad 2 : September Ceria ft. Seanmcukari",
