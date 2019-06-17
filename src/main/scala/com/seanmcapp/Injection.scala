@@ -16,4 +16,8 @@ trait Injection {
     override val heroRepo = HeroRepoImpl
   }
 
+  val instagramFetcher = new InstagramFetcher {
+    override val photoRepo: PhotoRepo = PhotoRepoImpl
+  }
+
 }

@@ -1,0 +1,117 @@
+package com.seanmcapp
+
+import java.io.{File, FileOutputStream}
+import java.net.URL
+
+import com.seanmcapp.repository.instagram.{Photo, PhotoRepo}
+import com.seanmcapp.util.parser.{InstagramAccountResponse, InstagramResponse}
+import scalaj.http.Http
+import spray.json._
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.io.Source
+
+trait InstagramFetcher {
+
+  import com.seanmcapp.util.parser.InstagramJson._
+
+  val photoRepo: PhotoRepo
+  /**
+    * PLEASE CHECK YOUR COOKIE, DOWNLOAD FOLDER AND ACCOUNT STRING TO BE FETCHED BEFORE RUN THIS FETCHER
+    */
+
+  private val accountList = List.empty[String]
+  private val cookie = Source.fromResource("cookie.txt").getLines.reduce(_ + _)
+  /*
+  private val accountList = Map(
+    "ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // deprecated
+    "ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // requested
+    "ugmcantik"    -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // requested
+    "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // requested
+    "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // requested
+    "unj.cantik"   -> , // requested
+    "uicantikreal" -> "".r, // no regex, use whole caption
+    "cantik.its"   -> "".r  // no regex, use 1st line
+  )
+  */
+
+  def fetch: Future[Unit] = {
+    for {
+      photos <- photoRepo.getAll
+    } yield {
+      println(cookie)
+      val idsSet = photos.map(_.id).toSet
+      accountList.foreach { account =>
+        val initUrl = "https://www.instagram.com/" + account + "/?__a=1"
+        val httpResponse = Http(initUrl).header("cookie", cookie).asString.body
+        val id = httpResponse.parseJson.convertTo[InstagramAccountResponse].id.replace("profilePage_", "").toLong
+
+        /**
+          * based on this answer https://stackoverflow.com/questions/49265339/instagram-a-1-url-not-working-anymore-problems-with-graphql-query-to-get-da
+          * you can use either:
+          * query_id=17888483320059182 OR query_hash=472f257a40c653c64c666ce877d59d2b
+          * DON"T FORGET TO MANUAL UPLOAD TO S3 AFTER FETCHING THE DATA
+          */
+        println("fetching: " + account)
+        val photos = fetch(id, None, account).filterNot(photo => idsSet.contains(photo.id)).map { photo =>
+          val inputStream = new URL(photo.thumbnailSrc).openStream
+          val byteArray = Iterator.continually(inputStream.read).takeWhile(_ != -1).map(_.toByte).toArray
+          new FileOutputStream(new File("download/" + photo.id + ".jpg")).write(byteArray)
+          println("saving: " + photo.id)
+          photo
+        }
+        photoRepo.insert(photos).map(_ => println(account + ": " + photos.size))
+        account
+      }
+    }
+  }
+
+  private def fetch(userId: Long, endCursor: Option[String], account: String): Seq[Photo] = {
+    val fetchUrl = "https://www.instagram.com/graphql/query/?query_id=17888483320059182&id=<user_id>&first=50&after=<end_cursor>"
+    val httpResponse = Http(fetchUrl.replace("<user_id>", userId.toString).replace("<end_cursor>", endCursor.getOrElse(""))).header("cookie", cookie).asString.body
+    val instagramResponse = httpResponse.parseJson.convertTo[InstagramResponse]
+
+    val instagramPageInfo = instagramResponse.data.user.media.pageInfo
+    val photos = instagramResponse.data.user.media.edges.map(_.node).map { node =>
+      Photo(node.id.toLong, node.thumbnailSrc, node.date, node.caption.edges.headOption.map(_.node.text).getOrElse(""), account)
+    }
+
+    val result = if (instagramPageInfo.hasNextPage && instagramPageInfo.endCursor.isDefined) {
+      photos ++ fetch(userId, instagramPageInfo.endCursor, account)
+    } else {
+      photos
+    }
+    println(result.size)
+    result
+  }
+
+  ////////////////////////////////////// NOT BEING USED ////////////////////////////////////////////////////
+
+  private def checkAvailability: Future[String] = {
+    for {
+      photos <- photoRepo.getAll
+    } yield {
+      /*
+      println("================== NOT ON STORAGE ==================")
+      val photoNotExistsOnStorage = photos.filter(_.onStorage.isEmpty).map { photo =>
+        val result = Http(DriveConf().url + photo.id.toString + ".jpg").asString.isSuccess
+        photoRepo.update(photo.copy(onStorage = Some(result)))
+        result
+      }
+      println(photoNotExistsOnStorage)
+      println(photoNotExistsOnStorage.size)
+      */
+
+      println()
+      println("================== NOT ON STORAGE BUT AVAIL ON THUMBNAILSRC ==================")
+      val photoNotExistsOnThumbnail = photos.filterNot { photo =>
+        Http(photo.thumbnailSrc).asString.isSuccess
+      }.map(_.id)
+      println(photoNotExistsOnThumbnail)
+      println(photoNotExistsOnThumbnail.size)
+      ""
+    }
+  }
+
+}
