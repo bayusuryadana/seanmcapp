@@ -11,6 +11,7 @@ import scalacache.{Cache, Entry}
 
 trait CBCServiceImpl extends CBCService with TelegramRequestBuilderMock {
   override val photoRepo = PhotoRepoMock
+  override val customerRepo = CustomerRepoMock
 }
 
 trait DotaServiceImpl extends DotaService with DotaRequestBuilderMock {

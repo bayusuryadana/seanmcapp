@@ -12,6 +12,7 @@ trait Injection {
 
   val cbcAPI = new CBCService {
     override val photoRepo = PhotoRepoImpl
+    override val customerRepo = CustomerRepoImpl
   }
 
   val dotaAPI = new DotaService {
