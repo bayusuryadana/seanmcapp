@@ -6,6 +6,12 @@ create table photos (
 	account varchar(50) not null
 );
 
+create table customers (
+  id bigint primary key not null,
+  name varchar(64) not null,
+  count int not null default 0
+);
+
 create table heroes (
 	id SMALLINT primary key,
 	localized_name varchar(32) not null,
@@ -18,7 +24,8 @@ create table players (
 	id int primary key,
 	realname varchar(32) not null,
 	avatarfull varchar(2083),
-	personaname varchar(64) not null
+	personaname varchar(64) not null,
+	rank_tier int
 );
 
 create table people (
