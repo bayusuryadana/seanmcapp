@@ -28,11 +28,11 @@ trait InstagramFetcher {
     "ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // deprecated
     "ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // requested
     "ugmcantik"    -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // requested
-    "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // requested
-    "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // requested
+    "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 845 need to run fetch
+    "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 993 need to run fetch
     "unj.cantik"   -> , // requested
-    "uicantikreal" -> "".r, // no regex, use whole caption
-    "cantik.its"   -> "".r  // no regex, use 1st line
+    "uicantikreal" -> "".r, // 78 no regex, use 1st line
+    "cantik.its"   -> "".r  // 87 no regex, use whole caption (need to imrpoved)
   )
   */
 
@@ -54,17 +54,36 @@ trait InstagramFetcher {
           * DON"T FORGET TO MANUAL UPLOAD TO S3 AFTER FETCHING THE DATA
           */
         println("fetching: " + account)
-        val photos = fetch(id, None, account).filterNot(photo => idsSet.contains(photo.id)).map { photo =>
-          val inputStream = new URL(photo.thumbnailSrc).openStream
-          val byteArray = Iterator.continually(inputStream.read).takeWhile(_ != -1).map(_.toByte).toArray
-          new FileOutputStream(new File("download/" + photo.id + ".jpg")).write(byteArray)
-          println("saving: " + photo.id)
-          photo
-        }
+        val fetchedPhotos = fetch(id, None, account)
+        val nonFetchedPhotos = fetchedPhotos.filterNot(photo => idsSet.contains(photo.id))
+        val filteredPhotos = nonFetchedPhotos.collect(filteringNonRelatedImage)
+        savingToLocal(filteredPhotos)
         photoRepo.insert(photos).map(_ => println(account + ": " + photos.size))
         account
       }
     }
+  }
+
+  private def savingToLocal(filteredPhotos: Seq[Photo]): Unit = {
+    filteredPhotos.map { photo =>
+      val inputStream = new URL(photo.thumbnailSrc).openStream
+      val byteArray = Iterator.continually(inputStream.read).takeWhile(_ != -1).map(_.toByte).toArray
+      new FileOutputStream(new File("download/" + photo.id + ".jpg")).write(byteArray)
+      println("saving: " + photo.id)
+      photo
+    }
+  }
+
+  private def filteringNonRelatedImage = new PartialFunction[Photo, Photo] {
+    val regex = "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r // TODO: dynamic regex
+
+    def apply(photo: Photo) = {
+      val caption = regex.findFirstIn(photo.caption).get // won't get exception because alr filtered
+      photo.copy(caption = caption)
+    }
+
+    def isDefinedAt(photo: Photo): Boolean = regex.findFirstIn(photo.caption).isDefined
+
   }
 
   private def fetch(userId: Long, endCursor: Option[String], account: String): Seq[Photo] = {
