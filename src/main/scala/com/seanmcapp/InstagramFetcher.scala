@@ -21,7 +21,7 @@ trait InstagramFetcher {
     * PLEASE CHECK YOUR COOKIE, DOWNLOAD FOLDER AND ACCOUNT STRING TO BE FETCHED BEFORE RUN THIS FETCHER
     */
 
-  private val accountList = List("bidadari_ub")//.empty[String]
+  private val accountList = List.empty[String]
   private val cookie = Source.fromResource("cookie.txt").getLines.reduce(_ + _)
   /*
   private val accountList = Map(
@@ -37,7 +37,7 @@ trait InstagramFetcher {
     // new
     "uicantikreal" -> "".r,  // 78 -> 78
     "cantik.its"   -> "".r,  // 87 -> 87
-    "bidadari_ub"  -> "".r   // 185 -> 185
+    "bidadari_ub"  -> "".r   // 185 -> 173
   )
   */
 
@@ -65,8 +65,8 @@ trait InstagramFetcher {
         println("non-exists: " + nonFetchedPhotos.size)
         val filteredPhotos = nonFetchedPhotos.collect(filteringNonRelatedImage)
         println("filtered by rule: " + filteredPhotos.size)
-        //savingToLocal(filteredPhotos)
-        photoRepo.insert(filteredPhotos).map(println(_))
+        savingToLocal(filteredPhotos)
+        photoRepo.insert(filteredPhotos)
         account
       }
     }
@@ -77,20 +77,20 @@ trait InstagramFetcher {
       val inputStream = new URL(photo.thumbnailSrc).openStream
       val byteArray = Iterator.continually(inputStream.read).takeWhile(_ != -1).map(_.toByte).toArray
       new FileOutputStream(new File("download/" + photo.id + ".jpg")).write(byteArray)
-      println("saving: " + photo)
+      println("saving: " + photo.id)
       photo
     }
   }
 
   private def filteringNonRelatedImage = new PartialFunction[Photo, Photo] {
-    //val regex = "[\\w ]+\\. [\\w ]+['’]\\d\\d".r // TODO: dynamic regex
+    val regex = "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r // TODO: dynamic regex
 
     def apply(photo: Photo) = {
-      //val caption = regex.findFirstIn(photo.caption).get // won't get exception because alr filtered
-      photo//.copy(caption = caption)
+      val caption = regex.findFirstIn(photo.caption).get // won't get exception because alr filtered
+      photo.copy(caption = caption)
     }
 
-    def isDefinedAt(photo: Photo): Boolean = true//regex.findFirstIn(photo.caption).isDefined
+    def isDefinedAt(photo: Photo): Boolean = photo.caption.length <= 100
 
   }
 
