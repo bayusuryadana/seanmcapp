@@ -21,20 +21,23 @@ trait InstagramFetcher {
     * PLEASE CHECK YOUR COOKIE, DOWNLOAD FOLDER AND ACCOUNT STRING TO BE FETCHED BEFORE RUN THIS FETCHER
     */
 
-  private val accountList = List("undip.cantik")//.empty[String]
+  private val accountList = List("bidadari_ub")//.empty[String]
   private val cookie = Source.fromResource("cookie.txt").getLines.reduce(_ + _)
   /*
   private val accountList = Map(
-    "ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // deprecated -> 662
-    "ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // 524 -> 517 need to be fetched
-    "ugmcantik"    -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // requested
+    "ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // deprecated (n/a) -> 662
+    "ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // deprecated 524 -> 517
+
+    //existing
+    "ugmcantik"    -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 1133 -> 626
     "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 845 -> 679
     "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 993 -> 1065
-    "unj.cantik"   -> , // requested
+    "unj.cantik"   -> , // requested 425 -> 369
 
-    "uicantikreal" -> "".r,  // ~ -> 78
-    "cantik.its"   -> "".r,  // ~ -> 87
-    "bidadari_ub"  -> "".r   // ~ -> 185, need to be fetched
+    // new
+    "uicantikreal" -> "".r,  // 78 -> 78
+    "cantik.its"   -> "".r,  // 87 -> 87
+    "bidadari_ub"  -> "".r   // 185 -> 185
   )
   */
 
@@ -57,12 +60,13 @@ trait InstagramFetcher {
           */
         println("fetching: " + account)
         val fetchedPhotos = fetch(id, None, account)
+        println("fetched: " + fetchedPhotos.size)
         val nonFetchedPhotos = fetchedPhotos.filterNot(photo => idsSet.contains(photo.id))
+        println("non-exists: " + nonFetchedPhotos.size)
         val filteredPhotos = nonFetchedPhotos.collect(filteringNonRelatedImage)
-        println(fetchedPhotos.size)
-        println(nonFetchedPhotos.size)
-        savingToLocal(filteredPhotos)
-        photoRepo.insert(filteredPhotos).map(_ => println(account + ": " + filteredPhotos.size))
+        println("filtered by rule: " + filteredPhotos.size)
+        //savingToLocal(filteredPhotos)
+        photoRepo.insert(filteredPhotos).map(println(_))
         account
       }
     }
@@ -73,20 +77,20 @@ trait InstagramFetcher {
       val inputStream = new URL(photo.thumbnailSrc).openStream
       val byteArray = Iterator.continually(inputStream.read).takeWhile(_ != -1).map(_.toByte).toArray
       new FileOutputStream(new File("download/" + photo.id + ".jpg")).write(byteArray)
-      println("saving: " + photo.id)
+      println("saving: " + photo)
       photo
     }
   }
 
   private def filteringNonRelatedImage = new PartialFunction[Photo, Photo] {
-    val regex = "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r // TODO: dynamic regex
+    //val regex = "[\\w ]+\\. [\\w ]+['’]\\d\\d".r // TODO: dynamic regex
 
     def apply(photo: Photo) = {
-      val caption = regex.findFirstIn(photo.caption).get // won't get exception because alr filtered
-      photo.copy(caption = caption)
+      //val caption = regex.findFirstIn(photo.caption).get // won't get exception because alr filtered
+      photo//.copy(caption = caption)
     }
 
-    def isDefinedAt(photo: Photo): Boolean = regex.findFirstIn(photo.caption).isDefined
+    def isDefinedAt(photo: Photo): Boolean = true//regex.findFirstIn(photo.caption).isDefined
 
   }
 
