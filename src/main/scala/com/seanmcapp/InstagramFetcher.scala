@@ -21,18 +21,20 @@ trait InstagramFetcher {
     * PLEASE CHECK YOUR COOKIE, DOWNLOAD FOLDER AND ACCOUNT STRING TO BE FETCHED BEFORE RUN THIS FETCHER
     */
 
-  private val accountList = List.empty[String]
+  private val accountList = List("undip.cantik")//.empty[String]
   private val cookie = Source.fromResource("cookie.txt").getLines.reduce(_ + _)
   /*
   private val accountList = Map(
-    "ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // deprecated
-    "ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // requested
+    "ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // deprecated -> 662
+    "ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // 524 -> 517 need to be fetched
     "ugmcantik"    -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // requested
-    "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 845 need to run fetch
-    "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 993 need to run fetch
+    "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 845 -> 679
+    "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 993 -> 1065
     "unj.cantik"   -> , // requested
-    "uicantikreal" -> "".r, // 78 no regex, use 1st line
-    "cantik.its"   -> "".r  // 87 no regex, use whole caption (need to imrpoved)
+
+    "uicantikreal" -> "".r,  // ~ -> 78
+    "cantik.its"   -> "".r,  // ~ -> 87
+    "bidadari_ub"  -> "".r   // ~ -> 185, need to be fetched
   )
   */
 
@@ -57,8 +59,10 @@ trait InstagramFetcher {
         val fetchedPhotos = fetch(id, None, account)
         val nonFetchedPhotos = fetchedPhotos.filterNot(photo => idsSet.contains(photo.id))
         val filteredPhotos = nonFetchedPhotos.collect(filteringNonRelatedImage)
+        println(fetchedPhotos.size)
+        println(nonFetchedPhotos.size)
         savingToLocal(filteredPhotos)
-        photoRepo.insert(photos).map(_ => println(account + ": " + photos.size))
+        photoRepo.insert(filteredPhotos).map(_ => println(account + ": " + filteredPhotos.size))
         account
       }
     }
@@ -101,7 +105,7 @@ trait InstagramFetcher {
     } else {
       photos
     }
-    println(result.size)
+
     result
   }
 
