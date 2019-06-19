@@ -20,7 +20,10 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers with CBCServiceImpl {
 
   "should return any random photos using private chat type input - telegram random endpoint" in {
     val input = Source.fromResource("telegram/274852283_request.json").mkString.parseJson.convertTo[TelegramUpdate].message.get
-    randomFlow(input).map { res=>
+    randomFlow(input).map { response =>
+
+      response shouldNot be(None)
+      val res = response.get
 
       res.ok shouldEqual true
       val chat = res.result.chat
@@ -43,7 +46,11 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers with CBCServiceImpl {
 
   "should return any random photos using group chat type input - telegram random endpoint" in {
     val input = Source.fromResource("telegram/-111546505_request.json").mkString.parseJson.convertTo[TelegramUpdate].message.get
-    randomFlow(input).map { res =>
+    randomFlow(input).map { response =>
+
+      response shouldNot be(None)
+      val res = response.get
+
       res.ok shouldEqual true
       val chat = res.result.chat
       chat.id shouldEqual -111546505
@@ -62,11 +69,29 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers with CBCServiceImpl {
 
   "command should return any random photo on particular account" in {
     val chatId = 274852283
-    val command = "/cbc_ui_cantik"
-    executeCommand(command, chatId).map { res =>
+    val command = "/cbc_ui-cantik"
+    executeCommand(command, chatId, 123L, "Fawwaz Afifanto").map { response =>
+
+      response shouldNot be(None)
+      val res = response.get
+
       res.ok shouldEqual true
       res.result.caption.isDefined shouldEqual true
       res.result.caption.get shouldEqual "ui.cantik"
+    }
+  }
+
+  "command should return any random photo on particular account (2)" in {
+    val chatId = 274852283
+    val command = "/cbc_bidadari_ub"
+    executeCommand(command, chatId, 123L, "Fawwaz Afifanto").map { response =>
+
+      response shouldNot be(None)
+      val res = response.get
+
+      res.ok shouldEqual true
+      res.result.caption.isDefined shouldEqual true
+      res.result.caption.get shouldEqual "bidadari_ub"
     }
   }
 }
