@@ -18,21 +18,25 @@ trait InstagramFetcher {
 
   val photoRepo: PhotoRepo
   /**
-    * PLEASE CHECK YOUR COOKIE, DOWNLOAD FOLDER AND ACCOUNT STRING TO BE FETCHED BEFORE RUN THIS FETCHER
+    * Please do these before run the fetcher:
+    * - put your cookie
+    * - create "download" folder and route to this function // TODO: clean this mess
+    * - fill in account string and (regex) filtering function
     */
 
   private val accountList = List.empty[String]
   private val cookie = Source.fromResource("cookie.txt").getLines.reduce(_ + _)
   /*
   private val accountList = Map(
-    "ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // deprecated (n/a) -> 662
-    "ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // deprecated 524 -> 517
+    // deprecated
+    "ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // (n/a) -> 662
+    "ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // 524 -> 517
 
-    //existing
+    // existing
     "ugmcantik"    -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 1133 -> 626
     "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 845 -> 679
     "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 993 -> 1065
-    "unj.cantik"   -> , // requested 425 -> 369
+    "unj.cantik"   -> "[\\w ]+\\, [\\w]+ ['’]\\d\\d".r,    // 425 -> 389
 
     // new
     "uicantikreal" -> "".r,  // 78 -> 78
@@ -66,7 +70,7 @@ trait InstagramFetcher {
         val filteredPhotos = nonFetchedPhotos.collect(filteringNonRelatedImage)
         println("filtered by rule: " + filteredPhotos.size)
         savingToLocal(filteredPhotos)
-        photoRepo.insert(filteredPhotos)
+        photoRepo.insert(filteredPhotos).map(_ => println("fetch finished"))
         account
       }
     }
@@ -83,14 +87,14 @@ trait InstagramFetcher {
   }
 
   private def filteringNonRelatedImage = new PartialFunction[Photo, Photo] {
-    val regex = "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r // TODO: dynamic regex
+    val regex = "[\\w ]+\\, [\\w]+ ['’]\\d\\d".r // TODO: dynamic regex
 
     def apply(photo: Photo) = {
       val caption = regex.findFirstIn(photo.caption).get // won't get exception because alr filtered
       photo.copy(caption = caption)
     }
 
-    def isDefinedAt(photo: Photo): Boolean = photo.caption.length <= 100
+    def isDefinedAt(photo: Photo): Boolean = regex.findFirstIn(photo.caption).isDefined
 
   }
 
