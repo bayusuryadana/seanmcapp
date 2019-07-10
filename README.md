@@ -1,4 +1,7 @@
-# Feature
+# Seanmcapp
+[![CircleCI](https://circleci.com/gh/bayusuryadana/seanmcapp.svg?style=svg)](https://circleci.com/gh/bayusuryadana/seanmcapp)
+
+## Feature
 API:
 - CBC API
 - Dota API
