@@ -8,12 +8,11 @@ import scalaj.http.{Http, HttpResponse}
 trait TelegramRequestBuilder {
 
   val telegramConf = TelegramConf()
-  val baseUrl = telegramConf.endpoint
 
   def sendPhoto(chatId: Long, photo: Photo): HttpResponse[String] = {
     val photoId = photo.id
 
-    val urlString = baseUrl + "/sendphoto" +
+    val urlString = telegramConf.endpoint + "/sendphoto" +
       "?chat_id=" + chatId +
       "&photo=" + DriveConf().url + photoId + ".jpg" +
       "&caption=" + photo.caption +
@@ -22,7 +21,7 @@ trait TelegramRequestBuilder {
   }
 
   def sendMessage(chatId: Long, text: String): HttpResponse[String] = {
-    val urlString = baseUrl + "/sendmessage?chat_id=" + chatId + "&text=" + text
+    val urlString = telegramConf.endpoint + "/sendmessage?chat_id=" + chatId + "&text=" + text
     Http(urlString).asString
   }
 
