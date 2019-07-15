@@ -28,7 +28,10 @@ libraryDependencies ++= Seq(
   "joda-time" % "joda-time" % "2.10.1",
 
   // caching
-  "com.github.cb372" %% "scalacache-guava" % "0.27.0"
+  "com.github.cb372" %% "scalacache-guava" % "0.27.0",
+
+  // image storage
+  "com.amazonaws" % "aws-java-sdk" % "1.11.592"
 )
 
 fork in Test := true

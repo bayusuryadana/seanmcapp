@@ -1,32 +1,25 @@
-package com.seanmcapp
+package com.seanmcapp.service
 
-import java.io.{File, FileOutputStream}
 import java.net.URL
 
+import com.seanmcapp.config.DriveConf
 import com.seanmcapp.repository.instagram.{Photo, PhotoRepo}
+import com.seanmcapp.repository.storage.ImageStorage
 import com.seanmcapp.util.parser.{InstagramAccountResponse, InstagramResponse}
 import scalaj.http.Http
-import spray.json._
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.io.Source
+import scala.util.Try
+import scala.util.matching.Regex
+import scala.concurrent.ExecutionContext.Implicits.global
+import spray.json._
+import com.seanmcapp.util.parser.InstagramJson._
 
 trait InstagramFetcher {
 
-  import com.seanmcapp.util.parser.InstagramJson._
-
   val photoRepo: PhotoRepo
-  /**
-    * Please do these before run the fetcher:
-    * - put your cookie
-    * - create "download" folder and route to this function // TODO: clean this mess
-    * - fill in account string and (regex) filtering function
-    */
+  val imageStorage: ImageStorage
 
-  private val accountList = List.empty[String]
-  private val cookie = Source.fromResource("cookie.txt").getLines.reduce(_ + _)
-  /*
   private val accountList = Map(
     // deprecated
     "ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // (n/a) -> 662
@@ -38,20 +31,20 @@ trait InstagramFetcher {
     "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 993 -> 1065
     "unj.cantik"   -> "[\\w ]+\\, [\\w]+ ['’]\\d\\d".r,    // 425 -> 389
 
-    // new
-    "uicantikreal" -> "".r,  // 78 -> 78
-    "cantik.its"   -> "".r,  // 87 -> 87
-    "bidadari_ub"  -> "".r   // 185 -> 173
+    // new TODO: should use another function than regex
+    //"uicantikreal" -> "".r,  // 78 -> 78 use only first line
+    //"cantik.its"   -> "".r,  // 87 -> 87 can use whole caption value
+    //"bidadari_ub"  -> "".r   // 185 -> 173 can use whole caption value
   )
-  */
 
-  def fetch: Future[Unit] = {
+  def fetch(cookie: String): Future[Unit] = {
     for {
       photos <- photoRepo.getAll
     } yield {
-      println(cookie)
+      println("cookie: " + cookie)
       val idsSet = photos.map(_.id).toSet
-      accountList.foreach { account =>
+      accountList.foreach { item =>
+        val account = item._1
         val initUrl = "https://www.instagram.com/" + account + "/?__a=1"
         val httpResponse = Http(initUrl).header("cookie", cookie).asString.body
         val id = httpResponse.parseJson.convertTo[InstagramAccountResponse].id.replace("profilePage_", "").toLong
@@ -60,34 +53,34 @@ trait InstagramFetcher {
           * based on this answer https://stackoverflow.com/questions/49265339/instagram-a-1-url-not-working-anymore-problems-with-graphql-query-to-get-da
           * you can use either:
           * query_id=17888483320059182 OR query_hash=472f257a40c653c64c666ce877d59d2b
-          * DON"T FORGET TO MANUAL UPLOAD TO S3 AFTER FETCHING THE DATA
           */
         println("fetching: " + account)
-        val fetchedPhotos = fetch(id, None, account)
+        val fetchedPhotos = fetch(id, None, account, cookie)
         println("fetched: " + fetchedPhotos.size)
         val nonFetchedPhotos = fetchedPhotos.filterNot(photo => idsSet.contains(photo.id))
         println("non-exists: " + nonFetchedPhotos.size)
-        val filteredPhotos = nonFetchedPhotos.collect(filteringNonRelatedImage)
+        val filteredPhotos = nonFetchedPhotos.collect(filteringNonRelatedImage(item._2))
         println("filtered by rule: " + filteredPhotos.size)
-        savingToLocal(filteredPhotos)
-        photoRepo.insert(filteredPhotos).map(_ => println("fetch finished"))
+        val savedPhotos = savingToStorage(filteredPhotos)
+        println("saved photos to storage: " + savedPhotos.size)
+        photoRepo.insert(savedPhotos).map(res => println("saved photos to database: " + res.getOrElse(-1)))
         account
       }
     }
   }
 
-  private def savingToLocal(filteredPhotos: Seq[Photo]): Unit = {
-    filteredPhotos.map { photo =>
-      val inputStream = new URL(photo.thumbnailSrc).openStream
-      val byteArray = Iterator.continually(inputStream.read).takeWhile(_ != -1).map(_.toByte).toArray
-      new FileOutputStream(new File("download/" + photo.id + ".jpg")).write(byteArray)
-      println("saving: " + photo.id)
-      photo
+  private def savingToStorage(filteredPhotos: Seq[Photo]): Seq[Photo] = {
+    filteredPhotos.flatMap { photo =>
+      Try {
+        val inputStream = new URL(photo.thumbnailSrc).openStream
+        val filename = DriveConf().url + photo.id + ".jpg"
+        imageStorage.put(filename, inputStream)
+        photo
+      }.toOption
     }
   }
 
-  private def filteringNonRelatedImage = new PartialFunction[Photo, Photo] {
-    val regex = "[\\w ]+\\, [\\w]+ ['’]\\d\\d".r // TODO: dynamic regex
+  private def filteringNonRelatedImage(regex: Regex) = new PartialFunction[Photo, Photo] {
 
     def apply(photo: Photo) = {
       val caption = regex.findFirstIn(photo.caption).get // won't get exception because alr filtered
@@ -98,7 +91,7 @@ trait InstagramFetcher {
 
   }
 
-  private def fetch(userId: Long, endCursor: Option[String], account: String): Seq[Photo] = {
+  private def fetch(userId: Long, endCursor: Option[String], account: String, cookie: String): Seq[Photo] = {
     val fetchUrl = "https://www.instagram.com/graphql/query/?query_id=17888483320059182&id=<user_id>&first=50&after=<end_cursor>"
     val httpResponse = Http(fetchUrl.replace("<user_id>", userId.toString).replace("<end_cursor>", endCursor.getOrElse(""))).header("cookie", cookie).asString.body
     val instagramResponse = httpResponse.parseJson.convertTo[InstagramResponse]
@@ -109,7 +102,7 @@ trait InstagramFetcher {
     }
 
     val result = if (instagramPageInfo.hasNextPage && instagramPageInfo.endCursor.isDefined) {
-      photos ++ fetch(userId, instagramPageInfo.endCursor, account)
+      photos ++ fetch(userId, instagramPageInfo.endCursor, account, cookie)
     } else {
       photos
     }
@@ -117,7 +110,7 @@ trait InstagramFetcher {
     result
   }
 
-  ////////////////////////////////////// NOT BEING USED ////////////////////////////////////////////////////
+  ////////////////////////////////////// ONLY FOR SANITY TEST ////////////////////////////////////////////////////
 
   private def checkAvailability: Future[String] = {
     for {
