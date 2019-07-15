@@ -37,6 +37,15 @@ libraryDependencies ++= Seq(
   "io.minio" % "minio" % "6.0.8",
 )
 
+coverageEnabled := true
+coverageExcludedPackages :=
+  ".*com.seanmcapp.util.parser.*;" +
+  ".*com.seanmcapp.config.*;" +
+  ".*com.seanmcapp.repository.*;" +
+  ".*Boot.*;.*Route.*;.*Injection.*;.*Scheduler.*"
+coverageMinimum := 85
+coverageFailOnMinimum := true
+
 fork in Test := true
 fork in IntegrationTest := true
 configs(IntegrationTest)
