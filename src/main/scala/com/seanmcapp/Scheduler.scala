@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import org.joda.time.{DateTime, DateTimeZone, LocalDateTime}
 import com.seanmcapp.Boot.system
+import com.seanmcapp.config.AmarthaConf
 import com.seanmcapp.repository.birthday.PeopleRepoImpl
 import com.seanmcapp.repository.dota.{Player, PlayerRepoImpl}
 import com.seanmcapp.util.parser.{AmarthaAuthData, AmarthaMarketplaceData, AmarthaMarketplaceItem, AmarthaResponse, IgrowData, IgrowResponse, PlayerResponse}
@@ -26,10 +27,9 @@ object Scheduler extends TelegramRequestBuilder {
 
   def start(implicit ec: ExecutionContext): Unit = {
     val scheduler = system.scheduler
-    amarthaCheck
     // one-time warmup DB
-    //scheduler.scheduleOnce(Duration(0, TimeUnit.SECONDS))(warmup)
-    //scheduler.scheduleOnce(Duration(10, TimeUnit.SECONDS))(warmup)
+    scheduler.scheduleOnce(Duration(0, TimeUnit.SECONDS))(warmup)
+    scheduler.scheduleOnce(Duration(10, TimeUnit.SECONDS))(warmup)
 
     // scheduler for everyday at 6 AM (GMT+7)
     val init = new LocalDateTime()
@@ -37,7 +37,7 @@ object Scheduler extends TelegramRequestBuilder {
       .toDateTime(DateTimeZone.forID(ICT))
     val target = if (now.getHourOfDay >= 6) init.plusDays(1) else init
     val numberInMillis = target.getMillis - now.getMillis
-    //scheduler.schedule(Duration(numberInMillis, TimeUnit.MILLISECONDS), Duration(1, TimeUnit.DAYS))(task)
+    scheduler.schedule(Duration(numberInMillis, TimeUnit.MILLISECONDS), Duration(1, TimeUnit.DAYS))(task)
   }
 
   private def warmup: Unit = {
@@ -47,10 +47,10 @@ object Scheduler extends TelegramRequestBuilder {
   }
 
   private def task: Unit = {
-    //birthdayCheck
-    //iGrowCheck
+    birthdayCheck
+    iGrowCheck
     amarthaCheck
-    //dotaMetadataFetcher
+    dotaMetadataFetcher
     println("=== fetching news here ===")
   }
 
@@ -80,16 +80,22 @@ object Scheduler extends TelegramRequestBuilder {
   private def amarthaCheck: Seq[AmarthaMarketplaceItem] = {
     println(" === amartha check ===")
     import com.seanmcapp.util.parser.AmarthaJson._
-    val wow = Http(amarthaBaseUrl + "/auth").postData("{\"username\": \"bayusuryadana@gmail.com\",\"password\": \"\"}")
+    val amarthaConf = AmarthaConf()
+    val authResponse = Http(amarthaBaseUrl + "/auth")
+      .postData(s"""{"username": "${amarthaConf.username}","password": "${amarthaConf.password}"}""")
+      .header("Content-Type", "application/json")
+      .timeout(15000, 300000)
       .asString.body.parseJson.convertTo[AmarthaResponse]
-    println(wow)
-    val auth = wow.data.convertTo[AmarthaAuthData]
-    println(auth)
-    println("account: " + auth.name)
-    val response = Http(amarthaBaseUrl + "/marketplace").method("POST").header("x-access-token", auth.accessToken)
-      .asString.body.parseJson.convertTo[AmarthaResponse].data.convertTo[AmarthaMarketplaceData]
-    println(response.marketplace)
-    response.marketplace
+    if (authResponse.code == 200) {
+      val authData = authResponse.data.convertTo[AmarthaAuthData]
+      println("account: " + authData.name)
+      val response = Http(amarthaBaseUrl + "/marketplace")
+        .header("x-access-token", authData.accessToken)
+        .timeout(15000, 300000)
+        .asString.body.parseJson.convertTo[AmarthaResponse].data.convertTo[AmarthaMarketplaceData]
+      println(response.marketplace)
+      response.marketplace
+    } else throw new Exception(authResponse.toString)
   }
 
   private def dotaMetadataFetcher: Future[Seq[PlayerResponse]] = {
