@@ -6,7 +6,7 @@ import org.joda.time.{DateTime, DateTimeZone, LocalDateTime}
 import com.seanmcapp.Boot.system
 import com.seanmcapp.repository.birthday.PeopleRepoImpl
 import com.seanmcapp.repository.dota.{Player, PlayerRepoImpl}
-import com.seanmcapp.util.parser.{IgrowData, IgrowResponse, PlayerResponse}
+import com.seanmcapp.util.parser.{AmarthaAuthData, AmarthaMarketplaceData, AmarthaMarketplaceItem, AmarthaResponse, IgrowData, IgrowResponse, PlayerResponse}
 import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
 import scalaj.http.Http
 import spray.json._
@@ -22,13 +22,14 @@ object Scheduler extends TelegramRequestBuilder {
   private val ICT = "+07:00"
   private val iGrowBaseUrl = "https://igrow.asia/api/public/en/v1/sponsor/seed"
   private val dotaBaseUrl = "https://api.opendota.com/api/players/"
+  private val amarthaBaseUrl = "https://dashboard.amartha.com/v2"
 
   def start(implicit ec: ExecutionContext): Unit = {
     val scheduler = system.scheduler
-
+    amarthaCheck
     // one-time warmup DB
-    scheduler.scheduleOnce(Duration(0, TimeUnit.SECONDS))(warmup)
-    scheduler.scheduleOnce(Duration(10, TimeUnit.SECONDS))(warmup)
+    //scheduler.scheduleOnce(Duration(0, TimeUnit.SECONDS))(warmup)
+    //scheduler.scheduleOnce(Duration(10, TimeUnit.SECONDS))(warmup)
 
     // scheduler for everyday at 6 AM (GMT+7)
     val init = new LocalDateTime()
@@ -36,7 +37,7 @@ object Scheduler extends TelegramRequestBuilder {
       .toDateTime(DateTimeZone.forID(ICT))
     val target = if (now.getHourOfDay >= 6) init.plusDays(1) else init
     val numberInMillis = target.getMillis - now.getMillis
-    scheduler.schedule(Duration(numberInMillis, TimeUnit.MILLISECONDS), Duration(1, TimeUnit.DAYS))(task)
+    //scheduler.schedule(Duration(numberInMillis, TimeUnit.MILLISECONDS), Duration(1, TimeUnit.DAYS))(task)
   }
 
   private def warmup: Unit = {
@@ -46,9 +47,10 @@ object Scheduler extends TelegramRequestBuilder {
   }
 
   private def task: Unit = {
-    birthdayCheck
-    iGrowCheck
-    dotaMetadataFetcher
+    //birthdayCheck
+    //iGrowCheck
+    amarthaCheck
+    //dotaMetadataFetcher
     println("=== fetching news here ===")
   }
 
@@ -73,6 +75,21 @@ object Scheduler extends TelegramRequestBuilder {
     }
     sendMessage(274852283, stringMessage)
     response
+  }
+
+  private def amarthaCheck: Seq[AmarthaMarketplaceItem] = {
+    println(" === amartha check ===")
+    import com.seanmcapp.util.parser.AmarthaJson._
+    val wow = Http(amarthaBaseUrl + "/auth").postData("{\"username\": \"bayusuryadana@gmail.com\",\"password\": \"\"}")
+      .asString.body.parseJson.convertTo[AmarthaResponse]
+    println(wow)
+    val auth = wow.data.convertTo[AmarthaAuthData]
+    println(auth)
+    println("account: " + auth.name)
+    val response = Http(amarthaBaseUrl + "/marketplace").method("POST").header("x-access-token", auth.accessToken)
+      .asString.body.parseJson.convertTo[AmarthaResponse].data.convertTo[AmarthaMarketplaceData]
+    println(response.marketplace)
+    response.marketplace
   }
 
   private def dotaMetadataFetcher: Future[Seq[PlayerResponse]] = {
