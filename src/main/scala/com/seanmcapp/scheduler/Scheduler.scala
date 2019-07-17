@@ -1,83 +1,107 @@
-package com.seanmcapp
+package com.seanmcapp.scheduler
 
 import java.util.concurrent.TimeUnit
 
-import org.joda.time.{DateTime, DateTimeZone, LocalDateTime}
+import akka.actor.Cancellable
 import com.seanmcapp.Boot.system
 import com.seanmcapp.config.AmarthaConf
 import com.seanmcapp.repository.birthday.PeopleRepoImpl
 import com.seanmcapp.repository.dota.{Player, PlayerRepoImpl}
 import com.seanmcapp.util.parser.{AmarthaAuthData, AmarthaMarketplaceData, AmarthaMarketplaceItem, AmarthaResponse, IgrowData, IgrowResponse, PlayerResponse}
 import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
+import org.joda.time.{DateTime, DateTimeZone, LocalDateTime}
 import scalaj.http.Http
 import spray.json._
 
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.ExecutionContext.Implicits.global
 
-object Scheduler extends TelegramRequestBuilder {
-
-  private val peopleRepo = PeopleRepoImpl
-  private val playerRepo = PlayerRepoImpl
+abstract class Scheduler(startTime: Int, intervalOpt: Option[FiniteDuration]) extends TelegramRequestBuilder {
 
   private val ICT = "+07:00"
-  private val iGrowBaseUrl = "https://igrow.asia/api/public/en/v1/sponsor/seed"
-  private val dotaBaseUrl = "https://api.opendota.com/api/players/"
-  private val amarthaBaseUrl = "https://dashboard.amartha.com/v2"
+  protected def now: DateTime = new DateTime().toDateTime(DateTimeZone.forID(ICT))
+  protected val scheduler = system.scheduler
 
-  def start(implicit ec: ExecutionContext): Unit = {
-    val scheduler = system.scheduler
-    // one-time warmup DB
-    scheduler.scheduleOnce(Duration(0, TimeUnit.SECONDS))(warmup)
-    scheduler.scheduleOnce(Duration(10, TimeUnit.SECONDS))(warmup)
-
-    // scheduler for everyday at 6 AM (GMT+7)
-    val init = new LocalDateTime()
-      .withTime(6,0,0,0)
-      .toDateTime(DateTimeZone.forID(ICT))
-    val target = if (now.getHourOfDay >= 6) init.plusDays(1) else init
-    val numberInMillis = target.getMillis - now.getMillis
-    scheduler.schedule(Duration(numberInMillis, TimeUnit.MILLISECONDS), Duration(1, TimeUnit.DAYS))(task)
+  def run: Cancellable = {
+    val startTimeDuration = getStartTimeDuration(startTime)
+    intervalOpt match {
+      case Some(interval) =>
+        scheduler.schedule(startTimeDuration, interval)(task)
+      case None => scheduler.scheduleOnce(startTimeDuration)(task)
+    }
   }
 
-  private def warmup: Unit = {
+  protected def getStartTimeDuration(hour: Int): FiniteDuration = {
+    val init = new LocalDateTime()
+      .withTime(hour,0,0,0)
+      .toDateTime(DateTimeZone.forID(ICT))
+    val target = if (now.getHourOfDay >= hour) init.plusDays(1) else init
+    val numberInMillis = target.getMillis - now.getMillis
+    Duration(numberInMillis, TimeUnit.MILLISECONDS)
+  }
+
+  protected def task: Any
+
+}
+
+class WarmupDBScheduler(startTime: Int) extends Scheduler(startTime, None) {
+
+  private val peopleRepo = PeopleRepoImpl
+
+  override def getStartTimeDuration(hour: Int): FiniteDuration = Duration(startTime, TimeUnit.SECONDS)
+
+  override def task: Unit = {
     println("=== warmup database ===")
     val res = Await.result(peopleRepo.get(now.getDayOfMonth, now.getMonthOfYear), Duration.Inf)
     println("warmup result: " + res)
   }
 
-  private def task: Unit = {
-    birthdayCheck
-    iGrowCheck
-    amarthaCheck
-    dotaMetadataFetcher
-    println("=== fetching news here ===")
-  }
+}
 
-  private def birthdayCheck: Future[String] = {
-    import scala.concurrent.ExecutionContext.Implicits.global
+class BirthdayScheduler(startTime: Int, interval: FiniteDuration) extends Scheduler(startTime, Some(interval)) {
+
+  private val peopleRepo = PeopleRepoImpl
+
+  override def task: Future[String] = {
     println("=== birthday check ===")
     for{
       people <- peopleRepo.get(now.getDayOfMonth, now.getMonthOfYear)
     } yield {
       val result = "Today's birthday: " + people.map(_.name + ",")
-      people.map(person => sendMessage(274852283, "Today is " + person.name + "'s birthday !!"))
+      people.map { person =>
+        sendMessage(274852283, "Today is " + person.name + "'s birthday !!")
+        sendMessage(143635997, "Today is " + person.name + "'s birthday !!")
+      }
       result
     }
   }
 
-  private def iGrowCheck: Seq[IgrowData] = {
+}
+
+class IGrowScheduler(startTime: Int, interval: FiniteDuration) extends Scheduler(startTime, Some(interval)) {
+
+  private val iGrowBaseUrl = "https://igrow.asia/api/public/en/v1/sponsor/seed"
+
+  override def task: Seq[IgrowData] = {
     println("=== iGrow check ===")
     import com.seanmcapp.util.parser.IgrowJson._
     val response = Http(iGrowBaseUrl + "/list").asString.body.parseJson.convertTo[IgrowResponse].data.filter(_.stock > 0)
-    val stringMessage = response.foldLeft("") { (res, data) =>
+    val stringMessage = response.foldLeft("iGrow: %0A") { (res, data) =>
       res + "ada stok " + data.name + " sisa " + data.stock + " unit%0A"
     }
     sendMessage(274852283, stringMessage)
+    sendMessage(143635997, stringMessage)
     response
   }
 
-  private def amarthaCheck: Seq[AmarthaMarketplaceItem] = {
+}
+
+class AmarthaScheduler(startTime: Int, interval: FiniteDuration) extends Scheduler(startTime, Some(interval)) {
+
+  private val amarthaBaseUrl = "https://dashboard.amartha.com/v2"
+
+  override def task: Seq[AmarthaMarketplaceItem] = {
     println(" === amartha check ===")
     import com.seanmcapp.util.parser.AmarthaJson._
     val amarthaConf = AmarthaConf()
@@ -94,11 +118,22 @@ object Scheduler extends TelegramRequestBuilder {
         .timeout(15000, 300000)
         .asString.body.parseJson.convertTo[AmarthaResponse].data.convertTo[AmarthaMarketplaceData]
       println(response.marketplace)
+
+      val stringMessage = "Amartha: " + response.marketplace.size + " orang perlu didanai " + "(" + startTime + ":00)"
+      sendMessage(274852283, stringMessage)
+      sendMessage(143635997, stringMessage)
       response.marketplace
     } else throw new Exception(authResponse.toString)
   }
 
-  private def dotaMetadataFetcher: Future[Seq[PlayerResponse]] = {
+}
+
+class DotaMetadataFetcherScheduler(startTime: Int, interval: FiniteDuration) extends Scheduler(startTime, Some(interval)) {
+
+  private val playerRepo = PlayerRepoImpl
+  private val dotaBaseUrl = "https://api.opendota.com/api/players/"
+
+  override def task: Future[Seq[PlayerResponse]] = {
     println("=== dota metadata fetching ===")
     import com.seanmcapp.util.parser.DotaInputJson._
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -116,6 +151,6 @@ object Scheduler extends TelegramRequestBuilder {
     }
   }
 
-  private def now: DateTime = new DateTime().toDateTime(DateTimeZone.forID(ICT))
-
 }
+
+
