@@ -7,9 +7,12 @@ import com.seanmcapp.Boot.system
 import com.seanmcapp.config.AmarthaConf
 import com.seanmcapp.repository.birthday.PeopleRepoImpl
 import com.seanmcapp.repository.dota.{Player, PlayerRepoImpl}
-import com.seanmcapp.util.parser.{AmarthaAuthData, AmarthaMarketplaceData, AmarthaMarketplaceItem, AmarthaResponse, IgrowData, IgrowResponse, PlayerResponse}
+import com.seanmcapp.util.cache.MemoryCache
+import com.seanmcapp.util.parser.{AmarthaAuthData, AmarthaMarketplaceData, AmarthaMarketplaceItem, AmarthaResponse, IgrowData, IgrowResponse, MatchResponse, PeerResponse, PlayerResponse}
 import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
 import org.joda.time.{DateTime, DateTimeZone, LocalDateTime}
+import scalacache.memoization.memoizeSync
+import scalacache.modes.sync._
 import scalaj.http.Http
 import spray.json._
 
@@ -97,19 +100,17 @@ class IGrowScheduler(startTime: Int, interval: FiniteDuration) extends Scheduler
 
 }
 
-class AmarthaScheduler(startTime: Int, interval: FiniteDuration) extends Scheduler(startTime, Some(interval)) {
+class AmarthaScheduler(startTime: Int, interval: FiniteDuration) extends Scheduler(startTime, Some(interval)) with MemoryCache {
+
+  import com.seanmcapp.util.parser.AmarthaJson._
 
   private val amarthaBaseUrl = "https://dashboard.amartha.com/v2"
+  private val duration = Duration(15, TimeUnit.MINUTES)
+  implicit val amarthaCache = createCache[AmarthaResponse]
 
   override def task: Seq[AmarthaMarketplaceItem] = {
     println(" === amartha check ===")
-    import com.seanmcapp.util.parser.AmarthaJson._
-    val amarthaConf = AmarthaConf()
-    val authResponse = Http(amarthaBaseUrl + "/auth")
-      .postData(s"""{"username": "${amarthaConf.username}","password": "${amarthaConf.password}"}""")
-      .header("Content-Type", "application/json")
-      .timeout(15000, 300000)
-      .asString.body.parseJson.convertTo[AmarthaResponse]
+    val authResponse: AmarthaResponse = memoizeSync(Some(duration))(auth)
     if (authResponse.code == 200) {
       val authData = authResponse.data.convertTo[AmarthaAuthData]
       println("account: " + authData.name)
@@ -124,6 +125,15 @@ class AmarthaScheduler(startTime: Int, interval: FiniteDuration) extends Schedul
       sendMessage(143635997, stringMessage)
       response.marketplace
     } else throw new Exception(authResponse.toString)
+  }
+
+  private def auth: AmarthaResponse = {
+    val amarthaConf = AmarthaConf()
+    Http(amarthaBaseUrl + "/auth")
+      .postData(s"""{"username": "${amarthaConf.username}","password": "${amarthaConf.password}"}""")
+      .header("Content-Type", "application/json")
+      .timeout(15000, 300000)
+      .asString.body.parseJson.convertTo[AmarthaResponse]
   }
 
 }

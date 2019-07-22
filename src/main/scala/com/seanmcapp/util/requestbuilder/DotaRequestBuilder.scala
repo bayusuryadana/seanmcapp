@@ -2,19 +2,19 @@ package com.seanmcapp.util.requestbuilder
 
 import java.util.concurrent.TimeUnit
 
-import com.seanmcapp.util.parser.{ArrayResponse, MatchResponse, PeerResponse, PlayerResponse}
+import com.seanmcapp.util.cache.MemoryCache
+import com.seanmcapp.util.parser.{ArrayResponse, MatchResponse, PeerResponse}
 import scalacache.memoization._
 import scalacache.modes.sync._
 import scalaj.http.Http
 
 import scala.concurrent.duration.Duration
 import spray.json._
-import scalacache.Cache
 
-trait DotaRequestBuilder {
+trait DotaRequestBuilder extends MemoryCache {
 
-  implicit val matchesCache: Cache[Seq[MatchResponse]]
-  implicit val peersCache: Cache[Seq[PeerResponse]]
+  implicit val matchesCache = createCache[Seq[MatchResponse]]
+  implicit val peersCache = createCache[Seq[PeerResponse]]
 
   val baseUrl = "https://api.opendota.com/api/players/"
   val duration = Duration(2, TimeUnit.HOURS)
