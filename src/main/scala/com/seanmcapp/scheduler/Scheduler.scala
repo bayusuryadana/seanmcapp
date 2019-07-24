@@ -2,8 +2,8 @@ package com.seanmcapp.scheduler
 
 import java.util.concurrent.TimeUnit
 
-import akka.actor.Cancellable
-import com.seanmcapp.Boot.system
+import akka.actor.{ActorSystem, Cancellable}
+import akka.stream.Materializer
 import com.seanmcapp.config.AmarthaConf
 import com.seanmcapp.repository.birthday.PeopleRepoImpl
 import com.seanmcapp.repository.dota.{Player, PlayerRepoImpl}
@@ -16,11 +16,11 @@ import scalacache.modes.sync._
 import scalaj.http.Http
 import spray.json._
 
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration.{Duration, FiniteDuration}
-import scala.concurrent.ExecutionContext.Implicits.global
 
-abstract class Scheduler(startTime: Int, intervalOpt: Option[FiniteDuration]) extends TelegramRequestBuilder {
+abstract class Scheduler(startTime: Int, intervalOpt: Option[FiniteDuration])
+                        (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends TelegramRequestBuilder {
 
   private val ICT = "+07:00"
   protected def now: DateTime = new DateTime().toDateTime(DateTimeZone.forID(ICT))
@@ -48,7 +48,8 @@ abstract class Scheduler(startTime: Int, intervalOpt: Option[FiniteDuration]) ex
 
 }
 
-class WarmupDBScheduler(startTime: Int) extends Scheduler(startTime, None) {
+class WarmupDBScheduler(startTime: Int)(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
+  extends Scheduler(startTime, None) {
 
   private val peopleRepo = PeopleRepoImpl
 
@@ -62,7 +63,9 @@ class WarmupDBScheduler(startTime: Int) extends Scheduler(startTime, None) {
 
 }
 
-class BirthdayScheduler(startTime: Int, interval: FiniteDuration) extends Scheduler(startTime, Some(interval)) {
+class BirthdayScheduler(startTime: Int, interval: FiniteDuration)
+                       (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
+  extends Scheduler(startTime, Some(interval)) {
 
   private val peopleRepo = PeopleRepoImpl
 
@@ -82,7 +85,9 @@ class BirthdayScheduler(startTime: Int, interval: FiniteDuration) extends Schedu
 
 }
 
-class IGrowScheduler(startTime: Int, interval: FiniteDuration) extends Scheduler(startTime, Some(interval)) {
+class IGrowScheduler(startTime: Int, interval: FiniteDuration)
+                    (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
+  extends Scheduler(startTime, Some(interval)) {
 
   private val iGrowBaseUrl = "https://igrow.asia/api/public/en/v1/sponsor/seed"
 
@@ -100,7 +105,9 @@ class IGrowScheduler(startTime: Int, interval: FiniteDuration) extends Scheduler
 
 }
 
-class AmarthaScheduler(startTime: Int, interval: FiniteDuration) extends Scheduler(startTime, Some(interval)) with MemoryCache {
+class AmarthaScheduler(startTime: Int, interval: FiniteDuration)
+                      (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
+  extends Scheduler(startTime, Some(interval)) with MemoryCache {
 
   import com.seanmcapp.util.parser.AmarthaJson._
 
@@ -138,7 +145,9 @@ class AmarthaScheduler(startTime: Int, interval: FiniteDuration) extends Schedul
 
 }
 
-class DotaMetadataFetcherScheduler(startTime: Int, interval: FiniteDuration) extends Scheduler(startTime, Some(interval)) {
+class DotaMetadataFetcherScheduler(startTime: Int, interval: FiniteDuration)
+                                  (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
+  extends Scheduler(startTime, Some(interval)) {
 
   private val playerRepo = PlayerRepoImpl
   private val dotaBaseUrl = "https://api.opendota.com/api/players/"
@@ -146,8 +155,6 @@ class DotaMetadataFetcherScheduler(startTime: Int, interval: FiniteDuration) ext
   override def task: Future[Seq[PlayerResponse]] = {
     println("=== dota metadata fetching ===")
     import com.seanmcapp.util.parser.DotaInputJson._
-    import scala.concurrent.ExecutionContext.Implicits.global
-
     for {
       players <- playerRepo.getAll
     } yield {
