@@ -1,12 +1,8 @@
 package com.seanmcapp
 
-import com.google.common.cache.CacheBuilder
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
 import com.seanmcapp.service.{CBCService, DotaService}
-import com.seanmcapp.util.parser.{MatchResponse, PeerResponse}
-import scalacache.guava.GuavaCache
-import scalacache.{Cache, Entry}
 
 trait Injection {
 
@@ -18,14 +14,6 @@ trait Injection {
   val dotaAPI = new DotaService {
     override val playerRepo = PlayerRepoImpl
     override val heroRepo = HeroRepoImpl
-
-    override val matchesCache = createCache[Seq[MatchResponse]]
-    override val peersCache = createCache[Seq[PeerResponse]]
-
-    private def createCache[T]: Cache[T] = {
-      val underlyingGuavaCache = CacheBuilder.newBuilder().maximumSize(10000L).build[String, Entry[T]]
-      GuavaCache(underlyingGuavaCache)
-    }
   }
 
 }

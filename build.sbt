@@ -24,7 +24,7 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "42.2.5",
 
   // scalatest
-  "org.scalactic" %% "scalactic" % "3.0.5",
+  "org.scalactic" %% "scalactic" % "3.0.5" % Test,
   "org.scalatest" %% "scalatest" % "3.0.5" % Test,
   
   // joda time
