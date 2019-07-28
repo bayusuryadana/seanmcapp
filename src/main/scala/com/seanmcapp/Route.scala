@@ -37,6 +37,9 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     get(path("dota" / "player" / Remaining)(id => complete(dotaAPI.player(id.toInt).map(_.toJson)))),
     get(path("dota" / "hero" /  Remaining)(id => complete(dotaAPI.hero(id.toInt).map(_.toJson)))),
 
+    // start message
+    get(path("start")(complete("Welcome to seanmcbot! Press '/' to start."))),
+
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !"))),
 
