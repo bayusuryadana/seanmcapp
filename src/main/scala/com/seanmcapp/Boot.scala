@@ -2,7 +2,7 @@ package com.seanmcapp
 
 import java.util.concurrent.TimeUnit
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Cancellable}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
@@ -20,6 +20,8 @@ object Boot extends App {
 
   lazy val route = new Route().routePath
 
+  lazy val schedulerList = runScheduler
+
   val serverBinding = start(Try(System.getenv("PORT").toInt).toOption.getOrElse(9000))
 
   scala.sys.addShutdownHook {
@@ -28,8 +30,7 @@ object Boot extends App {
   }
 
   def start(port: Int): Future[ServerBinding] = {
-    scheduler // starting scheduler
-
+    schedulerList
     println(s"Server is started on port $port")
     Http().bindAndHandle(route, "0.0.0.0", port)
   }
@@ -37,11 +38,12 @@ object Boot extends App {
   def stop(bindingFut: Future[ServerBinding]): Unit = {
     bindingFut.flatMap(_.unbind()).onComplete { _ =>
       println("Shutting down..")
+      schedulerList.map(_.cancel())
       system.terminate()
     }
   }
 
-  private def scheduler: Unit = {
+  private def runScheduler: List[Cancellable] = {
     val everyDay = Duration(1, TimeUnit.DAYS)
 
     val scheduleList: List[Scheduler] = List(
@@ -57,6 +59,7 @@ object Boot extends App {
       new AmarthaScheduler(15, everyDay)
 
     )
+
     scheduleList.map(_.run)
   }
 }

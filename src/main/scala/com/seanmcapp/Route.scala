@@ -7,7 +7,7 @@ import akka.stream.Materializer
 import com.seanmcapp.util.parser.TelegramUpdate
 import spray.json._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends Directives
   with SprayJsonSupport with DefaultJsonProtocol with Injection {
@@ -26,7 +26,9 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
         case r if telegramRequest.message.isDefined =>
           println("/cbc/webhook(random): \n" + request + "\n")
           cbcAPI.randomFlow(r.message.get)
-        case _ => throw new Exception("cannot recognized payload type")
+        case _ =>
+          println("[ERROR] cannot recognized payload type")
+          Future.successful(None)
       }
 
       complete(responseF.map(_.toJson))
