@@ -28,7 +28,9 @@ trait CBCService extends TelegramRequestBuilder {
           .stripSuffix(telegramConf.botname)
         executeCommand(command, chatId, userId, userFullName)
 
-      case _ => throw new Exception("Telegram Message Entities not found")
+      case _ =>
+        println("[ERROR] Telegram Message Entities not found")
+        Future.successful(None)
     }
   }
 
@@ -50,7 +52,9 @@ trait CBCService extends TelegramRequestBuilder {
             sendPhoto(chatId, photo).body.parseJson.convertTo[TelegramResponse]
           }
         }
-      case _ => throw new Exception("command not found")
+      case _ =>
+        println("[ERROR] Command not found")
+        Future.successful(None)
     }
   }
 
