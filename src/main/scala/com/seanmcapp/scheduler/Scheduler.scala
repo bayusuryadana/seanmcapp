@@ -101,6 +101,7 @@ class IGrowScheduler(startTime: Int, interval: FiniteDuration)
     sendMessage(274852283, stringMessage)
     sendMessage(143635997, stringMessage)
     sendMessage(186373768, stringMessage)
+    sendMessage(171852831, stringMessage)
     response
   }
 
@@ -132,6 +133,7 @@ class AmarthaScheduler(startTime: Int, interval: FiniteDuration)
       sendMessage(274852283, stringMessage)
       sendMessage(143635997, stringMessage)
       sendMessage(186373768, stringMessage)
+      sendMessage(171852831, stringMessage)
       response.marketplace
     } else throw new Exception(authResponse.toString)
   }
