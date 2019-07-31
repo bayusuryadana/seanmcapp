@@ -5,7 +5,7 @@ import config.Configuration
 
 import scala.util.Try
 
-case class SchedulerConf(amartha: List[Long], igrow: List[Long])
+case class SchedulerConf(amartha: Seq[Long], igrow: Seq[Long])
 
 object SchedulerConf extends Configuration[SchedulerConf] {
 
@@ -14,9 +14,9 @@ object SchedulerConf extends Configuration[SchedulerConf] {
   def apply(): SchedulerConf = apply(ConfigFactory.load)
 
   override def fromSubConfig(c: Config): SchedulerConf = {
-    SchedulerConf(Try(c.getLongList("amartha").asInstanceOf[List[Long]])
-        .getOrElse(List().asInstanceOf[List[Long]]),
-      Try(c.getLongList("igrow").asInstanceOf[List[Long]]).getOrElse(List().asInstanceOf[List[Long]])
+    SchedulerConf(Try(c.getLongList("amartha").asInstanceOf[Seq[Long]])
+      .getOrElse(Seq.empty[Long]),
+      Try(c.getLongList("igrow").asInstanceOf[Seq[Long]]).getOrElse(Seq.empty[Long])
     )
   }
 }

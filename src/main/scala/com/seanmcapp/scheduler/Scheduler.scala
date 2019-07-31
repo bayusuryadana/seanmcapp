@@ -99,7 +99,7 @@ class IGrowScheduler(startTime: Int, interval: FiniteDuration)
       res + "ada stok " + data.name + " sisa " + data.stock + " unit%0A"
     }
     val schedulerConf = SchedulerConf()
-    for (chatId <- schedulerConf.igrow) sendMessage(chatId, stringMessage)
+    schedulerConf.igrow.foreach(chatId => sendMessage(chatId, stringMessage))
     response
   }
 
@@ -129,7 +129,7 @@ class AmarthaScheduler(startTime: Int, interval: FiniteDuration)
 
       val stringMessage = "Amartha: " + response.marketplace.size + " orang perlu didanai " + "(" + startTime + ":00)"
       val schedulerConf = SchedulerConf()
-      for (chatId <- schedulerConf.amartha) sendMessage(chatId, stringMessage)
+      schedulerConf.amartha.foreach(chatId => sendMessage(chatId, stringMessage))
       response.marketplace
     } else throw new Exception(authResponse.toString)
   }
