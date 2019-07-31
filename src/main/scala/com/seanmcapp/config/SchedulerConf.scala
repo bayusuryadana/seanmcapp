@@ -14,9 +14,9 @@ object SchedulerConf extends Configuration[SchedulerConf] {
   def apply(): SchedulerConf = apply(ConfigFactory.load)
 
   override def fromSubConfig(c: Config): SchedulerConf = {
-    SchedulerConf(Try(c.getLongList("amartha").asInstanceOf[Seq[Long]])
+    SchedulerConf(Try(c.getString("amartha").split(",").asInstanceOf[Seq[Long]])
       .getOrElse(Seq.empty[Long]),
-      Try(c.getLongList("igrow").asInstanceOf[Seq[Long]]).getOrElse(Seq.empty[Long])
+      Try(c.getString("igrow").split(",").asInstanceOf[Seq[Long]]).getOrElse(Seq.empty[Long])
     )
   }
 }
