@@ -9,6 +9,8 @@ API:
 Notificator (daily scheduled job):
 - Igrow
 - Birthday
+- Amartha
+- AirVisual
 
 ## Prerequisites
 1. Scala & SBT (usually it will be automatically installed if u are using intellij IDEA)

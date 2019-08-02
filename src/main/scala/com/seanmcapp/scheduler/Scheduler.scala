@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.{ActorSystem, Cancellable}
 import akka.stream.Materializer
-import com.seanmcapp.config.{AmarthaConf, SchedulerConf}
+import com.seanmcapp.config.{AirvisualConf, AmarthaConf, SchedulerConf}
 import com.seanmcapp.repository.birthday.PeopleRepoImpl
 import com.seanmcapp.repository.dota.{Player, PlayerRepoImpl}
 import com.seanmcapp.util.cache.MemoryCache
@@ -106,58 +106,6 @@ class IGrowScheduler(startTime: Int, interval: FiniteDuration)
 
 }
 
-class AirVisualScheduler(startTime: Int, interval: FiniteDuration)
-                    (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
-  extends Scheduler(startTime, Some(interval)) {
-
-  private val airVisualBaseUrl = "https://api.airvisual.com/v2/city"
-
-  override def task: Unit = {
-    println("=== AirVisual check ===")
-
-    val cities = List(
-      List("Indonesia", "Jakarta", "Jakarta"),
-      List("Indonesia", "West Java", "Bekasi"),
-      List("Indonesia", "West Java", "Depok"),
-      List("Singapore", "Singapore", "Singapore")
-    )
-
-    val cityResults = cities.map(row => getCityResult(row:_*))
-
-    val stringMessage = cityResults.foldLeft("*Seanmcearth* melaporkan kondisi udara saat ini:\n") { (res, data) =>
-      res + data
-    }
-
-    sendMessage(-111546505, URLEncoder.encode(stringMessage, "UTF-8"))
-    println("success")
-  }
-
-  private def getCityResult(city: String*): String = {
-    import com.seanmcapp.util.parser.AirvisualJson._
-
-    val encodedCity = city.map(c => URLEncoder.encode(c, "UTF-8"))
-
-    val apiParams = "?country=%s&state=%s&city=%s&key=1c9492cc-4e66-488b-854f-d691db38406a"
-    val apiUrl = airVisualBaseUrl + apiParams.format(encodedCity(0), encodedCity(1), encodedCity(2))
-
-    val response = Http(apiUrl).asString.body.parseJson.convertTo[AirvisualResponse].data
-    val aqius = response.current.pollution.aqius
-
-    "\n" + city(2) + " (AQI " + aqius + " " + getEmojiFromAqi(aqius) + ")"
-  }
-
-  private def getEmojiFromAqi(aqi: Int): String = {
-    aqi match {
-      case aqi if aqi <= 50 => new String(Array(0x1F340), 0, Array(0x1F340).length)
-      case aqi if aqi > 50 & aqi <= 100 => new String(Array(0x1F60E), 0, Array(0x1F60E).length)
-      case aqi if aqi > 100 & aqi <= 150 => new String(Array(0x1F630), 0, Array(0x1F630).length)
-      case aqi if aqi > 150 & aqi <= 200 => new String(Array(0x1F637), 0, Array(0x1F637).length)
-      case aqi if aqi > 200 => new String(Array(0x1F480), 0, Array(0x1F480).length)
-    }
-  }
-
-}
-
 class AmarthaScheduler(startTime: Int, interval: FiniteDuration)
                       (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
   extends Scheduler(startTime, Some(interval)) with MemoryCache {
@@ -223,4 +171,69 @@ class DotaMetadataFetcherScheduler(startTime: Int, interval: FiniteDuration)
 
 }
 
+class AirVisualScheduler(startTime: Int, interval: FiniteDuration)
+                    (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
+  extends Scheduler(startTime, Some(interval)) {
+
+  override def getStartTimeDuration(hour: Int): FiniteDuration = Duration(startTime, TimeUnit.SECONDS)
+
+  private val airVisualBaseUrl = "https://api.airvisual.com/v2/city"
+
+  private case class City(country: String, state: String, city: String)
+
+  private val AirGood = Array(0x1F340)
+  private val AirModerate = Array(0x1F60E)
+  private val AirSensitive = Array(0x1F630)
+  private val AirUnhealthy = Array(0x1F637)
+  private val AirRisky = Array(0x1F480)
+
+  private val cities = List(
+    City("Indonesia", "Jakarta", "Jakarta"),
+    City("Indonesia", "West Java", "Bekasi"),
+    City("Indonesia", "West Java", "Depok"),
+    City("Singapore", "Singapore", "Singapore")
+  )
+
+  override def task: Unit = {
+    println("=== AirVisual check ===")
+
+    val cityResults = cities.map(city => getCityResult(city))
+
+    val stringMessage = cityResults.foldLeft("*Seanmcearth* melaporkan kondisi udara saat ini:\n") { (res, data) =>
+      res + data
+    }
+
+    sendMessage(-111546505, URLEncoder.encode(stringMessage, "UTF-8"))
+    println("success")
+  }
+
+  private def getCityResult(city: City): String = {
+    import com.seanmcapp.util.parser.AirvisualJson._
+
+    val airvisualConf = AirvisualConf()
+
+    val apiParams = "?country=%s&state=%s&city=%s&key=%s"
+    val apiUrl = airVisualBaseUrl + apiParams.format(
+      URLEncoder.encode(city.country, "UTF-8"),
+      URLEncoder.encode(city.state, "UTF-8"),
+      URLEncoder.encode(city.city, "UTF-8"),
+      airvisualConf.key)
+
+    val response = Http(apiUrl).asString.body.parseJson.convertTo[AirvisualResponse].data
+    val aqius = response.current.pollution.aqius
+
+    "\n" + city.city + " (AQI " + aqius + " " + getEmojiFromAqi(aqius) + ")"
+  }
+
+  private def getEmojiFromAqi(aqi: Int): String = {
+    aqi match {
+      case aqi if aqi <= 50 => new String(AirGood, 0, AirGood.length)
+      case aqi if aqi > 50 & aqi <= 100 => new String(AirModerate, 0, AirModerate.length)
+      case aqi if aqi > 100 & aqi <= 150 => new String(AirSensitive, 0, AirSensitive.length)
+      case aqi if aqi > 150 & aqi <= 200 => new String(AirUnhealthy, 0, AirUnhealthy.length)
+      case aqi if aqi > 200 => new String(AirRisky, 0, AirRisky.length)
+    }
+  }
+
+}
 
