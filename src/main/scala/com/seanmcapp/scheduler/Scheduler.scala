@@ -175,8 +175,6 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration)
                     (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
   extends Scheduler(startTime, Some(interval)) {
 
-  override def getStartTimeDuration(hour: Int): FiniteDuration = Duration(startTime, TimeUnit.SECONDS)
-
   private val airVisualBaseUrl = "https://api.airvisual.com/v2/city"
 
   private case class City(country: String, state: String, city: String)
