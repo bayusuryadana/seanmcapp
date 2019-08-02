@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.{ActorSystem, Cancellable}
 import akka.stream.Materializer
-import com.seanmcapp.config.AmarthaConf
+import com.seanmcapp.config.{AmarthaConf, SchedulerConf}
 import com.seanmcapp.repository.birthday.PeopleRepoImpl
 import com.seanmcapp.repository.dota.{Player, PlayerRepoImpl}
 import com.seanmcapp.util.cache.MemoryCache
@@ -99,8 +99,8 @@ class IGrowScheduler(startTime: Int, interval: FiniteDuration)
     val stringMessage = response.foldLeft("iGrow: %0A") { (res, data) =>
       res + "ada stok " + data.name + " sisa " + data.stock + " unit%0A"
     }
-    sendMessage(274852283, stringMessage)
-    sendMessage(143635997, stringMessage)
+    val schedulerConf = SchedulerConf()
+    schedulerConf.igrow.foreach(chatId => sendMessage(chatId, stringMessage))
     response
   }
 
@@ -181,8 +181,8 @@ class AmarthaScheduler(startTime: Int, interval: FiniteDuration)
       println(response.marketplace)
 
       val stringMessage = "Amartha: " + response.marketplace.size + " orang perlu didanai " + "(" + startTime + ":00)"
-      sendMessage(274852283, stringMessage)
-      sendMessage(143635997, stringMessage)
+      val schedulerConf = SchedulerConf()
+      schedulerConf.amartha.foreach(chatId => sendMessage(chatId, stringMessage))
       response.marketplace
     } else throw new Exception(authResponse.toString)
   }
