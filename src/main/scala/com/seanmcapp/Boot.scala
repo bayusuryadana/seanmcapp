@@ -6,7 +6,7 @@ import akka.actor.{ActorSystem, Cancellable}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
-import com.seanmcapp.scheduler.{AmarthaScheduler, BirthdayScheduler, DotaMetadataFetcherScheduler, IGrowScheduler, Scheduler, WarmupDBScheduler}
+import com.seanmcapp.scheduler.{AirVisualScheduler, AmarthaScheduler, BirthdayScheduler, DotaMetadataFetcherScheduler, IGrowScheduler, Scheduler, WarmupDBScheduler}
 
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
@@ -56,8 +56,10 @@ object Boot extends App {
       new AmarthaScheduler(12, everyDay),
       new AmarthaScheduler(13, everyDay),
       new AmarthaScheduler(14, everyDay),
-      new AmarthaScheduler(15, everyDay)
+      new AmarthaScheduler(15, everyDay),
 
+      new AirVisualScheduler(8, everyDay),
+      new AirVisualScheduler(17, everyDay),
     )
 
     scheduleList.map(_.run)
