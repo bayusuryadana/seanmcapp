@@ -22,8 +22,7 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "42.2.5",
 
   // scalatest
-  "org.scalactic" %% "scalactic" % "3.0.5" % Test,
-  "org.scalatest" %% "scalatest" % "3.0.5" % Test,
+  "org.scalatest" %% "scalatest" % "3.0.5" % "test,it",
   
   // joda time
   "joda-time" % "joda-time" % "2.10.1",
@@ -33,14 +32,13 @@ libraryDependencies ++= Seq(
 )
 
 fork in Test := true
-// javaOptions in Test += "-Dconfig.resource=/dev.conf"
-
+configs(IntegrationTest)
+Defaults.itSettings
 
 /**
   *  DOCKERIZE
   *  publish: sbt docker:publishLocal
   *  run: docker run --env-file=.env -p 9000:9000 seanmcapp
-  *
   *  TODO: need `docker login` before pushing
   */
 
