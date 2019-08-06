@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_PASSWORD: password
     ports:
-      - "2345:5432"
+      - "5432:5432"
 
   storage:
     image: minio/minio
