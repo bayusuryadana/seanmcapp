@@ -40,3 +40,12 @@ jobs:
 
       # run tests!
       - run: cat /dev/null | sbt test
+
+      # run it dependencies
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run: docker-compose up -d
+
+      # run it tests!
+      - run: sbt it:test
