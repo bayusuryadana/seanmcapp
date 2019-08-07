@@ -21,7 +21,7 @@ Scheduled job:
 2. Storage service such as Amazon S3
 
 ## Contribute
-for local development run `sbt -Dconfig.resource=application-prod.conf run`, it might not perfectly works since you don't have some of my credentials such as Instagram or Telegram account
+for local development run `sbt -Dconfig.resource=application-local.conf run`, it might not perfectly works since you don't have some of my credentials such as Instagram or Telegram account
 
 0. test only for particular class -> `sbt "testOnly *ClassNameSpec"` (yes, with asterix character) for unit test or `sbt "it:testOnly *ClassNameSpec"` for integration-tests
 1. please run `sbt clean compile`, `sbt test` and `sbt it:test` (this one will require docker to complete) before raising a pull request
