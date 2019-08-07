@@ -23,7 +23,8 @@ Scheduled job:
 ## Contribute
 for local development just run `sbt run`, it might not perfectly works since you don't have some of my credentials such as Instagram or Telegram account
 
-1. please run `sbt test` and `sbt it:test` (this one will require docker to complete) before raise a PR
+0. test only for particular class -> `sbt "testOnly *ClassNameSpec"` (yes, with asterix character) for unit test or `sbt "it:testOnly *ClassNameSpec"` for integration-tests
+1. please run `sbt clean compile`, `sbt test` and `sbt it:test` (this one will require docker to complete) before raising a pull request
 2. wait for code review
 
 feel free to contact me at bayusuryadana@gmail.com  
