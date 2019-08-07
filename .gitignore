@@ -7,5 +7,5 @@ project
 /.classpath
 /.project
 /.settings
-/.minio.sys
+docker/storage/seanmcapp/.minio.sys
 /RUNNING_PID

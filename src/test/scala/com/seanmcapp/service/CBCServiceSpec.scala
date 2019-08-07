@@ -9,7 +9,7 @@ import spray.json._
 
 class CBCServiceSpec extends AsyncWordSpec with Matchers with CBCServiceImpl {
 
-  import com.seanmcapp.util.parser.CBCJson._
+  import com.seanmcapp.util.parser.TelegramJson._
 
   "should return any random photos - API random endpoint" in {
     random.map { res =>

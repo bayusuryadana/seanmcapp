@@ -1,6 +1,5 @@
 package com.seanmcapp.util.parser
 
-import com.seanmcapp.repository.instagram.Photo
 import spray.json._
 
 case class TelegramUpdate(message: Option[TelegramMessage], callbackQuery: Option[TelegramCallbackQuery])
@@ -13,9 +12,7 @@ case class TelegramMessageEntity(entityType: String, offset: Int, length: Int)
 case class TelegramResponse(ok: Boolean, result: TelegramResult)
 case class TelegramResult(messageId: Long, chat: TelegramChat, from: Option[TelegramUser], date: Int, text: Option[String], photo: Option[Seq[JsValue]], caption: Option[String])
 
-object CBCJson extends DefaultJsonProtocol {
-
-  implicit val photoFormat = jsonFormat(Photo, "id", "thumbnail_src", "date", "caption", "account")
+object TelegramJson extends DefaultJsonProtocol {
 
   implicit val telegramUserFormat = jsonFormat(TelegramUser, "id", "is_bot", "first_name", "last_name", "username")
   implicit val telegramChatFormat = jsonFormat(TelegramChat, "id", "type", "title", "first_name")
