@@ -37,12 +37,14 @@ libraryDependencies ++= Seq(
   "io.minio" % "minio" % "6.0.8",
 )
 
+// sbt clean coverage test it:test
+// sbt coverageReport
 coverageEnabled := true
 coverageExcludedPackages :=
-  ".*com.seanmcapp.util.parser.*;" +
+  ".*com.seanmcapp.util.*;" +
   ".*com.seanmcapp.config.*;" +
-  ".*com.seanmcapp.repository.*;" +
-  ".*Boot.*;.*Route.*;.*Injection.*;.*Scheduler.*"
+  ".*com.seanmcapp.scheduler.*;" +
+  ".*Boot.*;.*Route.*;.*Injection.*;"
 coverageMinimum := 85
 coverageFailOnMinimum := true
 
