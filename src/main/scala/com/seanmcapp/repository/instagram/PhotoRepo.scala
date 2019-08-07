@@ -23,8 +23,6 @@ trait PhotoRepo {
 
   def getAll: Future[Seq[Photo]]
 
-  def getLatest: Future[Option[Photo]]
-
   def getRandom(account: Option[String] = None): Future[Option[Photo]]
 
   def insert(photos: Seq[Photo]): Future[Option[Int]]
@@ -35,10 +33,6 @@ object PhotoRepoImpl extends TableQuery(new PhotoInfo(_)) with PhotoRepo with DB
 
   def getAll: Future[Seq[Photo]] = {
     run(this.result)
-  }
-
-  def getLatest: Future[Option[Photo]] = {
-    run(this.sortBy(_.date.desc).take(1).result.headOption)
   }
 
   def getRandom(account: Option[String] = None): Future[Option[Photo]] = {

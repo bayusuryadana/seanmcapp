@@ -6,23 +6,26 @@ API:
 - CBC API
 - Dota API
 
-Notificator (daily scheduled job):
+Scheduled job:
 - Igrow
 - Birthday
 - Amartha
 - AirVisual
 
 ## Prerequisites
-1. Scala & SBT (usually it will be automatically installed if u are using intellij IDEA)
+1. Scala & SBT (automatically installed if you use intellij IDEA)
+2. Docker
  
-#### Requirement (populate all the missing field in the conf file or using environment variable)
-Infrastructure
+## Infrastructure
 1. Postgre SQL 
 2. Storage service such as Amazon S3
 
-Account
-1. telegram bot (api and bot name)
-2. instagram (username and password)
+## Contribute
+for local development run `sbt -Dconfig.resource=application-local.conf run`, it might not perfectly works since you don't have some of my credentials such as Instagram or Telegram account
+
+0. test only for particular class -> `sbt "testOnly *ClassNameSpec"` (yes, with asterix character) for unit test or `sbt "it:testOnly *ClassNameSpec"` for integration-tests
+1. please run `sbt clean compile`, `sbt test` and `sbt it:test` (this one will require docker to complete) before raising a pull request
+2. wait for code review
 
 feel free to contact me at bayusuryadana@gmail.com  
 happy coding ^^

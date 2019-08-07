@@ -18,7 +18,6 @@ trait TelegramRequestBuilderMock extends TelegramRequestBuilder {
   }
 
   override def sendMessage(chatId: Long, text: String): HttpResponse[String] = {
-    // TODO: waiting for refactoring fetcher module
     HttpResponse[String]("", 200, Map.empty)
   }
 

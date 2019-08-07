@@ -7,4 +7,5 @@ project
 /.classpath
 /.project
 /.settings
+/.minio.sys
 /RUNNING_PID
