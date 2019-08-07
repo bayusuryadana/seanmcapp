@@ -47,5 +47,7 @@ jobs:
 
       - run: docker-compose up -d
 
+      - run: docker ps
+
       # run it tests!
       - run: sbt it:test
