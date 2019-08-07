@@ -41,13 +41,13 @@ jobs:
       # run tests!
       - run: cat /dev/null | sbt test
 
-      # run it dependencies
-      - setup_remote_docker:
-          docker_layer_caching: true
+      ### run it dependencies
+      #- setup_remote_docker:
+      #    docker_layer_caching: true
 
-      - run: docker-compose up -d
+      #- run: docker-compose up -d
 
-      - run: docker ps
+      #- run: docker ps
 
-      # run it tests!
-      - run: sbt it:test
+      ### run it tests!
+      #- run: sbt it:test
