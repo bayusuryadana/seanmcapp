@@ -13,9 +13,7 @@ services:
     ports:
       - "9999:9000"
     volumes:
-      - ~/Downloads:/data
-    #env_file:
-    #  - .env
+      - ./docker/storage/seanmcapp:/data
     environment:
       MINIO_ACCESS_KEY: admin
       MINIO_SECRET_KEY: password
