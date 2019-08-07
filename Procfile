@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/seanmcapp -Dconfig.resource=application-prod.conf -Dhttp.port=${PORT}
+web: target/universal/stage/bin/seanmcapp -Dhttp.port=${PORT}

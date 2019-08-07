@@ -32,8 +32,10 @@ libraryDependencies ++= Seq(
 )
 
 fork in Test := true
+fork in IntegrationTest := true
 configs(IntegrationTest)
 Defaults.itSettings
+javaOptions in IntegrationTest += "-Dconfig.resource=application-local.conf"
 
 /**
   *  DOCKERIZE
