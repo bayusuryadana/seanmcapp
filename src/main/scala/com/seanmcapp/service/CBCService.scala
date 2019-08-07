@@ -3,7 +3,6 @@ package com.seanmcapp.service
 import com.seanmcapp.repository.instagram._
 import com.seanmcapp.util.parser.{TelegramMessage, TelegramResponse}
 import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
-import spray.json._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -12,8 +11,6 @@ trait CBCService extends TelegramRequestBuilder {
 
   val photoRepo: PhotoRepo
   val customerRepo: CustomerRepo
-
-  import com.seanmcapp.util.parser.CBCJson._
 
   def random: Future[Option[Photo]] = photoRepo.getRandom(None)
 
@@ -49,7 +46,7 @@ trait CBCService extends TelegramRequestBuilder {
               case Some(customer) => customerRepo.update(Customer(userId, userFullName, customer.count + 1))
               case None => customerRepo.insert(Customer(userId, userFullName, 1))
             }
-            sendPhoto(chatId, photo).body.parseJson.convertTo[TelegramResponse]
+            sendPhoto(chatId, photo)
           }
         }
       case _ =>

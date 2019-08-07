@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives
 import akka.stream.Materializer
+import com.seanmcapp.repository.instagram.Photo
 import com.seanmcapp.util.parser.TelegramUpdate
 import spray.json._
 
@@ -12,8 +13,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends Directives
   with SprayJsonSupport with DefaultJsonProtocol with Injection {
 
-  import com.seanmcapp.util.parser.CBCJson._
+  import com.seanmcapp.util.parser.TelegramJson._
   import com.seanmcapp.util.parser.DotaOutputJson._
+  implicit val photoFormat = jsonFormat(Photo, "id", "thumbnail_src", "date", "caption", "account")
 
   val routePath = Seq(
 
