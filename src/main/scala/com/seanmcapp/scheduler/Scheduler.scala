@@ -78,7 +78,6 @@ class BirthdayScheduler(startTime: Int, interval: FiniteDuration)
       val result = "Today's birthday: " + people.map(_.name + ",")
       people.map { person =>
         sendMessage(274852283, "Today is " + person.name + "'s birthday !!")
-        sendMessage(143635997, "Today is " + person.name + "'s birthday !!")
       }
       result
     }
@@ -106,9 +105,9 @@ class IGrowScheduler(startTime: Int, interval: FiniteDuration)
 
 }
 
-class AmarthaScheduler(startTime: Int, interval: FiniteDuration)
+class AmarthaScheduler(startTime: Int, interval: Option[FiniteDuration])
                       (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
-  extends Scheduler(startTime, Some(interval)) with MemoryCache {
+  extends Scheduler(startTime, interval) with MemoryCache {
 
   import com.seanmcapp.util.parser.AmarthaJson._
 
@@ -131,6 +130,7 @@ class AmarthaScheduler(startTime: Int, interval: FiniteDuration)
       val stringMessage = "Amartha: " + response.marketplace.size + " orang perlu didanai " + "(" + startTime + ":00)"
       val schedulerConf = SchedulerConf()
       schedulerConf.amartha.foreach(chatId => sendMessage(chatId, stringMessage))
+      if (response.marketplace.nonEmpty) new AmarthaScheduler(startTime + 1, None).run
       response.marketplace
     } else throw new Exception(authResponse.toString)
   }
