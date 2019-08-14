@@ -23,7 +23,6 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     // cbc API
     get(path("cbc" / "random")(complete(cbcAPI.random.map(_.map(_.toJson))))),
     post((path("cbc" / "webhook") & entity(as[JsValue])) { request =>
-      println("/cbc/webhook:")
       val telegramRequest = Try(request.convertTo[TelegramUpdate]).toOption
 
       val responseF = telegramRequest match {

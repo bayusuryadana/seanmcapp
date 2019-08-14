@@ -53,7 +53,7 @@ trait CBCService extends TelegramRequestBuilder {
               case Some(customer) => customerRepo.update(Customer(userId, userFullName, customer.count + 1))
               case None => customerRepo.insert(Customer(userId, userFullName, 1))
             }
-            println(s"[INFO] chatId: $chatId, id: ${photo.id}, caption: ${photo.caption}")
+            println(s"[INFO][CBC] chatId: $chatId, id: ${photo.id}, caption: ${photo.caption}")
             sendPhoto(chatId, photo)
           }
         }

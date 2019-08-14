@@ -33,20 +33,23 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration)
     City("Singapore", "Singapore", "Singapore")
   )
 
-  override def task: Unit = {
+  override def task: Map[City, Int] = {
     println("=== AirVisual check ===")
 
-    val cityResults = cities.map(city => getCityResult(city))
+    val cityResults = cities.map(city => getCityAQI(city)).toMap
 
-    val stringMessage = cityResults.foldLeft("*Seanmcearth* melaporkan kondisi udara saat ini:\n") { (res, data) =>
-      res + data
+    val stringMessage = cityResults.foldLeft("*Seanmcearth* melaporkan kondisi udara saat ini:") { (res, row) =>
+      val city = row._1
+      val aqius = row._2
+      val appendString = "\n" + city.city + " (AQI " + aqius + " " + getEmojiFromAqi(aqius) + ")"
+      res + appendString
     }
 
     sendMessage(-1001359004262L, URLEncoder.encode(stringMessage, "UTF-8"))
-    println("success")
+    cityResults
   }
 
-  private def getCityResult(city: City): String = {
+  private def getCityAQI(city: City): (City, Int) = {
     import com.seanmcapp.util.parser.AirvisualJson._
 
     val airvisualConf = AirvisualConf()
@@ -59,9 +62,7 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration)
       airvisualConf.key)
 
     val response = Http(apiUrl).asString.body.parseJson.convertTo[AirvisualResponse].data
-    val aqius = response.current.pollution.aqius
-
-    "\n" + city.city + " (AQI " + aqius + " " + getEmojiFromAqi(aqius) + ")"
+    (city, response.current.pollution.aqius)
   }
 
   private def getEmojiFromAqi(aqi: Int): String = {

@@ -28,6 +28,7 @@ class DotaMetadataFetcherScheduler(startTime: Int, interval: FiniteDuration)
         val playerModel = Player(player.id, player.realName,
           playerResult.profile.avatarfull, playerResult.profile.personaName, playerResult.rankTier)
         playerRepo.update(playerModel)
+        // TODO: logging update
         playerResult
       }
     }

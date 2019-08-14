@@ -34,7 +34,9 @@ class AmarthaScheduler(startTime: Int, interval: Option[FiniteDuration])
         .header("x-access-token", authData.accessToken)
         .timeout(15000, 300000)
         .asString.body.parseJson.convertTo[AmarthaResponse].data.convertTo[AmarthaMarketplaceData]
-      println(response.marketplace)
+      // TODO: logging lenderId
+      println(response.marketplace.size)
+      response.marketplace.foreach(item => println(s"${item.borrowerName}(${item.creditScoreGrade}): ${item.plafond}"))
 
       val stringMessage = "Amartha: " + response.marketplace.size + " orang perlu didanai " + "(" + startTime + ":00)"
       val schedulerConf = SchedulerConf()

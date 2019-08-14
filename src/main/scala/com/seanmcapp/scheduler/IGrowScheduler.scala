@@ -20,11 +20,12 @@ class IGrowScheduler(startTime: Int, interval: FiniteDuration)
     println("=== iGrow check ===")
     import com.seanmcapp.util.parser.IgrowJson._
     val response = Http(iGrowBaseUrl + "/list").asString.body.parseJson.convertTo[IgrowResponse].data.filter(_.stock > 0)
-    val stringMessage = response.foldLeft("iGrow: %0A") { (res, data) =>
-      res + "ada stok " + data.name + " sisa " + data.stock + " unit%0A"
-    }
+    println("[INFO][IGROW] number of stock: " + response.size)
     val schedulerConf = SchedulerConf()
-    schedulerConf.igrow.foreach(chatId => sendMessage(chatId, stringMessage))
+    response.foreach { data =>
+      val stringMessage = s"${data.name}%0A${data.price}%0Asisa ${data.stock} unit"
+      schedulerConf.igrow.foreach(chatId => sendMessage(chatId, stringMessage))
+    }
     response
   }
 
