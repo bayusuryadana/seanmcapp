@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import com.seanmcapp.util.cache.MemoryCache
 import com.seanmcapp.util.parser.{ArrayResponse, MatchResponse, PeerResponse}
-import scalacache.memoization._
+import scalacache.memoization.memoizeSync
 import scalacache.modes.sync._
 import scalaj.http.Http
 

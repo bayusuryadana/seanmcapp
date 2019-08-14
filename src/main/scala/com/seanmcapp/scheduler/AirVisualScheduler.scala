@@ -33,7 +33,7 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration)
     City("Singapore", "Singapore", "Singapore")
   )
 
-  override def task: Map[City, Int] = {
+  override def task: Unit = {
     println("=== AirVisual check ===")
 
     val cityResults = cities.map(city => getCityAQI(city)).toMap
@@ -46,7 +46,6 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration)
     }
 
     sendMessage(-1001359004262L, URLEncoder.encode(stringMessage, "UTF-8"))
-    cityResults
   }
 
   private def getCityAQI(city: City): (City, Int) = {
