@@ -2,7 +2,8 @@ package com.seanmcapp
 
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
-import com.seanmcapp.service.{CBCService, DotaService}
+import com.seanmcapp.service.{CBCService, DotaService, InstagramFetcher}
+import com.seanmcapp.storage.{ImageStorage, ImageStorageImpl}
 
 trait Injection {
 
@@ -14,6 +15,11 @@ trait Injection {
   val dotaAPI = new DotaService {
     override val playerRepo = PlayerRepoImpl
     override val heroRepo = HeroRepoImpl
+  }
+
+  val instagramFetcher = new InstagramFetcher {
+    override val photoRepo: PhotoRepo = PhotoRepoImpl
+    override val imageStorage: ImageStorage = ImageStorageImpl
   }
 
 }

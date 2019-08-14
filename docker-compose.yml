@@ -13,7 +13,7 @@ services:
     ports:
       - "9999:9000"
     volumes:
-      - ./docker/storage/seanmcapp:/data
+      - ./docker/storage:/data
     environment:
       MINIO_ACCESS_KEY: admin
       MINIO_SECRET_KEY: password
@@ -27,4 +27,4 @@ services:
     command: >
       sh -c "mc config host rm local
              mc config host add local http://localhost:9999 admin password
-             mc policy download local/seanmcapp"
+             mc policy set download local/seanmcapp"

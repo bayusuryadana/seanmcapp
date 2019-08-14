@@ -69,7 +69,7 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers with CBCServiceImpl {
 
   "command should return any random photo on particular account" in {
     val chatId = 274852283
-    val command = "/cbc_ui-cantik"
+    val command = "/cbc_ui_cantik"
     executeCommand(command, chatId, 123L, "Fawwaz Afifanto").map { response =>
 
       response shouldNot be(None)
@@ -91,7 +91,7 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers with CBCServiceImpl {
 
       res.ok shouldEqual true
       res.result.caption.isDefined shouldEqual true
-      res.result.caption.get shouldEqual "bidadari_ub"
+      res.result.caption.get shouldEqual "bidadari.ub"
     }
   }
 }

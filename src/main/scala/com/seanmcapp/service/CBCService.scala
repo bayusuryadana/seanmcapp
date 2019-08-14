@@ -35,7 +35,7 @@ trait CBCService extends TelegramRequestBuilder {
     val customerF = customerRepo.get(userId)
     command.split("_").head match {
       case "/cbc" =>
-        val account = if (command.split("_").length > 1) Some(command.replace("-", ".").stripPrefix("/cbc_")) else None
+        val account = if (command.split("_").length > 1) Some(command.replace("_", ".").stripPrefix("/cbc.")) else None
         val photoF = photoRepo.getRandom(account)
         for {
           customerOpt <- customerF
