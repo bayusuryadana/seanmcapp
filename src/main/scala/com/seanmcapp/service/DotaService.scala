@@ -24,7 +24,7 @@ case class PlayerPageResponse(player: Player, heroes: Seq[WinSummary], peers: Se
 case class HeroPageResponse(hero: Hero, players: Seq[WinSummary])
 
 trait DotaService extends DotaRequestBuilder {
-
+  // TODO: have to add tests for DotaService
   val playerRepo: PlayerRepo
   val heroRepo: HeroRepo
 

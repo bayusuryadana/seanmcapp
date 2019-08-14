@@ -53,13 +53,10 @@ object Boot extends App {
 
       new BirthdayScheduler(6, everyDay),
       new IGrowScheduler(6, everyDay),
-      new AmarthaScheduler(12, everyDay),
-      new AmarthaScheduler(13, everyDay),
-      new AmarthaScheduler(14, everyDay),
-      new AmarthaScheduler(15, everyDay),
+      new AmarthaScheduler(12, Some(everyDay)),
 
       new AirVisualScheduler(8, everyDay),
-      new AirVisualScheduler(17, everyDay),
+      new AirVisualScheduler(17, everyDay)
     )
 
     scheduleList.map(_.run)

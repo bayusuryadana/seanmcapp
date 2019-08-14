@@ -6,13 +6,15 @@ import com.seanmcapp.util.parser.TelegramResponse
 import scalaj.http.Http
 import spray.json._
 
+import scala.util.Try
+
 trait TelegramRequestBuilder {
 
   val telegramConf = TelegramConf()
 
   import com.seanmcapp.util.parser.TelegramJson._
 
-  def sendPhoto(chatId: Long, photo: Photo): TelegramResponse = {
+  def sendPhoto(chatId: Long, photo: Photo): Option[TelegramResponse] = {
     val photoId = photo.id
     val storageConf = StorageConf()
     val url = storageConf.host + "/" + storageConf.bucket + "/cbc/" + photoId  + ".jpg"
@@ -22,7 +24,7 @@ trait TelegramRequestBuilder {
       "&photo=" + url +
       "&caption=" + photo.caption +
       "%0A%40" + photo.account
-    Http(urlString).asString.body.parseJson.convertTo[TelegramResponse]
+    Try(Http(urlString).asString.body.parseJson.convertTo[TelegramResponse]).toOption
   }
 
   def sendMessage(chatId: Long, text: String): TelegramResponse = {
