@@ -36,6 +36,7 @@ trait InstagramFetcher {
     //"uicantikreal" -> "".r,  // 100 -> 97 no proper regex :(
   )
 
+  // TODO: refactor and add tests for fetch
   def fetch(cookie: String): Future[Unit] = {
     for {
       photos <- photoRepo.getAll

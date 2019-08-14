@@ -12,7 +12,7 @@ import scala.concurrent.duration.Duration
 import spray.json._
 
 trait DotaRequestBuilder extends MemoryCache {
-
+  // TODO: Waiting for DotaServiceSpec and have to wrap in an Option for http call and parsing.
   implicit val matchesCache = createCache[Seq[MatchResponse]]
   implicit val peersCache = createCache[Seq[PeerResponse]]
 
