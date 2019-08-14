@@ -12,7 +12,7 @@ object PhotoRepoMock extends PhotoRepo {
     Photo(990599194820723882L, "https://someurl", 1432308647, "Dwirika Widya. Hukum 2014", "ugmcantik"),
     Photo(956621307316650190L, "https://someurl", 1428258168, "Thia. Fisip 2012", "undip.cantik"),
     Photo(884893623514815734L, "https://someurl", 1419707561, "Delicia Gemma. Hukum 2011", "unpad.geulis"),
-    Photo(784771576786862732L, "https://someurl", 1407772083, "Nadia Raissa. FISIP'13", "bidadari_ub"),
+    Photo(784771576786862732L, "https://someurl", 1407772083, "Nadia Raissa. FISIP'13", "bidadari.ub"), // TODO: have to fix UB
   )
 
   override def getAll: Future[Seq[Photo]] = Future.successful(photoList)

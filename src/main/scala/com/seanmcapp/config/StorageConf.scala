@@ -5,19 +5,19 @@ import config.Configuration
 
 import scala.util.Try
 
-case class AWSConf(access: String, secret: String, region: String, bucket: String)
+case class StorageConf(access: String, secret: String, host: String, bucket: String)
 
-object AWSConf extends Configuration[AWSConf] {
+object StorageConf extends Configuration[StorageConf] {
 
   override val prefix = "aws"
 
-  def apply(): AWSConf = apply(ConfigFactory.load)
+  def apply(): StorageConf = apply(ConfigFactory.load)
 
-  override def fromSubConfig(c: Config): AWSConf = {
-    AWSConf(
+  override def fromSubConfig(c: Config): StorageConf = {
+    StorageConf(
       Try(c.getString("access")).getOrElse(""),
       Try(c.getString("secret")).getOrElse(""),
-      Try(c.getString("region")).getOrElse(""),
+      Try(c.getString("host")).getOrElse(""),
       Try(c.getString("bucket")).getOrElse("")
     )
   }

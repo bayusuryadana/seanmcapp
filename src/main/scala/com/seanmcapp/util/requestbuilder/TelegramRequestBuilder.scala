@@ -1,6 +1,6 @@
 package com.seanmcapp.util.requestbuilder
 
-import com.seanmcapp.config.{DriveConf, TelegramConf}
+import com.seanmcapp.config.{StorageConf, TelegramConf}
 import com.seanmcapp.repository.instagram.Photo
 import com.seanmcapp.util.parser.TelegramResponse
 import scalaj.http.Http
@@ -14,10 +14,12 @@ trait TelegramRequestBuilder {
 
   def sendPhoto(chatId: Long, photo: Photo): TelegramResponse = {
     val photoId = photo.id
+    val awsConf = StorageConf()
+    val url = awsConf.host + "/" + awsConf.bucket + "/cbc/" + photoId  + ".jpg"
 
     val urlString = telegramConf.endpoint + "/sendphoto" +
       "?chat_id=" + chatId +
-      "&photo=" + DriveConf().url + photoId + ".jpg" +
+      "&photo=" + url +
       "&caption=" + photo.caption +
       "%0A%40" + photo.account
     Http(urlString).asString.body.parseJson.convertTo[TelegramResponse]

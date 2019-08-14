@@ -31,7 +31,7 @@ libraryDependencies ++= Seq(
   "com.github.cb372" %% "scalacache-guava" % "0.27.0",
 
   // image storage
-  "com.amazonaws" % "aws-java-sdk" % "1.11.592"
+  "io.minio" % "minio" % "6.0.8",
 )
 
 fork in Test := true

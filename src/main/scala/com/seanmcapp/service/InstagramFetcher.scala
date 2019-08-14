@@ -2,14 +2,12 @@ package com.seanmcapp.service
 
 import java.net.URL
 
-import com.seanmcapp.config.DriveConf
 import com.seanmcapp.repository.instagram.{Photo, PhotoRepo}
-import com.seanmcapp.repository.storage.ImageStorage
+import com.seanmcapp.storage.ImageStorage
 import com.seanmcapp.util.parser.{InstagramAccountResponse, InstagramResponse}
 import scalaj.http.Http
 
 import scala.concurrent.Future
-import scala.util.Try
 import scala.util.matching.Regex
 import scala.concurrent.ExecutionContext.Implicits.global
 import spray.json._
@@ -22,19 +20,20 @@ trait InstagramFetcher {
 
   private val accountList = Map(
     // deprecated
-    "ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // (n/a) -> 662
-    "ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // 524 -> 517
+    //"ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // (n/a) -> 662
+    //"ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // 524 -> 517
 
     // existing
-    "ugmcantik"    -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 1133 -> 626
-    "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 845 -> 679
-    "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 993 -> 1065
-    "unj.cantik"   -> "[\\w ]+\\, [\\w]+ ['’]\\d\\d".r,    // 425 -> 389
+    "ugmcantik"    -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 1185 -> 658
+    "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 897 -> 706
+    "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 1059 -> 1105
+    "unj.cantik"   -> "[\\w ]+\\, [\\w]+ ['’]\\d\\d".r,    // 435 -> 399
+    "cantik.its"   -> ".+".r,  // 111 -> 111
 
-    // new TODO: should use another function than regex
-    //"uicantikreal" -> "".r,  // 78 -> 78 use only first line
-    //"cantik.its"   -> "".r,  // 87 -> 87 can use whole caption value
-    //"bidadari_ub"  -> "".r   // 185 -> 173 can use whole caption value
+    // TODO: should use another function than regex
+    // new
+    //"bidadari_ub"  -> "".r   // 214 -> 173 can use whole caption value (214, requested)
+    //"uicantikreal" -> "".r,  // 100 -> 97 no proper regex :(
   )
 
   def fetch(cookie: String): Future[Unit] = {
@@ -71,12 +70,8 @@ trait InstagramFetcher {
 
   private def savingToStorage(filteredPhotos: Seq[Photo]): Seq[Photo] = {
     filteredPhotos.flatMap { photo =>
-      Try {
-        val inputStream = new URL(photo.thumbnailSrc).openStream
-        val filename = DriveConf().url + photo.id + ".jpg"
-        imageStorage.put(filename, inputStream)
-        photo
-      }.toOption
+      val inputStream = new URL(photo.thumbnailSrc).openStream
+      imageStorage.put(photo.id  + ".jpg", inputStream).map(_ => photo)
     }
   }
 
@@ -87,7 +82,7 @@ trait InstagramFetcher {
       photo.copy(caption = caption)
     }
 
-    def isDefinedAt(photo: Photo): Boolean = regex.findFirstIn(photo.caption).isDefined
+    override def isDefinedAt(photo: Photo): Boolean = regex.findFirstIn(photo.caption).isDefined
 
   }
 
@@ -108,34 +103,6 @@ trait InstagramFetcher {
     }
 
     result
-  }
-
-  ////////////////////////////////////// ONLY FOR SANITY TEST ////////////////////////////////////////////////////
-
-  private def checkAvailability: Future[String] = {
-    for {
-      photos <- photoRepo.getAll
-    } yield {
-      /*
-      println("================== NOT ON STORAGE ==================")
-      val photoNotExistsOnStorage = photos.filter(_.onStorage.isEmpty).map { photo =>
-        val result = Http(DriveConf().url + photo.id.toString + ".jpg").asString.isSuccess
-        photoRepo.update(photo.copy(onStorage = Some(result)))
-        result
-      }
-      println(photoNotExistsOnStorage)
-      println(photoNotExistsOnStorage.size)
-      */
-
-      println()
-      println("================== NOT ON STORAGE BUT AVAIL ON THUMBNAILSRC ==================")
-      val photoNotExistsOnThumbnail = photos.filterNot { photo =>
-        Http(photo.thumbnailSrc).asString.isSuccess
-      }.map(_.id)
-      println(photoNotExistsOnThumbnail)
-      println(photoNotExistsOnThumbnail.size)
-      ""
-    }
   }
 
 }

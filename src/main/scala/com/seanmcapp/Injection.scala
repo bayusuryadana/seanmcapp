@@ -2,9 +2,8 @@ package com.seanmcapp
 
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
-
-import com.seanmcapp.repository.storage.{ImageStorage, ImageStorageImpl}
 import com.seanmcapp.service.{CBCService, DotaService, InstagramFetcher}
+import com.seanmcapp.storage.{ImageStorage, ImageStorageImpl}
 
 trait Injection {
 
