@@ -9,6 +9,7 @@ import com.seanmcapp.util.parser.TelegramUpdate
 import spray.json._
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends Directives
   with SprayJsonSupport with DefaultJsonProtocol with Injection {
@@ -22,14 +23,14 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     // cbc API
     get(path("cbc" / "random")(complete(cbcAPI.random.map(_.map(_.toJson))))),
     post((path("cbc" / "webhook") & entity(as[JsValue])) { request =>
-      val telegramRequest = request.convertTo[TelegramUpdate]
+      println("/cbc/webhook:")
+      val telegramRequest = Try(request.convertTo[TelegramUpdate]).toOption
 
       val responseF = telegramRequest match {
-        case r if telegramRequest.message.isDefined =>
-          println("/cbc/webhook(random): \n" + request + "\n")
+        case Some(r) if r.message.isDefined =>
           cbcAPI.randomFlow(r.message.get)
         case _ =>
-          println("[ERROR] cannot recognized payload type")
+          println("[ERROR] cannot recognized payload type: " + request)
           Future.successful(None)
       }
 

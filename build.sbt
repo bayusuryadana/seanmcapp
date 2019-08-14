@@ -44,7 +44,6 @@ javaOptions in IntegrationTest += "-Dconfig.resource=application-local.conf"
   *  DOCKERIZE
   *  publish: sbt docker:publishLocal
   *  run: docker run --env-file=.env -p 9000:9000 seanmcapp
-  *  TODO: need `docker login` before pushing
   */
 
 mainClass in Compile := Some("com.seanmcapp.Boot")

@@ -18,7 +18,7 @@ trait CBCService extends TelegramRequestBuilder {
     val chatId = message.chat.id
     val userId = message.from.id
     val userFullName = message.from.firstName + " " + message.from.lastName.getOrElse("")
-    message.entities.getOrElse(Seq.empty).headOption match {
+    val result = message.entities.getOrElse(Seq.empty).headOption match {
       case Some(entity) =>
         val command = message.text.getOrElse("")
           .substring(entity.offset, entity.offset + entity.length)
@@ -26,31 +26,39 @@ trait CBCService extends TelegramRequestBuilder {
         executeCommand(command, chatId, userId, userFullName)
 
       case _ =>
-        println("[ERROR] Telegram Message Entities not found")
+        println("[ERROR] No entities (command) found")
         Future.successful(None)
     }
+
+    // logging group chat :D
+    if (message.chat.chatType != "private")
+      println(s"[CHAT] $userFullName@${message.chat.title.getOrElse("???")}:${message.text.getOrElse("???")}")
+
+    result
   }
 
   protected def executeCommand(command: String, chatId: Long, userId: Long, userFullName: String): Future[Option[TelegramResponse]] = {
-    val customerF = customerRepo.get(userId)
     command.split("_").head match {
       case "/cbc" =>
         val account = if (command.split("_").length > 1) Some(command.replace("_", ".").stripPrefix("/cbc.")) else None
+        val customerF = customerRepo.get(userId)
         val photoF = photoRepo.getRandom(account)
         for {
           customerOpt <- customerF
           photoOpt <- photoF
         } yield {
-          photoOpt.map { photo =>
+          photoOpt.flatMap { photo =>
             customerOpt match {
+              // TODO: test which one and one of them should being called
               case Some(customer) => customerRepo.update(Customer(userId, userFullName, customer.count + 1))
               case None => customerRepo.insert(Customer(userId, userFullName, 1))
             }
+            println(s"[INFO] chatId: $chatId, id: ${photo.id}, caption: ${photo.caption}")
             sendPhoto(chatId, photo)
           }
         }
-      case _ =>
-        println("[ERROR] Command not found")
+      case otherCommand =>
+        println("[ERROR] Command not recognized: " + otherCommand)
         Future.successful(None)
     }
   }
