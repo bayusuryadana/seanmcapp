@@ -14,8 +14,8 @@ trait TelegramRequestBuilder {
 
   def sendPhoto(chatId: Long, photo: Photo): TelegramResponse = {
     val photoId = photo.id
-    val awsConf = StorageConf()
-    val url = awsConf.host + "/" + awsConf.bucket + "/cbc/" + photoId  + ".jpg"
+    val storageConf = StorageConf()
+    val url = storageConf.host + "/" + storageConf.bucket + "/cbc/" + photoId  + ".jpg"
 
     val urlString = telegramConf.endpoint + "/sendphoto" +
       "?chat_id=" + chatId +
