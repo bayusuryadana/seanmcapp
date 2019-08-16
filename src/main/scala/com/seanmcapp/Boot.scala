@@ -38,7 +38,6 @@ object Boot extends App {
   def stop(bindingFut: Future[ServerBinding]): Unit = {
     bindingFut.flatMap(_.unbind()).onComplete { _ =>
       println("Shutting down..")
-      schedulerList.map(_.cancel())
       system.terminate()
     }
   }
@@ -59,6 +58,7 @@ object Boot extends App {
       new AirVisualScheduler(17, everyDay)
     )
 
+    system.registerOnTermination(schedulerList.map(_.cancel()))
     scheduleList.map(_.run)
   }
 }
