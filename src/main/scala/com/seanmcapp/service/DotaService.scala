@@ -24,7 +24,7 @@ case class PlayerPageResponse(player: Player, heroes: Seq[WinSummary], peers: Se
 case class HeroPageResponse(hero: Hero, players: Seq[WinSummary])
 
 trait DotaService extends DotaRequestBuilder {
-  // TODO: have to add tests for DotaService
+
   val playerRepo: PlayerRepo
   val heroRepo: HeroRepo
 
@@ -37,16 +37,15 @@ trait DotaService extends DotaRequestBuilder {
       players <- playersF
       heroes <- heroesF
     } yield {
-      val heroesMap = heroes.map(h => (h.id, h)).toMap
-      val matchViewModels = getMatches(players.map(_.id)).sortBy(m => -m.startTime).take(50).groupBy(_.matchId).map { matchTuple =>
-        val matchPlayerList = matchTuple._2.map { m =>
-          val playerName = players.find(_.id == m.playerId.get).map(_.personaName).getOrElse("Unknown Player")
-          val hero = heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")
-          toMatchPlayer(m, playerName, hero)
+      val matchViewModels = players.flatMap(getMatches).groupBy(_.startTime).toSeq.sortBy(-_._1).map(_._2).take(10).flatMap { identicalMatches =>
+        identicalMatches.headOption.map { matchHead =>
+          val matchPlayerList = identicalMatches.map { m =>
+            val hero = heroes.find(_.id == m.heroId).map(_.localizedName).getOrElse("Unknown")
+            toMatchPlayer(m, m.player.personaName, hero)
+          }
+          toMatchViewModel(matchHead, matchPlayerList)
         }
-        toMatchViewModel(matchTuple._2.head, matchPlayerList)
-      }.take(10).toSeq
-
+      }
       HomePageResponse(matchViewModels, players, heroes.map(hero => hero.copy(lore = "")))
     }
   }
@@ -58,23 +57,28 @@ trait DotaService extends DotaRequestBuilder {
       players <- playersF
       heroes <- heroesF
     } yield {
-      val player = players.find(_.id == id).getOrElse(throw new Exception("Player not found"))
+      val player = players.find(_.id == id).getOrElse(throw new Exception("Player not found")) // TODO: should response to 404 page
 
-      val heroesMap = heroes.map(h => (h.id, h)).toMap
-      val heroesWinSummary = getMatches(id).map { m =>
-        val hero = heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")
-        val playerSeq = Seq(toMatchPlayer(m, player.personaName, hero))
-        toMatchViewModel(m, playerSeq)
-      }.groupBy(_.players.head.hero).map(toWinSummary).toSeq
+      val heroesWinSummary = getMatches(player).groupBy(_.heroId).toSeq.map { t =>
+        val heroId = t._1
+        val heroName = heroes.find(_.id == heroId).map(_.localizedName).getOrElse("Unknown")
+        val matchResponses = t._2.map { matchResponse =>
+          val playerSeq = Seq(toMatchPlayer(matchResponse, player.personaName, heroName))
+          toMatchViewModel(matchResponse, playerSeq)
+        }
+        (heroName, matchResponses)
+      }.map(toWinSummary).sortBy(-_.percentage)
 
       val peers = getPeers(id).foldLeft(Seq.empty[(Player, PeerResponse)]) { (res, peer) =>
-        val player = players.find(_.id == peer.peerPlayerId)
-        if (player.isDefined) res :+ (player.get, peer) else res
+        players.find(_.id == peer.peerPlayerId) match {
+          case Some(p) => res :+ (p, peer)
+          case None => res
+        }
       }
 
       val peerPlayerWinSummary = peers.map { p =>
         WinSummary(p._1.personaName, p._2.win, p._2.games, ((p._2.win.toDouble/p._2.games) * 100).toInt / 100.0)
-      }
+      }.sortBy(-_.percentage)
 
       PlayerPageResponse(player, heroesWinSummary, peerPlayerWinSummary)
     }
@@ -88,14 +92,17 @@ trait DotaService extends DotaRequestBuilder {
       players <- playersF
       heroOption <- heroF
     } yield {
-      val hero = heroOption.getOrElse(throw new Exception("Hero not found"))
-      val playersWinSummary = getMatches(players.map(_.id)).collect {
-        case m if m.heroId == id =>
-          val playerName = players.find(_.id == m.playerId.get).map(_.personaName).getOrElse("Unknown Player")
-          val playerSeq = Seq(toMatchPlayer(m, playerName, hero.localizedName))
-          toMatchViewModel(m, playerSeq)
-      }.groupBy(_.players.head.name).map(toWinSummary).toSeq
+      val hero = heroOption.getOrElse(throw new Exception("Hero not found")) // TODO: should response to 404 page
 
+      val playersWinSummary = players.flatMap(getMatches).filter(_.heroId == id).groupBy(_.player).toSeq.map { tup =>
+        val matchResponses = tup._2.map { matchHead =>
+          val matchPlayerList = tup._2.map { m =>
+            toMatchPlayer(m, m.player.personaName, hero.localizedName)
+          }
+          toMatchViewModel(matchHead, matchPlayerList)
+        }
+        (tup._1.personaName, matchResponses)
+      }.map(toWinSummary)
       HeroPageResponse(hero, playersWinSummary)
     }
   }
@@ -107,8 +114,7 @@ trait DotaService extends DotaRequestBuilder {
   private def toMatchViewModel(m: MatchResponse, players: Seq[MatchPlayer]): MatchViewModel = {
     val date = new Date(m.startTime.toLong * 1000L)
     val fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm")
-    // fucking side effect java
-    fmt.setTimeZone(TimeZone.getTimeZone("GMT+7"))
+    fmt.setTimeZone(TimeZone.getTimeZone("GMT+7")) // TODO: fucking side effect java
     val startTime = fmt.format(date.getTime)
 
     MatchViewModel(

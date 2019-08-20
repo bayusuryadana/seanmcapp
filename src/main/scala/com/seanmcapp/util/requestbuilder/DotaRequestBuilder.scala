@@ -2,6 +2,7 @@ package com.seanmcapp.util.requestbuilder
 
 import java.util.concurrent.TimeUnit
 
+import com.seanmcapp.repository.dota.Player
 import com.seanmcapp.util.cache.MemoryCache
 import com.seanmcapp.util.parser.{ArrayResponse, MatchResponse, PeerResponse}
 import scalacache.memoization.memoizeSync
@@ -20,15 +21,11 @@ trait DotaRequestBuilder extends MemoryCache {
   val duration = Duration(2, TimeUnit.HOURS)
   import com.seanmcapp.util.parser.DotaOutputJson._
 
-  def getMatches(id: Int): Seq[MatchResponse] = {
+  def getMatches(player: Player): Seq[MatchResponse] = {
     memoizeSync(Some(duration)) {
-      Http(baseUrl + id + "/matches").asString.body.parseJson.convertTo[ArrayResponse[MatchResponse]].res
-        .map(_.appendId(id))
+      Http(baseUrl + player.id + "/matches").asString.body.parseJson.convertTo[ArrayResponse[MatchResponse]].res
+        .map(_.stub(player))
     }
-  }
-
-  def getMatches(ids: Seq[Int]): Seq[MatchResponse] = {
-    ids.flatMap(id => getMatches(id))
   }
 
   def getPeers(id: Int): Seq[PeerResponse] = {

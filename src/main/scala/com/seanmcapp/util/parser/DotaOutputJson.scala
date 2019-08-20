@@ -7,9 +7,9 @@ import spray.json._
 case class ArrayResponse[T](res: Seq[T])
 
 case class MatchResponse(matchId: Long, playerSlot: Int, radiantWin: Boolean, duration: Int, gameMode: Int,
-                         heroId: Int, startTime: Int, kills: Int, deaths: Int, assists: Int, playerId: Option[Long]) {
+                         heroId: Int, startTime: Int, kills: Int, deaths: Int, assists: Int, player: Player = null) {
 
-  def appendId(id: Long): MatchResponse = this.copy(playerId = Some(id))
+  def stub(player: Player): MatchResponse = this.copy(player = player)
 
   def getSide: String = if (playerSlot < 100) "Radiant" else "Dire"
 
@@ -40,7 +40,7 @@ object DotaOutputJson extends DefaultJsonProtocol {
   implicit val heroFormat = jsonFormat5(Hero)
 
   implicit val matchFormat = jsonFormat(MatchResponse, "match_id", "player_slot", "radiant_win", "duration", "game_mode",
-    "hero_id", "start_time", "kills", "deaths", "assists", "player_id")
+    "hero_id", "start_time", "kills", "deaths", "assists", "player")
 
   implicit val matchesFormat = new RootJsonFormat[ArrayResponse[MatchResponse]] {
     def read(value: JsValue) = ArrayResponse(value.convertTo[Seq[MatchResponse]])
