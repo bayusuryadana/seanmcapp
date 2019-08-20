@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import com.seanmcapp.repository.dota.Player
 import com.seanmcapp.util.cache.MemoryCache
-import com.seanmcapp.util.parser.{ArrayResponse, MatchResponse, PeerResponse}
+import com.seanmcapp.util.parser.{ArrayResponse, MatchResponse, MatchResponseWithPlayer, PeerResponse}
 import scalacache.memoization.memoizeSync
 import scalacache.modes.sync._
 import scalaj.http.Http
@@ -14,17 +14,18 @@ import spray.json._
 
 trait DotaRequestBuilder extends MemoryCache {
   // TODO: Waiting for DotaServiceSpec and have to wrap in an Option for http call and parsing.
-  implicit val matchesCache = createCache[Seq[MatchResponse]]
+  implicit val matchesCache = createCache[Seq[MatchResponseWithPlayer]]
   implicit val peersCache = createCache[Seq[PeerResponse]]
 
   val baseUrl = "https://api.opendota.com/api/players/"
   val duration = Duration(2, TimeUnit.HOURS)
   import com.seanmcapp.util.parser.DotaOutputJson._
 
-  def getMatches(player: Player): Seq[MatchResponse] = {
+  def getMatches(player: Player): Seq[MatchResponseWithPlayer] = {
     memoizeSync(Some(duration)) {
-      Http(baseUrl + player.id + "/matches").asString.body.parseJson.convertTo[ArrayResponse[MatchResponse]].res
-        .map(_.stub(player))
+      Http(baseUrl + player.id + "/matches").asString.body.parseJson.convertTo[ArrayResponse[MatchResponse]].res.map { m =>
+        MatchResponseWithPlayer(player, m)
+      }
     }
   }
 
