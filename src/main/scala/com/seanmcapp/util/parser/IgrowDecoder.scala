@@ -6,7 +6,7 @@ case class IgrowResponse(data: Seq[IgrowData])
 
 case class IgrowData(name: String, price: Long, stock: Int, returnAmount: String, contractPeriod: Int)
 
-object IgrowJson extends DefaultJsonProtocol {
+trait IgrowDecoder extends Decoder with DefaultJsonProtocol {
 
   implicit val IgrowDataFormat = jsonFormat(IgrowData, "name", "price", "stock",
     "return", "contract_period")
