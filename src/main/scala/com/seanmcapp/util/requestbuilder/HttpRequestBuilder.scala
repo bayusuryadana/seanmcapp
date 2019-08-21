@@ -4,8 +4,11 @@ import scalaj.http.Http
 
 import scala.util.{Failure, Success, Try}
 
-class HttpRequestBuilder {
+trait HttpRequestBuilder {
+  def sendRequest(url: String): String
+}
 
+object HttpRequestBuilderImpl extends HttpRequestBuilder {
   def sendRequest(url: String): String = {
     Try(Http(url).asString.throwError.body) match {
       case Success(res) => res

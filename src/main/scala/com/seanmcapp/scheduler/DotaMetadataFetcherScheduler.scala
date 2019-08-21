@@ -2,19 +2,19 @@ package com.seanmcapp.scheduler
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
-import com.seanmcapp.repository.dota.{Player, PlayerRepoImpl}
+import com.seanmcapp.repository.dota.{Player, PlayerRepo}
 import com.seanmcapp.util.parser.PlayerResponse
+import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
 import scalaj.http.Http
 import spray.json._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.FiniteDuration
 
-class DotaMetadataFetcherScheduler(startTime: Int, interval: FiniteDuration)
+class DotaMetadataFetcherScheduler(startTime: Int, interval: FiniteDuration, playerRepo: PlayerRepo, http: HttpRequestBuilder)
                                   (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
   extends Scheduler(startTime, Some(interval)) {
 
-  private val playerRepo = PlayerRepoImpl
   private val dotaBaseUrl = "https://api.opendota.com/api/players/"
 
   override def task: Future[Seq[PlayerResponse]] = {

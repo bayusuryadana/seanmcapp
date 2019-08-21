@@ -23,6 +23,8 @@ trait PlayerRepo {
 
   def get(id: Int): Future[Option[Player]]
 
+  def update(player: Player): Future[Int]
+
 }
 
 object PlayerRepoImpl extends TableQuery(new PlayerInfo(_)) with PlayerRepo with DBComponent {

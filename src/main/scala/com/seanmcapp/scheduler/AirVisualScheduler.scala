@@ -6,13 +6,14 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.seanmcapp.config.AirvisualConf
 import com.seanmcapp.util.parser.AirvisualResponse
+import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
 import scalaj.http.Http
 import spray.json._
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
 
-class AirVisualScheduler(startTime: Int, interval: FiniteDuration)
+class AirVisualScheduler(startTime: Int, interval: FiniteDuration, http: HttpRequestBuilder)
                         (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
   extends Scheduler(startTime, Some(interval)) {
 

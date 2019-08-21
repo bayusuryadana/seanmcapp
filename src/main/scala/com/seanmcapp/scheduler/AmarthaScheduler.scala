@@ -7,6 +7,7 @@ import akka.stream.Materializer
 import com.seanmcapp.config.{AmarthaConf, SchedulerConf}
 import com.seanmcapp.util.cache.MemoryCache
 import com.seanmcapp.util.parser.{AmarthaAuthData, AmarthaMarketplaceData, AmarthaMarketplaceItem, AmarthaResponse}
+import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
 import scalacache.memoization.memoizeSync
 import scalacache.modes.sync._
 import scalaj.http.Http
@@ -15,7 +16,7 @@ import spray.json._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
-class AmarthaScheduler(startTime: Int, interval: Option[FiniteDuration])
+class AmarthaScheduler(startTime: Int, interval: Option[FiniteDuration], http: HttpRequestBuilder)
                       (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
   extends Scheduler(startTime, interval) with MemoryCache {
 
@@ -42,7 +43,7 @@ class AmarthaScheduler(startTime: Int, interval: Option[FiniteDuration])
       val stringMessage = "Amartha: " + response.marketplace.size + " orang perlu didanai " + "(" + startTime + ":00)"
       val schedulerConf = SchedulerConf()
       schedulerConf.amartha.foreach(chatId => sendMessage(chatId, stringMessage))
-      if (response.marketplace.nonEmpty) new AmarthaScheduler(startTime + 1, None).run
+      if (response.marketplace.nonEmpty) new AmarthaScheduler(startTime + 1, None, http).run
       response.marketplace
     } else throw new Exception(authResponse.toString)
   }

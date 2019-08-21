@@ -1,15 +1,11 @@
 package com.seanmcapp
 
-import java.util.concurrent.TimeUnit
-
-import akka.actor.{ActorSystem, Cancellable}
+import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
-import com.seanmcapp.scheduler.{AirVisualScheduler, AmarthaScheduler, BirthdayScheduler, DotaMetadataFetcherScheduler, IGrowScheduler, Scheduler, WarmupDBScheduler}
 
 import scala.concurrent.Future
-import scala.concurrent.duration.Duration
 import scala.util.Try
 
 object Boot extends App with ScheduleManager {
