@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.{ActorSystem, Cancellable}
 import akka.stream.Materializer
-import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
 import org.joda.time.{DateTime, DateTimeZone, LocalDateTime}
 
 import scala.concurrent.ExecutionContext

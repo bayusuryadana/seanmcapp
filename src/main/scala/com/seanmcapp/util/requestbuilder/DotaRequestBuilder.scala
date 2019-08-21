@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import com.seanmcapp.repository.dota.Player
 import com.seanmcapp.util.cache.MemoryCache
-import com.seanmcapp.util.parser.{DotaInputDecoder, MatchResponse, MatchResponseWithPlayer, PeerResponse}
+import com.seanmcapp.util.parser.decoder.{DotaInputDecoder, MatchResponse, MatchResponseWithPlayer, PeerResponse}
 import scalacache.memoization.memoizeSync
 import scalacache.modes.sync._
 

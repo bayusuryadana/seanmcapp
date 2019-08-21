@@ -3,7 +3,7 @@ package com.seanmcapp.scheduler
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.seanmcapp.repository.dota.{Player, PlayerRepo}
-import com.seanmcapp.util.parser.{DotaMetadataDecoder, PlayerResponse}
+import com.seanmcapp.util.parser.decoder.{DotaMetadataDecoder, PlayerResponse}
 import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
 
 import scala.concurrent.{ExecutionContext, Future}

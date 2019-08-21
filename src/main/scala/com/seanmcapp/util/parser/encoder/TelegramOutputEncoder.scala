@@ -1,5 +1,6 @@
-package com.seanmcapp.util.parser
+package com.seanmcapp.util.parser.encoder
 
+import com.seanmcapp.util.parser.{TelegramChat, TelegramCommon, TelegramUser}
 import spray.json._
 
 case class TelegramResponse(ok: Boolean, result: TelegramResult)

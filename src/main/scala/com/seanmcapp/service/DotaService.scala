@@ -4,7 +4,8 @@ import java.text.SimpleDateFormat
 import java.util.{Date, TimeZone}
 
 import com.seanmcapp.repository.dota.{HeroRepo, Player, PlayerRepo}
-import com.seanmcapp.util.parser._
+import com.seanmcapp.util.parser.encoder.{HeroPageResponse, HomePageResponse, MatchPlayer, MatchViewModel, PlayerPageResponse, WinSummary}
+import com.seanmcapp.util.parser.decoder.{MatchResponseWithPlayer, PeerResponse}
 import com.seanmcapp.util.requestbuilder.{DotaRequestBuilder, HttpRequestBuilder}
 
 import scala.concurrent.Future

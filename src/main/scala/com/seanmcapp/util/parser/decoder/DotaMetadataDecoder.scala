@@ -1,4 +1,4 @@
-package com.seanmcapp.util.parser
+package com.seanmcapp.util.parser.decoder
 
 case class PlayerResponse(profile: ProfileResponse, rankTier: Option[Int])
 

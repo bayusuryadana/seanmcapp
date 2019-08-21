@@ -5,7 +5,7 @@ import java.net.URLEncoder
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.seanmcapp.config.AirvisualConf
-import com.seanmcapp.util.parser.{AirvisualDecoder, AirvisualResponse}
+import com.seanmcapp.util.parser.decoder.{AirvisualDecoder, AirvisualResponse}
 import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
 
 import scala.concurrent.ExecutionContext

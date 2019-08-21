@@ -1,6 +1,5 @@
-package com.seanmcapp.util.parser
+package com.seanmcapp.util.parser.encoder
 
-import spray.json.{DefaultJsonProtocol, JsValue}
 import spray.json._
 
 trait Encoder extends DefaultJsonProtocol {

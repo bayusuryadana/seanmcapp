@@ -2,7 +2,7 @@ package com.seanmcapp.mock.requestbuilder
 
 import com.seanmcapp.config.TelegramConf
 import com.seanmcapp.repository.instagram.Photo
-import com.seanmcapp.util.parser.TelegramResponse
+import com.seanmcapp.util.parser.encoder.TelegramResponse
 import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
 
 import scala.io.Source

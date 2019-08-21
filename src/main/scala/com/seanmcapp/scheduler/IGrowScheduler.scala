@@ -3,7 +3,7 @@ package com.seanmcapp.scheduler
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.seanmcapp.config.SchedulerConf
-import com.seanmcapp.util.parser.{IgrowData, IgrowDecoder, IgrowResponse}
+import com.seanmcapp.util.parser.decoder.{IgrowData, IgrowDecoder, IgrowResponse}
 import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
 
 import scala.concurrent.ExecutionContext

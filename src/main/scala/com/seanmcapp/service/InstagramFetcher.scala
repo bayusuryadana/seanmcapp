@@ -4,7 +4,7 @@ import java.net.URL
 
 import com.seanmcapp.repository.instagram.{Photo, PhotoRepo}
 import com.seanmcapp.storage.ImageStorage
-import com.seanmcapp.util.parser.{InstagramAccountResponse, InstagramDecoder, InstagramResponse}
+import com.seanmcapp.util.parser.decoder.{InstagramAccountResponse, InstagramDecoder, InstagramResponse}
 import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
 import scalaj.http.Http
 

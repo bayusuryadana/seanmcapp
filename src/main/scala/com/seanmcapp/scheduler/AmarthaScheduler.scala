@@ -6,7 +6,7 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.seanmcapp.config.{AmarthaConf, SchedulerConf}
 import com.seanmcapp.util.cache.MemoryCache
-import com.seanmcapp.util.parser.{AmarthaAuthData, AmarthaDecoder, AmarthaMarketplaceData, AmarthaMarketplaceItem, AmarthaResponse}
+import com.seanmcapp.util.parser.decoder.{AmarthaAuthData, AmarthaDecoder, AmarthaMarketplaceData, AmarthaMarketplaceItem, AmarthaResponse}
 import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
 import scalacache.memoization.memoizeSync
 import scalacache.modes.sync._

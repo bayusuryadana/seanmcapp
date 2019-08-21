@@ -1,4 +1,4 @@
-package com.seanmcapp.util.parser
+package com.seanmcapp.util.parser.decoder
 
 import spray.json.JsValue
 

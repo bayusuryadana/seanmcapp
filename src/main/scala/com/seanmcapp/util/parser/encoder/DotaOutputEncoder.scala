@@ -1,4 +1,4 @@
-package com.seanmcapp.util.parser
+package com.seanmcapp.util.parser.encoder
 
 import com.seanmcapp.repository.dota.{Hero, Player}
 

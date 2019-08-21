@@ -1,7 +1,8 @@
 package com.seanmcapp.service
 
 import com.seanmcapp.repository.instagram._
-import com.seanmcapp.util.parser.{TelegramInputDecoder, TelegramOutputEncoder, TelegramResponse, TelegramUpdate}
+import com.seanmcapp.util.parser.decoder.{TelegramInputDecoder, TelegramUpdate}
+import com.seanmcapp.util.parser.encoder.{TelegramOutputEncoder, TelegramResponse}
 import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
 import spray.json.JsValue
 

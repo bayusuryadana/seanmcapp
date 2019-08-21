@@ -1,4 +1,6 @@
-package com.seanmcapp.util.parser
+package com.seanmcapp.util.parser.decoder
+
+import com.seanmcapp.util.parser.{TelegramChat, TelegramCommon, TelegramUser}
 
 case class TelegramUpdate(message: Option[TelegramMessage], callbackQuery: Option[TelegramCallbackQuery])
 case class TelegramCallbackQuery(id: String, from: TelegramUser, data: String)

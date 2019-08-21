@@ -5,7 +5,7 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives
 import akka.stream.Materializer
 import com.seanmcapp.repository.instagram.Photo
-import com.seanmcapp.util.parser.{RouteEncoder, TelegramResponse}
+import com.seanmcapp.util.parser.encoder.{RouteEncoder, TelegramResponse}
 import spray.json._
 
 import scala.concurrent.ExecutionContext

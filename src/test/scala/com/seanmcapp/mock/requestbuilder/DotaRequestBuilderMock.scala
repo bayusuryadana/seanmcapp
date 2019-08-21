@@ -1,7 +1,7 @@
 package com.seanmcapp.mock.requestbuilder
 
 import com.seanmcapp.repository.dota.Player
-import com.seanmcapp.util.parser.{MatchResponse, MatchResponseWithPlayer, PeerResponse}
+import com.seanmcapp.util.parser.decoder.{MatchResponse, MatchResponseWithPlayer, PeerResponse}
 import com.seanmcapp.util.requestbuilder.DotaRequestBuilder
 
 import scala.io.Source
