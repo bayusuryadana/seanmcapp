@@ -34,7 +34,7 @@ class AmarthaScheduler(startTime: Int, interval: Option[FiniteDuration], overrid
         .header("x-access-token", authData.accessToken)
         .timeout(15000, 300000)
         .asString.body.parseJson.convertTo[AmarthaResponse].data.convertTo[AmarthaMarketplaceData]
-      // TODO: logging lenderId
+      // TODO: (for Analytics)
       println(response.marketplace.size)
       response.marketplace.foreach(item => println(s"${item.borrowerName}(${item.creditScoreGrade}): ${item.plafond}"))
 

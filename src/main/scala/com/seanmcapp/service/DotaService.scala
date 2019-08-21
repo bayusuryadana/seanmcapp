@@ -94,7 +94,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
   private def toMatchViewModel(mrwp: MatchResponseWithPlayer, players: Seq[MatchPlayer]): MatchViewModel = {
     val date = new Date(mrwp.mr.startTime.toLong * 1000L)
     val fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm")
-    fmt.setTimeZone(TimeZone.getTimeZone("GMT+7")) // TODO: fucking side effect java
+    fmt.setTimeZone(TimeZone.getTimeZone("GMT+7"))
     val startTime = fmt.format(date.getTime)
 
     MatchViewModel(

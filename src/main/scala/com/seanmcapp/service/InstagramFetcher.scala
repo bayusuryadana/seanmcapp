@@ -14,7 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class InstagramFetcher(photoRepo: PhotoRepo, imageStorage: ImageStorage, http: HttpRequestBuilder) extends InstagramDecoder {
 
-  private val accountList = Map(
+  private[service] val accountList = Map(
     // deprecated
     //"ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // (n/a) -> 662
     //"ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // 524 -> 517
@@ -32,38 +32,45 @@ class InstagramFetcher(photoRepo: PhotoRepo, imageStorage: ImageStorage, http: H
     //"uicantikreal" -> "".r,  // 100 -> 97 no proper regex :(
   )
 
-  // TODO: refactor and add tests for fetch
-  def fetch(cookie: String): Future[Unit] = {
+  def fetch(cookie: String): Future[Seq[Option[Int]]] = {
+    println("cookie: " + cookie)
     for {
       photos <- photoRepo.getAll
-    } yield {
-      println("cookie: " + cookie)
-      val idsSet = photos.map(_.id).toSet
-      accountList.foreach { item =>
-        val account = item._1
-        val initUrl = "https://www.instagram.com/" + account + "/?__a=1"
-        val httpRequest = Http(initUrl).header("cookie", cookie)
-        val httpResponse = http.sendRequest(httpRequest)
-        val id = decode[InstagramAccountResponse](httpResponse).id.replace("profilePage_", "").toLong
+      result <- process(cookie, photos)
+    } yield result
+  }
 
-        /**
-          * based on this answer https://stackoverflow.com/questions/49265339/instagram-a-1-url-not-working-anymore-problems-with-graphql-query-to-get-da
-          * you can use either:
-          * query_id=17888483320059182 OR query_hash=472f257a40c653c64c666ce877d59d2b
-          */
-        println("fetching: " + account)
-        val fetchedPhotos = fetch(id, None, account, cookie)
-        println("fetched: " + fetchedPhotos.size)
-        val nonFetchedPhotos = fetchedPhotos.filterNot(photo => idsSet.contains(photo.id))
-        println("non-exists: " + nonFetchedPhotos.size)
-        val filteredPhotos = nonFetchedPhotos.collect(filteringNonRelatedImage(item._2))
-        println("filtered by rule: " + filteredPhotos.size)
-        val savedPhotos = savingToStorage(filteredPhotos)
-        println("saved photos to storage: " + savedPhotos.size)
-        photoRepo.insert(savedPhotos).map(res => println("saved photos to database: " + res.getOrElse(-1)))
-        account
+  private def process(cookie: String, photos: Seq[Photo]): Future[Seq[Option[Int]]] = {
+    val idsSet = photos.map(_.id).toSet
+    val sequenceResult = accountList.toSeq.map { item =>
+      val account = item._1
+      val initUrl = "https://www.instagram.com/" + account + "/?__a=1"
+      val headers = Map("cookie" -> cookie)
+      val httpResponse = http.sendRequest(initUrl, headers)
+      val id = decode[InstagramAccountResponse](httpResponse).id.replace("profilePage_", "").toLong
+
+      /**
+        * based on this answer https://stackoverflow.com/questions/49265339/instagram-a-1-url-not-working-anymore-problems-with-graphql-query-to-get-da
+        * you can use either:
+        * query_id=17888483320059182 OR query_hash=472f257a40c653c64c666ce877d59d2b
+        */
+      println("fetching: " + account)
+      val fetchedPhotos = fetch(id, None, account, cookie)
+      println("fetched: " + fetchedPhotos.size)
+      val nonFetchedPhotos = fetchedPhotos.filterNot(photo => idsSet.contains(photo.id))
+      println("non-exists: " + nonFetchedPhotos.size)
+      val filteredPhotos = nonFetchedPhotos.collect(filteringNonRelatedImage(item._2))
+      println("filtered by rule: " + filteredPhotos.size)
+      val savedPhotos = savingToStorage(filteredPhotos)
+      println("saved photos to storage: " + savedPhotos.size)
+      val result = photoRepo.insert(savedPhotos).map { res =>
+        println("saved photos to database: " + res.getOrElse(-1))
+        res
       }
+      result
     }
+
+    Future.sequence(sequenceResult)
   }
 
   private def savingToStorage(filteredPhotos: Seq[Photo]): Seq[Photo] = {
@@ -75,8 +82,8 @@ class InstagramFetcher(photoRepo: PhotoRepo, imageStorage: ImageStorage, http: H
 
   private def filteringNonRelatedImage(regex: Regex) = new PartialFunction[Photo, Photo] {
 
-    def apply(photo: Photo) = {
-      val caption = regex.findFirstIn(photo.caption).get // won't get exception because alr filtered
+    def apply(photo: Photo): Photo = {
+      val caption = regex.findFirstIn(photo.caption).getOrElse(throw new Exception("caption suddenly not found"))
       photo.copy(caption = caption)
     }
 
@@ -86,12 +93,13 @@ class InstagramFetcher(photoRepo: PhotoRepo, imageStorage: ImageStorage, http: H
 
   private def fetch(userId: Long, endCursor: Option[String], account: String, cookie: String): Seq[Photo] = {
     val fetchUrl = "https://www.instagram.com/graphql/query/?query_id=17888483320059182&id=<user_id>&first=50&after=<end_cursor>"
-    val httpRequest = Http(fetchUrl.replace("<user_id>", userId.toString).replace("<end_cursor>", endCursor.getOrElse(""))).header("cookie", cookie)
-    val httpResponse = http.sendRequest(httpRequest)
+    val url = fetchUrl.replace("<user_id>", userId.toString).replace("<end_cursor>", endCursor.getOrElse(""))
+    val headers = Map("cookie" -> cookie)
+    val httpResponse = http.sendRequest(url, headers)
     val instagramResponse = decode[InstagramResponse](httpResponse)
 
-    val instagramPageInfo = instagramResponse.data.user.media.pageInfo
-    val photos = instagramResponse.data.user.media.edges.map(_.node).map { node =>
+    val instagramPageInfo = instagramResponse.graphql.user.media.pageInfo
+    val photos = instagramResponse.graphql.user.media.edges.map(_.node).map { node =>
       Photo(node.id.toLong, node.thumbnailSrc, node.date, node.caption.edges.headOption.map(_.node.text).getOrElse(""), account)
     }
 

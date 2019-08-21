@@ -2,7 +2,7 @@ package com.seanmcapp.util.parser.decoder
 
 case class InstagramAccountResponse(id: String)
 
-case class InstagramResponse(data: InstagramData)
+case class InstagramResponse(graphql: InstagramData)
 case class InstagramData(user: InstagramUser)
 case class InstagramUser(media: InstagramMedia)
 case class InstagramMedia(count: Int, pageInfo: InstagramPageInfo, edges: Seq[InstagramEdge])
@@ -25,6 +25,6 @@ trait InstagramDecoder extends Decoder {
   implicit val instagramMediaFormat = jsonFormat(InstagramMedia, "count", "page_info", "edges")
   implicit val instagramUserFormat = jsonFormat(InstagramUser, "edge_owner_to_timeline_media")
   implicit val instagramDataFormat = jsonFormat(InstagramData, "user")
-  implicit val instagramResponseFormat = jsonFormat(InstagramResponse, "data")
+  implicit val instagramResponseFormat = jsonFormat(InstagramResponse, "graphql")
 
 }
