@@ -5,17 +5,15 @@ import java.net.URLEncoder
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.seanmcapp.config.AirvisualConf
-import com.seanmcapp.util.parser.AirvisualResponse
+import com.seanmcapp.util.parser.{AirvisualDecoder, AirvisualResponse}
 import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
-import scalaj.http.Http
-import spray.json._
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
 
 class AirVisualScheduler(startTime: Int, interval: FiniteDuration, http: HttpRequestBuilder)
                         (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
-  extends Scheduler(startTime, Some(interval)) {
+  extends Scheduler(startTime, Some(interval)) with AirvisualDecoder {
 
   private val airVisualBaseUrl = "https://api.airvisual.com/v2/city"
 
@@ -50,7 +48,6 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration, http: HttpReq
   }
 
   private def getCityAQI(city: City): (City, Int) = {
-    import com.seanmcapp.util.parser.AirvisualJson._
 
     val airvisualConf = AirvisualConf()
 
@@ -61,17 +58,18 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration, http: HttpReq
       URLEncoder.encode(city.city, "UTF-8"),
       airvisualConf.key)
 
-    val response = Http(apiUrl).asString.body.parseJson.convertTo[AirvisualResponse].data
-    (city, response.current.pollution.aqius)
+    val response = http.sendRequest(apiUrl)
+    val airVisualResponse = decode[AirvisualResponse](response)
+    (city, airVisualResponse.data.current.pollution.aqius)
   }
 
   private def getEmojiFromAqi(aqi: Int): String = {
     aqi match {
-      case aqi if aqi <= 50 => new String(AirGood, 0, AirGood.length)
-      case aqi if aqi > 50 & aqi <= 100 => new String(AirModerate, 0, AirModerate.length)
-      case aqi if aqi > 100 & aqi <= 150 => new String(AirSensitive, 0, AirSensitive.length)
-      case aqi if aqi > 150 & aqi <= 200 => new String(AirUnhealthy, 0, AirUnhealthy.length)
-      case aqi if aqi > 200 => new String(AirRisky, 0, AirRisky.length)
+      case _ if aqi <= 50 => new String(AirGood, 0, AirGood.length)
+      case _ if aqi > 50 & aqi <= 100 => new String(AirModerate, 0, AirModerate.length)
+      case _ if aqi > 100 & aqi <= 150 => new String(AirSensitive, 0, AirSensitive.length)
+      case _ if aqi > 150 & aqi <= 200 => new String(AirUnhealthy, 0, AirUnhealthy.length)
+      case _ if aqi > 200 => new String(AirRisky, 0, AirRisky.length)
     }
   }
 

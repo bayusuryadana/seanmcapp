@@ -28,7 +28,7 @@ trait ScheduleManager {
     val scheduleList = List(
       new WarmupDBScheduler(0, peopleRepo),
       new WarmupDBScheduler(10, peopleRepo),
-      new DotaMetadataFetcherScheduler(3, everyDay, playerRepo, http),
+      new DotaMetadataScheduler(3, everyDay, playerRepo, http),
 
       new BirthdayScheduler(6, everyDay, peopleRepo),
       new IGrowScheduler(6, everyDay, http),

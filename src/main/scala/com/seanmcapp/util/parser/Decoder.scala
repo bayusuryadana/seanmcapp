@@ -4,7 +4,7 @@ import spray.json._
 
 import scala.util.{Failure, Success, Try}
 
-trait Decoder {
+trait Decoder extends DefaultJsonProtocol {
   def decode[T](jsonString: String)(implicit fmt: JsonReader[T]): T = {
     Try(jsonString.parseJson.convertTo[T]) match {
       case Success(res) => res
