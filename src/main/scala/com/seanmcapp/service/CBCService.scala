@@ -1,20 +1,21 @@
 package com.seanmcapp.service
 
 import com.seanmcapp.repository.instagram._
-import com.seanmcapp.util.parser.{TelegramMessage, TelegramResponse}
-import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
+import com.seanmcapp.util.parser.{TelegramInputDecoder, TelegramOutputEncoder, TelegramResponse, TelegramUpdate}
+import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
+import spray.json.JsValue
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait CBCService extends TelegramRequestBuilder {
-
-  val photoRepo: PhotoRepo
-  val customerRepo: CustomerRepo
+class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, override val http: HttpRequestBuilder)
+  extends TelegramRequestBuilder with TelegramInputDecoder with TelegramOutputEncoder {
 
   def random: Future[Option[Photo]] = photoRepo.getRandom(None)
 
-  def randomFlow(message: TelegramMessage): Future[Option[TelegramResponse]] = {
+  def randomFlow(request: JsValue): Future[Option[TelegramResponse]] = {
+    val update = decode[TelegramUpdate](request)
+    val message = update.message.getOrElse(throw new Exception("This request is does not have a message: " + request))
     val chatId = message.chat.id
     val userId = message.from.id
     val userFullName = message.from.firstName + " " + message.from.lastName.getOrElse("")
@@ -37,7 +38,7 @@ trait CBCService extends TelegramRequestBuilder {
     result
   }
 
-  protected def executeCommand(command: String, chatId: Long, userId: Long, userFullName: String): Future[Option[TelegramResponse]] = {
+  private[service] def executeCommand(command: String, chatId: Long, userId: Long, userFullName: String): Future[Option[TelegramResponse]] = {
     command.split("_").head match {
       case "/cbc" =>
         val account = if (command.split("_").length > 1) Some(command.replace("_", ".").stripPrefix("/cbc.")) else None
@@ -47,7 +48,7 @@ trait CBCService extends TelegramRequestBuilder {
           customerOpt <- customerF
           photoOpt <- photoF
         } yield {
-          photoOpt.flatMap { photo =>
+          photoOpt.map { photo =>
             customerOpt match {
               // TODO: test which one and one of them should being called
               case Some(customer) => customerRepo.update(Customer(userId, userFullName, customer.count + 1))

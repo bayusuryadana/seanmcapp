@@ -4,14 +4,14 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.seanmcapp.config.SchedulerConf
 import com.seanmcapp.util.parser.{IgrowData, IgrowDecoder, IgrowResponse}
-import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
+import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
 
-class IGrowScheduler(startTime: Int, interval: FiniteDuration, http: HttpRequestBuilder)
+class IGrowScheduler(startTime: Int, interval: FiniteDuration, override val http: HttpRequestBuilder)
                     (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
-  extends Scheduler(startTime, Some(interval)) with IgrowDecoder {
+  extends Scheduler(startTime, Some(interval)) with IgrowDecoder with TelegramRequestBuilder {
 
   private val iGrowBaseUrl = "https://igrow.asia/api/public/en/v1/sponsor/seed"
 

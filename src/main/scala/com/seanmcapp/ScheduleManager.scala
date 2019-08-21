@@ -7,7 +7,7 @@ import akka.stream.Materializer
 import com.seanmcapp.repository.birthday.PeopleRepoImpl
 import com.seanmcapp.repository.dota.PlayerRepoImpl
 import com.seanmcapp.scheduler._
-import com.seanmcapp.util.requestbuilder.HttpRequestBuilderImpl
+import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, HttpRequestBuilderImpl}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration
@@ -30,7 +30,7 @@ trait ScheduleManager {
       new WarmupDBScheduler(10, peopleRepo),
       new DotaMetadataScheduler(3, everyDay, playerRepo, http),
 
-      new BirthdayScheduler(6, everyDay, peopleRepo),
+      new BirthdayScheduler(6, everyDay, peopleRepo, http),
       new IGrowScheduler(6, everyDay, http),
       new AmarthaScheduler(12, Some(everyDay), http),
 

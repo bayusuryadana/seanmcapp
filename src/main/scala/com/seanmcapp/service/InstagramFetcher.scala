@@ -4,19 +4,15 @@ import java.net.URL
 
 import com.seanmcapp.repository.instagram.{Photo, PhotoRepo}
 import com.seanmcapp.storage.ImageStorage
-import com.seanmcapp.util.parser.{InstagramAccountResponse, InstagramResponse}
+import com.seanmcapp.util.parser.{InstagramAccountResponse, InstagramDecoder, InstagramResponse}
+import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
 import scalaj.http.Http
 
 import scala.concurrent.Future
 import scala.util.matching.Regex
 import scala.concurrent.ExecutionContext.Implicits.global
-import spray.json._
-import com.seanmcapp.util.parser.InstagramJson._
 
-trait InstagramFetcher {
-
-  val photoRepo: PhotoRepo
-  val imageStorage: ImageStorage
+class InstagramFetcher(photoRepo: PhotoRepo, imageStorage: ImageStorage, http: HttpRequestBuilder) extends InstagramDecoder {
 
   private val accountList = Map(
     // deprecated
@@ -46,8 +42,9 @@ trait InstagramFetcher {
       accountList.foreach { item =>
         val account = item._1
         val initUrl = "https://www.instagram.com/" + account + "/?__a=1"
-        val httpResponse = Http(initUrl).header("cookie", cookie).asString.body
-        val id = httpResponse.parseJson.convertTo[InstagramAccountResponse].id.replace("profilePage_", "").toLong
+        val httpRequest = Http(initUrl).header("cookie", cookie)
+        val httpResponse = http.sendRequest(httpRequest)
+        val id = decode[InstagramAccountResponse](httpResponse).id.replace("profilePage_", "").toLong
 
         /**
           * based on this answer https://stackoverflow.com/questions/49265339/instagram-a-1-url-not-working-anymore-problems-with-graphql-query-to-get-da
@@ -89,8 +86,9 @@ trait InstagramFetcher {
 
   private def fetch(userId: Long, endCursor: Option[String], account: String, cookie: String): Seq[Photo] = {
     val fetchUrl = "https://www.instagram.com/graphql/query/?query_id=17888483320059182&id=<user_id>&first=50&after=<end_cursor>"
-    val httpResponse = Http(fetchUrl.replace("<user_id>", userId.toString).replace("<end_cursor>", endCursor.getOrElse(""))).header("cookie", cookie).asString.body
-    val instagramResponse = httpResponse.parseJson.convertTo[InstagramResponse]
+    val httpRequest = Http(fetchUrl.replace("<user_id>", userId.toString).replace("<end_cursor>", endCursor.getOrElse(""))).header("cookie", cookie)
+    val httpResponse = http.sendRequest(httpRequest)
+    val instagramResponse = decode[InstagramResponse](httpResponse)
 
     val instagramPageInfo = instagramResponse.data.user.media.pageInfo
     val photos = instagramResponse.data.user.media.edges.map(_.node).map { node =>

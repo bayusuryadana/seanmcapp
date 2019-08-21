@@ -1,7 +1,5 @@
 package com.seanmcapp.util.parser
 
-import spray.json.DefaultJsonProtocol
-
 case class InstagramAccountResponse(id: String)
 
 case class InstagramResponse(data: InstagramData)
@@ -15,7 +13,7 @@ case class InstagramMediaCaption(edges: Seq[InstagramEdgeCaption])
 case class InstagramEdgeCaption(node: InstagramCaption)
 case class InstagramCaption(text: String)
 
-object InstagramJson extends DefaultJsonProtocol {
+trait InstagramDecoder extends Decoder {
   implicit val instagramAccountResponseFormat = jsonFormat(InstagramAccountResponse, "logging_page_id")
 
   implicit val instagramCaptionFormat = jsonFormat(InstagramCaption, "text")

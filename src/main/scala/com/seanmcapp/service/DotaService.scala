@@ -3,30 +3,14 @@ package com.seanmcapp.service
 import java.text.SimpleDateFormat
 import java.util.{Date, TimeZone}
 
-import com.seanmcapp.repository.dota.{Hero, HeroRepo, Player, PlayerRepo}
-import com.seanmcapp.util.parser.{MatchResponse, MatchResponseWithPlayer, PeerResponse}
-import com.seanmcapp.util.requestbuilder.DotaRequestBuilder
+import com.seanmcapp.repository.dota.{HeroRepo, Player, PlayerRepo}
+import com.seanmcapp.util.parser._
+import com.seanmcapp.util.requestbuilder.{DotaRequestBuilder, HttpRequestBuilder}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class MatchViewModel(matchId: Long, players: Seq[MatchPlayer], mode: String, startTime: String,
-                          duration: String, side: String, result: String)
-
-case class MatchPlayer(name: String, hero: String, kda: String)
-
-case class WinSummary(peerName: String, win: Int, games: Int, percentage:Double)
-
-case class HomePageResponse(matches: Seq[MatchViewModel], players: Seq[Player], heroes: Seq[Hero])
-
-case class PlayerPageResponse(player: Player, heroes: Seq[WinSummary], peers: Seq[WinSummary])
-
-case class HeroPageResponse(hero: Hero, players: Seq[WinSummary])
-
-trait DotaService extends DotaRequestBuilder {
-
-  val playerRepo: PlayerRepo
-  val heroRepo: HeroRepo
+class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http: HttpRequestBuilder) extends DotaRequestBuilder {
 
   def home: Future[HomePageResponse] = {
 

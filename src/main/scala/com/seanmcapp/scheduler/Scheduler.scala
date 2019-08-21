@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
 abstract class Scheduler(startTime: Int, intervalOpt: Option[FiniteDuration])
-                        (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends TelegramRequestBuilder {
+                        (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) {
   // TODO: Add tests for all scheduler
   private val ICT = "+07:00"
   protected def now: DateTime = new DateTime().toDateTime(DateTimeZone.forID(ICT))

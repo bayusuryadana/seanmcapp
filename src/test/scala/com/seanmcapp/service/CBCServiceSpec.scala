@@ -1,26 +1,27 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.CBCServiceImpl
-import com.seanmcapp.util.parser.TelegramUpdate
+import com.seanmcapp.mock.repository.{CustomerRepoMock, PhotoRepoMock}
+import com.seanmcapp.mock.requestbuilder.TelegramRequestBuilderMock
+import com.seanmcapp.util.requestbuilder.HttpRequestBuilderImpl
 import org.scalatest.{AsyncWordSpec, Matchers}
 
 import scala.io.Source
 import spray.json._
 
-class CBCServiceSpec extends AsyncWordSpec with Matchers with CBCServiceImpl {
+class CBCServiceSpec extends AsyncWordSpec with Matchers {
 
-  import com.seanmcapp.util.parser.TelegramJson._
+  val cbcService = new CBCService(PhotoRepoMock, CustomerRepoMock, HttpRequestBuilderImpl) with TelegramRequestBuilderMock
 
   "should return any random photos - API random endpoint" in {
-    random.map { res =>
+    cbcService.random.map { res =>
       res.isDefined shouldEqual true
       res.get.thumbnailSrc shouldEqual "https://someurl"
     }
   }
 
   "should return any random photos using private chat type input - telegram random endpoint" in {
-    val input = Source.fromResource("telegram/274852283_request.json").mkString.parseJson.convertTo[TelegramUpdate].message.get
-    randomFlow(input).map { response =>
+    val input = Source.fromResource("telegram/274852283_request.json").mkString.parseJson
+    cbcService.randomFlow(input).map { response =>
 
       response shouldNot be(None)
       val res = response.get
@@ -45,8 +46,8 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers with CBCServiceImpl {
   }
 
   "should return any random photos using group chat type input - telegram random endpoint" in {
-    val input = Source.fromResource("telegram/-111546505_request.json").mkString.parseJson.convertTo[TelegramUpdate].message.get
-    randomFlow(input).map { response =>
+    val input = Source.fromResource("telegram/-111546505_request.json").mkString.parseJson
+    cbcService.randomFlow(input).map { response =>
 
       response shouldNot be(None)
       val res = response.get
@@ -70,7 +71,7 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers with CBCServiceImpl {
   "command should return any random photo on particular account" in {
     val chatId = 274852283
     val command = "/cbc_ui_cantik"
-    executeCommand(command, chatId, 123L, "Fawwaz Afifanto").map { response =>
+    cbcService.executeCommand(command, chatId, 123L, "Fawwaz Afifanto").map { response =>
 
       response shouldNot be(None)
       val res = response.get
@@ -84,7 +85,7 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers with CBCServiceImpl {
   "command should return any random photo on particular account (2)" in {
     val chatId = 274852283
     val command = "/cbc_bidadari_ub"
-    executeCommand(command, chatId, 123L, "Fawwaz Afifanto").map { response =>
+    cbcService.executeCommand(command, chatId, 123L, "Fawwaz Afifanto").map { response =>
 
       response shouldNot be(None)
       val res = response.get

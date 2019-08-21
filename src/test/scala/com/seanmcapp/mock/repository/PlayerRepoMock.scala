@@ -17,4 +17,7 @@ object PlayerRepoMock extends PlayerRepo {
   override def getAll: Future[Seq[Player]] = Future.successful(playersList)
 
   override def get(id: Int): Future[Option[Player]] = Future.successful(playersList.find(_.id == id))
+
+  override def update(player: Player): Future[Int] = Future.successful(0)
+
 }

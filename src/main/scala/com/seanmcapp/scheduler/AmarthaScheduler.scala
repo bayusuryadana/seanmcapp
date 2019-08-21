@@ -7,7 +7,7 @@ import akka.stream.Materializer
 import com.seanmcapp.config.{AmarthaConf, SchedulerConf}
 import com.seanmcapp.util.cache.MemoryCache
 import com.seanmcapp.util.parser.{AmarthaAuthData, AmarthaDecoder, AmarthaMarketplaceData, AmarthaMarketplaceItem, AmarthaResponse}
-import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
+import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
 import scalacache.memoization.memoizeSync
 import scalacache.modes.sync._
 import scalaj.http.Http
@@ -16,9 +16,9 @@ import spray.json._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
-class AmarthaScheduler(startTime: Int, interval: Option[FiniteDuration], http: HttpRequestBuilder)
+class AmarthaScheduler(startTime: Int, interval: Option[FiniteDuration], override val http: HttpRequestBuilder)
                       (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
-  extends Scheduler(startTime, interval) with AmarthaDecoder with MemoryCache {
+  extends Scheduler(startTime, interval) with AmarthaDecoder with TelegramRequestBuilder with MemoryCache {
 
   private val amarthaBaseUrl = "https://dashboard.amartha.com/v2"
   private val duration = Duration(15, TimeUnit.MINUTES)

@@ -11,4 +11,11 @@ trait Decoder extends DefaultJsonProtocol {
       case Failure(e) => throw new Exception(e)
     }
   }
+
+  def decode[T](jsValue: JsValue)(implicit fmt: JsonReader[T]): T = {
+    Try(jsValue.convertTo[T]) match {
+      case Success(res) => res
+      case Failure(e) => throw new Exception(e)
+    }
+  }
 }
