@@ -34,9 +34,17 @@ class PhotoRepoSpec extends AsyncWordSpec with Matchers {
     }
   }
 
-  "insert function" in {
-    // TODO: insert testing
-    true shouldBe true
+  "insert function should properly inserted data into DB" in {
+    val photos = Seq(
+      Photo(123L, "https://someurl", 1406252001, "Vera Verdiana. Psikologi'12", "ui.cantik"),
+      Photo(456L, "https://someurl", 1432308647, "Tiara Anugrah. Hukum 2014", "ugmcantik"),
+    )
+    val response = PhotoRepoImpl.insert(photos)
+    response.map { res =>
+      res shouldBe Some(2)
+      PhotoRepoImpl.delete(photos.map(_.id))
+      true shouldBe true
+    }
   }
 
 }

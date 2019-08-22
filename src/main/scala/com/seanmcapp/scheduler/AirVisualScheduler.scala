@@ -41,7 +41,6 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration, override val 
       val appendString = "\n" + city.city + " (AQI " + aqius + " " + getEmojiFromAqi(aqius) + ")"
       res + appendString
     }
-    // TODO: (for Analytics)
     sendMessage(-1001359004262L, URLEncoder.encode(stringMessage, "UTF-8"))
     cityResults
   }

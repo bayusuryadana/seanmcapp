@@ -34,7 +34,6 @@ class AmarthaScheduler(startTime: Int, interval: Option[FiniteDuration], overrid
       val httpResponse = http.sendRequest(url, headers = headers, timeout = timeout)
       val amarthaResponse = decode[AmarthaResponse](httpResponse)
       val response = decode[AmarthaMarketplaceData](amarthaResponse.data)
-      // TODO: (for Analytics)
       println(response.marketplace.size)
       response.marketplace.foreach(item => println(s"${item.borrowerName}(${item.creditScoreGrade}): ${item.plafond}"))
 

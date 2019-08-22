@@ -11,14 +11,22 @@ class CustomerRepoSpec extends AsyncWordSpec with Matchers {
     }
   }
 
-  "insert function" in {
-    // TODO: insert testing
-    true shouldBe true
+  "insert function should properly inserted data into DB" in {
+    val customer = Customer(123L, "Pawas", 1)
+    val response = CustomerRepoImpl.insert(customer)
+    response.map { res =>
+      res shouldBe 1
+    }
   }
 
-  "update function" in {
-    // TODO: update testing
-    true shouldBe true
+  "update function should properly updated data into DB" in {
+    val customer = Customer(123L, "Pawas", 1000)
+    val response = CustomerRepoImpl.update(customer)
+    response.map { res =>
+      res shouldBe 1
+      CustomerRepoImpl.delete(customer)
+      true shouldBe true
+    }
   }
 
 }

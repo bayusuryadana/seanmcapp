@@ -42,7 +42,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
       players <- playersF
       heroes <- heroesF
     } yield {
-      val player = players.find(_.id == id).getOrElse(throw new Exception("Player not found")) // TODO: should response to 404 page
+      val player = players.find(_.id == id).getOrElse(throw new Exception("Player not found"))
 
       val heroesWinSummary = getMatches(player).groupBy(_.mr.heroId).toSeq.map { case (heroId, identicalMatches) =>
         val heroName = heroes.find(_.id == heroId).map(_.localizedName).getOrElse("Unknown")
@@ -76,7 +76,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
       players <- playersF
       heroOption <- heroF
     } yield {
-      val hero = heroOption.getOrElse(throw new Exception("Hero not found")) // TODO: should response to 404 page
+      val hero = heroOption.getOrElse(throw new Exception("Hero not found"))
 
       val playersWinSummary = players.flatMap(getMatches).filter(_.mr.heroId == id).groupBy(_.player).toSeq.map { tup =>
         val matchResponses = tup._2.map { matchHead =>
