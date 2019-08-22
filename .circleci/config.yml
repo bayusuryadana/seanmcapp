@@ -57,5 +57,5 @@ jobs:
 
       ### run it tests!
       - run:
-        name: Integration testing
-        command: sbt it:test
+          name: Integration testing
+          command: sbt it:test
