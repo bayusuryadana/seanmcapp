@@ -5,7 +5,7 @@ import java.net.URLEncoder
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.seanmcapp.config.AirvisualConf
-import com.seanmcapp.util.parser.decoder.{AirvisualDecoder, AirvisualResponse}
+import com.seanmcapp.util.parser.decoder.{AirvisualCity, AirvisualDecoder, AirvisualResponse}
 import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
 
 import scala.concurrent.ExecutionContext
@@ -17,8 +17,6 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration, override val 
 
   private val airVisualBaseUrl = "https://api.airvisual.com/v2/city"
 
-  private case class City(country: String, state: String, city: String)
-
   private val AirGood = Array(0x1F340)
   private val AirModerate = Array(0x1F60E)
   private val AirSensitive = Array(0x1F630)
@@ -26,13 +24,13 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration, override val 
   private val AirRisky = Array(0x1F480)
 
   private val cities = List(
-    City("Indonesia", "Jakarta", "Jakarta"),
-    City("Indonesia", "West Java", "Bekasi"),
-    City("Indonesia", "West Java", "Depok"),
-    City("Singapore", "Singapore", "Singapore")
+    AirvisualCity("Indonesia", "Jakarta", "Jakarta"),
+    AirvisualCity("Indonesia", "West Java", "Bekasi"),
+    AirvisualCity("Indonesia", "West Java", "Depok"),
+    AirvisualCity("Singapore", "Singapore", "Singapore")
   )
 
-  override def task: Unit = {
+  override def task: Map[AirvisualCity, Int] = {
     println("=== AirVisual check ===")
 
     val cityResults = cities.map(city => getCityAQI(city)).toMap
@@ -45,9 +43,10 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration, override val 
     }
     // TODO: (for Analytics)
     sendMessage(-1001359004262L, URLEncoder.encode(stringMessage, "UTF-8"))
+    cityResults
   }
 
-  private def getCityAQI(city: City): (City, Int) = {
+  private def getCityAQI(city: AirvisualCity): (AirvisualCity, Int) = {
 
     val airvisualConf = AirvisualConf()
 
