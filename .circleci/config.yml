@@ -45,7 +45,7 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
 
-      - run: docker-compose up -f
+      - run: docker-compose up -d
 
       ### run it tests!
       #- run: sbt it:test
