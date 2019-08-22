@@ -50,3 +50,7 @@ jobs:
       - run:
           name: Coverage report
           command: cat /dev/null | sbt coverageReport
+
+      - run:
+          name: Upload report
+          command: bash <(curl -s https://codecov.io/bash)
