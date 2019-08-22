@@ -9,6 +9,7 @@ import org.joda.time.{DateTime, DateTimeZone, LocalDateTime}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
+// $COVERAGE-OFF$
 abstract class Scheduler(startTime: Int, intervalOpt: Option[FiniteDuration])
                         (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) {
   private val ICT = "+07:00"
@@ -36,3 +37,4 @@ abstract class Scheduler(startTime: Int, intervalOpt: Option[FiniteDuration])
   protected def task: Any
 
 }
+// $COVERAGE-ON$

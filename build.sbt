@@ -43,9 +43,8 @@ coverageEnabled := true
 coverageExcludedPackages :=
   ".*com.seanmcapp.util.*;" +
   ".*com.seanmcapp.config.*;" +
-  ".*com.seanmcapp.scheduler.*;" +
-  ".*Boot.*;.*Route.*;.*Injection.*;"
-coverageMinimum := 85
+  ".*Boot.*;.*Route.*;.*Injection.*;.*ScheduleManager.*;"
+coverageMinimum := 80
 coverageFailOnMinimum := true
 
 fork in Test := true
