@@ -6,7 +6,7 @@ import scala.concurrent.Future
 
 object PlayerRepoMock extends PlayerRepo {
 
-  private val playersList = Seq(
+  val playersList = Seq(
     Player(104466002, "Agung Putra Pasaribu", null, "hnymnky", Some(55)),
     Player(104787108, "Cahaya Ikhwan", null, "travengers", None),
     Player(105742997, "Bayu Suryadana", null, "SeanmcrayZ", Some(53)),
