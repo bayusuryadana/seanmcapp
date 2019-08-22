@@ -19,6 +19,10 @@ jobs:
             - v1-dependencies-
 
       - run:
+          name: Coverage
+          command: cat /dev/null | sbt coverage
+
+      - run:
           name: Compile test
           command: cat /dev/null | sbt test:compile
 
@@ -42,3 +46,7 @@ jobs:
       - run:
           name: Integration testing
           command: cat /dev/null | sbt it:test
+
+      - run:
+          name: Coverage report
+          command: cat /dev/null | sbt coverageReport
