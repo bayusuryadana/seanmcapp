@@ -37,8 +37,6 @@ libraryDependencies ++= Seq(
   "io.minio" % "minio" % "6.0.8",
 )
 
-// sbt clean coverage test it:test
-// sbt coverageReport
 coverageEnabled := true
 coverageExcludedPackages :=
   ".*com.seanmcapp.util.*;" +

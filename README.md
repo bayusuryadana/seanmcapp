@@ -1,5 +1,6 @@
 # Seanmcapp
 [![CircleCI](https://circleci.com/gh/bayusuryadana/seanmcapp.svg?style=svg)](https://circleci.com/gh/bayusuryadana/seanmcapp)
+[![codecov.io](http://codecov.io/github/mirumee/saleor/coverage.svg?branch=master)](https://codecov.io/gh/bayusuryadana/seanmcapp/branch/master/graphs/badge.svg?branch=master)
 
 ## Feature
 API:
