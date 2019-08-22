@@ -3,7 +3,7 @@ package com.seanmcapp.scheduler
 import com.seanmcapp.SchedulerForTest
 import com.seanmcapp.mock.requestbuilder.TelegramRequestBuilderMock
 import com.seanmcapp.util.parser.decoder.{AmarthaMarketplaceData, AmarthaMarketplaceItem}
-import org.mockito.Mockito.{doReturn, when}
+import org.mockito.Mockito.when
 import org.scalatest.{AsyncWordSpec, Matchers}
 
 import scala.io.Source
