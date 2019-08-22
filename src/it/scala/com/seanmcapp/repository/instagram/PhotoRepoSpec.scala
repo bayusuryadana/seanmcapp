@@ -41,9 +41,8 @@ class PhotoRepoSpec extends AsyncWordSpec with Matchers {
     )
     val response = PhotoRepoImpl.insert(photos)
     response.map { res =>
-      res shouldBe Some(2)
       PhotoRepoImpl.delete(photos.map(_.id))
-      true shouldBe true
+      res shouldBe Some(2)
     }
   }
 

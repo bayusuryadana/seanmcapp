@@ -23,9 +23,8 @@ class CustomerRepoSpec extends AsyncWordSpec with Matchers {
     val customer = Customer(123L, "Pawas", 1000)
     val response = CustomerRepoImpl.update(customer)
     response.map { res =>
-      res shouldBe 1
       CustomerRepoImpl.delete(customer)
-      true shouldBe true
+      res shouldBe 1
     }
   }
 
