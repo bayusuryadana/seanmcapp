@@ -32,8 +32,8 @@ jobs:
             - v1-dependencies-
 
       - run:
-        name: Compile test
-        command: cat /dev/null | sbt test:compile
+          name: Compile test
+          command: cat /dev/null | sbt test:compile
 
       - save_cache:
           paths:
@@ -42,18 +42,18 @@ jobs:
 
       # run tests!
       - run:
-        name: Unit test
-        command: cat /dev/null | sbt test
+          name: Unit test
+          command: cat /dev/null | sbt test
 
       ### run it dependencies
       - setup_remote_docker:
           docker_layer_caching: true
 
       - run:
-        name: Running external dependencies (docker-compose)
-        command: |
-          docker-compose up -d
-          docker ps
+          name: Running external dependencies (docker-compose)
+          command: |
+            docker-compose up -d
+            docker ps
 
       ### run it tests!
       - run:
