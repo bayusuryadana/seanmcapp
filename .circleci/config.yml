@@ -7,7 +7,7 @@ jobs:
   build:
     machine:
       # specify the version you desire here
-      - image: ubuntu-1604:201903-01
+      image: ubuntu-1604:201903-01
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
