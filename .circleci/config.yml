@@ -31,7 +31,9 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: cat /dev/null | sbt test:compile
+      - run:
+        name: Compile test
+        command: cat /dev/null | sbt test:compile
 
       - save_cache:
           paths:
@@ -39,13 +41,21 @@ jobs:
           key: v1-dependencies--{{ checksum "build.sbt" }}
 
       # run tests!
-      - run: cat /dev/null | sbt test
+      - run:
+        name: Unit test
+        command: cat /dev/null | sbt test
 
       ### run it dependencies
       - setup_remote_docker:
           docker_layer_caching: true
 
-      - run: docker-compose up -d
+      - run:
+        name: Running external dependencies (docker-compose)
+        command: |
+          docker-compose up -d
+          docker ps
 
       ### run it tests!
-      #- run: sbt it:test
+      - run:
+        name: Integration testing
+        command: sbt it:test
