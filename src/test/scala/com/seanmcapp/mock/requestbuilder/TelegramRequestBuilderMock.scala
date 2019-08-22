@@ -2,27 +2,45 @@ package com.seanmcapp.mock.requestbuilder
 
 import com.seanmcapp.config.TelegramConf
 import com.seanmcapp.repository.instagram.Photo
-import com.seanmcapp.util.parser.TelegramResponse
+import com.seanmcapp.util.parser.encoder.TelegramResponse
 import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
-import spray.json._
 
 import scala.io.Source
-import scala.util.Try
 
 trait TelegramRequestBuilderMock extends TelegramRequestBuilder {
 
   override val telegramConf = TelegramConf("endpoint", "@seanmcbot")
 
-  import com.seanmcapp.util.parser.TelegramJson._
-
-  override def sendPhoto(chatId: Long, photo: Photo): Option[TelegramResponse] = {
-    val outputFromFile = Source.fromResource("telegram/" + chatId + "_response.json")
-    val output = outputFromFile.mkString.replace("{caption}", photo.account)
-    Try(output.parseJson.convertTo[TelegramResponse]).toOption
+  override def sendPhoto(chatId: Long, photo: Photo): TelegramResponse = {
+    val source = Source.fromResource("telegram/" + chatId + "_response.json").mkString.replace("{caption}", photo.account)
+    decode[TelegramResponse](source)
   }
 
   override def sendMessage(chatId: Long, text: String): TelegramResponse = {
-    "".parseJson.convertTo[TelegramResponse]
+    decode[TelegramResponse](defaultSendMessageResponse)
   }
+
+  private val defaultSendMessageResponse: String =
+  """
+    |{
+    |  "ok": true,
+    |  "result": {
+    |    "message_id": 12345,
+    |    "from": {
+    |      "id": 987654321,
+    |      "is_bot": true,
+    |      "first_name": "seanmcbot",
+    |      "username": "seanmcbot"
+    |    },
+    |    "chat": {
+    |      "id": 123456789,
+    |      "first_name": "Sean",
+    |      "type": "private"
+    |    },
+    |    "date": 1566468039,
+    |    "text": "hello"
+    |  }
+    |}
+  """.stripMargin
 
 }

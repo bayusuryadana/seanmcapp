@@ -43,9 +43,14 @@ object PhotoRepoImpl extends TableQuery(new PhotoInfo(_)) with PhotoRepo with DB
     }
   }
 
-  def insert(photos: Seq[Photo]): Future[Option[Int]] = run((this ++= photos).asTry).collect {
+  def insert(photos: Seq[Photo]): Future[Option[Int]] = run((this ++= photos).asTry).map {
     case Failure(ex) => throw new Exception(ex.getMessage)
     case Success(value) => value
+  }
+
+  // this function is only for testing
+  def delete(photos: Seq[Long]): Future[Int] = {
+    run(this.filter(_.id inSet photos).delete)
   }
 
 }

@@ -23,6 +23,9 @@ libraryDependencies ++= Seq(
 
   // scalatest
   "org.scalatest" %% "scalatest" % "3.0.5" % "test,it",
+
+  // mockito
+  "org.mockito" % "mockito-core" % "3.0.0" % Test,
   
   // joda time
   "joda-time" % "joda-time" % "2.10.1",

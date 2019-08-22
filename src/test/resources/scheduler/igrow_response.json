@@ -1,0 +1,209 @@
+{
+  "message": "Success",
+  "data": [
+    {
+      "id": 65,
+      "name": "Gemilang Sarea Farm Eggs Project",
+      "type": "2",
+      "location": {
+        "id": 62,
+        "name": "Gemilang Sarea Farm",
+        "province": "",
+        "image": "https:\/\/igrow.asia\/uploads\/",
+        "latitude": -8.5629888605295,
+        "longitude": 117.42302522146,
+        "farmer_count": "10"
+      },
+      "price": 4000000,
+      "price_formatted": "Rp 4.000.000",
+      "stock": 26,
+      "contract_period": 3,
+      "image": "https:\/\/igrow.asia\/asset\/img\/bibit\/65.png",
+      "is_coming_soon": false,
+      "expired_label": "3 years",
+      "harvest_period": "one year",
+      "nursery_period": 1,
+      "harvest_count": 3,
+      "operator": {
+        "id": 115472,
+        "name": "Gemilang Sarea Farm",
+        "image": "https:\/\/igrow.asia\/uploads\/profile\/32fc52b3513caabb9d74b2b821c7898d.jpg"
+      },
+      "return": "18% per annum",
+      "share": 0,
+      "unit": "unit",
+      "url": "https:\/\/igrow.asia\/home\/detail_type_seed\/65",
+      "admin_fee": "5"
+    },
+    {
+      "id": 60,
+      "name": "Tilapia Sumber Nila Berkah",
+      "type": "2",
+      "location": {
+        "id": 61,
+        "name": "Kolam Sumber Nila Berkah",
+        "province": "",
+        "image": "https:\/\/igrow.asia\/uploads\/",
+        "latitude": -6.7430532006716,
+        "longitude": 107.748155229,
+        "farmer_count": "36"
+      },
+      "price": 4800000,
+      "price_formatted": "Rp 4.800.000",
+      "stock": 0,
+      "contract_period": 2,
+      "image": "https:\/\/igrow.asia\/asset\/img\/bibit\/60.png",
+      "is_coming_soon": false,
+      "expired_label": "2 years",
+      "harvest_period": "one year",
+      "nursery_period": 1,
+      "harvest_count": 2,
+      "operator": {
+        "id": 111893,
+        "name": "Sumber Nila Berkah",
+        "image": "https:\/\/igrow.asia\/uploads\/profile\/f4dd9cc7bdd4f5ed9b2aa5d1c7e16909.jpg"
+      },
+      "return": "18% per annum",
+      "share": 0,
+      "unit": "unit",
+      "url": "https:\/\/igrow.asia\/home\/detail_type_seed\/60",
+      "admin_fee": "5"
+    },
+    {
+      "id": 59,
+      "name": "Goldfish Mayang Mas Sejahtera",
+      "type": "2",
+      "location": {
+        "id": 59,
+        "name": "Kolam Mayang Mas Sejahtera",
+        "province": "",
+        "image": "https:\/\/igrow.asia\/uploads\/",
+        "latitude": -6.746303648772,
+        "longitude": 107.74647392951,
+        "farmer_count": "36"
+      },
+      "price": 5000000,
+      "price_formatted": "Rp 5.000.000",
+      "stock": 0,
+      "contract_period": 2,
+      "image": "https:\/\/igrow.asia\/asset\/img\/bibit\/59.png",
+      "is_coming_soon": false,
+      "expired_label": "2 years",
+      "harvest_period": "One Year",
+      "nursery_period": 1,
+      "harvest_count": 2,
+      "operator": {
+        "id": 111880,
+        "name": "CV Mayang Mas Sejahtera",
+        "image": "https:\/\/igrow.asia\/uploads\/profile\/931c1b8f8952507d225c689a210a34b4.jpg"
+      },
+      "return": "18% per annum",
+      "share": 0,
+      "unit": "unit",
+      "url": "https:\/\/igrow.asia\/home\/detail_type_seed\/59",
+      "admin_fee": "5"
+    },
+    {
+      "id": 57,
+      "name": "Chicken Eggs Olat Maras Farm",
+      "type": "2",
+      "location": {
+        "id": 56,
+        "name": "Lokasi Kandang Olat Maras Farm",
+        "province": "",
+        "image": "https:\/\/igrow.asia\/uploads\/",
+        "latitude": -8.5633301,
+        "longitude": 117.4273377,
+        "farmer_count": "10"
+      },
+      "price": 4991000,
+      "price_formatted": "Rp 4.991.000",
+      "stock": 0,
+      "contract_period": 3,
+      "image": "https:\/\/igrow.asia\/asset\/img\/bibit\/57.png",
+      "is_coming_soon": false,
+      "expired_label": "3 years",
+      "harvest_period": "One year",
+      "nursery_period": 1,
+      "harvest_count": 3,
+      "operator": {
+        "id": 109201,
+        "name": "Olat Maras Farm",
+        "image": "https:\/\/igrow.asia\/uploads\/profile\/feea4ba15edec7d53297449b1b8d2479.jpg"
+      },
+      "return": "13% per annum",
+      "share": 0,
+      "unit": "unit",
+      "url": "https:\/\/igrow.asia\/home\/detail_type_seed\/57",
+      "admin_fee": "0"
+    },
+    {
+      "id": 56,
+      "name": "eFishery Tech Village : Catfish",
+      "type": "2",
+      "location": {
+        "id": 55,
+        "name": "Kampung Teknologi Perikanan Palas",
+        "province": "",
+        "image": "https:\/\/igrow.asia\/uploads\/",
+        "latitude": -5.6305484,
+        "longitude": 105.652983,
+        "farmer_count": "25"
+      },
+      "price": 5000000,
+      "price_formatted": "Rp 5.000.000",
+      "stock": 0,
+      "contract_period": 2,
+      "image": "https:\/\/igrow.asia\/asset\/img\/bibit\/56.png",
+      "is_coming_soon": false,
+      "expired_label": "2 years",
+      "harvest_period": "one year",
+      "nursery_period": 1,
+      "harvest_count": 2,
+      "operator": {
+        "id": 107715,
+        "name": "Efishery",
+        "image": "https:\/\/igrow.asia\/uploads\/profile\/f40b1e29c82af328ce3408b07b127952.jpg"
+      },
+      "return": "14% per annum",
+      "share": 0,
+      "unit": "unit",
+      "url": "https:\/\/igrow.asia\/home\/detail_type_seed\/56",
+      "admin_fee": "0"
+    },
+    {
+      "id": 55,
+      "name": "Corn in Dompu",
+      "type": "1",
+      "location": {
+        "id": 54,
+        "name": "Lahan Kemitraan Jagung Dompu",
+        "province": "",
+        "image": "https:\/\/igrow.asia\/uploads\/",
+        "latitude": -8.4620097668506,
+        "longitude": 118.28220855824,
+        "farmer_count": "50"
+      },
+      "price": 6200000,
+      "price_formatted": "Rp 6.200.000",
+      "stock": 0,
+      "contract_period": 2,
+      "image": "https:\/\/igrow.asia\/asset\/img\/bibit\/55.png",
+      "is_coming_soon": false,
+      "expired_label": "2 years",
+      "harvest_period": "one year",
+      "nursery_period": 1,
+      "harvest_count": 2,
+      "operator": {
+        "id": 107276,
+        "name": "Koperasi Dompu Agrobisnis Indonesia",
+        "image": "https:\/\/igrow.asia\/uploads\/profile\/09fb21aaf69386fecd795a0d60fb74f2.jpg"
+      },
+      "return": "16 % per annum",
+      "share": 0,
+      "unit": "unit",
+      "url": "https:\/\/igrow.asia\/home\/detail_type_seed\/55",
+      "admin_fee": "0"
+    }
+  ]
+}

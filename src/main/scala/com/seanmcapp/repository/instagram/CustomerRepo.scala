@@ -1,6 +1,7 @@
 package com.seanmcapp.repository.instagram
 
 import com.seanmcapp.repository.DBComponent
+import com.seanmcapp.repository.instagram.PhotoRepoImpl.run
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.Future
@@ -35,6 +36,11 @@ object CustomerRepoImpl extends TableQuery(new CustomerInfo(_)) with CustomerRep
 
   def update(customer: Customer): Future[Int] = {
     run(this.filter(_.id === customer.id).update(customer))
+  }
+
+  // this function is only for testing
+  def delete(customer: Customer): Future[Int] = {
+    run(this.filter(_.id === customer.id).delete)
   }
 
 }

@@ -2,38 +2,37 @@ package com.seanmcapp.util.requestbuilder
 
 import java.util.concurrent.TimeUnit
 
+import com.seanmcapp.repository.dota.Player
 import com.seanmcapp.util.cache.MemoryCache
-import com.seanmcapp.util.parser.{ArrayResponse, MatchResponse, PeerResponse}
+import com.seanmcapp.util.parser.decoder.{DotaInputDecoder, MatchResponse, MatchResponseWithPlayer, PeerResponse}
 import scalacache.memoization.memoizeSync
 import scalacache.modes.sync._
-import scalaj.http.Http
 
 import scala.concurrent.duration.Duration
-import spray.json._
 
-trait DotaRequestBuilder extends MemoryCache {
-  // TODO: Waiting for DotaServiceSpec and have to wrap in an Option for http call and parsing.
-  implicit val matchesCache = createCache[Seq[MatchResponse]]
+trait DotaRequestBuilder extends DotaInputDecoder with MemoryCache {
+
+  val http: HttpRequestBuilder
+
+  implicit val matchesCache = createCache[Seq[MatchResponseWithPlayer]]
   implicit val peersCache = createCache[Seq[PeerResponse]]
 
   val baseUrl = "https://api.opendota.com/api/players/"
   val duration = Duration(2, TimeUnit.HOURS)
-  import com.seanmcapp.util.parser.DotaOutputJson._
 
-  def getMatches(id: Int): Seq[MatchResponse] = {
+  def getMatches(player: Player): Seq[MatchResponseWithPlayer] = {
     memoizeSync(Some(duration)) {
-      Http(baseUrl + id + "/matches").asString.body.parseJson.convertTo[ArrayResponse[MatchResponse]].res
-        .map(_.appendId(id))
+      val response = http.sendRequest(baseUrl + player.id + "/matches")
+      decode[Seq[MatchResponse]](response).map { m =>
+        MatchResponseWithPlayer(player, m)
+      }
     }
-  }
-
-  def getMatches(ids: Seq[Int]): Seq[MatchResponse] = {
-    ids.flatMap(id => getMatches(id))
   }
 
   def getPeers(id: Int): Seq[PeerResponse] = {
     memoizeSync(Some(duration)) {
-      Http(baseUrl + id + "/peers").asString.body.parseJson.convertTo[ArrayResponse[PeerResponse]].res
+      val response = http.sendRequest(baseUrl + id + "/peers")
+      decode[Seq[PeerResponse]](response)
     }
   }
 

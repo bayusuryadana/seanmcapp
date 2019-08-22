@@ -1,12 +1,10 @@
-package com.seanmcapp.util.parser
-
-import spray.json._
+package com.seanmcapp.util.parser.decoder
 
 case class PlayerResponse(profile: ProfileResponse, rankTier: Option[Int])
 
 case class ProfileResponse(personaName: String, avatarfull: String)
 
-object DotaInputJson extends DefaultJsonProtocol {
+trait DotaMetadataDecoder extends Decoder {
 
   implicit val profileResponseFormat = jsonFormat(ProfileResponse, "personaname", "avatarfull")
 

@@ -3,30 +3,15 @@ package com.seanmcapp.service
 import java.text.SimpleDateFormat
 import java.util.{Date, TimeZone}
 
-import com.seanmcapp.repository.dota.{Hero, HeroRepo, Player, PlayerRepo}
-import com.seanmcapp.util.parser.{MatchResponse, PeerResponse}
-import com.seanmcapp.util.requestbuilder.DotaRequestBuilder
+import com.seanmcapp.repository.dota.{HeroRepo, Player, PlayerRepo}
+import com.seanmcapp.util.parser.encoder.{HeroPageResponse, HomePageResponse, MatchPlayer, MatchViewModel, PlayerPageResponse, WinSummary}
+import com.seanmcapp.util.parser.decoder.{MatchResponseWithPlayer, PeerResponse}
+import com.seanmcapp.util.requestbuilder.{DotaRequestBuilder, HttpRequestBuilder}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class MatchViewModel(matchId: Long, players: Seq[MatchPlayer], mode: String, startTime: String,
-                          duration: String, side: String, result: String)
-
-case class MatchPlayer(name: String, hero: String, kda: String)
-
-case class WinSummary(peerName: String, win: Int, games: Int, percentage:Double)
-
-case class HomePageResponse(matches: Seq[MatchViewModel], players: Seq[Player], heroes: Seq[Hero])
-
-case class PlayerPageResponse(player: Player, heroes: Seq[WinSummary], peers: Seq[WinSummary])
-
-case class HeroPageResponse(hero: Hero, players: Seq[WinSummary])
-
-trait DotaService extends DotaRequestBuilder {
-  // TODO: have to add tests for DotaService
-  val playerRepo: PlayerRepo
-  val heroRepo: HeroRepo
+class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http: HttpRequestBuilder) extends DotaRequestBuilder {
 
   def home: Future[HomePageResponse] = {
 
@@ -37,16 +22,15 @@ trait DotaService extends DotaRequestBuilder {
       players <- playersF
       heroes <- heroesF
     } yield {
-      val heroesMap = heroes.map(h => (h.id, h)).toMap
-      val matchViewModels = getMatches(players.map(_.id)).sortBy(m => -m.startTime).take(50).groupBy(_.matchId).map { matchTuple =>
-        val matchPlayerList = matchTuple._2.map { m =>
-          val playerName = players.find(_.id == m.playerId.get).map(_.personaName).getOrElse("Unknown Player")
-          val hero = heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")
-          toMatchPlayer(m, playerName, hero)
+      val matchViewModels = players.flatMap(getMatches).groupBy(_.mr.startTime).toSeq.sortBy(-_._1).map(_._2).take(10).flatMap { identicalMatches =>
+        identicalMatches.headOption.map { mrwpHead =>
+          val matchPlayerList = identicalMatches.map { mrwp =>
+            val heroName = heroes.find(_.id == mrwp.mr.heroId).map(_.localizedName).getOrElse("Unknown")
+            MatchPlayer(mrwp.player.personaName, heroName, s"${mrwp.mr.kills}/${mrwp.mr.deaths}/${mrwp.mr.assists}")
+          }
+          toMatchViewModel(mrwpHead, matchPlayerList)
         }
-        toMatchViewModel(matchTuple._2.head, matchPlayerList)
-      }.take(10).toSeq
-
+      }
       HomePageResponse(matchViewModels, players, heroes.map(hero => hero.copy(lore = "")))
     }
   }
@@ -60,21 +44,25 @@ trait DotaService extends DotaRequestBuilder {
     } yield {
       val player = players.find(_.id == id).getOrElse(throw new Exception("Player not found"))
 
-      val heroesMap = heroes.map(h => (h.id, h)).toMap
-      val heroesWinSummary = getMatches(id).map { m =>
-        val hero = heroesMap.get(m.heroId).map(_.localizedName).getOrElse("Unknown")
-        val playerSeq = Seq(toMatchPlayer(m, player.personaName, hero))
-        toMatchViewModel(m, playerSeq)
-      }.groupBy(_.players.head.hero).map(toWinSummary).toSeq
+      val heroesWinSummary = getMatches(player).groupBy(_.mr.heroId).toSeq.map { case (heroId, identicalMatches) =>
+        val heroName = heroes.find(_.id == heroId).map(_.localizedName).getOrElse("Unknown")
+        val matchResponses = identicalMatches.map { mrwp =>
+          val matchPlayer = MatchPlayer(mrwp.player.personaName, heroName, s"${mrwp.mr.kills}/${mrwp.mr.deaths}/${mrwp.mr.assists}")
+          toMatchViewModel(mrwp, Seq(matchPlayer))
+        }
+        (heroName, matchResponses)
+      }.map(toWinSummary).sortBy(-_.percentage)
 
       val peers = getPeers(id).foldLeft(Seq.empty[(Player, PeerResponse)]) { (res, peer) =>
-        val player = players.find(_.id == peer.peerPlayerId)
-        if (player.isDefined) res :+ (player.get, peer) else res
+        players.find(_.id == peer.peerPlayerId) match {
+          case Some(p) => res :+ (p, peer)
+          case None => res
+        }
       }
 
       val peerPlayerWinSummary = peers.map { p =>
         WinSummary(p._1.personaName, p._2.win, p._2.games, ((p._2.win.toDouble/p._2.games) * 100).toInt / 100.0)
-      }
+      }.sortBy(-_.percentage)
 
       PlayerPageResponse(player, heroesWinSummary, peerPlayerWinSummary)
     }
@@ -89,36 +77,34 @@ trait DotaService extends DotaRequestBuilder {
       heroOption <- heroF
     } yield {
       val hero = heroOption.getOrElse(throw new Exception("Hero not found"))
-      val playersWinSummary = getMatches(players.map(_.id)).collect {
-        case m if m.heroId == id =>
-          val playerName = players.find(_.id == m.playerId.get).map(_.personaName).getOrElse("Unknown Player")
-          val playerSeq = Seq(toMatchPlayer(m, playerName, hero.localizedName))
-          toMatchViewModel(m, playerSeq)
-      }.groupBy(_.players.head.name).map(toWinSummary).toSeq
 
+      val playersWinSummary = players.flatMap(getMatches).filter(_.mr.heroId == id).groupBy(_.player).toSeq.map { tup =>
+        val matchResponses = tup._2.map { matchHead =>
+          val matchPlayerList = tup._2.map { m =>
+            MatchPlayer(m.player.personaName, hero.localizedName, s"${m.mr.kills}/${m.mr.deaths}/${m.mr.assists}")
+          }
+          toMatchViewModel(matchHead, matchPlayerList)
+        }
+        (tup._1.personaName, matchResponses)
+      }.map(toWinSummary)
       HeroPageResponse(hero, playersWinSummary)
     }
   }
 
-  private def toMatchPlayer(m: MatchResponse, playerName: String, hero: String): MatchPlayer = {
-    MatchPlayer(playerName, hero, s"${m.kills}/${m.deaths}/${m.assists}")
-  }
-
-  private def toMatchViewModel(m: MatchResponse, players: Seq[MatchPlayer]): MatchViewModel = {
-    val date = new Date(m.startTime.toLong * 1000L)
+  private def toMatchViewModel(mrwp: MatchResponseWithPlayer, players: Seq[MatchPlayer]): MatchViewModel = {
+    val date = new Date(mrwp.mr.startTime.toLong * 1000L)
     val fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm")
-    // fucking side effect java
     fmt.setTimeZone(TimeZone.getTimeZone("GMT+7"))
     val startTime = fmt.format(date.getTime)
 
     MatchViewModel(
-      matchId = m.matchId,
+      matchId = mrwp.mr.matchId,
       players = players,
-      mode = m.getGameMode,
+      mode = mrwp.mr.getGameMode,
       startTime = startTime,
-      duration = m.getDuration,
-      side = m.getSide,
-      result = m.getWinStatus
+      duration = mrwp.mr.getDuration,
+      side = mrwp.mr.getSide,
+      result = mrwp.mr.getWinStatus
     )
   }
 

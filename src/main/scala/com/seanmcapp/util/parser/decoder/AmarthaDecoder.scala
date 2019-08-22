@@ -1,6 +1,6 @@
-package com.seanmcapp.util.parser
+package com.seanmcapp.util.parser.decoder
 
-import spray.json.{DefaultJsonProtocol, JsValue}
+import spray.json.JsValue
 
 case class AmarthaResponse(status: Int, code: Int, message: String, data: JsValue)
 
@@ -10,7 +10,7 @@ case class AmarthaMarketplaceItem(borrowerName: String, creditScoreGrade: String
 
 case class AmarthaMarketplaceData(total: Int, totalData: Int, totalLatest: Int, marketplace: Seq[AmarthaMarketplaceItem])
 
-object AmarthaJson extends DefaultJsonProtocol {
+trait AmarthaDecoder extends Decoder {
 
   implicit val amarthaResponseFormat = jsonFormat(AmarthaResponse, "status", "code", "message", "data")
   implicit val amarthaAuthDataFormat = jsonFormat(AmarthaAuthData, "accessToken", "name")

@@ -1,10 +1,8 @@
-package com.seanmcapp.util.parser
-
-import spray.json.DefaultJsonProtocol
+package com.seanmcapp.util.parser.decoder
 
 case class InstagramAccountResponse(id: String)
 
-case class InstagramResponse(data: InstagramData)
+case class InstagramResponse(graphql: InstagramData)
 case class InstagramData(user: InstagramUser)
 case class InstagramUser(media: InstagramMedia)
 case class InstagramMedia(count: Int, pageInfo: InstagramPageInfo, edges: Seq[InstagramEdge])
@@ -15,7 +13,7 @@ case class InstagramMediaCaption(edges: Seq[InstagramEdgeCaption])
 case class InstagramEdgeCaption(node: InstagramCaption)
 case class InstagramCaption(text: String)
 
-object InstagramJson extends DefaultJsonProtocol {
+trait InstagramDecoder extends Decoder {
   implicit val instagramAccountResponseFormat = jsonFormat(InstagramAccountResponse, "logging_page_id")
 
   implicit val instagramCaptionFormat = jsonFormat(InstagramCaption, "text")
@@ -27,6 +25,6 @@ object InstagramJson extends DefaultJsonProtocol {
   implicit val instagramMediaFormat = jsonFormat(InstagramMedia, "count", "page_info", "edges")
   implicit val instagramUserFormat = jsonFormat(InstagramUser, "edge_owner_to_timeline_media")
   implicit val instagramDataFormat = jsonFormat(InstagramData, "user")
-  implicit val instagramResponseFormat = jsonFormat(InstagramResponse, "data")
+  implicit val instagramResponseFormat = jsonFormat(InstagramResponse, "graphql")
 
 }

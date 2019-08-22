@@ -1,12 +1,10 @@
-package com.seanmcapp.util.parser
-
-import spray.json.DefaultJsonProtocol
+package com.seanmcapp.util.parser.decoder
 
 case class IgrowResponse(data: Seq[IgrowData])
 
 case class IgrowData(name: String, price: Long, stock: Int, returnAmount: String, contractPeriod: Int)
 
-object IgrowJson extends DefaultJsonProtocol {
+trait IgrowDecoder extends Decoder {
 
   implicit val IgrowDataFormat = jsonFormat(IgrowData, "name", "price", "stock",
     "return", "contract_period")

@@ -1,6 +1,4 @@
-package com.seanmcapp.util.parser
-
-import spray.json.DefaultJsonProtocol
+package com.seanmcapp.util.parser.decoder
 
 case class AirvisualResponse(status: String, data: AirvisualData)
 
@@ -10,7 +8,9 @@ case class AirvisualCurrentData(pollution: AirvisualPollution)
 
 case class AirvisualPollution(aqius: Int)
 
-object AirvisualJson extends DefaultJsonProtocol {
+case class AirvisualCity(country: String, state: String, city: String)
+
+trait AirvisualDecoder extends Decoder {
 
   implicit val AirvisualPollutionFormat = jsonFormat(AirvisualPollution, "aqius")
 

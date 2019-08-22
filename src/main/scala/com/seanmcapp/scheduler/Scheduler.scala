@@ -4,15 +4,13 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.{ActorSystem, Cancellable}
 import akka.stream.Materializer
-import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
 import org.joda.time.{DateTime, DateTimeZone, LocalDateTime}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
 abstract class Scheduler(startTime: Int, intervalOpt: Option[FiniteDuration])
-                        (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends TelegramRequestBuilder {
-  // TODO: Add tests for all scheduler
+                        (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) {
   private val ICT = "+07:00"
   protected def now: DateTime = new DateTime().toDateTime(DateTimeZone.forID(ICT))
   protected val scheduler = system.scheduler
