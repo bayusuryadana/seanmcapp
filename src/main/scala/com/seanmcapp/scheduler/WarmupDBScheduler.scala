@@ -9,6 +9,7 @@ import com.seanmcapp.repository.birthday.PeopleRepo
 import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
+// $COVERAGE-OFF$
 class WarmupDBScheduler(startTime: Int, peopleRepo: PeopleRepo)(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
   extends Scheduler(startTime, None) {
 
@@ -21,3 +22,4 @@ class WarmupDBScheduler(startTime: Int, peopleRepo: PeopleRepo)(implicit system:
   }
 
 }
+// $COVERAGE-ON$

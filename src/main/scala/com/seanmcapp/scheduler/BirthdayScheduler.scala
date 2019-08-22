@@ -8,6 +8,7 @@ import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBui
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.FiniteDuration
 
+// $COVERAGE-OFF$
 class BirthdayScheduler(startTime: Int, interval: FiniteDuration, peopleRepo: PeopleRepo, override val http: HttpRequestBuilder)
                        (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
   extends Scheduler(startTime, Some(interval)) with TelegramRequestBuilder {
@@ -26,3 +27,4 @@ class BirthdayScheduler(startTime: Int, interval: FiniteDuration, peopleRepo: Pe
   }
 
 }
+// $COVERAGE-ON$
