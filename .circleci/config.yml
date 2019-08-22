@@ -25,6 +25,8 @@ jobs:
       - save_cache:
           paths:
             - ~/.m2
+            - ~/.sbt
+            - ~/.iv2/cache
           key: v1-dependencies--{{ checksum "build.sbt" }}
 
       - run:
