@@ -46,9 +46,6 @@ jobs:
           command: cat /dev/null | sbt test
 
       ### run it dependencies
-      - setup_remote_docker:
-          docker_layer_caching: true
-
       - run:
           name: Running external dependencies (docker-compose)
           command: |
