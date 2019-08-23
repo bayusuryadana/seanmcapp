@@ -29,7 +29,7 @@ class DotaServiceSpec extends AsyncWordSpec with Matchers {
     dotaService.player(105742997).map { res =>
       res.player.id shouldEqual 105742997
       res.player.realName shouldEqual "Bayu Suryadana"
-      res.player.avatarFull shouldBe null
+      res.player.avatarFull shouldBe "https://someurl"
       res.player.personaName shouldEqual "SeanmcrayZ"
 
       res.heroes.size shouldEqual 9
@@ -51,8 +51,8 @@ class DotaServiceSpec extends AsyncWordSpec with Matchers {
       res.hero.lore shouldEqual "strygwyr story here"
 
       res.players.size shouldEqual 1
-      res.players.head.peerName shouldEqual "lightzard"
-      res.players.head.percentage shouldEqual 0.5
+      res.players.headOption.map(_.peerName) shouldBe Some("lightzard")
+      res.players.headOption.map(_.percentage) shouldBe Some(0.5)
     }
   }
 

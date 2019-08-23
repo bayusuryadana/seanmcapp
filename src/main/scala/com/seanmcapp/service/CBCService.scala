@@ -40,8 +40,8 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, override val 
   }
 
   private[service] def executeCommand(command: String, chatId: Long, userId: Long, userFullName: String): Future[Option[TelegramResponse]] = {
-    command.split("_").head match {
-      case "/cbc" =>
+    command.split("_").headOption match {
+      case Some(s) if s == "/cbc" =>
         val account = if (command.split("_").length > 1) Some(command.replace("_", ".").stripPrefix("/cbc.")) else None
         val customerF = customerRepo.get(userId)
         val photoF = photoRepo.getRandom(account)
@@ -59,8 +59,8 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, override val 
             sendPhoto(chatId, photo)
           }
         }
-      case otherCommand =>
-        println("[ERROR] Command not recognized: " + otherCommand)
+      case _ =>
+        println("[ERROR] Command not recognized: " + command)
         Future.successful(None)
     }
   }
