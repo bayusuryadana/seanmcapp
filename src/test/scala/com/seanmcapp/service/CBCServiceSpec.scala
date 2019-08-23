@@ -14,8 +14,7 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
 
   "should return any random photos - API random endpoint" in {
     cbcService.random.map { res =>
-      res.isDefined shouldEqual true
-      res.get.thumbnailSrc shouldEqual "https://someurl"
+      res.map(_.thumbnailSrc) shouldBe Some("https://someurl")
     }
   }
 
@@ -24,24 +23,21 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
     cbcService.randomFlow(input).map { response =>
 
       response shouldNot be(None)
-      val res = response.get
+      val res = response.getOrElse(cancel("response is not defined"))
 
       res.ok shouldEqual true
       val chat = res.result.chat
       chat.id shouldEqual 274852283
       chat.chatType shouldEqual "private"
-      chat.firstName.isDefined shouldEqual true
-      chat.firstName.get shouldEqual "Bayu"
+      chat.firstName shouldBe Some("Bayu")
 
       res.result.from.isDefined shouldEqual true
-      val from = res.result.from.get
+      val from = res.result.from.getOrElse(cancel("response is not defined"))
       from.id shouldEqual 354236808
       from.isBot shouldEqual true
-      from.username.isDefined shouldEqual true
-      from.username.get shouldEqual "seanmcbot"
+      from.username shouldEqual Some("seanmcbot")
 
-      res.result.photo.isDefined shouldEqual true
-      res.result.photo.get.size should be > 0
+      res.result.photo.map(_.nonEmpty) shouldBe Some(true)
     }
   }
 
@@ -50,21 +46,18 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
     cbcService.randomFlow(input).map { response =>
 
       response shouldNot be(None)
-      val res = response.get
+      val res = response.getOrElse(cancel("response is not defined"))
 
       res.ok shouldEqual true
       val chat = res.result.chat
       chat.id shouldEqual -111546505
       chat.chatType shouldEqual "group"
-      chat.title.isDefined shouldEqual true
-      chat.title.get shouldEqual "Kelompok abang redho"
+      chat.title shouldBe Some("Kelompok abang redho")
 
-      res.result.from.isDefined shouldEqual true
-      val from = res.result.from.get
-      from.id shouldEqual 354236808
-      from.isBot shouldEqual true
-      from.username.isDefined shouldEqual true
-      from.username.get shouldEqual "seanmcbot"
+      val from = res.result.from
+      from.map(_.id) shouldBe Some(354236808)
+      from.map(_.isBot) shouldBe Some(true)
+      from.flatMap(_.username) shouldBe Some("seanmcbot")
     }
   }
 
@@ -74,11 +67,10 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
     cbcService.executeCommand(command, chatId, 123L, "Fawwaz Afifanto").map { response =>
 
       response shouldNot be(None)
-      val res = response.get
+      val res = response.getOrElse(cancel("response is not defined"))
 
       res.ok shouldEqual true
-      res.result.caption.isDefined shouldEqual true
-      res.result.caption.get shouldEqual "ui.cantik"
+      res.result.caption shouldEqual Some("ui.cantik")
     }
   }
 
@@ -88,11 +80,10 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
     cbcService.executeCommand(command, chatId, 123L, "Fawwaz Afifanto").map { response =>
 
       response shouldNot be(None)
-      val res = response.get
+      val res = response.getOrElse(cancel("response is not defined"))
 
       res.ok shouldEqual true
-      res.result.caption.isDefined shouldEqual true
-      res.result.caption.get shouldEqual "bidadari.ub"
+      res.result.caption shouldEqual Some("bidadari.ub")
     }
   }
 }
