@@ -37,8 +37,6 @@ libraryDependencies ++= Seq(
   "io.minio" % "minio" % "6.0.8",
 )
 
-coverageEnabled in(Test, compile) := true
-coverageEnabled in(Compile, compile) := false
 coverageExcludedPackages :=
   ".*com.seanmcapp.util.*;" +
   ".*com.seanmcapp.config.*;" +
