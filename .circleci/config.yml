@@ -19,10 +19,6 @@ jobs:
             - v1-dependencies-
 
       - run:
-          name: Coverage
-          command: cat /dev/null | sbt coverage
-
-      - run:
           name: Compile test
           command: cat /dev/null | sbt test:compile
 
@@ -35,7 +31,7 @@ jobs:
 
       - run:
           name: Unit test
-          command: cat /dev/null | sbt test
+          command: cat /dev/null | sbt coverage test
 
       - run:
           name: Running external dependencies (docker-compose)
@@ -45,7 +41,7 @@ jobs:
 
       - run:
           name: Integration testing
-          command: cat /dev/null | sbt it:test
+          command: cat /dev/null | sbt coverage it:test
 
       - run:
           name: Coverage report
