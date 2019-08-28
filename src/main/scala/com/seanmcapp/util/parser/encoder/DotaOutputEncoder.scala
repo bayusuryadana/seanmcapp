@@ -5,15 +5,17 @@ import com.seanmcapp.repository.dota.{Hero, Player}
 case class MatchViewModel(matchId: Long, players: Seq[MatchPlayer], mode: String, startTime: String,
                           duration: String, side: String, result: String)
 
-case class MatchPlayer(name: String, hero: String, kda: String)
+case class MatchPlayer(player: Player, hero: Option[Hero], kill: Int, death: Int, assist: Int)
 
-case class WinSummary(peerName: String, win: Int, games: Int, percentage:Double)
+case class PlayerWinSummary(player: Player, win: Int, games: Int, percentage: Double)
+
+case class HeroWinSummary(hero: Option[Hero], win: Int, games: Int, percentage: Double)
 
 case class HomePageResponse(matches: Seq[MatchViewModel], players: Seq[Player], heroes: Seq[Hero])
 
-case class PlayerPageResponse(player: Player, heroes: Seq[WinSummary], peers: Seq[WinSummary])
+case class PlayerPageResponse(player: Player, heroes: Seq[HeroWinSummary], peers: Seq[PlayerWinSummary])
 
-case class HeroPageResponse(hero: Hero, players: Seq[WinSummary])
+case class HeroPageResponse(hero: Option[Hero], players: Seq[PlayerWinSummary])
 
 trait DotaOutputEncoder extends Encoder {
 
@@ -21,11 +23,13 @@ trait DotaOutputEncoder extends Encoder {
 
   implicit val heroFormat = jsonFormat5(Hero)
 
-  implicit val matchPlayerFormat = jsonFormat3(MatchPlayer)
+  implicit val matchPlayerFormat = jsonFormat5(MatchPlayer)
 
   implicit val matchViewModelFormat = jsonFormat7(MatchViewModel)
 
-  implicit val winSummaryFormat = jsonFormat4(WinSummary)
+  implicit val playerWinSummaryFormat = jsonFormat4(PlayerWinSummary)
+
+  implicit val heroWinSummaryFormat = jsonFormat4(HeroWinSummary)
 
   implicit val homePageResponseFormat = jsonFormat3(HomePageResponse)
 

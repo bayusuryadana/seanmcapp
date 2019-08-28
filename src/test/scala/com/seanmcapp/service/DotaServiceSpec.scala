@@ -13,11 +13,11 @@ class DotaServiceSpec extends AsyncWordSpec with Matchers {
     dotaService.home.map { res =>
       res.matches.size shouldEqual 10
 
-      res.matches.flatMap(_.players).count(_.name == "SeanmcrayZ") shouldEqual 5
-      res.matches.flatMap(_.players).count(_.name == "OMEGALUL") shouldEqual 5
-      res.matches.flatMap(_.players).count(_.name == "lightzard") shouldEqual 2
-      res.matches.flatMap(_.players).count(_.name == "travengers") shouldEqual 1
-      res.matches.flatMap(_.players).count(_.name == "hnymnky") shouldEqual 2
+      res.matches.flatMap(_.players).count(_.player.personaName == "SeanmcrayZ") shouldEqual 5
+      res.matches.flatMap(_.players).count(_.player.personaName == "OMEGALUL") shouldEqual 5
+      res.matches.flatMap(_.players).count(_.player.personaName == "lightzard") shouldEqual 2
+      res.matches.flatMap(_.players).count(_.player.personaName == "travengers") shouldEqual 1
+      res.matches.flatMap(_.players).count(_.player.personaName == "hnymnky") shouldEqual 2
       res.matches.headOption.map(_.players.size) shouldEqual Some(3)
 
       res.players.size shouldEqual 5
@@ -36,7 +36,7 @@ class DotaServiceSpec extends AsyncWordSpec with Matchers {
       res.heroes.headOption.map(_.percentage) shouldEqual Some(1.0)
 
       res.peers.size shouldEqual 2
-      res.peers.map(_.peerName) shouldBe List("hnymnky", "lightzard")
+      res.peers.map(_.player.personaName) shouldBe List("hnymnky", "lightzard")
       res.peers.map(_.percentage) shouldBe List(0.5, 0.46)
 
     }
@@ -44,14 +44,14 @@ class DotaServiceSpec extends AsyncWordSpec with Matchers {
 
   "should fetch correct response and transform response properly - Hero endpoint" in {
     dotaService.hero(4).map { res =>
-      res.hero.id shouldEqual 4
-      res.hero.localizedName shouldEqual "Bloodseeker"
-      res.hero.primaryAttr shouldEqual "agi"
-      res.hero.image shouldEqual "bloodseeker_full.png"
-      res.hero.lore shouldEqual "strygwyr story here"
+      res.hero.map(_.id) shouldEqual Some(4)
+      res.hero.map(_.localizedName) shouldEqual Some("Bloodseeker")
+      res.hero.map(_.primaryAttr) shouldEqual Some("agi")
+      res.hero.map(_.image) shouldEqual Some("bloodseeker_full.png")
+      res.hero.map(_.lore) shouldEqual Some("strygwyr story here")
 
       res.players.size shouldEqual 1
-      res.players.headOption.map(_.peerName) shouldBe Some("lightzard")
+      res.players.headOption.map(_.player.personaName) shouldBe Some("lightzard")
       res.players.headOption.map(_.percentage) shouldBe Some(0.5)
     }
   }
