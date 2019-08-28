@@ -25,7 +25,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
       val matchViewModels = players.flatMap(getMatches).groupBy(_.mr.startTime).toSeq.sortBy(-_._1).map(_._2).take(10).flatMap { identicalMatches =>
         identicalMatches.headOption.map { mrwpHead =>
           val matchPlayerList = identicalMatches.map { mrwp =>
-            val hero = heroes.find(_.id == mrwp.mr.heroId)
+            val hero = heroes.find(_.id == mrwp.mr.heroId).map(_.copy(lore = ""))
             MatchPlayer(mrwp.player, hero, mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
           }
           toMatchViewModel(mrwpHead, matchPlayerList)
