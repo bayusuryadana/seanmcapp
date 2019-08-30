@@ -5,6 +5,7 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives
 import akka.stream.Materializer
 import com.seanmcapp.repository.instagram.Photo
+import com.seanmcapp.repository.seanmcwallet.Wallet
 import com.seanmcapp.util.parser.encoder.{RouteEncoder, TelegramResponse}
 import spray.json._
 
@@ -14,6 +15,7 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
   with SprayJsonSupport with RouteEncoder with Injection {
 
   implicit val photoFormat = jsonFormat(Photo, "id", "thumbnail_src", "date", "caption", "account")
+  implicit val walletFormat = jsonFormat5(Wallet)
 
   val routePath = Seq(
 
@@ -29,6 +31,9 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     get(path("dota")(complete(dotaAPI.home.map(_.toJson)))),
     get(path("dota" / "player" / Remaining)(id => complete(dotaAPI.player(id.toInt).map(_.toJson)))),
     get(path("dota" / "hero" /  Remaining)(id => complete(dotaAPI.hero(id.toInt).map(_.toJson)))),
+
+    // wallet
+    get(path("wallet" / Remaining)(secretKey => complete(walletAPI.getAll(secretKey).map(_.toJson)))),
 
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !"))),
