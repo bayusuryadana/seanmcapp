@@ -39,7 +39,7 @@ CREATE TABLE people (
 
 
 CREATE TABLE wallets (
-    id integer NOT NULL,
+    id SERIAL,
     date integer NOT NULL,
     name character varying(64) NOT NULL,
     category character varying(16) NOT NULL,

@@ -23,14 +23,20 @@ trait WalletRepo {
 
   def insert(wallet: Wallet): Future[Int]
 
+  def update(wallet: Wallet): Future[Int]
+
+  def delete(id: Int): Future[Int]
+
 }
 
 object WalletRepoImpl extends TableQuery(new WalletInfo(_)) with WalletRepo with DBComponent {
 
-  def getAll: Future[Seq[Wallet]] = {
-    run(this.result)
-  }
+  def getAll: Future[Seq[Wallet]] = run(this.result)
 
   def insert(wallet: Wallet): Future[Int] = run(this += wallet)
+
+  def update(wallet: Wallet): Future[Int] = run(this.filter(_.id === wallet.id).update(wallet))
+
+  def delete(id: Int): Future[Int] = run(this.filter(_.id === id).delete)
 
 }
