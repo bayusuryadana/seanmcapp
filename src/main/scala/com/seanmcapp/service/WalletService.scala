@@ -11,7 +11,7 @@ import scala.concurrent.Future
 
 class WalletService(walletRepo: WalletRepo) extends WalletCommon {
 
-  private val SECRET_KEY = WalletConf().secretKey
+  private[service] val SECRET_KEY = WalletConf().secretKey
 
   def getAll(implicit secretKey: String): Future[WalletOutput] = {
     auth(secretKey, walletRepo.getAll.map(wallet => WalletOutput(200, None, Some(wallet.size), Some(wallet))))
@@ -19,7 +19,7 @@ class WalletService(walletRepo: WalletRepo) extends WalletCommon {
 
   def insert(payload: JsValue)(implicit secretKey: String): Future[WalletOutput] = {
     val walletInput = decode[Wallet](payload)
-    auth(secretKey, walletRepo.insert(walletInput).map(wallet => WalletOutput(200, None, Some(wallet), None)))
+    auth(secretKey, walletRepo.insert(walletInput).map(wallet => WalletOutput(200, None, Some(1), Some(Seq(wallet)))))
   }
 
   def update(payload: JsValue)(implicit secretKey: String): Future[WalletOutput] = {

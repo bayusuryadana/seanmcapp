@@ -5,5 +5,5 @@ import com.seanmcapp.util.parser.decoder.Decoder
 import com.seanmcapp.util.parser.encoder.Encoder
 
 trait WalletCommon extends Encoder with Decoder {
-  implicit val walletFormat = jsonFormat5(Wallet)
+  implicit val walletFormat = jsonFormat7(Wallet)
 }
