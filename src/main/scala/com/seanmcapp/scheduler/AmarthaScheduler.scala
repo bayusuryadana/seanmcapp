@@ -57,7 +57,7 @@ class AmarthaScheduler(startTime: Int, interval: Option[FiniteDuration], overrid
   }
 
   private[scheduler] def rerun(response: AmarthaMarketplaceData): Unit = {
-    if (response.marketplace.nonEmpty) new AmarthaScheduler(startTime + 1, None, http).run
+    if (response.marketplace.nonEmpty && startTime <= 14) new AmarthaScheduler(startTime + 1, None, http).run
   }
 
 }
