@@ -42,9 +42,11 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
 
   ).reduce{ (a,b) => a~b }
 
-  private def extractHeader: HttpHeader => Option[String] = {
-    case HttpHeader("secretKey", value) => Some(value)
-    case _ => None
+  private def extractHeader(httpHeader: HttpHeader): Option[String] = {
+    HttpHeader.unapply(httpHeader) match {
+      case Some(("secretkey", value)) => Some(value)
+      case _ => None
+    }
   }
 
 }
