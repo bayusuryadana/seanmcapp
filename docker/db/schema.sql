@@ -37,7 +37,6 @@ CREATE TABLE people (
     CONSTRAINT people_month_check CHECK (((month > 0) AND (month <= 12)))
 );
 
-
 CREATE TABLE wallets (
     id SERIAL,
     date integer NOT NULL,
