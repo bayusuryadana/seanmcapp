@@ -23,14 +23,14 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers with WalletCommon {
 
   "getAll should return all the rows" in {
     walletService.getAll(secretKey).map { res =>
-      res.response.map(_.size) shouldBe Some(3)
+      res.response.map(_.rawData) shouldBe Some(3)
     }
   }
 
   "insert should return the inserted object" in {
     val wallet = Wallet(0, 201909, "Japan 2020", "Travel", "SGD", 100, false)
     walletService.insert(wallet.toJson)(secretKey).map { res =>
-      res shouldBe WalletOutput(200, None, Some(1), Some(Seq(wallet)))
+      res shouldBe WalletOutput(200, None, Some(1), None)
     }
   }
 
