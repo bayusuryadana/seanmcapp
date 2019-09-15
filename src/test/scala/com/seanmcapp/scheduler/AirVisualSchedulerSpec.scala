@@ -19,7 +19,9 @@ class AirVisualSchedulerSpec extends AsyncWordSpec with Matchers with SchedulerF
       AirvisualCity("Indonesia", "Jakarta", "Jakarta") -> 119,
       AirvisualCity("Indonesia", "West Java", "Bekasi") -> 119,
       AirvisualCity("Indonesia", "West Java", "Depok") -> 119,
-      AirvisualCity("Singapore", "Singapore", "Singapore") -> 119
+      AirvisualCity("Singapore", "Singapore", "Singapore") -> 119,
+      AirvisualCity("Indonesia", "Riau", "Pekanbaru") -> 119,
+      AirvisualCity("Indonesia", "Central Kalimantan", "Palangkaraya") -> 119
     )
     airVisual.task shouldBe expected
   }
