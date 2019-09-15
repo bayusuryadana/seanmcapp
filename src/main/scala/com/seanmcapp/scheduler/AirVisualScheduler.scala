@@ -27,7 +27,9 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration, override val 
     AirvisualCity("Indonesia", "Jakarta", "Jakarta"),
     AirvisualCity("Indonesia", "West Java", "Bekasi"),
     AirvisualCity("Indonesia", "West Java", "Depok"),
-    AirvisualCity("Singapore", "Singapore", "Singapore")
+    AirvisualCity("Singapore", "Singapore", "Singapore"),
+    AirvisualCity("Indonesia", "Riau", "Pekanbaru"),
+    AirvisualCity("Indonesia", "Central Kalimantan", "Palangkaraya")
   )
 
   override def task: Map[AirvisualCity, Int] = {
