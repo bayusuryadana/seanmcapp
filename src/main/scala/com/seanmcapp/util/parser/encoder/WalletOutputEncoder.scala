@@ -6,7 +6,7 @@ import com.seanmcapp.util.parser.WalletCommon
 case class WalletOutput(code: Int, message: Option[String], row: Option[Int], response: Option[WalletResponse])
 
 case class WalletResponse(rawData: Seq[Wallet], investAccount: InvestsAccount, savingsAccount: SavingsAccount,
-                          label: Seq[Int], chartData: ChartData)
+                          label: Seq[Int], chartData: ChartData, pie: Map[String, Int])
 
 case class InvestsAccount(amartha: Int, igrow: Int, growpal: Int, plastik: Int)
 
@@ -30,7 +30,7 @@ trait WalletOutputEncoder extends WalletCommon {
 
   implicit val investsAccountFormat = jsonFormat4(InvestsAccount)
 
-  implicit val walletResponseFormat = jsonFormat5(WalletResponse)
+  implicit val walletResponseFormat = jsonFormat6(WalletResponse)
 
   implicit val walletOutputFormat = jsonFormat4(WalletOutput)
 

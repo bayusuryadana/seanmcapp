@@ -68,6 +68,9 @@ class WalletService(walletRepo: WalletRepo) extends WalletCommon {
       case "IDR" => w.amount / IDR
       case _ => w.amount
     }))
+
+    val pie = adjWallet.filter(_.done).groupBy(_.category).map(cat => (cat._1, cat._2.map(_.amount).sum))
+
     def groupingData(wallets: Seq[Wallet]): Seq[(Int, Seq[Wallet])] = wallets.groupBy(_.date).toSeq.sortBy(_._1)
     val monthsLabel = groupingData(adjWallet).map(_._1)
     val cashFlowData = groupingData(adjWallet).map(_._2.collect { case w if !investNonROISet.contains(w.category) => w.amount}.sum)
@@ -86,7 +89,7 @@ class WalletService(walletRepo: WalletRepo) extends WalletCommon {
     val investIncome = groupingData(wallets).map(_._2.collect { case w if w.category == "ROI" => w.amount}.sum)
 
     val walletResponse = WalletResponse(wallets, InvestsAccount(amartha, igrow, growpal, plastik),
-      SavingsAccount(myr, thb, sgd, idr), monthsLabel, ChartData(cashFlowData, balanceData, expenseByCatData, activeInvest, investIncome))
+      SavingsAccount(myr, thb, sgd, idr), monthsLabel, ChartData(cashFlowData, balanceData, expenseByCatData, activeInvest, investIncome), pie)
 
     WalletOutput(200, None, Some(wallets.size), Some(walletResponse))
   }
