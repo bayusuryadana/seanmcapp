@@ -33,10 +33,7 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     get(path("dota" / "hero" /  Remaining)(id => complete(dotaAPI.hero(id.toInt).map(_.toJson)))),
 
     // wallet
-    options(path("wallet")(respondWithHeaders(RawHeader("Access-Control-Allow-Origin", "*"), RawHeader("Access-Control-Allow-Headers", "*"))(complete("")))),
-    get((path("wallet") & headerValue(extractHeader)) { secretKey =>
-      respondWithHeaders(RawHeader("Access-Control-Allow-Origin", "*"))(complete(walletAPI.getAll(secretKey).map(_.toJson)))
-    }),
+    get((path("wallet") & headerValue(extractHeader))(secretKey => complete(walletAPI.getAll(secretKey).map(_.toJson)))),
     post((path("wallet") & headerValue(extractHeader) & entity(as[JsValue]))((secretKey, payload) => complete(walletAPI.insert(payload)(secretKey).map(_.toJson)))),
     put((path("wallet") & headerValue(extractHeader) & entity(as[JsValue]))((secretKey, payload) => complete(walletAPI.update(payload)(secretKey).map(_.toJson)))),
     delete((path("wallet" / Remaining) & headerValue(extractHeader))((id, secretKey) => complete(walletAPI.delete(id.toInt)(secretKey).map(_.toJson)))),

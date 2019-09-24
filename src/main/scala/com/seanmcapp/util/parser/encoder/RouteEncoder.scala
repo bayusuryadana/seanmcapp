@@ -1,3 +1,5 @@
 package com.seanmcapp.util.parser.encoder
 
-trait RouteEncoder extends TelegramOutputEncoder with DotaOutputEncoder with WalletOutputEncoder
+import com.seanmcapp.util.parser.WalletCommon
+
+trait RouteEncoder extends TelegramOutputEncoder with DotaOutputEncoder with WalletCommon
