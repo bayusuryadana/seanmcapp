@@ -14,9 +14,9 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, override val 
 
   def random: Future[Option[Photo]] = photoRepo.getRandom(None)
 
-  def randomFlow(request: JsValue): Future[Option[TelegramResponse]] = {
-    val update = decode[TelegramUpdate](request)
-    val message = update.message.getOrElse(throw new Exception("This request is does not have a message: " + request))
+  def randomFlow(payload: JsValue): Future[Option[TelegramResponse]] = {
+    val update = decode[TelegramUpdate](payload)
+    val message = update.message.getOrElse(throw new Exception("This request is does not have a message: " + payload))
     val chatId = message.chat.id
     val userId = message.from.id
     val userFullName = message.from.firstName + " " + message.from.lastName.getOrElse("")

@@ -8,7 +8,7 @@ https://medium.com/@sherryhsu/set-up-postgresql-database-using-with-production-d
 - create dockerfile like below, these lines will download the postgres itself and copy the `backup.sql` to `/docker-entrypoint-initdb.d/` as all the sql scripts will be automatically run during container startup
 ```
 FROM postgres:11.4-alpine 
-COPY *.sql /docker-entrypoint-initdb.d/
+COPY backup.sql /docker-entrypoint-initdb.d/
 RUN chmod a+r /docker-entrypoint-initdb.d/*
 ```
 
