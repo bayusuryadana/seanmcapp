@@ -37,10 +37,11 @@ class AmarthaScheduler(startTime: Int, interval: Option[FiniteDuration], overrid
       println(response.marketplace.size)
       response.marketplace.foreach(item => println(s"${item.borrowerName}(${item.creditScoreGrade}): ${item.plafond}"))
 
-      val stringMessage = "Amartha: " + response.marketplace.size + " orang perlu didanai " + "(" + startTime + ":00)"
-      val schedulerConf = SchedulerConf()
-      schedulerConf.amartha.foreach(chatId => sendMessage(chatId, stringMessage))
-      rerun(response)
+      // TODO: move to reporting
+      // val stringMessage = "Amartha: " + response.marketplace.size + " orang perlu didanai " + "(" + startTime + ":00)"
+      // val schedulerConf = SchedulerConf()
+      // schedulerConf.amartha.foreach(chatId => sendMessage(chatId, stringMessage))
+      // rerun(response)
       response.marketplace
     } else throw new Exception(authResponse.toString)
   }
