@@ -1,28 +1,28 @@
 name := "seanmcapp"
 version := "latest"
-scalaVersion := "2.12.4"
+scalaVersion := "2.13.1"
 
 libraryDependencies ++= Seq(
   // framework
-  "com.typesafe.akka" %% "akka-http" % "10.1.3",
-  "com.typesafe.akka" %% "akka-stream" % "2.5.12",
+  "com.typesafe.akka" %% "akka-http" % "10.1.10",
+  "com.typesafe.akka" %% "akka-stream" % "2.5.26",
 
   // json serializer
-  "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.3",
+  "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.10",
 
   // http builder
-  "org.scalaj" %% "scalaj-http" % "2.4.0",
+  "org.scalaj" %% "scalaj-http" % "2.4.2",
 
   // ORM
-  "com.typesafe.slick" %% "slick" % "3.2.3",
-  "com.typesafe.slick" %% "slick-hikaricp" % "3.2.3",
+  "com.typesafe.slick" %% "slick" % "3.3.2",
+  "com.typesafe.slick" %% "slick-hikaricp" % "3.3.2",
   "org.slf4j" % "slf4j-nop" % "1.6.4",
 
   // postgresql
   "org.postgresql" % "postgresql" % "42.2.5",
 
   // scalatest
-  "org.scalatest" %% "scalatest" % "3.0.5" % "test,it",
+  "org.scalatest" %% "scalatest" % "3.0.8" % "test,it",
 
   // mockito
   "org.mockito" % "mockito-core" % "3.0.0" % Test,
@@ -31,7 +31,7 @@ libraryDependencies ++= Seq(
   "joda-time" % "joda-time" % "2.10.1",
 
   // caching
-  "com.github.cb372" %% "scalacache-guava" % "0.27.0",
+  "com.github.cb372" %% "scalacache-guava" % "0.28.0",
 
   // image storage
   "io.minio" % "minio" % "6.0.8",
