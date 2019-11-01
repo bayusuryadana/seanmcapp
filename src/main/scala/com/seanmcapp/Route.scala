@@ -17,6 +17,8 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
 
   implicit val photoFormat = jsonFormat(Photo, "id", "thumbnail_src", "date", "caption", "account")
 
+  private val headerResponse = respondWithHeaders(RawHeader("Access-Control-Allow-Origin", "*"), RawHeader("Access-Control-Allow-Headers", "*"), RawHeader("Access-Control-Allow-Method", "*"))
+
   val routePath = Seq(
 
     // cbc API
@@ -33,9 +35,9 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     get(path("dota" / "hero" /  Remaining)(id => complete(dotaAPI.hero(id.toInt).map(_.toJson)))),
 
     // wallet
-    options(path("wallet")(respondWithHeaders(RawHeader("Access-Control-Allow-Origin", "*"), RawHeader("Access-Control-Allow-Headers", "*"))(complete("")))),
+    options(path("wallet")(headerResponse(complete("")))),
     get((path("wallet") & headerValue(extractHeader))(secretKey => complete(walletAPI.getAll(secretKey).map(_.toJson)))),
-    post((path("wallet") & headerValue(extractHeader) & entity(as[JsValue]))((secretKey, payload) => complete(walletAPI.insert(payload)(secretKey).map(_.toJson)))),
+    post((path("wallet") & headerValue(extractHeader) & entity(as[JsValue]))((secretKey, payload) => headerResponse(complete(walletAPI.insert(payload)(secretKey).map(_.toJson))))),
     put((path("wallet") & headerValue(extractHeader) & entity(as[JsValue]))((secretKey, payload) => complete(walletAPI.update(payload)(secretKey).map(_.toJson)))),
     delete((path("wallet" / Remaining) & headerValue(extractHeader))((id, secretKey) => complete(walletAPI.delete(id.toInt)(secretKey).map(_.toJson)))),
 
