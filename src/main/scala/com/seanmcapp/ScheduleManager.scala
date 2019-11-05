@@ -32,7 +32,6 @@ trait ScheduleManager {
 
       new BirthdayScheduler(6, everyDay, peopleRepo, http),
       new IGrowScheduler(6, everyDay, http),
-      new AmarthaScheduler(12, Some(everyDay), http),
 
       new AirVisualScheduler(8, everyDay, http),
       new AirVisualScheduler(17, everyDay, http)

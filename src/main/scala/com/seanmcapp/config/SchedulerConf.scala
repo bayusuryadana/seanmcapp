@@ -5,17 +5,16 @@ import config.Configuration
 
 import scala.util.Try
 
-case class SchedulerConf(amartha: Seq[Long], igrow: Seq[Long])
+case class SchedulerConf(igrow: Seq[Long])
 
 object SchedulerConf extends Configuration[SchedulerConf] {
 
   override val prefix: String = "scheduler"
 
-  def apply(): SchedulerConf = apply(ConfigFactory.load)
+  def apply(): SchedulerConf = super.apply(ConfigFactory.load)
 
   override def fromSubConfig(c: Config): SchedulerConf = {
-    SchedulerConf(Try(c.getString("amartha").split(",").map(_.toLong).toSeq)
-      .getOrElse(Seq.empty[Long]),
+    SchedulerConf(
       Try(c.getString("igrow").split(",").map(_.toLong).toSeq).getOrElse(Seq.empty[Long])
     )
   }
