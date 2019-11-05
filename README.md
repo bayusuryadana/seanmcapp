@@ -7,11 +7,11 @@
 API:
 - CBC API
 - Dota API
+- Wallet API
 
 Scheduled job:
 - Igrow
 - Birthday
-- Amartha
 - AirVisual
 
 ## Prerequisites
