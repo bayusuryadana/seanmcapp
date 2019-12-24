@@ -8,7 +8,7 @@ case class WalletOutput(code: Int, message: Option[String], row: Option[Int], re
 
 trait WalletCommon extends Encoder with Decoder {
 
-  implicit val walletFormat = jsonFormat7(Wallet)
+  implicit val walletFormat = jsonFormat8(Wallet)
 
   implicit val walletOutputFormat = jsonFormat4(WalletOutput)
 

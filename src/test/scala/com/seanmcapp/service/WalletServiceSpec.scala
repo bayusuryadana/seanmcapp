@@ -28,14 +28,14 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers with WalletCommon {
   }
 
   "insert should return the inserted object" in {
-    val wallet = Wallet(0, 201909, "Japan 2020", "Travel", "SGD", 100, false)
+    val wallet = Wallet(0, 201909, "Japan 2020", "Travel", "SGD", 100, false, "DBS")
     walletService.insert(wallet.toJson)(secretKey).map { res =>
-      res shouldBe WalletOutput(200, None, Some(1), Seq(Wallet(0, 201909, "Japan 2020", "Travel", "SGD", 100, false)))
+      res shouldBe WalletOutput(200, None, Some(1), Seq(Wallet(0, 201909, "Japan 2020", "Travel", "SGD", 100, false, "DBS")))
     }
   }
 
   "update should return number of updated object" in {
-    val wallet = Wallet(0, 201909, "Japan 2020", "Travel", "SGD", 100, true)
+    val wallet = Wallet(0, 201909, "Japan 2020", "Travel", "SGD", 100, true, "DBS")
     walletService.update(wallet.toJson)(secretKey).map { res =>
       res shouldBe WalletOutput(200, None, Some(1), Seq.empty[Wallet])
     }

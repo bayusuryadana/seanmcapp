@@ -8,7 +8,7 @@ import scala.util.{Failure, Success}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class Wallet(id: Int, date: Int, name: String, category: String, currency: String, amount: Int, done: Boolean)
+case class Wallet(id: Int, date: Int, name: String, category: String, currency: String, amount: Int, done: Boolean, account: String)
 
 class WalletInfo(tag: Tag) extends Table[Wallet](tag, "wallets") {
   val id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -18,8 +18,9 @@ class WalletInfo(tag: Tag) extends Table[Wallet](tag, "wallets") {
   val currency = column[String]("currency")
   val amount = column[Int]("amount")
   val done = column[Boolean]("done")
+  val account = column[String]("account")
 
-  def * = (id, date, name, category, currency, amount, done) <> (Wallet.tupled, Wallet.unapply)
+  def * = (id, date, name, category, currency, amount, done, account) <> (Wallet.tupled, Wallet.unapply)
 }
 
 trait WalletRepo {

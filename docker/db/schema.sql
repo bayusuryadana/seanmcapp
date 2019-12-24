@@ -44,5 +44,6 @@ CREATE TABLE wallets (
     category character varying(16) NOT NULL,
     currency character varying(4) NOT NULL,
     amount integer NOT NULL,
-    done boolean NOT NULL
+    done boolean NOT NULL,
+    account varchar(20) NOT NULL
 );
