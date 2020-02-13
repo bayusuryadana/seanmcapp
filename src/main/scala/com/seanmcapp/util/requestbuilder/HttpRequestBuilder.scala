@@ -5,11 +5,22 @@ import scalaj.http.Http
 import scala.util.{Failure, Success, Try}
 
 trait HttpRequestBuilder {
+
+  def sendGetRequest(url: String): String
+
   def sendRequest(url: String, postData: Option[String] = None, headers: Option[Map[String, String]] = None,
                   timeout: Option[(Int, Int)] = None): String
+
 }
 
 object HttpRequestBuilderImpl extends HttpRequestBuilder {
+
+  def sendGetRequest(url: String): String = {
+    Try(Http(url).asString.throwError.body) match {
+      case Success(res) => res
+      case Failure(e) => throw new Exception(e)
+    }
+  }
 
   def sendRequest(url: String, postData: Option[String] = None, headers: Option[Map[String, String]] = None,
                   timeout: Option[(Int, Int)] = None): String = {

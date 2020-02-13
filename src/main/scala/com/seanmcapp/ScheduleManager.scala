@@ -34,7 +34,9 @@ trait ScheduleManager {
       new IGrowScheduler(6, everyDay, http),
 
       new AirVisualScheduler(8, everyDay, http),
-      new AirVisualScheduler(17, everyDay, http)
+      new AirVisualScheduler(17, everyDay, http),
+
+      new NCovScheduler(8, everyDay, http)
     ).map(_.run)
 
     system.registerOnTermination(scheduleList.map(_.cancel()))
