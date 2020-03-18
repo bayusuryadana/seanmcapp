@@ -4,11 +4,11 @@ scalaVersion := "2.13.1"
 
 libraryDependencies ++= Seq(
   // framework
-  "com.typesafe.akka" %% "akka-http" % "10.1.10",
-  "com.typesafe.akka" %% "akka-stream" % "2.5.26",
+  "com.typesafe.akka" %% "akka-http" % "10.1.11",
+  "com.typesafe.akka" %% "akka-stream" % "2.6.3",
 
   // json serializer
-  "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.10",
+  "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.11",
 
   // http builder
   "org.scalaj" %% "scalaj-http" % "2.4.2",
@@ -16,28 +16,29 @@ libraryDependencies ++= Seq(
   // ORM
   "com.typesafe.slick" %% "slick" % "3.3.2",
   "com.typesafe.slick" %% "slick-hikaricp" % "3.3.2",
-  "org.slf4j" % "slf4j-nop" % "1.6.4",
+  "org.slf4j" % "slf4j-nop" % "1.7.30",
 
   // postgresql
   "org.postgresql" % "postgresql" % "42.2.5",
 
   // scalatest
-  "org.scalatest" %% "scalatest" % "3.0.8" % "test,it",
+  "org.scalatest" %% "scalatest" % "3.1.1" % "test,it",
 
   // mockito
-  "org.mockito" % "mockito-core" % "3.0.0" % Test,
+  "org.mockito" % "mockito-core" % "3.3.0" % Test,
   
   // joda time
-  "joda-time" % "joda-time" % "2.10.1",
+  "joda-time" % "joda-time" % "2.10.5",
 
   // caching
   "com.github.cb372" %% "scalacache-guava" % "0.28.0",
 
   // image storage
-  "io.minio" % "minio" % "6.0.8",
+  "io.minio" % "minio" % "6.0.13",
 
   // xml
-  "org.scala-lang.modules" % "scala-xml_2.12" % "1.2.0",
+  "org.scala-lang.modules" % "scala-xml_2.12" % "1.2.0"
+
 )
 
 coverageExcludedPackages :=
