@@ -28,7 +28,7 @@ case class MatchResponseWithPlayer(player: Player, mr: MatchResponse)
 
 case class PeerResponse(peerPlayerId: Int, win: Int, games:Int)
 
-trait DotaInputDecoder extends Decoder {
+trait DotaInputDecoder extends JsonDecoder {
 
   implicit val matchFormat = jsonFormat(MatchResponse, "match_id", "player_slot", "radiant_win", "duration", "game_mode",
     "hero_id", "start_time", "kills", "deaths", "assists")

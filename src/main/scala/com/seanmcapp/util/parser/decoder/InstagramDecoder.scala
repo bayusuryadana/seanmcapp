@@ -13,7 +13,7 @@ case class InstagramMediaCaption(edges: Seq[InstagramEdgeCaption])
 case class InstagramEdgeCaption(node: InstagramCaption)
 case class InstagramCaption(text: String)
 
-trait InstagramDecoder extends Decoder {
+trait InstagramDecoder extends JsonDecoder {
   implicit val instagramAccountResponseFormat = jsonFormat(InstagramAccountResponse, "logging_page_id")
 
   implicit val instagramCaptionFormat = jsonFormat(InstagramCaption, "text")

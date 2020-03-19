@@ -2,9 +2,8 @@ package com.seanmcapp.scheduler
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
-import com.seanmcapp.config.SchedulerConf
-import com.seanmcapp.util.parser.decoder.{DsdaJakartaDecoder}
-import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, HttpRequestBuilderImpl, TelegramRequestBuilder}
+import com.seanmcapp.util.parser.decoder.DsdaJakartaDecoder
+import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
