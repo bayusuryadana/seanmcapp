@@ -35,6 +35,9 @@ libraryDependencies ++= Seq(
 
   // image storage
   "io.minio" % "minio" % "6.0.8",
+
+  // xml
+  "org.scala-lang.modules" % "scala-xml_2.12" % "1.2.0",
 )
 
 coverageExcludedPackages :=
