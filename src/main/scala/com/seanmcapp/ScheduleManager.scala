@@ -20,6 +20,7 @@ trait ScheduleManager {
 
   def runScheduler: List[Cancellable] = {
     val everyDay = Duration(1, TimeUnit.DAYS)
+    val everyHour = Duration(1, TimeUnit.HOURS)
 
     val peopleRepo = PeopleRepoImpl
     val playerRepo = PlayerRepoImpl
@@ -36,7 +37,9 @@ trait ScheduleManager {
       new AirVisualScheduler(8, everyDay, http),
       new AirVisualScheduler(17, everyDay, http),
 
-      new NCovScheduler(8, everyDay, http)
+      new NCovScheduler(8, everyDay, http),
+
+      new DsdaJakartaScheduler(0, everyHour, http)
     ).map(_.run)
 
     system.registerOnTermination(scheduleList.map(_.cancel()))

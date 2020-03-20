@@ -10,7 +10,7 @@ case class AirvisualPollution(aqius: Int)
 
 case class AirvisualCity(country: String, state: String, city: String)
 
-trait AirvisualDecoder extends Decoder {
+trait AirvisualDecoder extends JsonDecoder {
 
   implicit val AirvisualPollutionFormat = jsonFormat(AirvisualPollution, "aqius")
 
