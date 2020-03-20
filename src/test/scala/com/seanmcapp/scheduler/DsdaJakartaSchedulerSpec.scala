@@ -8,7 +8,7 @@ import org.mockito.ArgumentMatchers._
 
 class DsdaJakartaSchedulerSpec extends AsyncWordSpec with Matchers with SchedulerForTest{
 
-  "DsdaJakartaScheduler should return correctly" in {
+  "DsdaJakartaScheduler should return result" in {
     val dsdaJakartaScheduler = new DsdaJakartaScheduler(startTime, interval, http) with TelegramRequestBuilderMock
     val mockXml =
       """
@@ -30,6 +30,26 @@ class DsdaJakartaSchedulerSpec extends AsyncWordSpec with Matchers with Schedule
 
     when(http.sendGetRequest(anyString())).thenReturn(mockXml)
     dsdaJakartaScheduler.task shouldBe "Seanmcapp melaporkan pintu air siaga:\n\nManggarai: Siaga 3\nDepok: Siaga 2"
+  }
+
+  "DsdaJakartaScheduler should return no result" in {
+    val dsdaJakartaScheduler = new DsdaJakartaScheduler(startTime, interval, http) with TelegramRequestBuilderMock
+    val mockXml =
+      """
+        | <DocumentElement>
+        |  <SP_GET_LAST_STATUS_PINTU_AIR>
+        |    <NAMA_PINTU_AIR>Bekasi</NAMA_PINTU_AIR>
+        |    <STATUS_SIAGA>Status : Normal</STATUS_SIAGA>
+        |  </SP_GET_LAST_STATUS_PINTU_AIR>
+        |  <SP_GET_LAST_STATUS_PINTU_AIR>
+        |    <NAMA_PINTU_AIR>Depok</NAMA_PINTU_AIR>
+        |    <STATUS_SIAGA>Status : Normal</STATUS_SIAGA>
+        |  </SP_GET_LAST_STATUS_PINTU_AIR>
+        |</DocumentElement>
+        |""".stripMargin
+
+    when(http.sendGetRequest(anyString())).thenReturn(mockXml)
+    dsdaJakartaScheduler.task shouldBe ""
   }
 
 }
