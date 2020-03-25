@@ -18,14 +18,21 @@ class NCovScheduler(startTime: Int, interval: FiniteDuration, override val http:
       "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv"
     )
 
-    val results = urls.map { u =>
+    val sgResults = urls.map { u =>
       http.sendGetRequest(u)
         .split("\n")
         .collect { case l if l.contains("Singapore") => l.split(",").last }
         .head
     }
 
-    val result = s"Singapore case Confirmed: ${results(0)}, Death: ${results(1)}, Recovered: ${results(2)}"
+    val idResults = urls.map { u =>
+      http.sendGetRequest(u)
+        .split("\n")
+        .collect { case l if l.contains("Indonesia") => l.split(",").last }
+        .head
+    }
+
+    val result = s"Singapore case Confirmed: ${sgResults(0)}, Death: ${sgResults(1)}, Recovered: ${sgResults(2)}\nIndonesia case Confirmed: ${idResults(0)}, Death: ${idResults(1)}, Recovered: ${idResults(2)}"
     sendMessage(-1001359004262L, result)
     result
   }
