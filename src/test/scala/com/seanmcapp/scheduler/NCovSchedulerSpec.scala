@@ -10,8 +10,8 @@ class NCovSchedulerSpec extends AsyncWordSpec with Matchers with SchedulerForTes
 
   "NCovScheduler should return correctly" in {
     val nCovScheduler = new NCovScheduler(startTime, interval, http) with TelegramRequestBuilderMock
-    when(http.sendGetRequest(anyString())).thenReturn("Singapore,50")
-    nCovScheduler.task shouldBe "Singapore case Confirmed: 50, Death: 50, Recovered: 50"
+    when(http.sendGetRequest(anyString())).thenReturn("Singapore/Indonesia,50")
+    nCovScheduler.task shouldBe "Singapore case Confirmed: 50, Death: 50, Recovered: 50\nIndonesia case Confirmed: 50, Death: 50, Recovered: 50"
   }
 
 }
