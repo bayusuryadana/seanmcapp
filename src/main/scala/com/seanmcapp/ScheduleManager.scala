@@ -37,7 +37,7 @@ trait ScheduleManager {
       new AirVisualScheduler(8, everyDay, http),
       new AirVisualScheduler(17, everyDay, http),
 
-      new NCovScheduler(8, everyDay, http),
+      new NCovScheduler(20, everyDay, http),
 
       new DsdaJakartaScheduler(0, everyHour, http)
     ).map(_.run)
