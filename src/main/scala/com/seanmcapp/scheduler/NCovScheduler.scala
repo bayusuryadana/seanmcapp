@@ -1,5 +1,7 @@
 package com.seanmcapp.scheduler
 
+import java.net.URLEncoder
+
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
@@ -29,7 +31,7 @@ class NCovScheduler(startTime: Int, interval: FiniteDuration, override val http:
     }
 
     val result = s"Singapore case Confirmed: ${sgResults(0)}, Death: ${sgResults(1)}, Recovered: ${sgResults(2)}\nIndonesia case Confirmed: ${idResults(0)}, Death: ${idResults(1)}, Recovered: ${idResults(2)}"
-    sendMessage(-1001359004262L, result)
+    sendMessage(-1001359004262L, URLEncoder.encode(result, "UTF-8"))
     result
   }
 }
