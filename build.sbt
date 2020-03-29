@@ -37,7 +37,7 @@ libraryDependencies ++= Seq(
   "io.minio" % "minio" % "6.0.13",
 
   // xml
-  "org.scala-lang.modules" % "scala-xml_2.12" % "1.2.0"
+  "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
 
 )
 
