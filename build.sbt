@@ -26,7 +26,7 @@ libraryDependencies ++= Seq(
 
   // mockito
   "org.mockito" % "mockito-core" % "3.3.0" % Test,
-  
+
   // joda time
   "joda-time" % "joda-time" % "2.10.5",
 
@@ -37,14 +37,17 @@ libraryDependencies ++= Seq(
   "io.minio" % "minio" % "6.0.13",
 
   // xml
-  "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
+  "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
+
+  // enum
+  "com.beachape" %% "enumeratum" % "1.5.15"
 
 )
 
 coverageExcludedPackages :=
   ".*com.seanmcapp.util.*;" +
-  ".*com.seanmcapp.config.*;" +
-  ".*Boot.*;.*Route.*;.*Injection.*;.*ScheduleManager.*;"
+    ".*com.seanmcapp.config.*;" +
+    ".*Boot.*;.*Route.*;.*Injection.*;.*ScheduleManager.*;"
 coverageMinimum := 80
 coverageFailOnMinimum := true
 
@@ -55,10 +58,10 @@ Defaults.itSettings
 javaOptions in IntegrationTest += "-Dconfig.resource=application-local.conf"
 
 /**
-  *  DOCKERIZE
-  *  publish: sbt docker:publishLocal
-  *  run: docker run --env-file=.env -p 9000:9000 seanmcapp
-  */
+ *  DOCKERIZE
+ *  publish: sbt docker:publishLocal
+ *  run: docker run --env-file=.env -p 9000:9000 seanmcapp
+ */
 
 mainClass in Compile := Some("com.seanmcapp.Boot")
 dockerBaseImage := "openjdk:jre-alpine"
