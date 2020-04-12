@@ -7,7 +7,9 @@ import org.scalatest.{AsyncWordSpec, Matchers}
 
 class DotaServiceSpec extends AsyncWordSpec with Matchers {
 
-  val dotaService = new DotaService(PlayerRepoMock, HeroRepoMock, HttpRequestBuilderImpl) with DotaRequestBuilderMock
+  val dotaService = new DotaService(PlayerRepoMock, HeroRepoMock, HttpRequestBuilderImpl) with DotaRequestBuilderMock {
+    override val MINIMUM_MATCHES = 1
+  }
 
   "should fetch correct response and transform response properly - Home endpoint" in {
     dotaService.home.map { res =>

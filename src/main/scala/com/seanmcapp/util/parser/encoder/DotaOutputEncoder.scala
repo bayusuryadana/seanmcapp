@@ -7,9 +7,9 @@ case class MatchViewModel(matchId: Long, players: Seq[MatchPlayer], mode: String
 
 case class MatchPlayer(player: Player, hero: Hero, kill: Int, death: Int, assist: Int)
 
-case class PlayerWinSummary(player: Player, win: Int, games: Int, percentage: Double)
+case class PlayerWinSummary(player: Player, win: Int, games: Int, percentage: Double, rating: Double)
 
-case class HeroWinSummary(hero: Hero, win: Int, games: Int, percentage: Double)
+case class HeroWinSummary(hero: Hero, win: Int, games: Int, percentage: Double, rating: Double)
 
 case class HomePageResponse(matches: Seq[MatchViewModel], players: Seq[Player], heroes: Seq[Hero])
 
@@ -27,9 +27,9 @@ trait DotaOutputEncoder extends Encoder {
 
   implicit val matchViewModelFormat = jsonFormat7(MatchViewModel)
 
-  implicit val playerWinSummaryFormat = jsonFormat4(PlayerWinSummary)
+  implicit val playerWinSummaryFormat = jsonFormat5(PlayerWinSummary)
 
-  implicit val heroWinSummaryFormat = jsonFormat4(HeroWinSummary)
+  implicit val heroWinSummaryFormat = jsonFormat5(HeroWinSummary)
 
   implicit val homePageResponseFormat = jsonFormat3(HomePageResponse)
 

@@ -13,6 +13,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http: HttpRequestBuilder) extends DotaRequestBuilder {
 
+  private[service] val MINIMUM_MATCHES = 30
+
   def home: Future[HomePageResponse] = {
 
     val playersF = playerRepo.getAll
@@ -44,15 +46,19 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
     } yield {
       val player = players.find(_.id == id).getOrElse(throw new Exception("Player not found"))
 
-      val heroesWinSummary = getMatches(player).groupBy(_.mr.heroId).toSeq.map { case (heroId, identicalMatches) =>
+      val heroesTmpSummary = getMatches(player).groupBy(_.mr.heroId).toSeq.map { case (heroId, identicalMatches) =>
         val hero = heroes.find(_.id == heroId).getOrElse(createHero(heroId))
         val matchResponses = identicalMatches.map { mrwp =>
           val matchPlayer = MatchPlayer(mrwp.player, hero, mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
           toMatchViewModel(mrwp, List(matchPlayer))
         }
         val (win, game, percentage) = toWinSummary(matchResponses)
-        HeroWinSummary(hero, win, game, percentage)
-      }.sortBy(-_.percentage)
+        (hero, win, game, percentage)
+      }
+      val cHero = heroesTmpSummary.map(_._4).sum / heroesTmpSummary.map(_._3).sum
+      val heroesWinSummary = heroesTmpSummary.map { case (hero, win, game, percentage) =>
+        HeroWinSummary(hero, win, game, percentage, calculateRating(game, percentage, cHero))
+      }.filter(_.games >= MINIMUM_MATCHES).sortBy(-_.rating)
 
       val peers = getPeers(id).foldLeft(List.empty[(Player, PeerResponse)]) { (res, peer) =>
         players.find(_.id == peer.peerPlayerId) match {
@@ -61,9 +67,13 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
         }
       }
 
-      val peerPlayerWinSummary = peers.map { p =>
-        PlayerWinSummary(p._1, p._2.win, p._2.games, ((p._2.win.toDouble/p._2.games) * 100).toInt / 100.0)
-      }.sortBy(-_.percentage)
+      val peerPlayerTmpSummary = peers.map { p =>
+        (p._1, p._2.win, p._2.games, ((p._2.win.toDouble/p._2.games) * 100).toInt / 100.0)
+      }
+      val cPeer = peerPlayerTmpSummary.map(_._4).sum / peerPlayerTmpSummary.map(_._3).sum
+      val peerPlayerWinSummary = peerPlayerTmpSummary.map { case (p, win, game, percentage) =>
+        PlayerWinSummary(p, win, game, percentage, calculateRating(game, percentage, cPeer))
+      }.filter(_.games >= MINIMUM_MATCHES).sortBy(-_.rating)
 
       PlayerPageResponse(player, heroesWinSummary, peerPlayerWinSummary)
     }
@@ -78,7 +88,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
       hero <- heroF
     } yield {
 
-      val playersWinSummary = players.flatMap(getMatches).filter(_.mr.heroId == id).groupBy(_.player).toSeq.map { tup =>
+      val playersTmpSummary = players.flatMap(getMatches).filter(_.mr.heroId == id).groupBy(_.player).toSeq.map { tup =>
         val matchResponses = tup._2.map { matchHead =>
           val matchPlayerList = tup._2.map { mrwp =>
             MatchPlayer(mrwp.player, hero.getOrElse(createHero(id)), mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
@@ -86,8 +96,12 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
           toMatchViewModel(matchHead, matchPlayerList)
         }
         val (win, game, percentage) = toWinSummary(matchResponses)
-        PlayerWinSummary(tup._1, win, game, percentage)
+        (tup._1, win, game, percentage)
       }
+      val cPlayer = playersTmpSummary.map(_._4).sum / playersTmpSummary.map(_._3).sum
+      val playersWinSummary = playersTmpSummary.map { case (p, win, game, percentage) =>
+        PlayerWinSummary(p, win, game, percentage, calculateRating(game, percentage, cPlayer))
+      }.filter(_.games >= MINIMUM_MATCHES).sortBy(-_.rating)
       HeroPageResponse(hero, playersWinSummary)
     }
   }
@@ -114,6 +128,12 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
     val win = matchViewList.count(_.result == "Win")
     val percentage = (win.toDouble / games * 100).toInt / 100.0
     (win, games, percentage)
+  }
+
+  private def calculateRating(v: Int, R: Double, C: Double): Double = {
+    // using this formula from here https://stackoverflow.com/questions/1411199/what-is-a-better-way-to-sort-by-a-5-star-rating
+    val m = MINIMUM_MATCHES
+    (R * v + C * m) / (v + m)
   }
 
   private def createHero(id: Int) = Hero(id, "Unknown", "???", "", "")
