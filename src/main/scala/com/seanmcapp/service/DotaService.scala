@@ -3,7 +3,7 @@ package com.seanmcapp.service
 import java.text.SimpleDateFormat
 import java.util.{Date, TimeZone}
 
-import com.seanmcapp.repository.dota.{HeroRepo, Player, PlayerRepo}
+import com.seanmcapp.repository.dota.{Hero, HeroRepo, Player, PlayerRepo}
 import com.seanmcapp.util.parser.encoder.{HeroPageResponse, HeroWinSummary, HomePageResponse, MatchPlayer, MatchViewModel, PlayerPageResponse, PlayerWinSummary}
 import com.seanmcapp.util.parser.decoder.{MatchResponseWithPlayer, PeerResponse}
 import com.seanmcapp.util.requestbuilder.{DotaRequestBuilder, HttpRequestBuilder}
@@ -25,7 +25,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
       val matchViewModels = players.flatMap(getMatches).groupBy(_.mr.startTime).toSeq.sortBy(-_._1).map(_._2).take(10).flatMap { identicalMatches =>
         identicalMatches.headOption.map { mrwpHead =>
           val matchPlayerList = identicalMatches.map { mrwp =>
-            val hero = heroes.find(_.id == mrwp.mr.heroId).map(_.copy(lore = ""))
+            val hero = heroes.find(_.id == mrwp.mr.heroId).getOrElse(Hero(mrwp.mr.heroId))
             MatchPlayer(mrwp.player, hero, mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
           }
           toMatchViewModel(mrwpHead, matchPlayerList)
@@ -45,16 +45,16 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
       val player = players.find(_.id == id).getOrElse(throw new Exception("Player not found"))
 
       val heroesWinSummary = getMatches(player).groupBy(_.mr.heroId).toSeq.map { case (heroId, identicalMatches) =>
-        val hero = heroes.find(_.id == heroId)
+        val hero = heroes.find(_.id == heroId).getOrElse(Hero(heroId))
         val matchResponses = identicalMatches.map { mrwp =>
           val matchPlayer = MatchPlayer(mrwp.player, hero, mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
-          toMatchViewModel(mrwp, Seq(matchPlayer))
+          toMatchViewModel(mrwp, List(matchPlayer))
         }
         val (win, game, percentage) = toWinSummary(matchResponses)
         HeroWinSummary(hero, win, game, percentage)
       }.sortBy(-_.percentage)
 
-      val peers = getPeers(id).foldLeft(Seq.empty[(Player, PeerResponse)]) { (res, peer) =>
+      val peers = getPeers(id).foldLeft(List.empty[(Player, PeerResponse)]) { (res, peer) =>
         players.find(_.id == peer.peerPlayerId) match {
           case Some(p) => res :+ (p, peer)
           case None => res
@@ -81,7 +81,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
       val playersWinSummary = players.flatMap(getMatches).filter(_.mr.heroId == id).groupBy(_.player).toSeq.map { tup =>
         val matchResponses = tup._2.map { matchHead =>
           val matchPlayerList = tup._2.map { mrwp =>
-            MatchPlayer(mrwp.player, hero, mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
+            MatchPlayer(mrwp.player, hero.getOrElse(Hero(id)), mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
           }
           toMatchViewModel(matchHead, matchPlayerList)
         }
@@ -92,7 +92,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
     }
   }
 
-  private def toMatchViewModel(mrwp: MatchResponseWithPlayer, players: Seq[MatchPlayer]): MatchViewModel = {
+  private def toMatchViewModel(mrwp: MatchResponseWithPlayer, players: List[MatchPlayer]): MatchViewModel = {
     val date = new Date(mrwp.mr.startTime.toLong * 1000L)
     val fmt = new SimpleDateFormat("dd-MM-yyyy HH:mm")
     fmt.setTimeZone(TimeZone.getTimeZone("GMT+7"))

@@ -19,7 +19,7 @@ class PlayerInfo(tag: Tag) extends Table[Player](tag, "players") {
 
 trait PlayerRepo {
 
-  def getAll: Future[Seq[Player]]
+  def getAll: Future[List[Player]]
 
   def get(id: Int): Future[Option[Player]]
 
@@ -29,7 +29,7 @@ trait PlayerRepo {
 
 object PlayerRepoImpl extends TableQuery(new PlayerInfo(_)) with PlayerRepo with DBComponent {
 
-  def getAll: Future[Seq[Player]] = {
+  def getAll: Future[List[Player]] = {
     run(this.result)
   }
 
