@@ -5,11 +5,11 @@ import com.seanmcapp.repository.dota.{Hero, Player}
 case class MatchViewModel(matchId: Long, players: Seq[MatchPlayer], mode: String, startTime: String,
                           duration: String, side: String, result: String)
 
-case class MatchPlayer(player: Player, hero: Option[Hero], kill: Int, death: Int, assist: Int)
+case class MatchPlayer(player: Player, hero: Hero, kill: Int, death: Int, assist: Int)
 
 case class PlayerWinSummary(player: Player, win: Int, games: Int, percentage: Double)
 
-case class HeroWinSummary(hero: Option[Hero], win: Int, games: Int, percentage: Double)
+case class HeroWinSummary(hero: Hero, win: Int, games: Int, percentage: Double)
 
 case class HomePageResponse(matches: Seq[MatchViewModel], players: Seq[Player], heroes: Seq[Hero])
 
