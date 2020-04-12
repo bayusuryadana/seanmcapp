@@ -22,10 +22,10 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
       players <- playersF
       heroes <- heroesF
     } yield {
-      val matchViewModels = players.flatMap(getMatches).groupBy(_.mr.startTime).toSeq.sortBy(-_._1).map(_._2).take(10).flatMap { identicalMatches =>
+      val matchViewModels = players.toList.flatMap(getMatches).groupBy(_.mr.startTime).toSeq.sortBy(-_._1).map(_._2).take(10).flatMap { identicalMatches =>
         identicalMatches.headOption.map { mrwpHead =>
           val matchPlayerList = identicalMatches.map { mrwp =>
-            val hero = heroes.find(_.id == mrwp.mr.heroId).getOrElse(Hero(mrwp.mr.heroId))
+            val hero = heroes.find(_.id == mrwp.mr.heroId).getOrElse(createHero(mrwp.mr.heroId))
             MatchPlayer(mrwp.player, hero, mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
           }
           toMatchViewModel(mrwpHead, matchPlayerList)
@@ -45,7 +45,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
       val player = players.find(_.id == id).getOrElse(throw new Exception("Player not found"))
 
       val heroesWinSummary = getMatches(player).groupBy(_.mr.heroId).toSeq.map { case (heroId, identicalMatches) =>
-        val hero = heroes.find(_.id == heroId).getOrElse(Hero(heroId))
+        val hero = heroes.find(_.id == heroId).getOrElse(createHero(heroId))
         val matchResponses = identicalMatches.map { mrwp =>
           val matchPlayer = MatchPlayer(mrwp.player, hero, mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
           toMatchViewModel(mrwp, List(matchPlayer))
@@ -81,8 +81,8 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
       val playersWinSummary = players.flatMap(getMatches).filter(_.mr.heroId == id).groupBy(_.player).toSeq.map { tup =>
         val matchResponses = tup._2.map { matchHead =>
           val matchPlayerList = tup._2.map { mrwp =>
-            MatchPlayer(mrwp.player, hero.getOrElse(Hero(id)), mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
-          }
+            MatchPlayer(mrwp.player, hero.getOrElse(createHero(id)), mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
+          }.toList
           toMatchViewModel(matchHead, matchPlayerList)
         }
         val (win, game, percentage) = toWinSummary(matchResponses)
@@ -115,5 +115,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
     val percentage = (win.toDouble / games * 100).toInt / 100.0
     (win, games, percentage)
   }
+
+  private def createHero(id: Int) = Hero(id, "Unknown", "???", "", "")
 
 }
