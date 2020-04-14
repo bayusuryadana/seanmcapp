@@ -16,8 +16,35 @@ CREATE TABLE heroes (
     id smallint NOT NULL,
     localized_name character varying(32) NOT NULL,
     primary_attr character varying(3) NOT NULL,
+    attack_type character varying(10) NOT NULL,
+    roles character varying(50) NOT NULL,
     image character varying(128) NOT NULL,
+    icon character varying(128) NOT NULL,
     lore text
+);
+
+CREATE TABLE hero_attributes (
+    id smallint NOT NULL,
+    base_health int NOT NULL,
+    base_health_regen float NOT NULL,
+    base_mana int NOT NULL,
+    base_mana_regen float NOT NULL,
+    base_armor int NOT NULL,
+    base_mr int NOT NULL,
+    base_attack_min int NOT NULL,
+    base_attack_max int NOT NULL,
+    base_str int NOT NULL,
+    base_agi int NOT NULL,
+    base_int int NOT NULL,
+    str_gain float NOT NULL,
+    agi_gain float NOT NULL,
+    int_gain float NOT NULL,
+    attack_range int NOT NULL,
+    projectile_speed int NOT NULL,
+    attack_rate float NOT NULL,
+    move_speed int NOT NULL,
+    turn_rate float NOT NULL,
+    cm_enabled boolean NOT NULL
 );
 
 CREATE TABLE players (

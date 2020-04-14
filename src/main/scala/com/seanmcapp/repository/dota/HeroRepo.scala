@@ -7,16 +7,19 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class Hero(id: Int, localizedName: String, primaryAttr: String, image: String, lore: String)
+case class Hero(id: Int, localizedName: String, primaryAttr: String, attackType: String, roles: String, image: String, icon: String, lore: String)
 
 class HeroInfo(tag: Tag) extends Table[Hero](tag, "heroes") {
   val id = column[Int]("id", O.PrimaryKey)
   val localizedName = column[String]("localized_name")
   val primaryAttr = column[String]("primary_attr")
+  val attackType = column[String]("attack_type")
+  val roles = column[String]("roles")
   val image = column[String]("image")
+  val icon = column[String]("icon")
   val lore = column[String]("lore")
 
-  def * = (id, localizedName, primaryAttr, image, lore) <> (Hero.tupled, Hero.unapply)
+  def * = (id, localizedName, primaryAttr, attackType, roles, image, icon, lore) <> (Hero.tupled, Hero.unapply)
 }
 
 trait HeroRepo {
