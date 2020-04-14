@@ -21,7 +21,7 @@ trait DotaOutputEncoder extends Encoder {
 
   implicit val playerFormat = jsonFormat5(Player)
 
-  implicit val heroFormat = jsonFormat5(Hero)
+  implicit val heroFormat = jsonFormat8(Hero)
 
   implicit val matchPlayerFormat = jsonFormat5(MatchPlayer)
 
