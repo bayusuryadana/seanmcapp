@@ -1,6 +1,7 @@
 package com.seanmcapp.repository.dota
 
-import org.scalatest.{AsyncWordSpec, Matchers}
+import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.matchers.should.Matchers
 
 class PlayerRepoSpec extends AsyncWordSpec with Matchers {
 
@@ -8,7 +9,7 @@ class PlayerRepoSpec extends AsyncWordSpec with Matchers {
     val response = PlayerRepoImpl.getAll
     response.map { res =>
       res.size shouldEqual 11
-      res.headOption.map(_.personaName) shouldEqual Some("kill")
+      res.sortBy(_.id).headOption.map(_.personaName) shouldEqual Some("hnymnky")
     }
   }
 

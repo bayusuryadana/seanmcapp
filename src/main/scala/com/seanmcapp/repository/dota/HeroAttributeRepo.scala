@@ -46,11 +46,11 @@ trait HeroAttributeRepo {
 
   def get(id: Int): Future[Option[HeroAttribute]]
 
-  def update(attributes: Seq[HeroAttribute]): Future[Option[Int]]
+  def insertOrUpdate(attributes: Seq[HeroAttribute]): Seq[Future[Int]]
 
 }
 
-object HeroRepoImpl extends TableQuery(new HeroAttributeInfo(_)) with HeroAttributeRepo with DBComponent {
+object HeroAttributeRepoImpl extends TableQuery(new HeroAttributeInfo(_)) with HeroAttributeRepo with DBComponent {
 
   def getAll: Future[Seq[HeroAttribute]] = {
     run(this.result)
@@ -60,9 +60,15 @@ object HeroRepoImpl extends TableQuery(new HeroAttributeInfo(_)) with HeroAttrib
     run(this.filter(_.id === id).result.headOption)
   }
 
-  def update(attributes: Seq[HeroAttribute]): Future[Option[Int]] = run((this ++= attributes).asTry).map {
-    case Failure(ex) => throw new Exception(ex.getMessage)
-    case Success(value) => value
+  def insertOrUpdate(attributes: Seq[HeroAttribute]): Seq[Future[Int]] = attributes.map { attribute =>
+    // try insert first
+    run((this += attribute).asTry).flatMap {
+      case Failure(ex) =>
+        // else try update
+        run(this.filter(_.id === attribute.id).update(attribute))
+      case Success(value) =>
+        Future.successful(value)
+    }
   }
 
 }

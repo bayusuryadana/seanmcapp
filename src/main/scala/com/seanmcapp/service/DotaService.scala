@@ -136,6 +136,6 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
     (R * v + C * m) / (v + m)
   }
 
-  private def createHero(id: Int) = Hero(id, "Unknown", "???", "", "")
+  private def createHero(id: Int) = Hero(id, "Unknown", "???", "", "", "", "", "")
 
 }

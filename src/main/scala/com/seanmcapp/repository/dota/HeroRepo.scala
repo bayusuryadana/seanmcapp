@@ -28,7 +28,7 @@ trait HeroRepo {
 
   def get(id: Int): Future[Option[Hero]]
 
-  def update(heroes: Seq[Hero]): Future[Option[Int]]
+  def insertOrUpdate(heroes: Seq[Hero]): Seq[Future[Int]]
 
 }
 
@@ -42,8 +42,17 @@ object HeroRepoImpl extends TableQuery(new HeroInfo(_)) with HeroRepo with DBCom
     run(this.filter(_.id === id).result.headOption)
   }
 
-  def update(heroes: Seq[Hero]): Future[Option[Int]] = run((this ++= heroes).asTry).map {
-    case Failure(ex) => throw new Exception(ex.getMessage)
-    case Success(value) => value
+  def insertOrUpdate(heroes: Seq[Hero]): Seq[Future[Int]] = {
+    heroes.map { hero =>
+      // try insert first
+      run((this += hero).asTry).flatMap {
+        case Failure(ex) =>
+          // else try update
+          run(this.filter(_.id === hero.id).update(hero))
+        case Success(value) =>
+          Future.successful(value)
+      }
+    }
+
   }
 }
