@@ -2,7 +2,10 @@ package com.seanmcapp.repository.dota
 
 import com.seanmcapp.repository.DBComponent
 import slick.jdbc.PostgresProfile.api._
+
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class Hero(id: Int, localizedName: String, primaryAttr: String, image: String, lore: String)
 
@@ -22,6 +25,8 @@ trait HeroRepo {
 
   def get(id: Int): Future[Option[Hero]]
 
+  def update(heroes: Seq[Hero]): Future[Option[Int]]
+
 }
 
 object HeroRepoImpl extends TableQuery(new HeroInfo(_)) with HeroRepo with DBComponent {
@@ -34,4 +39,8 @@ object HeroRepoImpl extends TableQuery(new HeroInfo(_)) with HeroRepo with DBCom
     run(this.filter(_.id === id).result.headOption)
   }
 
+  def update(heroes: Seq[Hero]): Future[Option[Int]] = run((this ++= heroes).asTry).map {
+    case Failure(ex) => throw new Exception(ex.getMessage)
+    case Success(value) => value
+  }
 }
