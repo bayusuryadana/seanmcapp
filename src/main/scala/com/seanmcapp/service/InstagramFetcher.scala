@@ -15,21 +15,35 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class InstagramFetcher(photoRepo: PhotoRepo, imageStorage: ImageStorage, http: HttpRequestBuilder) extends InstagramDecoder {
 
   private[service] val accountList = Map(
+    /**
+      * ui.cantik	662
+      * ub.cantik	517
+      *
+      * ugmcantik	781
+      * cantik.its	217
+      * unj.cantik	425
+      * unpad.geulis	1262
+      * undip.cantik	833
+      *
+      * bidadari_ub	257
+      * uicantikreal	175
+      */
+
     // deprecated
-    //"ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // (n/a) -> 662
-    //"ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,    // 524 -> 517
+    //"ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,
+    //"ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,
 
     // existing
-    "ugmcantik"    -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 1185 -> 658
-    "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 897 -> 706
-    "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,  // 1059 -> 1105
-    "unj.cantik"   -> "[\\w ]+\\, [\\w]+ ['’]\\d\\d".r,    // 435 -> 399
-    "cantik.its"   -> ".+".r,  // 111 -> 111
+    "ugmcantik"    -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
+    "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
+    "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
+    "unj.cantik"   -> "[\\w ]+\\, [\\w]+ ['’]\\d\\d".r,
+    "cantik.its"   -> ".+".r,
 
     // TODO: should use another function than regex
     // new
-    //"bidadari_ub"  -> "".r   // 214 -> 173 can use whole caption value (214, requested)
-    //"uicantikreal" -> "".r,  // 100 -> 97 no proper regex :(
+    "bidadari_ub"  -> ".*".r,
+    "uicantikreal" -> ".*".r,
   )
 
   def fetch(cookie: String): Future[Seq[Option[Int]]] = {
@@ -84,7 +98,7 @@ class InstagramFetcher(photoRepo: PhotoRepo, imageStorage: ImageStorage, http: H
 
     def apply(photo: Photo): Photo = {
       val caption = regex.findFirstIn(photo.caption).getOrElse(throw new Exception("caption suddenly not found"))
-      photo.copy(caption = caption)
+      photo.copy(caption = caption.take(100))
     }
 
     override def isDefinedAt(photo: Photo): Boolean = regex.findFirstIn(photo.caption).isDefined

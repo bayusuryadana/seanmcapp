@@ -17,7 +17,7 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
 
   implicit val photoFormat = jsonFormat(Photo, "id", "thumbnail_src", "date", "caption", "account")
 
-  val routePath = Seq(
+  val routePath = List(
 
     // cbc API
     get(path("cbc" / "random")(complete(cbcAPI.random.map(_.map(_.toJson))))),

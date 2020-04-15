@@ -3,7 +3,7 @@
   "show_suggested_profiles": false,
   "show_follow_dialog": false,
   "toast_content_on_load": null,
-  "graphql": {
+  "data": {
     "user": {
       "biography": "Mention temen kamu yang cantik dari UGM dgn nama, fakultas, dan angkatan\nugmcantik@gmail.com | #ugmcantik\nAdd Official Line\n\ud83d\udd3d\ud83d\udd3d\ud83d\udd3d",
       "blocked_by_viewer": false,

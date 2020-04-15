@@ -20,7 +20,7 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, override val 
     val chatId = message.chat.id
     val userId = message.from.id
     val userFullName = message.from.firstName + " " + message.from.lastName.getOrElse("")
-    val result = message.entities.getOrElse(Seq.empty).headOption match {
+    val result = message.entities.getOrElse(List.empty).headOption match {
       case Some(entity) =>
         val command = message.text.getOrElse("")
           .substring(entity.offset, entity.offset + entity.length)

@@ -25,6 +25,6 @@ trait InstagramDecoder extends JsonDecoder {
   implicit val instagramMediaFormat = jsonFormat(InstagramMedia, "count", "page_info", "edges")
   implicit val instagramUserFormat = jsonFormat(InstagramUser, "edge_owner_to_timeline_media")
   implicit val instagramDataFormat = jsonFormat(InstagramData, "user")
-  implicit val instagramResponseFormat = jsonFormat(InstagramResponse, "graphql")
+  implicit val instagramResponseFormat = jsonFormat(InstagramResponse, "data")
 
 }
