@@ -13,7 +13,8 @@ case class HeroWinSummary(hero: Hero, win: Int, games: Int, percentage: Double, 
 
 case class HomePageResponse(matches: Seq[MatchViewModel], players: Seq[Player], heroes: Seq[Hero])
 
-case class PlayerPageResponse(player: Player, heroes: Seq[HeroWinSummary], peers: Seq[PlayerWinSummary])
+case class PlayerPageResponse(player: Player, heroes: Seq[HeroWinSummary], peers: Seq[PlayerWinSummary],
+                              recentMatches: Seq[MatchViewModel], winSummary: PlayerWinSummary)
 
 case class HeroPageResponse(hero: Option[Hero], players: Seq[PlayerWinSummary])
 
@@ -33,7 +34,7 @@ trait DotaOutputEncoder extends Encoder {
 
   implicit val homePageResponseFormat = jsonFormat3(HomePageResponse)
 
-  implicit val playerPageResponseFormat = jsonFormat3(PlayerPageResponse)
+  implicit val playerPageResponseFormat = jsonFormat5(PlayerPageResponse)
 
   implicit val heroPageResponseFormat = jsonFormat2(HeroPageResponse)
 

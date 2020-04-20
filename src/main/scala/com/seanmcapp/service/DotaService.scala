@@ -5,7 +5,7 @@ import java.util.{Date, TimeZone}
 
 import com.seanmcapp.repository.dota.{Hero, HeroRepo, Player, PlayerRepo}
 import com.seanmcapp.util.parser.encoder.{HeroPageResponse, HeroWinSummary, HomePageResponse, MatchPlayer, MatchViewModel, PlayerPageResponse, PlayerWinSummary}
-import com.seanmcapp.util.parser.decoder.{MatchResponseWithPlayer, PeerResponse}
+import com.seanmcapp.util.parser.decoder.{MatchResponse, PeerResponse}
 import com.seanmcapp.util.requestbuilder.{DotaRequestBuilder, HttpRequestBuilder}
 
 import scala.concurrent.Future
@@ -30,7 +30,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
             val hero = heroes.find(_.id == mrwp.mr.heroId).getOrElse(createHero(mrwp.mr.heroId))
             MatchPlayer(mrwp.player, hero, mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
           }
-          toMatchViewModel(mrwpHead, matchPlayerList)
+          toMatchViewModel(mrwpHead.mr, matchPlayerList)
         }
       }
       HomePageResponse(matchViewModels, players, heroes.map(hero => hero.copy(lore = "")))
@@ -45,12 +45,16 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
       heroes <- heroesF
     } yield {
       val player = players.find(_.id == id).getOrElse(throw new Exception("Player not found"))
+      val matches = getMatches(player)
+      val recentMatches = matches.sortBy(-_.mr.startTime).take(10).map(m => toMatchViewModel(m.mr, List.empty))
+      val (totalWin, totalGames, totalPercentage) = toWinSummary(matches.map(m => toMatchViewModel(m.mr, List.empty)))
+      val playerWinSummary = PlayerWinSummary(player, totalWin, totalGames-totalWin, totalPercentage, 0)
 
-      val heroesTmpSummary = getMatches(player).groupBy(_.mr.heroId).toSeq.map { case (heroId, identicalMatches) =>
+      val heroesTmpSummary = matches.groupBy(_.mr.heroId).toSeq.map { case (heroId, identicalMatches) =>
         val hero = heroes.find(_.id == heroId).getOrElse(createHero(heroId))
         val matchResponses = identicalMatches.map { mrwp =>
           val matchPlayer = MatchPlayer(mrwp.player, hero, mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
-          toMatchViewModel(mrwp, List(matchPlayer))
+          toMatchViewModel(mrwp.mr, List(matchPlayer))
         }
         val (win, game, percentage) = toWinSummary(matchResponses)
         (hero, win, game, percentage)
@@ -75,7 +79,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
         PlayerWinSummary(p, win, game, percentage, calculateRating(game, percentage, cPeer))
       }.filter(_.games >= MINIMUM_MATCHES).sortBy(-_.rating)
 
-      PlayerPageResponse(player, heroesWinSummary, peerPlayerWinSummary)
+      PlayerPageResponse(player, heroesWinSummary, peerPlayerWinSummary, recentMatches, playerWinSummary)
     }
   }
 
@@ -93,7 +97,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
           val matchPlayerList = tup._2.map { mrwp =>
             MatchPlayer(mrwp.player, hero.getOrElse(createHero(id)), mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
           }.toList
-          toMatchViewModel(matchHead, matchPlayerList)
+          toMatchViewModel(matchHead.mr, matchPlayerList)
         }
         val (win, game, percentage) = toWinSummary(matchResponses)
         (tup._1, win, game, percentage)
@@ -106,20 +110,20 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
     }
   }
 
-  private def toMatchViewModel(mrwp: MatchResponseWithPlayer, players: List[MatchPlayer]): MatchViewModel = {
-    val date = new Date(mrwp.mr.startTime.toLong * 1000L)
+  private def toMatchViewModel(mr: MatchResponse, players: List[MatchPlayer]): MatchViewModel = {
+    val date = new Date(mr.startTime.toLong * 1000L)
     val fmt = new SimpleDateFormat("dd-MM-yyyy HH:mm")
     fmt.setTimeZone(TimeZone.getTimeZone("GMT+7"))
     val startTime = fmt.format(date.getTime)
 
     MatchViewModel(
-      matchId = mrwp.mr.matchId,
+      matchId = mr.matchId,
       players = players,
-      mode = mrwp.mr.getGameMode,
+      mode = mr.getGameMode,
       startTime = startTime,
-      duration = mrwp.mr.getDuration,
-      side = mrwp.mr.getSide,
-      result = mrwp.mr.getWinStatus
+      duration = mr.getDuration,
+      side = mr.getSide,
+      result = mr.getWinStatus
     )
   }
 
