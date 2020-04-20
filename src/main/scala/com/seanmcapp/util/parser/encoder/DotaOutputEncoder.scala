@@ -34,7 +34,7 @@ trait DotaOutputEncoder extends Encoder {
 
   implicit val homePageResponseFormat = jsonFormat3(HomePageResponse)
 
-  implicit val playerPageResponseFormat = jsonFormat6(PlayerPageResponse)
+  implicit val playerPageResponseFormat = jsonFormat5(PlayerPageResponse)
 
   implicit val heroPageResponseFormat = jsonFormat2(HeroPageResponse)
 
