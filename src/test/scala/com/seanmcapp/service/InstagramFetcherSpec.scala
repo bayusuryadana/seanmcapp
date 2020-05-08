@@ -6,7 +6,8 @@ import com.seanmcapp.mock.repository.PhotoRepoMock
 import com.seanmcapp.storage.ImageStorage
 import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
 import org.mockito.ArgumentMatchers
-import org.scalatest.{AsyncWordSpec, Matchers}
+import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.io.Source
 

@@ -3,7 +3,7 @@ package com.seanmcapp.scheduler
 import com.seanmcapp.SchedulerForTest
 import com.seanmcapp.mock.repository.{HeroAttributeRepoMock, HeroRepoMock, PlayerRepoMock}
 import com.seanmcapp.repository.dota.{Hero, HeroAttribute}
-import com.seanmcapp.util.parser.decoder.{HeroResponse, PlayerResponse, ProfileResponse}
+import com.seanmcapp.util.parser.decoder.{PlayerResponse, ProfileResponse}
 import org.mockito.Mockito.when
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatest.matchers.should.Matchers

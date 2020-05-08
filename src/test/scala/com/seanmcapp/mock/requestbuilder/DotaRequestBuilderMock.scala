@@ -1,17 +1,17 @@
 package com.seanmcapp.mock.requestbuilder
 
 import com.seanmcapp.repository.dota.Player
-import com.seanmcapp.util.parser.decoder.{MatchResponse, MatchResponseWithPlayer, PeerResponse}
+import com.seanmcapp.util.parser.decoder.{MatchResponse, PeerResponse}
 import com.seanmcapp.util.requestbuilder.DotaRequestBuilder
 
 import scala.io.Source
 
 trait DotaRequestBuilderMock extends DotaRequestBuilder {
 
-  override def getMatches(player: Player): Seq[MatchResponseWithPlayer] = {
+  override def getMatches(player: Player): Seq[MatchResponse] = {
     val source = Source.fromResource("matches/" + player.id + ".json").mkString
     decode[Seq[MatchResponse]](source).map { matchResponse =>
-      MatchResponseWithPlayer(player, matchResponse)
+      matchResponse.copy(player = Some(player))
     }
   }
 

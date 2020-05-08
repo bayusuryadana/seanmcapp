@@ -3,7 +3,7 @@ package com.seanmcapp.util.parser.decoder
 import com.seanmcapp.repository.dota.Player
 
 case class MatchResponse(matchId: Long, playerSlot: Int, radiantWin: Boolean, duration: Int, gameMode: Int,
-                         heroId: Int, startTime: Int, kills: Int, deaths: Int, assists: Int) {
+                         heroId: Int, startTime: Int, kills: Int, deaths: Int, assists: Int, player: Option[Player]) {
 
   def getSide: String = if (playerSlot < 100) "Radiant" else "Dire"
 
@@ -24,14 +24,14 @@ case class MatchResponse(matchId: Long, playerSlot: Int, radiantWin: Boolean, du
   }
 }
 
-case class MatchResponseWithPlayer(player: Player, mr: MatchResponse)
-
 case class PeerResponse(peerPlayerId: Int, win: Int, games:Int)
 
 trait DotaInputDecoder extends JsonDecoder {
 
+  implicit val playerFormat = jsonFormat5(Player)
+
   implicit val matchFormat = jsonFormat(MatchResponse, "match_id", "player_slot", "radiant_win", "duration", "game_mode",
-    "hero_id", "start_time", "kills", "deaths", "assists")
+    "hero_id", "start_time", "kills", "deaths", "assists", "player")
 
   implicit val peerFormat = jsonFormat(PeerResponse, "account_id", "win", "games")
 
