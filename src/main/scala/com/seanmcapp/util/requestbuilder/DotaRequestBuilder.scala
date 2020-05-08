@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import com.seanmcapp.repository.dota.Player
 import com.seanmcapp.util.cache.MemoryCache
-import com.seanmcapp.util.parser.decoder.{DotaInputDecoder, MatchResponse, MatchResponseWithPlayer, PeerResponse}
+import com.seanmcapp.util.parser.decoder.{DotaInputDecoder, MatchResponse, PeerResponse}
 import scalacache.memoization.memoizeSync
 import scalacache.modes.sync._
 
@@ -14,17 +14,17 @@ trait DotaRequestBuilder extends DotaInputDecoder with MemoryCache {
 
   val http: HttpRequestBuilder
 
-  implicit val matchesCache = createCache[Seq[MatchResponseWithPlayer]]
+  implicit val matchesCache = createCache[Seq[MatchResponse]]
   implicit val peersCache = createCache[Seq[PeerResponse]]
 
   val baseUrl = "https://api.opendota.com/api/players/"
   val duration = Duration(2, TimeUnit.HOURS)
 
-  def getMatches(player: Player): Seq[MatchResponseWithPlayer] = {
+  def getMatches(player: Player): Seq[MatchResponse] = {
     memoizeSync(Some(duration)) {
       val response = http.sendRequest(baseUrl + player.id + "/matches")
       decode[Seq[MatchResponse]](response).map { m =>
-        MatchResponseWithPlayer(player, m)
+        m.copy(player = Some(player))
       }
     }
   }

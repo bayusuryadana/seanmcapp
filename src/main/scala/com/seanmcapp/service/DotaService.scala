@@ -24,13 +24,14 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
       players <- playersF
       heroes <- heroesF
     } yield {
-      val matchViewModels = players.toList.flatMap(getMatches).groupBy(_.mr.startTime).toSeq.sortBy(-_._1).map(_._2).take(10).flatMap { identicalMatches =>
-        identicalMatches.headOption.map { mrwpHead =>
-          val matchPlayerList = identicalMatches.map { mrwp =>
-            val hero = heroes.find(_.id == mrwp.mr.heroId).getOrElse(createHero(mrwp.mr.heroId))
-            MatchPlayer(mrwp.player, hero, mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
+      val matchViewModels = players.toList.flatMap(getMatches).groupBy(_.startTime).toSeq.sortBy(-_._1).map(_._2).take(10).flatMap { identicalMatches =>
+        identicalMatches.headOption.map { matchResponseHead =>
+          val matchPlayerList = identicalMatches.map { matchResponse =>
+            val hero = heroes.find(_.id == matchResponse.heroId).getOrElse(createHero(matchResponse.heroId)).copy(lore = "")
+            val player = matchResponse.player.get // it won't get an exception here
+            MatchPlayer(player, hero, matchResponse.kills, matchResponse.deaths, matchResponse.assists)
           }
-          toMatchViewModel(mrwpHead.mr, matchPlayerList)
+          toMatchViewModel(matchResponseHead, matchPlayerList)
         }
       }
       HomePageResponse(matchViewModels, players, heroes.map(hero => hero.copy(lore = "")))
@@ -46,22 +47,23 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
     } yield {
       val player = players.find(_.id == id).getOrElse(throw new Exception("Player not found"))
       val matches = getMatches(player)
-      val recentMatches = matches.sortBy(-_.mr.startTime).take(10).map(m => toMatchViewModel(m.mr, List.empty))
-      val (totalWin, totalGames, totalPercentage) = toWinSummary(matches.map(m => toMatchViewModel(m.mr, List.empty)))
+      val recentMatches = matches.sortBy(-_.startTime).take(10).map(m => toMatchViewModel(m, List.empty))
+      val (totalWin, totalGames, totalPercentage) = toWinSummary(matches.map(m => toMatchViewModel(m, List.empty)))
       val playerWinSummary = PlayerWinSummary(player, totalWin, totalGames-totalWin, totalPercentage, 0)
 
-      val heroesTmpSummary = matches.groupBy(_.mr.heroId).toSeq.map { case (heroId, identicalMatches) =>
+      val heroesTmpSummary = matches.groupBy(_.heroId).toSeq.map { case (heroId, identicalMatches) =>
         val hero = heroes.find(_.id == heroId).getOrElse(createHero(heroId))
-        val matchResponses = identicalMatches.map { mrwp =>
-          val matchPlayer = MatchPlayer(mrwp.player, hero, mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
-          toMatchViewModel(mrwp.mr, List(matchPlayer))
+        val matchResponses = identicalMatches.map { matchResponse =>
+          val player = matchResponse.player.get // it won't get an exception here
+          val matchPlayer = MatchPlayer(player, hero, matchResponse.kills, matchResponse.deaths, matchResponse.assists)
+          toMatchViewModel(matchResponse, List(matchPlayer))
         }
         val (win, game, percentage) = toWinSummary(matchResponses)
         (hero, win, game, percentage)
       }
       val cHero = heroesTmpSummary.map(_._4).sum / heroesTmpSummary.map(_._3).sum
       val heroesWinSummary = heroesTmpSummary.map { case (hero, win, game, percentage) =>
-        HeroWinSummary(hero, win, game, percentage, calculateRating(game, percentage, cHero))
+        HeroWinSummary(hero.copy(lore = ""), win, game, percentage, calculateRating(game, percentage, cHero))
       }.filter(_.games >= MINIMUM_MATCHES).sortBy(-_.rating)
 
       val peers = getPeers(id).foldLeft(List.empty[(Player, PeerResponse)]) { (res, peer) =>
@@ -91,20 +93,20 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
       players <- playersF
       hero <- heroF
     } yield {
-
-      val playersTmpSummary = players.flatMap(getMatches).filter(_.mr.heroId == id).groupBy(_.player).toSeq.map { tup =>
+      val playersTmpSummary = players.flatMap(getMatches).filter(_.heroId == id).groupBy(_.player).toSeq.map { tup =>
         val matchResponses = tup._2.map { matchHead =>
+          val player = matchHead.player.get // it won't get an exception here
           val matchPlayerList = tup._2.map { mrwp =>
-            MatchPlayer(mrwp.player, hero.getOrElse(createHero(id)), mrwp.mr.kills, mrwp.mr.deaths, mrwp.mr.assists)
+            MatchPlayer(player, hero.getOrElse(createHero(id)), mrwp.kills, mrwp.deaths, mrwp.assists)
           }.toList
-          toMatchViewModel(matchHead.mr, matchPlayerList)
+          toMatchViewModel(matchHead, matchPlayerList)
         }
         val (win, game, percentage) = toWinSummary(matchResponses)
         (tup._1, win, game, percentage)
       }
       val cPlayer = playersTmpSummary.map(_._4).sum / playersTmpSummary.map(_._3).sum
       val playersWinSummary = playersTmpSummary.map { case (p, win, game, percentage) =>
-        PlayerWinSummary(p, win, game, percentage, calculateRating(game, percentage, cPlayer))
+        PlayerWinSummary(p.get, win, game, percentage, calculateRating(game, percentage, cPlayer))
       }.filter(_.games >= MINIMUM_MATCHES).sortBy(-_.rating)
       HeroPageResponse(hero, playersWinSummary)
     }

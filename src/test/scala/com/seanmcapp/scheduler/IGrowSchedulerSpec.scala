@@ -5,7 +5,8 @@ import com.seanmcapp.mock.requestbuilder.TelegramRequestBuilderMock
 import com.seanmcapp.util.parser.decoder.IgrowData
 import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.Mockito.when
-import org.scalatest.{AsyncWordSpec, Matchers}
+import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.io.Source
 

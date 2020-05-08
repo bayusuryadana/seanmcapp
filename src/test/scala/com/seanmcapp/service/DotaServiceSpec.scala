@@ -2,8 +2,11 @@ package com.seanmcapp.service
 
 import com.seanmcapp.mock.repository.{HeroRepoMock, PlayerRepoMock}
 import com.seanmcapp.mock.requestbuilder.DotaRequestBuilderMock
+import com.seanmcapp.repository.dota.{Hero, Player}
+import com.seanmcapp.util.parser.encoder._
 import com.seanmcapp.util.requestbuilder.HttpRequestBuilderImpl
-import org.scalatest.{AsyncWordSpec, Matchers}
+import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.matchers.should.Matchers
 
 class DotaServiceSpec extends AsyncWordSpec with Matchers {
 
@@ -13,48 +16,100 @@ class DotaServiceSpec extends AsyncWordSpec with Matchers {
 
   "should fetch correct response and transform response properly - Home endpoint" in {
     dotaService.home.map { res =>
-      res.matches.size shouldEqual 10
+      val expected = HomePageResponse(
+        List(
+          MatchViewModel(
+            4829477839L,
+            List(
+              MatchPlayer(
+                Player(104466002,"Agung Putra Pasaribu","https://someurl","hnymnky",Some(55)),
+                Hero(26, "Axe","str","Melee","Initiator,Durable,Disabler,Jungler","axe_full.png","axe_icon.png",""),
+                5,5,2)
+            ),
+            "Ranked All Pick",
+            "11-06-2019 07:27",
+            "21:12",
+            "Dire",
+            "Lose"
+          ),
+          MatchViewModel(
+            4827077503L,
+            List(
+              MatchPlayer(
+                Player(131673450,"Faris Iqbal","https://someurl","OMEGALUL",Some(62)),
+                Hero(18, "Anti-Mage","agi","Melee","Carry,Escape,Nuker","antimage_full.png","antimage_icon.png",""),
+                7,5,12)
+            ),
+            "Ranked All Pick",
+            "10-06-2019 08:17",
+            "34:55",
+            "Radiant",
+            "Win"
+          ),
+          MatchViewModel(
+            4824100132L,
+            List(
+              MatchPlayer(
+                Player(104466002,"Agung Putra Pasaribu","https://someurl","hnymnky",Some(55)),
+                Hero(26, "Axe","str","Melee","Initiator,Durable,Disabler,Jungler","axe_full.png","axe_icon.png",""),
+                8,11,10),
+              MatchPlayer(
+                Player(131673450,"Faris Iqbal","https://someurl","OMEGALUL",Some(62)),
+                Hero(18, "Anti-Mage","agi","Melee","Carry,Escape,Nuker","antimage_full.png","antimage_icon.png",""),
+                3,4,24)
+            ),
+            "Ranked All Pick",
+            "09-06-2019 09:37",
+            "41:20",
+            "Dire",
+            "Lose"
+          )
+        ),
+        List(
+          Player(104466002,"Agung Putra Pasaribu","https://someurl","hnymnky",Some(55)),
+          Player(131673450,"Faris Iqbal","https://someurl","OMEGALUL",Some(62))
+        ),
+        List(
+          Hero(18, "Anti-Mage","agi","Melee","Carry,Escape,Nuker","antimage_full.png","antimage_icon.png",""),
+          Hero(26, "Axe","str","Melee","Initiator,Durable,Disabler,Jungler","axe_full.png","axe_icon.png","")
+        )
+      )
 
-      res.matches.flatMap(_.players).count(_.player.personaName == "SeanmcrayZ") shouldEqual 5
-      res.matches.flatMap(_.players).count(_.player.personaName == "OMEGALUL") shouldEqual 5
-      res.matches.flatMap(_.players).count(_.player.personaName == "lightzard") shouldEqual 2
-      res.matches.flatMap(_.players).count(_.player.personaName == "travengers") shouldEqual 1
-      res.matches.flatMap(_.players).count(_.player.personaName == "hnymnky") shouldEqual 2
-      res.matches.headOption.map(_.players.size) shouldEqual Some(3)
-
-      res.players.size shouldEqual 5
-      res.heroes.size shouldEqual 5
+      res shouldEqual expected
     }
   }
 
   "should fetch correct response and transform response properly - Player endpoint" in {
-    dotaService.player(105742997).map { res =>
-      res.player.id shouldEqual 105742997
-      res.player.realName shouldEqual "Bayu Suryadana"
-      res.player.avatarFull shouldBe "https://someurl"
-      res.player.personaName shouldEqual "SeanmcrayZ"
+    dotaService.player(131673450).map { res =>
+      val expected = PlayerPageResponse(
+        Player(131673450,"Faris Iqbal","https://someurl","OMEGALUL",Some(62)),
+        List(
+          HeroWinSummary(Hero(18, "Anti-Mage","agi","Melee","Carry,Escape,Nuker","antimage_full.png","antimage_icon.png",""),2,2,1.0,0.8333333333333334)
+        ),
+        List(
+          PlayerWinSummary(Player(104466002,"Agung Putra Pasaribu","https://someurl","hnymnky",Some(55)),236,470,0.5,0.49894068753670323)
+        ),
+        List(
+          MatchViewModel(4827077503L, List(), "Ranked All Pick", "10-06-2019 08:17", "34:55", "Radiant", "Win"),
+          MatchViewModel(4824100132L, List(), "Ranked All Pick", "09-06-2019 09:37", "37:10", "Dire", "Win")
+        ),
+        PlayerWinSummary(Player(131673450,"Faris Iqbal","https://someurl","OMEGALUL",Some(62)),2,0,1.0,0.0)
+      )
 
-      res.heroes.size shouldEqual 9
-      res.heroes.headOption.map(_.percentage) shouldEqual Some(1.0)
-
-      res.peers.size shouldEqual 2
-      res.peers.map(_.player.personaName) shouldBe List("hnymnky", "lightzard")
-      res.peers.map(_.percentage) shouldBe List(0.5, 0.46)
-
+      res shouldEqual expected
     }
   }
 
   "should fetch correct response and transform response properly - Hero endpoint" in {
-    dotaService.hero(4).map { res =>
-      res.hero.map(_.id) shouldEqual Some(4)
-      res.hero.map(_.localizedName) shouldEqual Some("Bloodseeker")
-      res.hero.map(_.primaryAttr) shouldEqual Some("agi")
-      res.hero.map(_.image) shouldEqual Some("bloodseeker_full.png")
-      res.hero.map(_.lore) shouldEqual Some("strygwyr story here")
+    dotaService.hero(18).map { res =>
+      val expected = HeroPageResponse(
+        Some(Hero(18, "Anti-Mage","agi","Melee","Carry,Escape,Nuker","antimage_full.png","antimage_icon.png","magina story here")),
+        List(
+          PlayerWinSummary(Player(131673450,"Faris Iqbal","https://someurl","OMEGALUL",Some(62)),2,2,1.0,0.8333333333333334)
+        )
+      )
 
-      res.players.size shouldEqual 1
-      res.players.headOption.map(_.player.personaName) shouldBe Some("lightzard")
-      res.players.headOption.map(_.percentage) shouldBe Some(0.5)
+      res shouldEqual expected
     }
   }
 

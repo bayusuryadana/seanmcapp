@@ -3,7 +3,8 @@ package com.seanmcapp.service
 import com.seanmcapp.mock.repository.{CustomerRepoMock, PhotoRepoMock}
 import com.seanmcapp.mock.requestbuilder.TelegramRequestBuilderMock
 import com.seanmcapp.util.requestbuilder.HttpRequestBuilderImpl
-import org.scalatest.{AsyncWordSpec, Matchers}
+import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.io.Source
 import spray.json._
