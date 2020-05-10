@@ -1,6 +1,6 @@
 package com.seanmcapp.util.parser.encoder
 
-import com.seanmcapp.repository.dota.{Hero, Player}
+import com.seanmcapp.repository.dota.{Hero, HeroAttribute, Player}
 
 case class MatchViewModel(matchId: Long, players: Seq[MatchPlayer], mode: String, startTime: String,
                           duration: String, side: String, result: String)
@@ -16,7 +16,7 @@ case class HomePageResponse(matches: Seq[MatchViewModel], players: Seq[Player], 
 case class PlayerPageResponse(player: Player, heroes: Seq[HeroWinSummary], peers: Seq[PlayerWinSummary],
                               recentMatches: Seq[MatchViewModel], winSummary: PlayerWinSummary)
 
-case class HeroPageResponse(hero: Option[Hero], players: Seq[PlayerWinSummary])
+case class HeroPageResponse(hero: Option[Hero], heroAttribute: Option[HeroAttribute], players: Seq[PlayerWinSummary])
 
 trait DotaOutputEncoder extends Encoder {
 
@@ -32,10 +32,12 @@ trait DotaOutputEncoder extends Encoder {
 
   implicit val heroWinSummaryFormat = jsonFormat5(HeroWinSummary)
 
+  implicit val heroAttributeFormat = jsonFormat21(HeroAttribute)
+
   implicit val homePageResponseFormat = jsonFormat3(HomePageResponse)
 
   implicit val playerPageResponseFormat = jsonFormat5(PlayerPageResponse)
 
-  implicit val heroPageResponseFormat = jsonFormat2(HeroPageResponse)
+  implicit val heroPageResponseFormat = jsonFormat3(HeroPageResponse)
 
 }

@@ -5,13 +5,6 @@ import org.scalatest.wordspec.AsyncWordSpec
 
 class HeroAttributeRepoSpec extends AsyncWordSpec with Matchers {
 
-  "should return all hero" in {
-    val response = HeroAttributeRepoImpl.getAll
-    response.map { res =>
-      res.size shouldEqual 119
-    }
-  }
-
   "should return corresponding hero given their id" in {
     val response = HeroAttributeRepoImpl.get(84) // Ogre Magi
     response.map { res =>
