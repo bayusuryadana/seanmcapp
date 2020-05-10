@@ -42,8 +42,6 @@ class HeroAttributeInfo(tag: Tag) extends Table[HeroAttribute](tag, "hero_attrib
 
 trait HeroAttributeRepo {
 
-  def getAll: Future[Seq[HeroAttribute]]
-
   def get(id: Int): Future[Option[HeroAttribute]]
 
   def insertOrUpdate(attributes: Seq[HeroAttribute]): Seq[Future[Int]]
@@ -51,10 +49,6 @@ trait HeroAttributeRepo {
 }
 
 object HeroAttributeRepoImpl extends TableQuery(new HeroAttributeInfo(_)) with HeroAttributeRepo with DBComponent {
-
-  def getAll: Future[Seq[HeroAttribute]] = {
-    run(this.result)
-  }
 
   def get(id: Int): Future[Option[HeroAttribute]] = {
     run(this.filter(_.id === id).result.headOption)

@@ -11,7 +11,7 @@ trait Injection {
 
   val cbcAPI = new CBCService(PhotoRepoImpl, CustomerRepoImpl, HttpRequestBuilderImpl)
 
-  val dotaAPI = new DotaService(PlayerRepoImpl, HeroRepoImpl, HttpRequestBuilderImpl)
+  val dotaAPI = new DotaService(PlayerRepoImpl, HeroRepoImpl, HeroAttributeRepoImpl, HttpRequestBuilderImpl)
 
   val instagramFetcher = new InstagramFetcher(PhotoRepoImpl, ImageStorageImpl, HttpRequestBuilderImpl)
 

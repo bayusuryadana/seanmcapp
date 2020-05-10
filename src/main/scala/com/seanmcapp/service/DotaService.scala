@@ -3,15 +3,15 @@ package com.seanmcapp.service
 import java.text.SimpleDateFormat
 import java.util.{Date, TimeZone}
 
-import com.seanmcapp.repository.dota.{Hero, HeroRepo, Player, PlayerRepo}
-import com.seanmcapp.util.parser.encoder.{HeroPageResponse, HeroWinSummary, HomePageResponse, MatchPlayer, MatchViewModel, PlayerPageResponse, PlayerWinSummary}
+import com.seanmcapp.repository.dota._
+import com.seanmcapp.util.parser.encoder._
 import com.seanmcapp.util.parser.decoder.{MatchResponse, PeerResponse}
 import com.seanmcapp.util.requestbuilder.{DotaRequestBuilder, HttpRequestBuilder}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http: HttpRequestBuilder) extends DotaRequestBuilder {
+class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: HeroAttributeRepo, override val http: HttpRequestBuilder) extends DotaRequestBuilder {
 
   private[service] val MINIMUM_MATCHES = 30
 
@@ -88,10 +88,12 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
   def hero(id: Int): Future[HeroPageResponse] = {
     val playersF = playerRepo.getAll
     val heroF = heroRepo.get(id)
+    val heroAttrF = heroAttrRepo.get(id)
 
     for {
       players <- playersF
       hero <- heroF
+      heroAttr <- heroAttrF
     } yield {
       val playersTmpSummary = players.flatMap(getMatches).filter(_.heroId == id).groupBy(_.player).toSeq.map { tup =>
         val matchResponses = tup._2.map { matchHead =>
@@ -108,7 +110,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, override val http:
       val playersWinSummary = playersTmpSummary.map { case (p, win, game, percentage) =>
         PlayerWinSummary(p.get, win, game, percentage, calculateRating(game, percentage, cPlayer))
       }.filter(_.games >= MINIMUM_MATCHES).sortBy(-_.rating)
-      HeroPageResponse(hero, playersWinSummary)
+      HeroPageResponse(hero, heroAttr, playersWinSummary)
     }
   }
 
