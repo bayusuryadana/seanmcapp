@@ -16,7 +16,7 @@ object Boot extends App with ScheduleManager {
 
   lazy val route = new Route().routePath
 
-  val serverBinding = start(Try(System.getenv("PORT").toInt).toOption.getOrElse(9000))
+  val serverBinding = start(Try(System.getenv("PORT").toInt).toOption.getOrElse(8000))
 
   scala.sys.addShutdownHook {
     stop(serverBinding)

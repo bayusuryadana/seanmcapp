@@ -28,7 +28,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
       val playersInfo = players.map { player =>
         val playerMatches = getMatches(player)
         val winSummary = toWinSummary(playerMatches)
-        val recentMatches = playerMatches.sortBy(-_.startTime).take(3).map(_.formatStartTime)
+        val recentMatches = playerMatches.sortBy(-_.startTime).take(3)
         val heroesWinSummary = playerMatches.groupBy(_.heroId).toSeq.map { case (heroId, matches) =>
           val hero = heroesMap.getOrElse(heroId, Hero.dummy(heroId))
           hero -> toWinSummary(matches)
@@ -50,7 +50,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
           player -> playerWinSummary.copy(rating = Some(calculateRating(playerWinSummary.percentage, playerWinSummary.games, cPlayer)))
         }.sortBy(-_._2.rating.getOrElse(0.0)).take(3)
         HeroInfo(hero, heroAttributesMap.getOrElse(hero.id, HeroAttribute.dummy(hero.id)), topPlayer)
-      }
+      }.sortBy(_.hero.id)
 
       DashboardPageResponse(playersInfo, heroesInfo)
     }
