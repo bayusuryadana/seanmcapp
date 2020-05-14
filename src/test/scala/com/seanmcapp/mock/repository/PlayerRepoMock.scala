@@ -7,14 +7,12 @@ import scala.concurrent.Future
 object PlayerRepoMock extends PlayerRepo {
 
   val playersList = List(
-    Player(104466002, "Agung Putra Pasaribu", "https://someurl", "hnymnky", Some(55)),
-    Player(131673450, "Faris Iqbal", "https://someurl", "OMEGALUL", Some(62)),
+    Player(137382742, "Rahmat Rasyidi Hakim",	"https://someurl",	"kill",	Some(45)),
+    Player(105742997, "Bayu Suryadana",	"https://someurl",	"SeanmcrayZ", Some(35))
   )
 
   override def getAll: Future[Seq[Player]] = Future.successful(playersList)
 
-  override def get(id: Int): Future[Option[Player]] = Future.successful(playersList.find(_.id == id))
-
-  override def update(player: Player): Future[Int] = Future.successful(0)
+  override def update(player: Player): Future[Int] = Future.successful(1)
 
 }

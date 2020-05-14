@@ -9,6 +9,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 case class Hero(id: Int, localizedName: String, primaryAttr: String, attackType: String, roles: String, image: String, icon: String, lore: String)
 
+object Hero {
+
+  def dummy(id: Int): Hero = {
+    Hero(id, "Unknown", "???", "", "", "", "", "")
+  }
+
+  def tupled = (Hero.apply _).tupled
+
+}
+
 class HeroInfo(tag: Tag) extends Table[Hero](tag, "heroes") {
   val id = column[Int]("id", O.PrimaryKey)
   val localizedName = column[String]("localized_name")
@@ -26,8 +36,6 @@ trait HeroRepo {
 
   def getAll: Future[Seq[Hero]]
 
-  def get(id: Int): Future[Option[Hero]]
-
   def insertOrUpdate(heroes: Seq[Hero]): Seq[Future[Int]]
 
 }
@@ -36,10 +44,6 @@ object HeroRepoImpl extends TableQuery(new HeroInfo(_)) with HeroRepo with DBCom
 
   def getAll: Future[Seq[Hero]] = {
     run(this.result)
-  }
-
-  def get(id: Int): Future[Option[Hero]] = {
-    run(this.filter(_.id === id).result.headOption)
   }
 
   def insertOrUpdate(heroes: Seq[Hero]): Seq[Future[Int]] = {

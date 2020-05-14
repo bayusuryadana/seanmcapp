@@ -1,43 +1,32 @@
 package com.seanmcapp.util.parser.encoder
 
 import com.seanmcapp.repository.dota.{Hero, HeroAttribute, Player}
+import com.seanmcapp.util.parser.decoder.MatchResponse
 
-case class MatchViewModel(matchId: Long, players: Seq[MatchPlayer], mode: String, startTime: String,
-                          duration: String, side: String, result: String)
+case class WinSummary(win: Int, games: Int, percentage: Double, rating: Option[Double])
 
-case class MatchPlayer(player: Player, hero: Hero, kill: Int, death: Int, assist: Int)
+case class PlayerInfo(player:Player, winSummary: WinSummary, matches: Seq[MatchResponse], topHero: Seq[(Hero, WinSummary)])
 
-case class PlayerWinSummary(player: Player, win: Int, games: Int, percentage: Double, rating: Double)
+case class HeroInfo(hero: Hero, heroAttribute: HeroAttribute, topPlayer: Seq[(Player, WinSummary)])
 
-case class HeroWinSummary(hero: Hero, win: Int, games: Int, percentage: Double, rating: Double)
-
-case class HomePageResponse(matches: Seq[MatchViewModel], players: Seq[Player], heroes: Seq[Hero])
-
-case class PlayerPageResponse(player: Player, heroes: Seq[HeroWinSummary], peers: Seq[PlayerWinSummary],
-                              recentMatches: Seq[MatchViewModel], winSummary: PlayerWinSummary)
-
-case class HeroPageResponse(hero: Option[Hero], heroAttribute: Option[HeroAttribute], players: Seq[PlayerWinSummary])
+case class HomePageResponse(players: Seq[PlayerInfo], heroes: Seq[HeroInfo])
 
 trait DotaOutputEncoder extends Encoder {
 
   implicit val playerFormat = jsonFormat5(Player)
 
-  implicit val heroFormat = jsonFormat8(Hero)
+  implicit val heroFormat = jsonFormat8(Hero.apply)
 
-  implicit val matchPlayerFormat = jsonFormat5(MatchPlayer)
+  implicit val heroAttributeFormat = jsonFormat21(HeroAttribute.apply)
 
-  implicit val matchViewModelFormat = jsonFormat7(MatchViewModel)
+  implicit val matchFormat = jsonFormat10(MatchResponse)
 
-  implicit val playerWinSummaryFormat = jsonFormat5(PlayerWinSummary)
+  implicit val winSummaryFormat = jsonFormat4(WinSummary)
 
-  implicit val heroWinSummaryFormat = jsonFormat5(HeroWinSummary)
+  implicit val playerInfoFormat = jsonFormat4(PlayerInfo)
 
-  implicit val heroAttributeFormat = jsonFormat21(HeroAttribute)
+  implicit val heroInfoFormat = jsonFormat3(HeroInfo)
 
-  implicit val homePageResponseFormat = jsonFormat3(HomePageResponse)
-
-  implicit val playerPageResponseFormat = jsonFormat5(PlayerPageResponse)
-
-  implicit val heroPageResponseFormat = jsonFormat3(HeroPageResponse)
+  implicit val homePageResponseFormat = jsonFormat2(HomePageResponse)
 
 }

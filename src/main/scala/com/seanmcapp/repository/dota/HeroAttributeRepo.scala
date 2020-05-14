@@ -12,6 +12,16 @@ case class HeroAttribute(id: Int, baseHealth: Int, baseHealthRegen: Double, base
                          strGain: Double, agiGain: Double, intGain: Double, attackRange: Int, projectileSpeed: Int, attackRate: Double,
                          moveSpeed: Int, turnRate: Double, cmEnabled: Boolean)
 
+object HeroAttribute {
+
+  def dummy(id: Int): HeroAttribute = {
+    HeroAttribute(id, 0, 0d, 0, 0d, 0, 0, 0, 0, 0, 0, 0, 0d, 0d, 0d, 0, 0, 0d, 0, 0d, false)
+  }
+
+  def tupled = (HeroAttribute.apply _).tupled
+
+}
+
 class HeroAttributeInfo(tag: Tag) extends Table[HeroAttribute](tag, "hero_attributes") {
   val id = column[Int]("id", O.PrimaryKey)
   val baseHealth = column[Int]("base_health")
@@ -42,7 +52,7 @@ class HeroAttributeInfo(tag: Tag) extends Table[HeroAttribute](tag, "hero_attrib
 
 trait HeroAttributeRepo {
 
-  def get(id: Int): Future[Option[HeroAttribute]]
+  def getAll: Future[Seq[HeroAttribute]]
 
   def insertOrUpdate(attributes: Seq[HeroAttribute]): Seq[Future[Int]]
 
@@ -50,8 +60,8 @@ trait HeroAttributeRepo {
 
 object HeroAttributeRepoImpl extends TableQuery(new HeroAttributeInfo(_)) with HeroAttributeRepo with DBComponent {
 
-  def get(id: Int): Future[Option[HeroAttribute]] = {
-    run(this.filter(_.id === id).result.headOption)
+  def getAll: Future[Seq[HeroAttribute]] = {
+    run(this.result)
   }
 
   def insertOrUpdate(attributes: Seq[HeroAttribute]): Seq[Future[Int]] = attributes.map { attribute =>

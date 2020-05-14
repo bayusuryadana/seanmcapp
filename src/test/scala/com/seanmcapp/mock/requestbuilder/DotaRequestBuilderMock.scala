@@ -10,9 +10,7 @@ trait DotaRequestBuilderMock extends DotaRequestBuilder {
 
   override def getMatches(player: Player): Seq[MatchResponse] = {
     val source = Source.fromResource("matches/" + player.id + ".json").mkString
-    decode[Seq[MatchResponse]](source).map { matchResponse =>
-      matchResponse.copy(player = Some(player))
-    }
+    decode[Seq[MatchResponse]](source)
   }
 
   override def getPeers(id: Int): Seq[PeerResponse] = {
