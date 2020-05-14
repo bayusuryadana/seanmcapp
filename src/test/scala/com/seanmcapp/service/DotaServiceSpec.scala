@@ -13,8 +13,8 @@ class DotaServiceSpec extends AsyncWordSpec with Matchers {
 
   val dotaService = new DotaService(PlayerRepoMock, HeroRepoMock, HeroAttributeRepoMock, HttpRequestBuilderImpl) with DotaRequestBuilderMock
 
-  "should fetch correct response and transform response properly - Dashboard endpoint" in {
-    dotaService.dashboard.map { res =>
+  "should fetch correct response and transform response properly - Home endpoint" in {
+    dotaService.home.map { res =>
       val playerInfos = List(
         PlayerInfo(
           Player(137382742, "Rahmat Rasyidi Hakim", "https://someurl", "kill", Some(45)),
@@ -65,7 +65,7 @@ class DotaServiceSpec extends AsyncWordSpec with Matchers {
         )
       )
 
-      val expected = DashboardPageResponse(playerInfos, heroInfos)
+      val expected = HomePageResponse(playerInfos, heroInfos)
       res shouldBe expected
     }
   }
