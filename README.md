@@ -1,5 +1,5 @@
 # Seanmcapp
-[![CircleCI](https://circleci.com/gh/bayusuryadana/seanmcapp.svg?style=svg)](https://circleci.com/gh/bayusuryadana/seanmcapp)
+![Scala CI](https://github.com/bayusuryadana/seanmcapp/workflows/Scala%20CI/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/bayusuryadana/seanmcapp/branch/master/graph/badge.svg)](https://codecov.io/gh/bayusuryadana/seanmcapp)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c80ce1baef8543eaaa730e45b3cc6c02)](https://www.codacy.com/app/bayusuryadana/seanmcapp?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=bayusuryadana/seanmcapp&amp;utm_campaign=Badge_Grade)
 
