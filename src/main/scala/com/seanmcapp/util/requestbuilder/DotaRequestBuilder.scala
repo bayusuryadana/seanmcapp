@@ -23,9 +23,7 @@ trait DotaRequestBuilder extends DotaInputDecoder with MemoryCache {
   def getMatches(player: Player): Seq[MatchResponse] = {
     memoizeSync(Some(duration)) {
       val response = http.sendRequest(baseUrl + player.id + "/matches")
-      decode[Seq[MatchResponse]](response).map { m =>
-        m.copy(player = Some(player))
-      }
+      decode[Seq[MatchResponse]](response)
     }
   }
 
