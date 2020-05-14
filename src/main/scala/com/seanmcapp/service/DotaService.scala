@@ -12,7 +12,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
 
   private[service] val MINIMUM_MATCHES = 30
 
-  def dashboard: Future[DashboardPageResponse] = {
+  def home: Future[HomePageResponse] = {
     val playersF = playerRepo.getAll
     val heroesF = heroRepo.getAll
     val heroAttributesF = heroAttrRepo.getAll
@@ -52,7 +52,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
         HeroInfo(hero, heroAttributesMap.getOrElse(hero.id, HeroAttribute.dummy(hero.id)), topPlayer)
       }.sortBy(_.hero.id)
 
-      DashboardPageResponse(playersInfo, heroesInfo)
+      HomePageResponse(playersInfo, heroesInfo)
     }
   }
 

@@ -9,7 +9,7 @@ case class PlayerInfo(player:Player, winSummary: WinSummary, matches: Seq[MatchR
 
 case class HeroInfo(hero: Hero, heroAttribute: HeroAttribute, topPlayer: Seq[(Player, WinSummary)])
 
-case class DashboardPageResponse(players: Seq[PlayerInfo], heroes: Seq[HeroInfo])
+case class HomePageResponse(players: Seq[PlayerInfo], heroes: Seq[HeroInfo])
 
 trait DotaOutputEncoder extends Encoder {
 
@@ -27,6 +27,6 @@ trait DotaOutputEncoder extends Encoder {
 
   implicit val heroInfoFormat = jsonFormat3(HeroInfo)
 
-  implicit val dashboardPageResponseFormat = jsonFormat2(DashboardPageResponse)
+  implicit val homePageResponseFormat = jsonFormat2(HomePageResponse)
 
 }

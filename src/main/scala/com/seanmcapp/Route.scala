@@ -28,7 +28,7 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     get(path("instagram" / Remaining)(cookie => complete(instagramFetcher.fetch(cookie).map(_.toJson)))),
 
     // dota APP
-    get(path("dota")(complete(dotaAPI.dashboard.map(_.toJson)))),
+    get(path("dota")(complete(dotaAPI.home.map(_.toJson)))),
 
     // wallet
     get((path("wallet") & headerValue(extractHeader))(secretKey => complete(walletAPI.getAll(secretKey).map(_.toJson)))),
