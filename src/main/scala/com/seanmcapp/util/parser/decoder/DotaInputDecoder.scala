@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.{Date, TimeZone}
 
 case class MatchResponse(matchId: Long, playerSlot: Int, radiantWin: Boolean, duration: Int, gameMode: Int,
-                         heroId: Int, startTime: String, kills: Int, deaths: Int, assists: Int) {
+                         heroId: Int, startTime: Long, kills: Int, deaths: Int, assists: Int, startTimeString: Option[String]) {
 
   def getWinStatus: String = if (playerSlot < 100 ^ radiantWin) "Lose" else "Win"
 
@@ -14,8 +14,8 @@ case class MatchResponse(matchId: Long, playerSlot: Int, radiantWin: Boolean, du
     val date = new Date(this.startTime.toLong * 1000L)
     val fmt = new SimpleDateFormat("dd-MM-yyyy HH:mm")
     fmt.setTimeZone(TimeZone.getTimeZone("GMT+7"))
-    val startTime = fmt.format(date.getTime)
-    this.copy(startTime = startTime)
+    val startTimeString = fmt.format(date.getTime)
+    this.copy(startTimeString = Some(startTimeString))
   }
 
 //  def getGameMode: String = {
@@ -36,7 +36,7 @@ case class PeerResponse(peerPlayerId: Int, win: Int, games:Int)
 trait DotaInputDecoder extends JsonDecoder {
 
   implicit val matchFormat = jsonFormat(MatchResponse, "match_id", "player_slot", "radiant_win", "duration", "game_mode",
-    "hero_id", "start_time", "kills", "deaths", "assists")
+    "hero_id", "start_time", "kills", "deaths", "assists", "start_time_string")
 
   implicit val peerFormat = jsonFormat(PeerResponse, "account_id", "win", "games")
 
