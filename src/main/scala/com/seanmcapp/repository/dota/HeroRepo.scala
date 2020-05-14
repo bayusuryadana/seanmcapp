@@ -36,8 +36,6 @@ trait HeroRepo {
 
   def getAll: Future[Seq[Hero]]
 
-  def get(id: Int): Future[Option[Hero]]
-
   def insertOrUpdate(heroes: Seq[Hero]): Seq[Future[Int]]
 
 }
@@ -46,10 +44,6 @@ object HeroRepoImpl extends TableQuery(new HeroInfo(_)) with HeroRepo with DBCom
 
   def getAll: Future[Seq[Hero]] = {
     run(this.result)
-  }
-
-  def get(id: Int): Future[Option[Hero]] = {
-    run(this.filter(_.id === id).result.headOption)
   }
 
   def insertOrUpdate(heroes: Seq[Hero]): Seq[Future[Int]] = {

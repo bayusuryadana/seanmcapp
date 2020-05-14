@@ -21,8 +21,6 @@ trait PlayerRepo {
 
   def getAll: Future[Seq[Player]]
 
-  def get(id: Int): Future[Option[Player]]
-
   def update(player: Player): Future[Int]
 
 }
@@ -31,10 +29,6 @@ object PlayerRepoImpl extends TableQuery(new PlayerInfo(_)) with PlayerRepo with
 
   def getAll: Future[Seq[Player]] = {
     run(this.result)
-  }
-
-  def get(id: Int): Future[Option[Player]] = {
-    run(this.filter(_.id === id).result.headOption)
   }
 
   def update(player: Player): Future[Int] = {

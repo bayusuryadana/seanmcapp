@@ -7,13 +7,11 @@ import scala.concurrent.Future
 object HeroRepoMock extends HeroRepo {
 
   private val heroesList = List(
-    Hero(18, "Anti-Mage", "agi", "Melee", "Carry,Escape,Nuker", "antimage_full.png", "antimage_icon.png", "magina story here"),
-    Hero(26, "Axe", "str", "Melee", "Initiator,Durable,Disabler,Jungler", "axe_full.png", "axe_icon.png", "axe story here"),
+    Hero(18, "Sven", "str", "Melee", "Carry,Disabler,Initiator,Durable,Nuker", "sven_full.png", "sven_icon.png", "sven story here"),
+    Hero(26, "Lion", "int", "Ranged", "Support,Disabler,Nuker,Initiator", "lion_full.png", "lion_icon.png", "lion story here"),
   )
 
   override def getAll: Future[Seq[Hero]] = Future.successful(heroesList)
-
-  override def get(id: Int): Future[Option[Hero]] = Future.successful(heroesList.find(_.id == id))
 
   override def insertOrUpdate(heroes: Seq[Hero]): Seq[Future[Int]] = heroes.map(_ => Future.successful(1))
 
