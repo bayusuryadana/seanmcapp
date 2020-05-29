@@ -12,6 +12,13 @@ class PhotoRepoSpec extends AsyncWordSpec with Matchers {
     }
   }
 
+  "should return a photo" in {
+    val response = PhotoRepoImpl.get(775233039855010642L)
+    response.map { res =>
+      res.map(_.caption) shouldEqual Some("Raihanah Yasmin. Vokasi'12")
+    }
+  }
+
   "should return random photo" in {
     val response = PhotoRepoImpl.getRandom(None)
     response.map { res =>

@@ -1,8 +1,11 @@
 package com.seanmcapp.service
 
+import com.seanmcapp.config.StorageConf
 import com.seanmcapp.mock.repository.{CustomerRepoMock, PhotoRepoMock}
-import com.seanmcapp.mock.requestbuilder.TelegramRequestBuilderMock
+import com.seanmcapp.mock.requestbuilder.{HttpRequestBuilderMock, TelegramRequestBuilderMock}
 import com.seanmcapp.util.requestbuilder.HttpRequestBuilderImpl
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito.when
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -11,7 +14,15 @@ import spray.json._
 
 class CBCServiceSpec extends AsyncWordSpec with Matchers {
 
-  val cbcService = new CBCService(PhotoRepoMock, CustomerRepoMock, HttpRequestBuilderImpl) with TelegramRequestBuilderMock
+  val storageConfMock = StorageConf("access", "secret", "host", "bucket")
+  val knnUrl = s"${storageConfMock.host}/${storageConfMock.bucket}/knn.csv"
+  val responseMap: Map[String, String] = Map(
+    knnUrl -> Source.fromResource("instagram/knn.csv").mkString
+  )
+  val cbcService = new CBCService(PhotoRepoMock, CustomerRepoMock, new HttpRequestBuilderMock(responseMap))
+    with TelegramRequestBuilderMock {
+    override val storageConf = storageConfMock
+  }
 
   "should return any random photos - API random endpoint" in {
     cbcService.random.map { res =>
@@ -71,7 +82,7 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
       val res = response.getOrElse(cancel("response is not defined"))
 
       res.ok shouldEqual true
-      res.result.caption shouldEqual Some("ui.cantik")
+      res.result.caption shouldEqual Some("Ritha Amelia D. Psikologi'12%0A%40ui.cantik")
     }
   }
 
@@ -84,7 +95,13 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
       val res = response.getOrElse(cancel("response is not defined"))
 
       res.ok shouldEqual true
-      res.result.caption shouldEqual Some("bidadari.ub")
+      res.result.caption shouldEqual Some("Nadia Raissa. FISIP'13%0A%40bidadari.ub")
     }
+  }
+
+  "should get correct mapping for recommendation" in {
+    val result = cbcService.getRecommendation
+    result.keys shouldEqual Set(
+      1066284747139695287L, 1699704484487729075L, 2197263767212894174L, 2241324772649595331L, 1413884082743596438L, 1116926637369974369L)
   }
 }
