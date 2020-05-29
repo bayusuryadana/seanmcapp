@@ -11,16 +11,11 @@ trait TelegramRequestBuilder extends TelegramInputDecoder with TelegramOutputEnc
 
   val telegramConf = TelegramConf()
 
-  def sendPhoto(chatId: Long, photo: Photo): TelegramResponse = {
-    val photoId = photo.id
-    val storageConf = StorageConf()
-    val url = storageConf.host + "/" + storageConf.bucket + "/cbc/" + photoId  + ".jpg"
-
+  def sendPhoto(chatId: Long, photoUrl: String, caption: String): TelegramResponse = {
     val urlString = telegramConf.endpoint + "/sendphoto" +
       "?chat_id=" + chatId +
-      "&photo=" + url +
-      "&caption=" + photo.caption +
-      "%0A%40" + photo.account
+      "&photo=" + photoUrl +
+      "&caption=" + caption
 
     val response = http.sendRequest(urlString)
     decode[TelegramResponse](response)

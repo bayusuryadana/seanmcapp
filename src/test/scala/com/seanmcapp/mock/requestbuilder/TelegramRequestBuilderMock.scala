@@ -11,8 +11,8 @@ trait TelegramRequestBuilderMock extends TelegramRequestBuilder {
 
   override val telegramConf = TelegramConf("endpoint", "@seanmcbot")
 
-  override def sendPhoto(chatId: Long, photo: Photo): TelegramResponse = {
-    val source = Source.fromResource("telegram/" + chatId + "_response.json").mkString.replace("{caption}", photo.account)
+  override def sendPhoto(chatId: Long, photoUrl: String, caption: String): TelegramResponse = {
+    val source = Source.fromResource("telegram/" + chatId + "_response.json").mkString.replace("{caption}", caption)
     decode[TelegramResponse](source)
   }
 
