@@ -58,27 +58,15 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, override val 
         val account = if (command.split("_").length > 1) Some(command.replace("_", ".").stripPrefix("/cbc.")) else None
         val customerF = customerRepo.get(userId)
         val photoF = photoRepo.getRandom(account)
-        for {
-          customerOpt <- customerF
-          photoOpt <- photoF
-        } yield {
-          photoOpt.map { photo =>
-            customerOpt match {
-              // TODO: test which one and one of them should being called
-              case Some(customer) => customerRepo.update(Customer(userId, userFullName, customer.count + 1))
-              case None => customerRepo.insert(Customer(userId, userFullName, 1))
-            }
-            setCacheAndSendPhoto(chatId, photo)
-          }
-        }
+        photoFlow(photoF, customerF, chatId, userId, userFullName)
       case Some(s) if s == "/recommendation" =>
         lastPhotoCache.get(chatId).flatMap { lastPhotoId =>
           getRecommendation.get(lastPhotoId).map { recommendations =>
             val r = scala.util.Random
             val photoId = recommendations(r.nextInt(recommendations.length))
-            photoRepo.get(photoId).map(_.map { photo =>
-              setCacheAndSendPhoto(chatId, photo)
-            })
+            val customerF = customerRepo.get(userId)
+            val photoF = photoRepo.get(photoId)
+            photoFlow(photoF, customerF, chatId, userId, userFullName)
           }
         }.getOrElse(Future.successful(None))
       case _ =>
@@ -98,13 +86,29 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, override val 
     }
   }
 
-  private def setCacheAndSendPhoto(chatId: Long, photo: Photo): TelegramResponse = {
-    println(s"[INFO][CBC] chatId: $chatId, id: ${photo.id}, caption: ${photo.caption}")
-    lastPhotoCache.put(chatId)(photo.id)
-    val photoId = photo.id
-    val url = s"${storageConf.host}/${storageConf.bucket}/cbc/$photoId.jpg"
-    val caption = photo.caption + "%0A%40" + photo.account
-    sendPhoto(chatId, url, caption)
+  private def photoFlow(photoF: Future[Option[Photo]], customerF: Future[Option[Customer]],
+                        chatId: Long, userId: Long, userFullName: String): Future[Option[TelegramResponse]] = {
+    for {
+      customerOpt <- customerF
+      photoOpt <- photoF
+    } yield {
+      photoOpt.map { photo =>
+        // Tracking customer
+        customerOpt match {
+          // TODO: test which one and one of them should being called
+          case Some(customer) => customerRepo.update(Customer(userId, userFullName, customer.count + 1))
+          case None => customerRepo.insert(Customer(userId, userFullName, 1))
+        }
+
+        // Set cache, logging and send photo
+        println(s"[INFO][CBC] chatId: $chatId, id: ${photo.id}, caption: ${photo.caption}")
+        lastPhotoCache.put(userId)(photo.id)
+        val photoId = photo.id
+        val url = s"${storageConf.host}/${storageConf.bucket}/cbc/$photoId.jpg"
+        val caption = photo.caption + "%0A%40" + photo.account
+        sendPhoto(chatId, url, caption)
+      }
+    }
   }
 
 }
