@@ -1,7 +1,6 @@
 package com.seanmcapp.util.requestbuilder
 
-import com.seanmcapp.config.{StorageConf, TelegramConf}
-import com.seanmcapp.repository.instagram.Photo
+import com.seanmcapp.config.TelegramConf
 import com.seanmcapp.util.parser.encoder.{TelegramOutputEncoder, TelegramResponse}
 import com.seanmcapp.util.parser.decoder.TelegramInputDecoder
 

@@ -11,17 +11,17 @@ import scala.concurrent.duration.{Duration, FiniteDuration}
 
 // $COVERAGE-OFF$
 abstract class Scheduler(startTime: Int, intervalOpt: Option[FiniteDuration])
-                        (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) {
+                        (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends Runnable {
   private val ICT = "+07:00"
   protected def now: DateTime = new DateTime().toDateTime(DateTimeZone.forID(ICT))
   protected val scheduler = system.scheduler
 
-  def run: Cancellable = {
+  def start: Cancellable = {
     val startTimeDuration = getStartTimeDuration(startTime)
     intervalOpt match {
       case Some(interval) =>
-        scheduler.schedule(startTimeDuration, interval)(task)
-      case None => scheduler.scheduleOnce(startTimeDuration)(task)
+        scheduler.scheduleAtFixedRate(startTimeDuration, interval)(this)
+      case None => scheduler.scheduleOnce(startTimeDuration)(this)
     }
   }
 
@@ -33,6 +33,8 @@ abstract class Scheduler(startTime: Int, intervalOpt: Option[FiniteDuration])
     val numberInMillis = target.getMillis - now.getMillis
     Duration(numberInMillis, TimeUnit.MILLISECONDS)
   }
+
+  override def run: Unit = task
 
   protected def task: Any
 

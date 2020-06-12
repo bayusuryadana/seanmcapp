@@ -6,7 +6,6 @@ import com.seanmcapp.repository.instagram.{Photo, PhotoRepo}
 import com.seanmcapp.storage.ImageStorage
 import com.seanmcapp.util.parser.decoder.{InstagramAccountResponse, InstagramDecoder, InstagramResponse}
 import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
-import scalaj.http.Http
 
 import scala.concurrent.Future
 import scala.util.matching.Regex
@@ -32,12 +31,12 @@ class InstagramFetcher(photoRepo: PhotoRepo, imageStorage: ImageStorage, http: H
     // deprecated
     //"ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,
     //"ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,
+    //"unj.cantik"   -> "[\\w ]+\\, [\\w]+ ['’]\\d\\d".r,
 
     // existing
     "ugmcantik"    -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
     "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
     "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
-    "unj.cantik"   -> "[\\w ]+\\, [\\w]+ ['’]\\d\\d".r,
     "cantik.its"   -> ".+".r,
 
     // TODO: should use another function than regex
@@ -87,7 +86,7 @@ class InstagramFetcher(photoRepo: PhotoRepo, imageStorage: ImageStorage, http: H
     Future.sequence(sequenceResult)
   }
 
-  private def savingToStorage(filteredPhotos: Seq[Photo]): Seq[Photo] = {
+  private[service] def savingToStorage(filteredPhotos: Seq[Photo]): Seq[Photo] = {
     filteredPhotos.flatMap { photo =>
       val inputStream = new URL(photo.thumbnailSrc).openStream
       imageStorage.put(photo.id  + ".jpg", inputStream).map(_ => photo)

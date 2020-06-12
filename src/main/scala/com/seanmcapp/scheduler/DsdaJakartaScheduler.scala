@@ -2,7 +2,7 @@ package com.seanmcapp.scheduler
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
-import com.seanmcapp.util.parser.decoder.{DsdaJakartaDecoder, DsdaWaterGate, DsdaWaterGateResponse}
+import com.seanmcapp.util.parser.decoder.{DsdaJakartaDecoder, DsdaWaterGate}
 import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
 
 import scala.concurrent.ExecutionContext

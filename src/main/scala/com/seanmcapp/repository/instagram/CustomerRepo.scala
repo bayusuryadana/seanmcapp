@@ -1,7 +1,6 @@
 package com.seanmcapp.repository.instagram
 
 import com.seanmcapp.repository.DBComponent
-import com.seanmcapp.repository.instagram.PhotoRepoImpl.run
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.Future

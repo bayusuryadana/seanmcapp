@@ -3,6 +3,7 @@ package com.seanmcapp.service
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import com.seanmcapp.mock.repository.PhotoRepoMock
+import com.seanmcapp.repository.instagram.Photo
 import com.seanmcapp.storage.ImageStorage
 import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
 import org.mockito.ArgumentMatchers
@@ -14,7 +15,6 @@ import scala.io.Source
 class InstagramFetcherSpec extends AsyncWordSpec with Matchers {
 
   val imageStorageMock = mock(classOf[ImageStorage])
-  when(imageStorageMock.put(any(), any())).thenReturn(Some())
 
   val http = mock(classOf[HttpRequestBuilder])
   val accountName = "ugmcantik"
@@ -29,6 +29,7 @@ class InstagramFetcherSpec extends AsyncWordSpec with Matchers {
 
   val instagramFetcher = new InstagramFetcher(PhotoRepoMock, imageStorageMock, http) {
     override val accountList = Map(accountName -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r)
+    override def savingToStorage(filteredPhotos: Seq[Photo]): Seq[Photo] = filteredPhotos
   }
 
   "should return number of image that have been successfully fetched" in {

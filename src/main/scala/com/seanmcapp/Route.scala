@@ -3,7 +3,6 @@ package com.seanmcapp
 import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.HttpHeader
-import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.Directives
 import akka.stream.Materializer
 import com.seanmcapp.repository.instagram.Photo
