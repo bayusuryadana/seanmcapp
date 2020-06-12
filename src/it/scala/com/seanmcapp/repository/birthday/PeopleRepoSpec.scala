@@ -1,6 +1,7 @@
 package com.seanmcapp.repository.birthday
 
-import org.scalatest.{AsyncWordSpec, Matchers}
+import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.matchers.should.Matchers
 
 class PeopleRepoSpec extends AsyncWordSpec with Matchers {
 

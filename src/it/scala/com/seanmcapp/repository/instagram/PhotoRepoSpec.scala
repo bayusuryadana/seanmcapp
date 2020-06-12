@@ -1,6 +1,7 @@
 package com.seanmcapp.repository.instagram
 
-import org.scalatest.{AsyncWordSpec, Matchers}
+import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.matchers.should.Matchers
 
 class PhotoRepoSpec extends AsyncWordSpec with Matchers {
 

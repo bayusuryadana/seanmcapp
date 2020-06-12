@@ -3,9 +3,6 @@ package com.seanmcapp.service
 import com.seanmcapp.config.StorageConf
 import com.seanmcapp.mock.repository.{CustomerRepoMock, PhotoRepoMock}
 import com.seanmcapp.mock.requestbuilder.{HttpRequestBuilderMock, TelegramRequestBuilderMock}
-import com.seanmcapp.util.requestbuilder.HttpRequestBuilderImpl
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito.when
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatest.matchers.should.Matchers
 

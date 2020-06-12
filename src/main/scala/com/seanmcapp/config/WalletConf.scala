@@ -1,7 +1,6 @@
 package com.seanmcapp.config
 
 import com.typesafe.config.{Config, ConfigFactory}
-import config.Configuration
 
 import scala.util.Try
 

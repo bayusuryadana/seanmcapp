@@ -2,7 +2,8 @@ package com.seanmcapp.storage
 
 import java.io.{File, FileInputStream}
 
-import org.scalatest.{AsyncWordSpec, Matchers}
+import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.matchers.should.Matchers
 
 class ImageStorageSpec extends AsyncWordSpec with Matchers {
 

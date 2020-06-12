@@ -1,4 +1,4 @@
-package config
+package com.seanmcapp.config
 
 import com.typesafe.config.{Config, ConfigFactory}
 
