@@ -7,7 +7,7 @@ import akka.stream.Materializer
 import com.seanmcapp.repository.birthday.PeopleRepoImpl
 import com.seanmcapp.repository.dota.{HeroAttributeRepoImpl, HeroRepoImpl, PlayerRepoImpl}
 import com.seanmcapp.scheduler._
-import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, HttpRequestBuilderImpl}
+import com.seanmcapp.util.requestbuilder.HttpRequestBuilderImpl
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration
