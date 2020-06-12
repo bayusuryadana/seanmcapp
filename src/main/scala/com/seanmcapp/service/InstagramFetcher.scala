@@ -86,7 +86,7 @@ class InstagramFetcher(photoRepo: PhotoRepo, imageStorage: ImageStorage, http: H
     Future.sequence(sequenceResult)
   }
 
-  private def savingToStorage(filteredPhotos: Seq[Photo]): Seq[Photo] = {
+  private[service] def savingToStorage(filteredPhotos: Seq[Photo]): Seq[Photo] = {
     filteredPhotos.flatMap { photo =>
       val inputStream = new URL(photo.thumbnailSrc).openStream
       imageStorage.put(photo.id  + ".jpg", inputStream).map(_ => photo)
