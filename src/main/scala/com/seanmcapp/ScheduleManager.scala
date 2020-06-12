@@ -42,7 +42,7 @@ trait ScheduleManager {
       new NCovScheduler(20, everyDay, http),
 
       new DsdaJakartaScheduler(0, everyHour, http)
-    ).map(_.run)
+    ).map(_.start)
 
     system.registerOnTermination(scheduleList.map(_.cancel()))
     scheduleList
