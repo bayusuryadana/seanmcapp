@@ -8,5 +8,4 @@ case class TelegramChat(id: Long, chatType: String, title: Option[String], first
 trait TelegramCommon extends DefaultJsonProtocol {
   implicit val telegramUserFormat = jsonFormat(TelegramUser, "id", "is_bot", "first_name", "last_name", "username")
   implicit val telegramChatFormat = jsonFormat(TelegramChat, "id", "type", "title", "first_name")
-  BroadcastType.Text
 }

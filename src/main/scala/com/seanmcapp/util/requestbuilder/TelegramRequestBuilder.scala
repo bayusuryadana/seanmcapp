@@ -1,8 +1,15 @@
 package com.seanmcapp.util.requestbuilder
 
-import com.seanmcapp.config.TelegramConf
+import java.io.File
+import java.nio.file.Files
+
+import scalaj.http.MultiPart
+import com.seanmcapp.config.{StorageConf, TelegramConf}
+import com.seanmcapp.repository.instagram.Photo
 import com.seanmcapp.util.parser.encoder.{TelegramOutputEncoder, TelegramResponse}
 import com.seanmcapp.util.parser.decoder.TelegramInputDecoder
+
+import scala.concurrent.Future
 
 trait TelegramRequestBuilder extends TelegramInputDecoder with TelegramOutputEncoder {
 
@@ -23,6 +30,14 @@ trait TelegramRequestBuilder extends TelegramInputDecoder with TelegramOutputEnc
   def sendMessage(chatId: Long, text: String): TelegramResponse = {
     val urlString = telegramConf.endpoint + "/sendmessage?chat_id=" + chatId + "&text=" + text + "&parse_mode=markdown"
     val response = http.sendRequest(urlString)
+    decode[TelegramResponse](response)
+  }
+
+  def sendPhotoWithFileUpload(chatId: Long, caption: String = "", file: File) : TelegramResponse = {
+    val parts = MultiPart("photo", file.getName, "application/octet-stream", Files.readAllBytes(file.toPath))
+    val params = Some(Map("chat_id" -> String.valueOf(chatId), "caption" -> caption))
+
+    val response = http.sendMultipartRequest(telegramConf.endpoint + "/sendphoto", parts, params)
     decode[TelegramResponse](response)
   }
 

@@ -13,4 +13,12 @@ class HttpRequestBuilderMock(responseMap: Map[String, String]) extends HttpReque
     "NOT YET IMPLEMENTED"
   }
 
+  override def sendMultipartRequest(url: String,
+                                    parts: scalaj.http.MultiPart,
+                                    params: Option[Map[String,String]],
+                                    headers: Option[Map[String,String]],
+                                    timeout: Option[(Int, Int)]): String = {
+    "NOT YET IMPLEMENTED"
+  }
+
 }

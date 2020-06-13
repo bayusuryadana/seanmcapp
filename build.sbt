@@ -42,6 +42,9 @@ libraryDependencies ++= Seq(
   // enum
   "com.beachape" %% "enumeratum" % "1.5.15"
 
+  // testkit
+  "com.typesafe.akka" %% "akka-stream-testkit" % "2.6.3",
+  "com.typesafe.akka" %% "akka-http-testkit" % "10.1.11"
 )
 
 coverageExcludedPackages :=
