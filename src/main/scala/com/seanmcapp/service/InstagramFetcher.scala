@@ -5,7 +5,7 @@ import java.net.URL
 import com.seanmcapp.repository.instagram.{Photo, PhotoRepo}
 import com.seanmcapp.storage.ImageStorage
 import com.seanmcapp.util.parser.decoder.{InstagramAccountResponse, InstagramDecoder, InstagramResponse}
-import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
+import com.seanmcapp.util.requestbuilder.{HeaderMap, HttpRequestBuilder}
 
 import scala.concurrent.Future
 import scala.util.matching.Regex
@@ -58,7 +58,7 @@ class InstagramFetcher(photoRepo: PhotoRepo, imageStorage: ImageStorage, http: H
     val sequenceResult = accountList.toSeq.map { item =>
       val account = item._1
       val initUrl = "https://www.instagram.com/" + account + "/?__a=1"
-      val headers = Some(Map("cookie" -> cookie))
+      val headers = Some(HeaderMap(Map("cookie" -> cookie)))
       val httpResponse = http.sendRequest(initUrl, headers = headers)
       val id = decode[InstagramAccountResponse](httpResponse).id.replace("profilePage_", "").toLong
 
@@ -107,7 +107,7 @@ class InstagramFetcher(photoRepo: PhotoRepo, imageStorage: ImageStorage, http: H
   private def fetch(userId: Long, endCursor: Option[String], account: String, cookie: String): Seq[Photo] = {
     val fetchUrl = "https://www.instagram.com/graphql/query/?query_id=17888483320059182&id=<user_id>&first=50&after=<end_cursor>"
     val url = fetchUrl.replace("<user_id>", userId.toString).replace("<end_cursor>", endCursor.getOrElse(""))
-    val headers = Some(Map("cookie" -> cookie))
+    val headers = Some(HeaderMap(Map("cookie" -> cookie)))
     val httpResponse = http.sendRequest(url, headers = headers)
     val instagramResponse = decode[InstagramResponse](httpResponse)
 

@@ -1,15 +1,19 @@
 package com.seanmcapp
 
+import java.util.concurrent.TimeUnit
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.HttpHeader
 import akka.http.scaladsl.server.Directives
 import akka.stream.Materializer
+import akka.stream.scaladsl.StreamConverters
 import com.seanmcapp.repository.instagram.Photo
 import com.seanmcapp.util.parser.encoder.{RouteEncoder, TelegramResponse}
 import spray.json._
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.FiniteDuration
 
 class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends Directives
   with SprayJsonSupport with RouteEncoder with Injection {
@@ -35,8 +39,13 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     put((path("wallet") & headerValue(extractHeader) & entity(as[JsValue]))((secretKey, payload) => complete(walletAPI.update(payload)(secretKey).map(_.toJson)))),
     delete((path("wallet" / Remaining) & headerValue(extractHeader))((id, secretKey) => complete(walletAPI.delete(id.toInt)(secretKey).map(_.toJson)))),
 
+    // broadcast
+    post(path("broadcast")(fileUpload("photo"){ case (metadata, byteSource) =>
+      complete(broadcastAPI.broadcastWithPhoto(metadata, byteSource))
+    })),
+
     // homepage
-    get(path("")(complete("Life is a gift, keep smiling and giving goodness !"))),
+    get(path("")(complete("Life is a gift, keep smiling and giving goodness !")))
 
   ).reduce{ (a,b) => a~b }
 

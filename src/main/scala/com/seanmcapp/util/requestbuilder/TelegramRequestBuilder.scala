@@ -23,21 +23,21 @@ trait TelegramRequestBuilder extends TelegramInputDecoder with TelegramOutputEnc
       "&photo=" + photoUrl +
       "&caption=" + caption
 
-    val response = http.sendRequest(urlString)
+    val response = http.sendGetRequest(urlString)
     decode[TelegramResponse](response)
   }
 
   def sendMessage(chatId: Long, text: String): TelegramResponse = {
     val urlString = telegramConf.endpoint + "/sendmessage?chat_id=" + chatId + "&text=" + text + "&parse_mode=markdown"
-    val response = http.sendRequest(urlString)
+    val response = http.sendGetRequest(urlString)
     decode[TelegramResponse](response)
   }
 
-  def sendPhotoWithFileUpload(chatId: Long, caption: String = "", file: File) : TelegramResponse = {
-    val parts = MultiPart("photo", file.getName, "application/octet-stream", Files.readAllBytes(file.toPath))
-    val params = Some(Map("chat_id" -> String.valueOf(chatId), "caption" -> caption))
+  def sendPhotoWithFileUpload(chatId: Long, caption: String = "", data: Array[Byte]) : TelegramResponse = {
+    val parts = MultiPart("photo", caption, "application/octet-stream", data)
+    val params = Some(ParamMap(Map("chat_id" -> String.valueOf(chatId), "caption" -> caption)))
 
-    val response = http.sendMultipartRequest(telegramConf.endpoint + "/sendphoto", parts, params)
+    val response = http.sendRequest(telegramConf.endpoint + "/sendphoto", params, multiPart = Some(parts))
     decode[TelegramResponse](response)
   }
 

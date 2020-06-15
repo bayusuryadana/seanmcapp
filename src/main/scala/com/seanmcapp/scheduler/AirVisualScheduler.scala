@@ -58,7 +58,7 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration, override val 
       URLEncoder.encode(city.city, "UTF-8"),
       airvisualConf.key)
 
-    val response = http.sendRequest(apiUrl)
+    val response = http.sendGetRequest(apiUrl)
     val airVisualResponse = decode[AirvisualResponse](response)
     (city, airVisualResponse.data.current.pollution.aqius)
   }

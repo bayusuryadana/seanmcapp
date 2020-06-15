@@ -21,7 +21,7 @@ abstract class Scheduler(startTime: Int, intervalOpt: Option[FiniteDuration])
     intervalOpt match {
       case Some(interval) =>
         scheduler.scheduleAtFixedRate(startTimeDuration, interval)(this)
-      case None => scheduler.scheduleOnce(startTimeDuration)(this)
+      case None => scheduler.scheduleOnce(startTimeDuration)(this.run)
     }
   }
 

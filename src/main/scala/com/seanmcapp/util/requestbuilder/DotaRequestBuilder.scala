@@ -22,14 +22,14 @@ trait DotaRequestBuilder extends DotaInputDecoder with MemoryCache {
 
   def getMatches(player: Player): Seq[MatchResponse] = {
     memoizeSync(Some(duration)) {
-      val response = http.sendRequest(baseUrl + player.id + "/matches")
+      val response = http.sendGetRequest(baseUrl + player.id + "/matches")
       decode[Seq[MatchResponse]](response)
     }
   }
 
   def getPeers(id: Int): Seq[PeerResponse] = {
     memoizeSync(Some(duration)) {
-      val response = http.sendRequest(baseUrl + id + "/peers")
+      val response = http.sendGetRequest(baseUrl + id + "/peers")
       decode[Seq[PeerResponse]](response)
     }
   }
