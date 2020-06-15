@@ -7,6 +7,10 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http" % "10.1.11",
   "com.typesafe.akka" %% "akka-stream" % "2.6.3",
 
+  // testkit
+  "com.typesafe.akka" %% "akka-http-testkit" % "10.1.11" % Test,
+  "com.typesafe.akka" %% "akka-stream-testkit" % "2.6.3" % Test,
+
   // json serializer
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.11",
 
@@ -41,10 +45,6 @@ libraryDependencies ++= Seq(
 
   // enum
   "com.beachape" %% "enumeratum" % "1.5.15",
-
-  // testkit
-  "com.typesafe.akka" %% "akka-stream-testkit" % "2.6.3",
-  "com.typesafe.akka" %% "akka-http-testkit" % "10.1.11"
 )
 
 coverageExcludedPackages :=

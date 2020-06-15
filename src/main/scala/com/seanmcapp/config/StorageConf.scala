@@ -16,7 +16,7 @@ object StorageConf extends Configuration[StorageConf] {
     StorageConf(
       Try(c.getString("access")).getOrElse(""),
       Try(c.getString("secret")).getOrElse(""),
-      Try(c.getString("host")).getOrElse(""),
+      Try(c.getString("host")).getOrElse("http://localhost"),
       Try(c.getString("bucket")).getOrElse("")
     )
   }

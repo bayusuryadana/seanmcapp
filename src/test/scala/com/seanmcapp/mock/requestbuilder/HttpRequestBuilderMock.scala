@@ -1,6 +1,7 @@
 package com.seanmcapp.mock.requestbuilder
 
-import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
+import com.seanmcapp.util.requestbuilder.{HeaderMap, HttpRequestBuilder, ParamMap}
+import scalaj.http.MultiPart
 
 class HttpRequestBuilderMock(responseMap: Map[String, String]) extends HttpRequestBuilder {
 
@@ -8,16 +9,12 @@ class HttpRequestBuilderMock(responseMap: Map[String, String]) extends HttpReque
     responseMap.getOrElse(url, "")
   }
 
-  override def sendRequest(url: String, postData: Option[String] = None, headers: Option[Map[String, String]] = None,
-                  timeout: Option[(Int, Int)] = None): String = {
-    "NOT YET IMPLEMENTED"
-  }
-
-  override def sendMultipartRequest(url: String,
-                                    parts: scalaj.http.MultiPart,
-                                    params: Option[Map[String,String]],
-                                    headers: Option[Map[String,String]],
-                                    timeout: Option[(Int, Int)]): String = {
+  override def sendRequest(url: String,
+                           params: Option[ParamMap] = None,
+                           postData: Option[String] = None,
+                           headers: Option[HeaderMap] = None,
+                           multiPart: Option[MultiPart] = None
+                          ): String = {
     "NOT YET IMPLEMENTED"
   }
 

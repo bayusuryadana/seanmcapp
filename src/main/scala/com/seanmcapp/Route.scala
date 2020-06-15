@@ -1,19 +1,15 @@
 package com.seanmcapp
 
-import java.util.concurrent.TimeUnit
-
 import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.HttpHeader
 import akka.http.scaladsl.server.Directives
 import akka.stream.Materializer
-import akka.stream.scaladsl.StreamConverters
 import com.seanmcapp.repository.instagram.Photo
 import com.seanmcapp.util.parser.encoder.{RouteEncoder, TelegramResponse}
 import spray.json._
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.duration.FiniteDuration
 
 class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends Directives
   with SprayJsonSupport with RouteEncoder with Injection {

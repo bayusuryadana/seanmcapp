@@ -16,9 +16,6 @@ import scala.concurrent.duration.FiniteDuration
 
 class BroadcastService(override val http: HttpRequestBuilder) extends BroadcasterCommon with TelegramRequestBuilder {
 
-  def tempDestination(fileInfo: FileInfo): File =
-    File.createTempFile(fileInfo.fileName, ".tmp")
-
   def broadcastWithPhoto(fileInfo: FileInfo, byteSource: Source[ByteString, Any])(implicit mat: Materializer) : Future[BroadcastOutput] = {
     val inputStream = byteSource.runWith(StreamConverters.asInputStream(FiniteDuration(3, TimeUnit.SECONDS)))
     val dataByteArray = LazyList.continually(inputStream.read).takeWhile(_ != -1).map(_.toByte).toArray
