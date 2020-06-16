@@ -36,9 +36,9 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     delete((path("wallet" / Remaining) & headerValue(extractHeader))((id, secretKey) => complete(walletAPI.delete(id.toInt)(secretKey).map(_.toJson)))),
 
     // broadcast
-    post(path("broadcast")(fileUpload("photo"){ case (metadata, byteSource) =>
-      complete(broadcastAPI.broadcastWithPhoto(metadata, byteSource))
-    })),
+    post((path("broadcast") & headerValue(extractHeader) & fileUpload("photo")){ case (secretKey, (metadata, byteSource)) =>
+      complete(broadcastAPI.broadcastWithPhoto(metadata, byteSource)(mat, secretKey))
+    }),
 
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !")))
