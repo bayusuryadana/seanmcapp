@@ -13,4 +13,12 @@ class PlayerRepoSpec extends AsyncWordSpec with Matchers {
     }
   }
 
+  "should return successful insertion" in {
+    val player = Player(105742997, "Bayu Suryadana",	"https://someurl",	"SeanmcrayZ", Some(35))
+    val response = PlayerRepoImpl.update(player)
+    response.map { res =>
+      res shouldEqual 1
+    }
+  }
+
 }
