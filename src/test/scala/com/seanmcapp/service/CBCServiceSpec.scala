@@ -3,8 +3,13 @@ package com.seanmcapp.service
 import com.seanmcapp.config.StorageConf
 import com.seanmcapp.mock.repository.{CustomerRepoMock, PhotoRepoMock}
 import com.seanmcapp.mock.requestbuilder.{HttpRequestBuilderMock, TelegramRequestBuilderMock}
+import org.mockito.ArgumentMatchers._
+import org.mockito.Mockito
+import org.mockito.Mockito._
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatest.matchers.should.Matchers
+import scalacache.Cache
+import scalacache.modes.sync._
 
 import scala.io.Source
 import spray.json._
@@ -99,6 +104,23 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
   "should get correct mapping for recommendation" in {
     val result = cbcService.getRecommendation
     result.keys shouldEqual Set(
-      1066284747139695287L, 1699704484487729075L, 2197263767212894174L, 2241324772649595331L, 1413884082743596438L, 1116926637369974369L)
+      772020198343721705L, 1699704484487729075L, 2197263767212894174L, 2241324772649595331L, 1413884082743596438L, 1116926637369974369L)
+  }
+
+  "should return a recommendation photos based on recommendation csv file - telegram recommendation endpoint" in {
+    // this test will be based on the last fetched photo in previous test above, please keep in mind
+    val command = "/recommendation"
+    val chatId = 274852283
+    val userId = 123
+    val userFullName = "Yukihira Soma"
+    cbcService.executeCommand(command, chatId, userId, userFullName).map { response =>
+      response shouldNot be(None)
+      val res = response.getOrElse(cancel("response is not defined"))
+
+      res.ok shouldEqual true
+      val chat = res.result.chat
+      chat.id shouldEqual 274852283
+      res.result.caption shouldEqual Some("Delicia Gemma. Hukum 2011%0A%40unpad.geulis")
+    }
   }
 }
