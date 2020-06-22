@@ -3,13 +3,8 @@ package com.seanmcapp.service
 import com.seanmcapp.config.StorageConf
 import com.seanmcapp.mock.repository.{CustomerRepoMock, PhotoRepoMock}
 import com.seanmcapp.mock.requestbuilder.{HttpRequestBuilderMock, TelegramRequestBuilderMock}
-import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito
-import org.mockito.Mockito._
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatest.matchers.should.Matchers
-import scalacache.Cache
-import scalacache.modes.sync._
 
 import scala.io.Source
 import spray.json._
