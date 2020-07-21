@@ -7,6 +7,7 @@ import akka.http.scaladsl.server.Directives
 import akka.stream.Materializer
 import com.seanmcapp.repository.instagram.Photo
 import com.seanmcapp.util.parser.encoder.{RouteEncoder, TelegramResponse}
+import scala.concurrent.duration._
 import spray.json._
 
 import scala.concurrent.ExecutionContext
@@ -36,9 +37,13 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     delete((path("wallet" / Remaining) & headerValue(extractHeader))((id, secretKey) => complete(walletAPI.delete(id.toInt)(secretKey).map(_.toJson)))),
 
     // broadcast
-    post((path("broadcast") & headerValue(extractHeader) & fileUpload("photo")){ case (secretKey, (metadata, byteSource)) =>
-      complete(broadcastAPI.broadcastWithPhoto(metadata, byteSource)(mat, secretKey))
-    }),
+
+    toStrictEntity(3.seconds) {
+      post((path("broadcast") & headerValue(extractHeader) & fileUpload("photo") & formFieldMap) {
+        case (secretKey, (metadata, byteSource), formFields) =>
+          complete(broadcastAPI.broadcastWithPhoto(metadata, byteSource, formFields)(mat, secretKey))
+      })
+    },
 
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !")))

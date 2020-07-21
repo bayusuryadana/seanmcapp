@@ -1,15 +1,9 @@
 package com.seanmcapp.util.requestbuilder
 
-import java.io.File
-import java.nio.file.Files
-
 import scalaj.http.MultiPart
-import com.seanmcapp.config.{StorageConf, TelegramConf}
-import com.seanmcapp.repository.instagram.Photo
+import com.seanmcapp.config.TelegramConf
 import com.seanmcapp.util.parser.encoder.{TelegramOutputEncoder, TelegramResponse}
 import com.seanmcapp.util.parser.decoder.TelegramInputDecoder
-
-import scala.concurrent.Future
 
 trait TelegramRequestBuilder extends TelegramInputDecoder with TelegramOutputEncoder {
 
