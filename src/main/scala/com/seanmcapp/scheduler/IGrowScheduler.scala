@@ -17,7 +17,7 @@ class IGrowScheduler(startTime: Int, interval: FiniteDuration, override val http
 
   override def task: Seq[IgrowData] = {
     println("=== iGrow check ===")
-    val response = http.sendRequest(iGrowBaseUrl + "/list")
+    val response = http.sendGetRequest(iGrowBaseUrl + "/list")
     val igrowResponse = decode[IgrowResponse](response).data.filter(_.stock > 0)
     println("[INFO][IGROW] number of stock: " + response.length)
     val schedulerConf = SchedulerConf()

@@ -20,17 +20,17 @@ class DotaMetadataScheduler(startTime: Int, interval: FiniteDuration, playerRepo
 
   override def task: Future[(Seq[PlayerResponse], Seq[Hero], Seq[HeroAttribute])] = {
     println("=== dota metadata fetching ===")
-    val heroStatsResponse = http.sendRequest(dotaHeroStatsUrl)
+    val heroStatsResponse = http.sendGetRequest(dotaHeroStatsUrl)
     val heroes = decode[Seq[HeroResponse]](heroStatsResponse)
     val heroAttributes = decode[Seq[HeroAttribute]](heroStatsResponse)
 
-    val heroLoreResponse = http.sendRequest(dotaLoreUrl)
+    val heroLoreResponse = http.sendGetRequest(dotaLoreUrl)
     val heroLoreMap = decode[Map[String, String]](heroLoreResponse)
     for {
       players <- playerRepo.getAll
     } yield {
       val playerResults = players.map { player =>
-        val response = http.sendRequest(dotaBaseUrl + player.id)
+        val response = http.sendGetRequest(dotaBaseUrl + player.id)
         val playerResult = decode[PlayerResponse](response)
         val playerModel = Player(player.id, player.realName,
           playerResult.profile.avatarfull, playerResult.profile.personaName, playerResult.rankTier)

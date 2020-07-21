@@ -16,14 +16,14 @@ class DotaMetadataSchedulerSpec extends AsyncWordSpec with Matchers with Schedul
     val dota = new DotaMetadataScheduler(startTime, interval, PlayerRepoMock, HeroRepoMock, HeroAttributeRepoMock, http)
     PlayerRepoMock.playersList.map { player =>
       val mockResponse = Source.fromResource("scheduler/dota/player_" + player.id + ".json").mkString
-      when(http.sendRequest(dota.dotaBaseUrl + player.id)).thenReturn(mockResponse)
+      when(http.sendGetRequest(dota.dotaBaseUrl + player.id)).thenReturn(mockResponse)
     }
 
     val heroStatsMockResponse = Source.fromResource("scheduler/dota/hero_stats.json").mkString
-    when(http.sendRequest(dota.dotaHeroStatsUrl)).thenReturn(heroStatsMockResponse)
+    when(http.sendGetRequest(dota.dotaHeroStatsUrl)).thenReturn(heroStatsMockResponse)
 
     val heroLoreMockResponse = Source.fromResource("scheduler/dota/lore.json").mkString
-    when(http.sendRequest(dota.dotaLoreUrl)).thenReturn(heroLoreMockResponse)
+    when(http.sendGetRequest(dota.dotaLoreUrl)).thenReturn(heroLoreMockResponse)
 
     val expectedPlayerResponse = List(
       PlayerResponse(ProfileResponse("kill", "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/07/07cf34fa7d03bec441f074c4d2a230b469e5d2c1_full.jpg"), Some(45)),

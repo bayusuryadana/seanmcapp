@@ -1,0 +1,42 @@
+{
+  "ok": true,
+  "result": {
+    "message_id": 38047,
+    "from": {
+      "id": 354236808,
+      "is_bot": true,
+      "first_name": "seanmcbot",
+      "username": "seanmcbot"
+    },
+    "chat": {
+      "id": 999999999,
+      "first_name": "John",
+      "type": "private"
+    },
+    "date": 1595343658,
+    "photo": [
+      {
+        "file_id": "AgACAgUAAxkDAAKUn18XAyql15i1uCqHO3QXA4X0y2DTAAIMqjEbygABuVT11-WqGaUHbXN6HWt0AAMBAAMCAANtAAPeLwQAARoE",
+        "file_unique_id": "AQADc3oda3QAA94vBAAB",
+        "file_size": 12578,
+        "width": 190,
+        "height": 320
+      },
+      {
+        "file_id": "AgACAgUAAxkDAAKUn18XAyql15i1uCqHO3QXA4X0y2DTAAIMqjEbygABuVT11-WqGaUHbXN6HWt0AAMBAAMCAAN4AAPfLwQAARoE",
+        "file_unique_id": "AQADc3oda3QAA98vBAAB",
+        "file_size": 40317,
+        "width": 476,
+        "height": 800
+      },
+      {
+        "file_id": "AgACAgUAAxkDAAKUn18XAyql15i1uCqHO3QXA4X0y2DTAAIMqjEbygABuVT11-WqGaUHbXN6HWt0AAMBAAMCAAN5AAPcLwQAARoE",
+        "file_unique_id": "AQADc3oda3QAA9wvBAAB",
+        "file_size": 40620,
+        "width": 477,
+        "height": 801
+      }
+    ],
+    "caption": "{caption}"
+  }
+}

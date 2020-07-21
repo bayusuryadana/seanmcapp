@@ -7,6 +7,10 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http" % "10.1.11",
   "com.typesafe.akka" %% "akka-stream" % "2.6.3",
 
+  // testkit
+  "com.typesafe.akka" %% "akka-http-testkit" % "10.1.11" % Test,
+  "com.typesafe.akka" %% "akka-stream-testkit" % "2.6.3" % Test,
+
   // json serializer
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.11",
 
@@ -26,7 +30,7 @@ libraryDependencies ++= Seq(
 
   // mockito
   "org.mockito" % "mockito-core" % "3.3.0" % Test,
-  
+
   // joda time
   "joda-time" % "joda-time" % "2.10.5",
 
@@ -37,8 +41,10 @@ libraryDependencies ++= Seq(
   "io.minio" % "minio" % "6.0.13",
 
   // xml
-  "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
+  "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
 
+  // enum
+  "com.beachape" %% "enumeratum" % "1.5.15",
 )
 
 coverageExcludedPackages :=

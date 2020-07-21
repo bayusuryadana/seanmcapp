@@ -20,12 +20,12 @@ class InstagramFetcherSpec extends AsyncWordSpec with Matchers {
   val accountName = "ugmcantik"
   val initUrl = "https://www.instagram.com/" + accountName + "/?__a=1"
   val initResponse = Source.fromResource("instagram/init_response.json").mkString
-  when(http.sendRequest(ArgumentMatchers.eq(initUrl), any(), any(), any())).thenReturn(initResponse)
+  when(http.sendRequest(ArgumentMatchers.eq(initUrl), any(), any(), any(), any())).thenReturn(initResponse)
 
   val defaultFetchUrl = "https://www.instagram.com/graphql/query/?query_id=17888483320059182&id=<user_id>&first=50&after="
   val fetchUrl = defaultFetchUrl.replace("<user_id>", "262582140")
   val fetchResponse = Source.fromResource("instagram/fetch_response.json").mkString
-  when(http.sendRequest(ArgumentMatchers.eq(fetchUrl), any(), any(), any())).thenReturn(fetchResponse)
+  when(http.sendRequest(ArgumentMatchers.eq(fetchUrl), any(), any(), any(), any())).thenReturn(fetchResponse)
 
   val instagramFetcher = new InstagramFetcher(PhotoRepoMock, imageStorageMock, http) {
     override val accountList = Map(accountName -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r)

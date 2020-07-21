@@ -1,15 +1,23 @@
 package com.seanmcapp.util.requestbuilder
 
-import scalaj.http.Http
+import scalaj.http.{Http, HttpRequest, MultiPart}
 
 import scala.util.{Failure, Success, Try}
+
+case class ParamMap(params: Map[String, String])
+
+case class HeaderMap(headers: Map[String, String])
 
 trait HttpRequestBuilder {
 
   def sendGetRequest(url: String): String
 
-  def sendRequest(url: String, postData: Option[String] = None, headers: Option[Map[String, String]] = None,
-                  timeout: Option[(Int, Int)] = None): String
+  def sendRequest(url: String,
+                  params: Option[ParamMap] = None,
+                  postData: Option[String] = None,
+                  headers: Option[HeaderMap] = None,
+                  multiPart: Option[MultiPart] = None
+                 ): String
 
 }
 
@@ -22,16 +30,28 @@ object HttpRequestBuilderImpl extends HttpRequestBuilder {
     }
   }
 
-  def sendRequest(url: String, postData: Option[String] = None, headers: Option[Map[String, String]] = None,
-                  timeout: Option[(Int, Int)] = None): String = {
-    val httpUrl = Http(url)
-    val httpPostData = postData.map(pd => httpUrl.postData(pd)).getOrElse(httpUrl)
-    val httpHeaders = headers.map(h => httpPostData.headers(h)).getOrElse(httpPostData)
-    val httpTimeout = timeout.map(t => httpHeaders.timeout(t._1, t._2)).getOrElse(httpHeaders)
-
-    Try(httpTimeout.asString.throwError.body) match {
+  def sendRequest(url: String,
+                  params: Option[ParamMap] = None,
+                  postData: Option[String] = None,
+                  headers: Option[HeaderMap] = None,
+                  multiPart: Option[MultiPart] = None
+                 ): String = {
+    val httpRequest = Http(url).add(params).add(postData).add(headers).add(multiPart)
+    Try(httpRequest.asString.throwError.body) match {
       case Success(res) => res
       case Failure(e) => throw new Exception(e)
+    }
+  }
+
+  implicit class IntWithTimes(httpRequest: HttpRequest) {
+    def add(input: Option[_]): HttpRequest = {
+      input match {
+        case Some(param: ParamMap) => httpRequest.params(param.params)
+        case Some(postData: String) => httpRequest.postData(postData)
+        case Some(headers: HeaderMap) => httpRequest.headers(headers.headers)
+        case Some(multiPart: MultiPart) => httpRequest.postMulti(multiPart)
+        case _ => httpRequest
+      }
     }
   }
 
