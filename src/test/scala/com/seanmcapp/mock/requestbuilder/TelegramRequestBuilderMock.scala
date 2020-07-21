@@ -11,12 +11,17 @@ trait TelegramRequestBuilderMock extends TelegramRequestBuilder {
   override val telegramConf = TelegramConf("endpoint", "@seanmcbot")
 
   override def sendPhoto(chatId: Long, photoUrl: String, caption: String): TelegramResponse = {
-    val source = Source.fromResource("telegram/" + chatId + "_response.json").mkString.replace("{caption}", caption)
+    val source = Source.fromResource(s"telegram/${chatId}_response.json").mkString.replace("{caption}", caption)
     decode[TelegramResponse](source)
   }
 
   override def sendMessage(chatId: Long, text: String): TelegramResponse = {
     decode[TelegramResponse](defaultSendMessageResponse)
+  }
+
+  override def sendPhotoWithFileUpload(chatId: Long, caption: String, data: Array[Byte]): TelegramResponse = {
+    val source = Source.fromResource(s"telegram/${chatId}_response.json").mkString.replace("{caption}", caption)
+    decode[TelegramResponse](source)
   }
 
   private val defaultSendMessageResponse: String =

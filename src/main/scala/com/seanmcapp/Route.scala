@@ -40,8 +40,8 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
 
     toStrictEntity(3.seconds) {
       post((path("broadcast") & headerValue(extractHeader) & fileUpload("photo") & formFieldMap) {
-        case (secretKey, (metadata, byteSource), formFields) =>
-          complete(broadcastAPI.broadcastWithPhoto(metadata, byteSource, formFields)(mat, secretKey))
+        case (secretKey, (_, byteSource), formFields) =>
+          complete(broadcastAPI.broadcastWithPhoto(byteSource, formFields)(mat, secretKey))
       })
     },
 
