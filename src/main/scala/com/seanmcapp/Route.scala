@@ -31,29 +31,74 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
     get(path("dota")(complete(dotaAPI.home.map(_.toJson)))),
 
     // wallet
-    get((path("wallet") & headerValue(extractHeader))(secretKey => complete(walletAPI.getAll(secretKey).map(_.toJson)))),
-    post((path("wallet") & headerValue(extractHeader) & entity(as[JsValue]))((secretKey, payload) => complete(walletAPI.insert(payload)(secretKey).map(_.toJson)))),
-    put((path("wallet") & headerValue(extractHeader) & entity(as[JsValue]))((secretKey, payload) => complete(walletAPI.update(payload)(secretKey).map(_.toJson)))),
-    delete((path("wallet" / Remaining) & headerValue(extractHeader))((id, secretKey) => complete(walletAPI.delete(id.toInt)(secretKey).map(_.toJson)))),
+    get {
+      (path("wallet") & headerValue(getHeader("secretkey"))) { secretKey =>
+        complete(walletAPI.getAll(secretKey).map(_.toJson))
+      }
+    },
+    post {
+      (path("wallet") & headerValue(getHeader("secretkey")) & entity(as[JsValue])) { (secretKey, payload) =>
+        complete(walletAPI.insert(payload)(secretKey).map(_.toJson))
+      }
+    },
+    put {
+      (path("wallet") & headerValue(getHeader("secretkey")) & entity(as[JsValue])) { (secretKey, payload) =>
+        complete(walletAPI.update(payload)(secretKey).map(_.toJson))
+      }
+    },
+    delete {
+      (path("wallet" / Remaining) & headerValue(getHeader("secretkey"))) { (id, secretKey) =>
+        complete(walletAPI.delete(id.toInt)(secretKey).map(_.toJson))
+      }
+    },
 
     // broadcast
-
     toStrictEntity(3.seconds) {
-      post((path("broadcast") & headerValue(extractHeader) & fileUpload("photo") & formFieldMap) {
+      post((path("broadcast") & headerValue(getHeader("secretkey")) & fileUpload("photo") & formFieldMap) {
         case (secretKey, (_, byteSource), formFields) =>
           complete(broadcastAPI.broadcastWithPhoto(byteSource, formFields)(mat, secretKey))
       })
     },
+
+    // amartha
+    get {
+      (path("amartha" / "account") & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
+        complete(amarthaAPI.getAccountInfo(username, password))
+      }
+    },
+    get {
+      (path("amartha" / "summary") & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
+        complete(amarthaAPI.getSummary(username, password))
+      }
+    },
+    get {
+      (path("amartha" / "list") & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
+        complete(amarthaAPI.getMitraList(username, password))
+      }
+    },
+    get {
+      (path("amartha" / "detail" / Remaining) & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (loanId, username, password) =>
+        complete(amarthaAPI.getMitraDetails(username, password, loanId.toInt))
+      }
+    },
+    get {
+      (path("amartha" / "transaction") & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
+        complete(amarthaAPI.getTransaction(username, password))
+      }
+    },
+
 
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !")))
 
   ).reduce{ (a,b) => a~b }
 
-  private def extractHeader(httpHeader: HttpHeader): Option[String] = {
-    HttpHeader.unapply(httpHeader) match {
-      case Some(("secretkey", value)) => Some(value)
-      case _ => None
+  private def getHeader(key: String): HttpHeader => Option[String] = {
+    (httpHeader: HttpHeader) => {
+      HttpHeader.unapply(httpHeader) match {
+        case Some((k, v)) if k == key => Some(v)
+        case _ => None
+      }
     }
   }
 
