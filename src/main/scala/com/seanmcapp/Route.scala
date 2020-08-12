@@ -62,31 +62,10 @@ class Route(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContex
 
     // amartha
     get {
-      (path("amartha" / "account") & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
-        complete(amarthaAPI.getAccountInfo(username, password))
+      (path("amartha") & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
+        complete(amarthaAPI.getAmarthaResult(username, password))
       }
     },
-    get {
-      (path("amartha" / "summary") & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
-        complete(amarthaAPI.getSummary(username, password))
-      }
-    },
-    get {
-      (path("amartha" / "list") & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
-        complete(amarthaAPI.getMitraList(username, password))
-      }
-    },
-    get {
-      (path("amartha" / "detail" / Remaining) & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (loanId, username, password) =>
-        complete(amarthaAPI.getMitraDetails(username, password, loanId.toInt))
-      }
-    },
-    get {
-      (path("amartha" / "transaction") & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
-        complete(amarthaAPI.getTransaction(username, password))
-      }
-    },
-
 
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !")))
