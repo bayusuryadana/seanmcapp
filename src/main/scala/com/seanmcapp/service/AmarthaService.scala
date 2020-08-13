@@ -20,7 +20,7 @@ class AmarthaService(http: HttpRequestBuilder) extends AmarthaCommon with Memory
 
   def getAmarthaResult(username: String, password: String): String = {
     val result = processResult(username, password)
-    encode(result).prettyPrint
+    encode(result).compactPrint
   }
 
   def processResult(username: String, password: String): AmarthaResult = {
