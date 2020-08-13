@@ -28,8 +28,8 @@ class AmarthaSchedulerSpec extends AsyncWordSpec with Matchers with SchedulerFor
     when(amarthaService.processResult(any(), any())).thenReturn(amarthaResult)
     when(amarthaResult.transaction).thenReturn(amarthaTransaction)
     val amartha = new AmarthaScheduler(startTime, interval, amarthaService, http) with TelegramRequestBuilderMock
-    println(amartha.task)
-    true shouldBe true
+    val result = amartha.task
+    result shouldBe "[Amartha]%0AToday's revenue: Rp. 10,000"
   }
 
 }
