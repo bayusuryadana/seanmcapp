@@ -16,17 +16,7 @@ class AmarthaService(http: HttpRequestBuilder) extends AmarthaCommon with Memory
 
   implicit val tokenCache = createCache[AmarthaAuthData]
   private val duration = Duration(30, TimeUnit.MINUTES)
-
-  val baseUrl = "https://dashboard.amartha.com/v2"
-
-  private[service] val auth = "/auth"
-  // private account = "/investor/me"
-  private[service] val allSummary = "/investor/account"
-  // private miniSummary = "/account/summary"
-  private[service] val marketplace = "/marketplace" // not priority
-  private[service] val listMitra = "/portofolio/list-mitra"
-  private[service] val details = "/portofolio/detail-mitra?id=" // ${loanId}
-  private[service] val transaction = "/account/transaction"
+  import AmarthaEndpoint._
 
   def getAmarthaResult(username: String, password: String): String = {
     val result = processResult(username, password)
@@ -94,3 +84,15 @@ class AmarthaService(http: HttpRequestBuilder) extends AmarthaCommon with Memory
   }
 }
 
+object AmarthaEndpoint {
+  val baseUrl = "https://dashboard.amartha.com/v2"
+
+  val auth = "/auth"
+  // account = "/investor/me"
+  val allSummary = "/investor/account"
+  // miniSummary = "/account/summary"
+  val marketplace = "/marketplace" // not priority
+  val listMitra = "/portofolio/list-mitra"
+  val details = "/portofolio/detail-mitra?id=" // ${loanId}
+  val transaction = "/account/transaction"
+}

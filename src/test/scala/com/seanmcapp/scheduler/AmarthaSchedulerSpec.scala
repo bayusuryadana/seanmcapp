@@ -5,7 +5,6 @@ import com.seanmcapp.mock.requestbuilder.TelegramRequestBuilderMock
 import com.seanmcapp.service.AmarthaService
 import com.seanmcapp.util.MonthUtil
 import com.seanmcapp.util.parser.{AmarthaResult, AmarthaTransaction}
-import com.seanmcapp.util.requestbuilder.HttpRequestBuilderImpl
 import org.joda.time.DateTime
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
@@ -21,7 +20,6 @@ class AmarthaSchedulerSpec extends AsyncWordSpec with Matchers with SchedulerFor
     val dateTimeSplit = DateTime.now().minusDays(1).toString("dd MM YYYY").split(" ")
     val monthMap = MonthUtil.map.toList.map { case (key, value) => value -> key}.toMap
     val resultDate = s"${dateTimeSplit(0)} ${monthMap(dateTimeSplit(1))} ${dateTimeSplit(2)}"
-    println(s"RESULT DATE: $resultDate")
     val amarthaTransaction = List(
       AmarthaTransaction(None, "0", resultDate, "10.000", "123", "123", "Imbal Hasil")
     )

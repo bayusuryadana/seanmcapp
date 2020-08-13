@@ -1,0 +1,57 @@
+{
+  "status": 200,
+  "code": 200,
+  "message": "record found",
+  "data": {
+    "loan": {
+      "_id": 755750,
+      "borrowerName": "EHEK ",
+      "purpose": "Dagang Pakaian",
+      "urlPic1": "https://pic1.jpg",
+      "urlPic2": "https://pic2.jpg",
+      "remainingPrincipal": 3920000,
+      "installment": 80000,
+      "frequency": 1,
+      "submittedLoanDate": "2020-04-08T00:00:00+07:00",
+      "approvementLoanDate": "2020-04-08T19:39:22.571532+07:00",
+      "disbursementDate": "2020-07-30T09:00:00+07:00",
+      "tenor": 50,
+      "plafond": 4000000,
+      "stage": "INSTALLMENT",
+      "sector": "Perdagangan",
+      "isInsurance": true,
+      "provinceName": "JAMBI",
+      "areaName": "Kota Jambi",
+      "branchName": "Kota Baru",
+      "scheduleDay": "JUMAT",
+      "creditScoreGrade": "A",
+      "isSharia": true,
+      "dueDate": "2021-07-15T09:00:00+07:00",
+      "gracePeriodTotal": 0
+    },
+    "installment": [
+      {
+        "createdAt": "2020-08-06T12:25:45.590835+07:00",
+        "installmentType": "NORMAL",
+        "frequency": 1,
+        "loanPeriod": 1,
+        "plafond": 4000000,
+        "sisaPokok": 3920000,
+        "pembayaranPokokInvestasi": 80000,
+        "pembayaranImbalHasil": 9200,
+        "pokokInvestasiDiterima": 80000,
+        "isGracePeriod": false
+      }
+    ],
+    "summary": {
+      "totalActiveRevenueProjectionWeekly": 9200,
+      "totalActiveRevenueProjection": 460000,
+      "paidActiveRevenue": 9200,
+      "remainingActiveRevenue": 450800,
+      "totalActivePrincipal": 4000000,
+      "paidActivePrincipal": 80000,
+      "remainingActivePrincipal": 3920000
+    }
+  },
+  "mapping": null
+}

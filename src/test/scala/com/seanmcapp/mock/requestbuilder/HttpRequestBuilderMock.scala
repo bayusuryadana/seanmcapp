@@ -15,7 +15,7 @@ class HttpRequestBuilderMock(responseMap: Map[String, String]) extends HttpReque
                            headers: Option[HeaderMap] = None,
                            multiPart: Option[MultiPart] = None
                           ): String = {
-    "NOT YET IMPLEMENTED"
+    responseMap.getOrElse(url, "")
   }
 
 }
