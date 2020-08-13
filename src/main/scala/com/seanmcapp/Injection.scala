@@ -3,7 +3,7 @@ package com.seanmcapp
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
 import com.seanmcapp.repository.seanmcwallet.WalletRepoImpl
-import com.seanmcapp.service.{BroadcastService, CBCService, DotaService, InstagramFetcher, WalletService}
+import com.seanmcapp.service.{AmarthaService, BroadcastService, CBCService, DotaService, InstagramFetcher, WalletService}
 import com.seanmcapp.storage.ImageStorageImpl
 import com.seanmcapp.util.requestbuilder.HttpRequestBuilderImpl
 
@@ -18,5 +18,7 @@ trait Injection {
   val walletAPI = new WalletService(WalletRepoImpl)
 
   val broadcastAPI = new BroadcastService(HttpRequestBuilderImpl)
+
+  val amarthaAPI = new AmarthaService(HttpRequestBuilderImpl)
 
 }

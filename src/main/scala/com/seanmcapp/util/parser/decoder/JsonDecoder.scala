@@ -5,17 +5,21 @@ import spray.json._
 import scala.util.{Failure, Success, Try}
 
 trait JsonDecoder extends DefaultJsonProtocol {
-  def decode[T](jsonString: String)(implicit fmt: JsonReader[T]): T = {
+  def decode[T:JsonReader](jsonString: String): T = {
     Try(jsonString.parseJson.convertTo[T]) match {
       case Success(res) => res
-      case Failure(e) => throw new Exception(e)
+      case Failure(e) =>
+        println(s"RESPONSE: $jsonString")
+        throw new Exception(e)
     }
   }
 
-  def decode[T](jsValue: JsValue)(implicit fmt: JsonReader[T]): T = {
+  def decode[T:JsonReader](jsValue: JsValue): T = {
     Try(jsValue.convertTo[T]) match {
       case Success(res) => res
-      case Failure(e) => throw new Exception(e)
+      case Failure(e) =>
+        println(s"RESPONSE: ${jsValue.prettyPrint}")
+        throw new Exception(e)
     }
   }
 }

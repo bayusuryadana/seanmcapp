@@ -1,0 +1,128 @@
+{
+  "status": 200,
+  "code": 200,
+  "message": "record found",
+  "data": [
+    {
+      "date": "13 Aug 2020",
+      "debit": "90.800",
+      "loanId": "754398",
+      "transactionId": "27622898",
+      "borrowerName": "",
+      "credit": "0",
+      "status": "SUCCESS",
+      "type": "Imbal Hasil",
+      "id": 2580,
+      "saldo": "17.744.750"
+    },
+    {
+      "date": "13 Aug 2020",
+      "debit": "90.800",
+      "loanId": "754538",
+      "transactionId": "27622897",
+      "borrowerName": "",
+      "credit": "0",
+      "status": "SUCCESS",
+      "type": "Imbal Hasil",
+      "id": 2579,
+      "saldo": "17.653.950"
+    },
+    {
+      "date": "13 Aug 2020",
+      "debit": "0",
+      "loanId": "451193",
+      "transactionId": "27622896",
+      "borrowerName": "",
+      "credit": "0",
+      "status": "SUCCESS",
+      "type": "Imbal Hasil",
+      "id": 2578,
+      "saldo": "17.563.150"
+    },
+    {
+      "date": "13 Aug 2020",
+      "debit": "90.800",
+      "loanId": "745870",
+      "transactionId": "27622895",
+      "borrowerName": "",
+      "credit": "0",
+      "status": "SUCCESS",
+      "type": "Imbal Hasil",
+      "id": 2577,
+      "saldo": "17.563.150"
+    },
+    {
+      "date": "13 Aug 2020",
+      "debit": "89.200",
+      "loanId": "777309",
+      "transactionId": "27622894",
+      "borrowerName": "",
+      "credit": "0",
+      "status": "SUCCESS",
+      "type": "Imbal Hasil",
+      "id": 2576,
+      "saldo": "17.472.350"
+    },
+    {
+      "date": "13 Aug 2020",
+      "debit": "91.600",
+      "loanId": "644982",
+      "transactionId": "27622893",
+      "borrowerName": "",
+      "credit": "0",
+      "status": "SUCCESS",
+      "type": "Imbal Hasil",
+      "id": 2575,
+      "saldo": "17.383.150"
+    },
+    {
+      "date": "13 Aug 2020",
+      "debit": "100.350",
+      "loanId": "753749",
+      "transactionId": "27622892",
+      "borrowerName": "",
+      "credit": "0",
+      "status": "SUCCESS",
+      "type": "Imbal Hasil",
+      "id": 2574,
+      "saldo": "17.291.550"
+    },
+    {
+      "date": "13 Aug 2020",
+      "debit": "100.350",
+      "loanId": "753759",
+      "transactionId": "27622891",
+      "borrowerName": "",
+      "credit": "0",
+      "status": "SUCCESS",
+      "type": "Imbal Hasil",
+      "id": 2573,
+      "saldo": "17.191.200"
+    },
+    {
+      "date": "13 Aug 2020",
+      "debit": "89.200",
+      "loanId": "753745",
+      "transactionId": "27622890",
+      "borrowerName": "",
+      "credit": "0",
+      "status": "SUCCESS",
+      "type": "Imbal Hasil",
+      "id": 2572,
+      "saldo": "17.090.850"
+    },
+    {
+      "date": "13 Aug 2020",
+      "debit": "90.800",
+      "loanId": "725245",
+      "transactionId": "27622889",
+      "borrowerName": "",
+      "credit": "0",
+      "status": "SUCCESS",
+      "type": "Imbal Hasil",
+      "id": 2571,
+      "saldo": "17.001.650"
+    }
+  ],
+  "mapping": null
+}
