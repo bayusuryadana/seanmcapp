@@ -12,7 +12,7 @@ import com.seanmcapp.util.requestbuilder.HttpRequestBuilderImpl
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration
 
-trait ScheduleManager {
+trait ScheduleManager extends Injection {
 
   implicit val system: ActorSystem
   implicit val _ec: ExecutionContext
@@ -32,16 +32,13 @@ trait ScheduleManager {
       new WarmupDBScheduler(0, peopleRepo),
       new WarmupDBScheduler(10, peopleRepo),
       new DotaMetadataScheduler(3, everyDay, playerRepo, heroRepo, heroAttribRepo, http),
-
       new BirthdayScheduler(6, everyDay, peopleRepo, http),
       new IGrowScheduler(6, everyDay, http),
-
       new AirVisualScheduler(8, everyDay, http),
       new AirVisualScheduler(17, everyDay, http),
-
       new NCovScheduler(20, everyDay, http),
-
-      new DsdaJakartaScheduler(0, everyHour, http)
+      new DsdaJakartaScheduler(0, everyHour, http),
+      new AmarthaScheduler(7, everyDay, amarthaAPI, http)
     ).map(_.start)
 
     system.registerOnTermination(scheduleList.map(_.cancel()))

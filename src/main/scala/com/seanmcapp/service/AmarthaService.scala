@@ -3,8 +3,7 @@ package com.seanmcapp.service
 import java.util.concurrent.TimeUnit
 
 import com.seanmcapp.util.cache.MemoryCache
-import com.seanmcapp.util.parser.{AmarthaAuthData, AmarthaAuthPayload, AmarthaCommon, AmarthaDetail, AmarthaMitraIdList,
-  AmarthaResponse, AmarthaResult, AmarthaSummary, AmarthaTransaction}
+import com.seanmcapp.util.parser._
 import com.seanmcapp.util.requestbuilder.{HeaderMap, HttpRequestBuilder}
 import scalacache.memoization.memoizeSync
 import scalacache.modes.sync._
@@ -18,15 +17,31 @@ class AmarthaService(http: HttpRequestBuilder) extends AmarthaCommon with Memory
   implicit val tokenCache = createCache[AmarthaAuthData]
   private val duration = Duration(30, TimeUnit.MINUTES)
 
+  val baseUrl = "https://dashboard.amartha.com/v2"
+
+  private[service] val auth = "/auth"
+  // private account = "/investor/me"
+  private[service] val allSummary = "/investor/account"
+  // private miniSummary = "/account/summary"
+  private[service] val marketplace = "/marketplace" // not priority
+  private[service] val listMitra = "/portofolio/list-mitra"
+  private[service] val details = "/portofolio/detail-mitra?id=" // ${loanId}
+  private[service] val transaction = "/account/transaction"
+
   def getAmarthaResult(username: String, password: String): String = {
-    val urlSummary = AmarthaEndpoint.baseUrl + AmarthaEndpoint.allSummary
+    val result = processResult(username, password)
+    encode(result).prettyPrint
+  }
+
+  def processResult(username: String, password: String): AmarthaResult = {
+    val urlSummary = baseUrl + allSummary
     val authData = getTokenAuth(username, password)
     val accessToken = authData.accessToken
     val summary = send[AmarthaSummary](accessToken, urlSummary).copy(namaInvestor = Some(authData.name))
 
-    val urlMitraList = AmarthaEndpoint.baseUrl + AmarthaEndpoint.mitraList
+    val urlMitraList = baseUrl + listMitra
     val mitraList = send[AmarthaMitraIdList](accessToken, urlMitraList).portofolio.map { amarthaPortofolio =>
-      val urlDetail = AmarthaEndpoint.baseUrl + AmarthaEndpoint.details + amarthaPortofolio.loanId
+      val urlDetail = baseUrl + details + amarthaPortofolio.loanId
       val amarthaDetail = send[AmarthaDetail](accessToken, urlDetail)
       amarthaPortofolio.copy(
         area = Some(amarthaDetail.loan.areaName),
@@ -41,14 +56,14 @@ class AmarthaService(http: HttpRequestBuilder) extends AmarthaCommon with Memory
     val mitraIdNameMap = mitraList.map { amarthaPortfolio =>
       amarthaPortfolio.loanId -> amarthaPortfolio.name
     }.toMap
-    val urlTransaction = AmarthaEndpoint.baseUrl + AmarthaEndpoint.transaction
+    val urlTransaction = baseUrl + transaction
     val transactionList = send[List[AmarthaTransaction]](accessToken, urlTransaction).map { amarthaTransaction =>
       val idOpt = Try(amarthaTransaction.loanId.toLong).toOption
       val borrowerNameOpt = idOpt.flatMap(id => mitraIdNameMap.get(id))
       amarthaTransaction.copy(borrowerName = borrowerNameOpt)
     }
 
-    encode(AmarthaResult(summary, mitraList, transactionList)).prettyPrint
+    AmarthaResult(summary, mitraList, transactionList)
   }
 
   private def send[T:JsonReader](accessToken: String, url: String): T = {
@@ -64,7 +79,7 @@ class AmarthaService(http: HttpRequestBuilder) extends AmarthaCommon with Memory
     memoizeSync(Some(duration)) {
       val amarthaPayload = AmarthaAuthPayload(username, password)
       val payload = encode(amarthaPayload).compactPrint
-      val url = AmarthaEndpoint.baseUrl + AmarthaEndpoint.auth
+      val url = baseUrl + auth
       val headers = HeaderMap(Map(
         "Content-Type" -> "application/json",
         "User-Agent" -> "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
@@ -77,18 +92,5 @@ class AmarthaService(http: HttpRequestBuilder) extends AmarthaCommon with Memory
       amarthaAuthData
     }
   }
-}
-
-object AmarthaEndpoint {
-  val baseUrl = "https://dashboard.amartha.com/v2"
-
-  val auth = "/auth"
-  // val account = "/investor/me"
-  val allSummary = "/investor/account"
-  // val miniSummary = "/account/summary"
-  val marketplace = "/marketplace" // not priority
-  val mitraList = "/portofolio/list-mitra"
-  val details = "/portofolio/detail-mitra?id=" // ${loanId}
-  val transaction = "/account/transaction"
 }
 

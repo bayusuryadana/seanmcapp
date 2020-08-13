@@ -28,7 +28,7 @@ case class AmarthaSummary(namaInvestor: Option[String],
 
 case class AmarthaTransaction(borrowerName: Option[String],
                               credit: String,
-                              date: String,
+                              date: String, // dateformat "02 Oct 2019"
                               debit: String,
                               loanId: String,
                               transactionId: String,
