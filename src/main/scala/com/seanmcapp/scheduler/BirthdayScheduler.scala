@@ -4,28 +4,25 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.seanmcapp.external.TelegramClient
 import com.seanmcapp.repository.birthday.PeopleRepo
-import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
 
-// $COVERAGE-OFF$
-class BirthdayScheduler(startTime: Int, interval: FiniteDuration, peopleRepo: PeopleRepo, override val http: HttpRequestBuilder)
+class BirthdayScheduler(startTime: Int, interval: FiniteDuration, peopleRepo: PeopleRepo, telegramClient: TelegramClient)
                        (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
-  extends Scheduler(startTime, Some(interval)) with TelegramClient {
+  extends Scheduler(startTime, Some(interval)) {
 
-  override def task: Future[String] = {
+  override def task: Unit = {
     println("=== birthday check ===")
     for{
       people <- peopleRepo.get(now.getDayOfMonth, now.getMonthOfYear)
     } yield {
-      val result = "Today's birthday: " + people.map(_.name + ",")
       people.map { person =>
-        sendMessage(274852283, "Today is " + person.name + "'s birthday !!")
+        val result = s"Today is ${person.name}'s birthday !!"
+        println(result)
+        telegramClient.sendMessage(274852283, result)
       }
-      result
     }
   }
 
 }
-// $COVERAGE-ON$

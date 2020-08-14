@@ -32,7 +32,7 @@ trait ScheduleManager extends Injection {
       new WarmupDBScheduler(0, peopleRepo),
       new WarmupDBScheduler(10, peopleRepo),
       new DotaMetadataScheduler(3, everyDay, playerRepo, heroRepo, heroAttribRepo, http),
-      new BirthdayScheduler(6, everyDay, peopleRepo, http),
+      new BirthdayScheduler(6, everyDay, peopleRepo, telegramClient),
       new IGrowScheduler(6, everyDay, http),
       new AirVisualScheduler(8, everyDay, airVisual, telegramClient),
       new AirVisualScheduler(17, everyDay, airVisual, telegramClient),
