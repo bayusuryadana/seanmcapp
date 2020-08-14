@@ -1,4 +1,4 @@
-package com.seanmcapp.fetcher
+package com.seanmcapp.external
 
 import com.seanmcapp.util.parser.decoder.AirvisualCity
 import org.mockito.Mockito._
@@ -10,13 +10,13 @@ import org.scalatest.wordspec.AsyncWordSpec
 import scala.concurrent.Future
 import scala.io.Source
 
-class AirVisualFetcherSpec extends AsyncWordSpec with Matchers {
+class AirVisualSpec extends AsyncWordSpec with Matchers {
 
   "AirVisualFetcher should fetch correctly" in {
     val http = Mockito.mock(classOf[HttpRequestClient])
-    val airVisualFetcher = new AirVisualFetcher(http)
+    val airVisualFetcher = new AirVisual(http)
     val mockResponse = Source.fromResource("scheduler/airvisual_response.json").mkString
-    when(http.sendGetRequest(any())).thenReturn(Future.successful(Right(mockResponse)))
+    when(http.sendRequest(any())).thenReturn(Future.successful(Right(mockResponse)))
     val expected = Map(
       AirvisualCity("Indonesia", "Jakarta", "Jakarta") -> 119,
       AirvisualCity("Indonesia", "West Java", "Bekasi") -> 119,

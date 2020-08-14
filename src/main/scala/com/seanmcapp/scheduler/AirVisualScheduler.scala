@@ -4,15 +4,14 @@ import java.net.URLEncoder
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
-import com.seanmcapp.fetcher.{AirVisualFetcher, AirvisualCity}
-import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
+import com.seanmcapp.external.{AirVisual, AirvisualCity, FutureUtils, TelegramClient}
 
-import scala.concurrent.{Await, ExecutionContext}
-import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.FiniteDuration
 
-class AirVisualScheduler(startTime: Int, interval: FiniteDuration, airVisualFetcher: AirVisualFetcher)
+class AirVisualScheduler(startTime: Int, interval: FiniteDuration, airVisual: AirVisual, telegramClient: TelegramClient)
                         (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
-  extends Scheduler(startTime, Some(interval)) with TelegramRequestBuilder {
+  extends Scheduler(startTime, Some(interval)) {
 
   private val AirGood = Array(0x1F340)
   private val AirModerate = Array(0x1F60E)
@@ -23,7 +22,7 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration, airVisualFetc
   override def task: Map[AirvisualCity, Int] = {
     println("=== AirVisual check ===")
 
-    val cityResults = Await.result(airVisualFetcher.getCityResults, Duration.Inf)
+    val cityResults = FutureUtils.await(airVisual.getCityResults)
 
     val stringMessage = cityResults.foldLeft("*Seanmcearth* melaporkan kondisi udara saat ini:") { (res, row) =>
       val city = row._1
@@ -31,7 +30,7 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration, airVisualFetc
       val appendString = "\n" + city.city + " (AQI " + aqius + " " + getEmojiFromAqi(aqius) + ")"
       res + appendString
     }
-    sendMessage(-1001359004262L, URLEncoder.encode(stringMessage, "UTF-8"))
+    telegramClient.sendMessage(-1001359004262L, URLEncoder.encode(stringMessage, "UTF-8"))
     cityResults
   }
 

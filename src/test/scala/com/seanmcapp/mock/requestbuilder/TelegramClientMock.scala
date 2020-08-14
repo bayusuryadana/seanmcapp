@@ -1,12 +1,12 @@
 package com.seanmcapp.mock.requestbuilder
 
 import com.seanmcapp.config.TelegramConf
+import com.seanmcapp.external.TelegramClient
 import com.seanmcapp.util.parser.encoder.TelegramResponse
-import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
 
 import scala.io.Source
 
-trait TelegramRequestBuilderMock extends TelegramRequestBuilder {
+trait TelegramClientMock extends TelegramClient {
 
   override val telegramConf = TelegramConf("endpoint", "@seanmcbot")
 

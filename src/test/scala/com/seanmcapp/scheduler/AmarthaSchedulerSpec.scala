@@ -1,7 +1,7 @@
 package com.seanmcapp.scheduler
 
 import com.seanmcapp.SchedulerForTest
-import com.seanmcapp.mock.requestbuilder.TelegramRequestBuilderMock
+import com.seanmcapp.mock.requestbuilder.TelegramClientMock
 import com.seanmcapp.service.AmarthaService
 import com.seanmcapp.util.MonthUtil
 import com.seanmcapp.util.parser.{AmarthaResult, AmarthaTransaction}
@@ -25,7 +25,7 @@ class AmarthaSchedulerSpec extends AsyncWordSpec with Matchers with SchedulerFor
     )
     when(amarthaService.processResult(any(), any())).thenReturn(amarthaResult)
     when(amarthaResult.transaction).thenReturn(amarthaTransaction)
-    val amartha = new AmarthaScheduler(startTime, interval, amarthaService, http) with TelegramRequestBuilderMock
+    val amartha = new AmarthaScheduler(startTime, interval, amarthaService, http) with TelegramClientMock
     val result = amartha.task
     result shouldBe "[Amartha]%0AToday's revenue: Rp. 10,000"
   }

@@ -1,7 +1,7 @@
 package com.seanmcapp.scheduler
 
 import com.seanmcapp.SchedulerForTest
-import com.seanmcapp.mock.requestbuilder.TelegramRequestBuilderMock
+import com.seanmcapp.mock.requestbuilder.TelegramClientMock
 import com.seanmcapp.util.parser.decoder.AirvisualCity
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -13,7 +13,7 @@ import scala.io.Source
 class AirVisualSchedulerSpec extends AsyncWordSpec with Matchers with SchedulerForTest {
 
   "AirVisualScheduler should return correctly" in {
-    val airVisual = new AirVisualScheduler(startTime, interval, http) with TelegramRequestBuilderMock
+    val airVisual = new AirVisualScheduler(startTime, interval, http) with TelegramClientMock
     val mockResponse = Source.fromResource("scheduler/airvisual_response.json").mkString
     when(http.sendGetRequest(anyString())).thenReturn(mockResponse)
     val expected = Map(

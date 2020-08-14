@@ -1,5 +1,6 @@
 package com.seanmcapp
 
+import com.seanmcapp.external.{AirVisual, HttpRequestClient, TelegramClient}
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
 import com.seanmcapp.repository.seanmcwallet.WalletRepoImpl
@@ -8,6 +9,11 @@ import com.seanmcapp.storage.ImageStorageImpl
 import com.seanmcapp.util.requestbuilder.HttpRequestBuilderImpl
 
 trait Injection {
+
+  val httpClient = new HttpRequestClient
+  val telegramClient = new TelegramClient(httpClient)
+
+  val airVisual = new AirVisual(httpClient)
 
   val cbcAPI = new CBCService(PhotoRepoImpl, CustomerRepoImpl, HttpRequestBuilderImpl)
 

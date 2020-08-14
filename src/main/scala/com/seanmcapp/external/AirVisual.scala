@@ -1,4 +1,4 @@
-package com.seanmcapp.fetcher
+package com.seanmcapp.external
 
 import java.net.URLEncoder
 
@@ -7,9 +7,9 @@ import com.seanmcapp.config.AirvisualConf
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class AirVisualFetcher(http: HttpRequestClient) {
+class AirVisual(http: HttpRequestClient) {
 
-  private[fetcher] val airVisualBaseUrl = "https://api.airvisual.com/v2/city"
+  private[external] val airVisualBaseUrl = "https://api.airvisual.com/v2/city"
 
   private val cities = List(
     AirvisualCity("Indonesia", "Jakarta", "Jakarta"),
@@ -36,7 +36,7 @@ class AirVisualFetcher(http: HttpRequestClient) {
       URLEncoder.encode(city.city, "UTF-8"),
       airvisualConf.key)
 
-    val responseF = http.sendGetRequest(apiUrl)
+    val responseF = http.sendRequest(apiUrl)
     decode[AirvisualResponse](responseF).map {
       case Right(airVisualResponse) =>
         Some((city, airVisualResponse.data.current.pollution.aqius))

@@ -4,13 +4,14 @@ import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import com.seanmcapp.config.BroadcastConf
+import com.seanmcapp.external.TelegramClient
 import com.seanmcapp.util.parser.{BroadcastOutput, BroadcasterCommon}
-import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
+import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class BroadcastService(override val http: HttpRequestBuilder) extends BroadcasterCommon with TelegramRequestBuilder {
+class BroadcastService(override val http: HttpRequestBuilder) extends BroadcasterCommon with TelegramClient {
 
   private val SECRET_KEY = BroadcastConf().secretKey
   private val CAPTION = "caption"

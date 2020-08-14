@@ -2,7 +2,7 @@ package com.seanmcapp.service
 
 import com.seanmcapp.config.StorageConf
 import com.seanmcapp.mock.repository.{CustomerRepoMock, PhotoRepoMock}
-import com.seanmcapp.mock.requestbuilder.{HttpRequestBuilderMock, TelegramRequestBuilderMock}
+import com.seanmcapp.mock.requestbuilder.{HttpRequestBuilderMock, TelegramClientMock}
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -17,7 +17,7 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
     knnUrl -> Source.fromResource("instagram/knn.csv").mkString
   )
   val cbcService = new CBCService(PhotoRepoMock, CustomerRepoMock, new HttpRequestBuilderMock(responseMap))
-    with TelegramRequestBuilderMock {
+    with TelegramClientMock {
     override val storageConf = storageConfMock
   }
 

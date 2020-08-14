@@ -1,7 +1,7 @@
 package com.seanmcapp.scheduler
 
 import com.seanmcapp.SchedulerForTest
-import com.seanmcapp.mock.requestbuilder.TelegramRequestBuilderMock
+import com.seanmcapp.mock.requestbuilder.TelegramClientMock
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatest.matchers.should.Matchers
 import org.mockito.Mockito._
@@ -10,7 +10,7 @@ import org.mockito.ArgumentMatchers._
 class DsdaJakartaSchedulerSpec extends AsyncWordSpec with Matchers with SchedulerForTest{
 
   "DsdaJakartaScheduler should return result" in {
-    val dsdaJakartaScheduler = new DsdaJakartaScheduler(startTime, interval, http) with TelegramRequestBuilderMock
+    val dsdaJakartaScheduler = new DsdaJakartaScheduler(startTime, interval, http) with TelegramClientMock
     val mockXml =
       """
         | <DocumentElement>
@@ -34,7 +34,7 @@ class DsdaJakartaSchedulerSpec extends AsyncWordSpec with Matchers with Schedule
   }
 
   "DsdaJakartaScheduler should return no result" in {
-    val dsdaJakartaScheduler = new DsdaJakartaScheduler(startTime, interval, http) with TelegramRequestBuilderMock
+    val dsdaJakartaScheduler = new DsdaJakartaScheduler(startTime, interval, http) with TelegramClientMock
     val mockXml =
       """
         | <DocumentElement>

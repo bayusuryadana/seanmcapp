@@ -3,11 +3,12 @@ package com.seanmcapp.service
 import java.util.concurrent.TimeUnit
 
 import com.seanmcapp.config.StorageConf
+import com.seanmcapp.external.TelegramClient
 import com.seanmcapp.repository.instagram._
 import com.seanmcapp.util.cache.MemoryCache
 import com.seanmcapp.util.parser.decoder.{TelegramInputDecoder, TelegramUpdate}
 import com.seanmcapp.util.parser.encoder.{TelegramOutputEncoder, TelegramResponse}
-import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
+import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
 import scalacache.memoization.memoizeSync
 import scalacache.modes.sync._
 import spray.json.JsValue
@@ -17,7 +18,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, override val http: HttpRequestBuilder)
-  extends TelegramRequestBuilder with TelegramInputDecoder with TelegramOutputEncoder with MemoryCache {
+  extends TelegramClient with TelegramInputDecoder with TelegramOutputEncoder with MemoryCache {
 
   implicit val recommendationCache = createCache[Map[Long, Array[Long]]]
   implicit val lastPhotoCache = createCache[Long]

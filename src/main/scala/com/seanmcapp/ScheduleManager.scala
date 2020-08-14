@@ -34,8 +34,8 @@ trait ScheduleManager extends Injection {
       new DotaMetadataScheduler(3, everyDay, playerRepo, heroRepo, heroAttribRepo, http),
       new BirthdayScheduler(6, everyDay, peopleRepo, http),
       new IGrowScheduler(6, everyDay, http),
-      new AirVisualScheduler(8, everyDay, http),
-      new AirVisualScheduler(17, everyDay, http),
+      new AirVisualScheduler(8, everyDay, airVisual, telegramClient),
+      new AirVisualScheduler(17, everyDay, airVisual, telegramClient),
       new NCovScheduler(20, everyDay, http),
       new DsdaJakartaScheduler(0, everyHour, http),
       new AmarthaScheduler(7, everyDay, amarthaAPI, http)

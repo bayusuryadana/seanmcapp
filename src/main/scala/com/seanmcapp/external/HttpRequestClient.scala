@@ -1,4 +1,4 @@
-package com.seanmcapp.fetcher
+package com.seanmcapp.external
 
 import com.seanmcapp.util.requestbuilder.{HeaderMap, ParamMap}
 import scalaj.http.MultiPart
@@ -9,7 +9,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class HttpRequestClient {
 
-  def sendGetRequest(url: String): Future[Either[String, String]] = {
+  def sendRequest(url: String): Future[Either[String, String]] = {
     val request = basicRequest.get(uri"$url")
     implicit val backend: SttpBackend[Identity, Nothing, NothingT] = HttpURLConnectionBackend()
     Future(request.send()).map(_.body)

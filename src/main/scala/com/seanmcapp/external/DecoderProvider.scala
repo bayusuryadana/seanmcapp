@@ -16,7 +16,7 @@ object DecoderProvider {
     (s: String) => decode[T](s).left.map(_.getMessage)
 }
 
-package object fetcher extends AutoDerivation {
+package object external extends AutoDerivation {
   implicit def decoder[T: Decoder]: JsonDecoder[T] = DecoderProvider[T]
 
   implicit def decode[T: Decoder](responseF: Future[Either[String, String]]): Future[Either[String, T]] = {

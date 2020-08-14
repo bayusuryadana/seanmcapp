@@ -2,8 +2,9 @@ package com.seanmcapp.scheduler
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
+import com.seanmcapp.external.TelegramClient
 import com.seanmcapp.repository.birthday.PeopleRepo
-import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
+import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.FiniteDuration
@@ -11,7 +12,7 @@ import scala.concurrent.duration.FiniteDuration
 // $COVERAGE-OFF$
 class BirthdayScheduler(startTime: Int, interval: FiniteDuration, peopleRepo: PeopleRepo, override val http: HttpRequestBuilder)
                        (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
-  extends Scheduler(startTime, Some(interval)) with TelegramRequestBuilder {
+  extends Scheduler(startTime, Some(interval)) with TelegramClient {
 
   override def task: Future[String] = {
     println("=== birthday check ===")

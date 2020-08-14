@@ -5,10 +5,11 @@ import java.text.NumberFormat
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.seanmcapp.config.AmarthaConf
+import com.seanmcapp.external.TelegramClient
 import com.seanmcapp.service.AmarthaService
 import com.seanmcapp.util.MonthUtil
 import com.seanmcapp.util.parser.AmarthaTransaction
-import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
+import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
 import org.joda.time.DateTime
 
 import scala.concurrent.ExecutionContext
@@ -17,7 +18,7 @@ import scala.concurrent.duration.FiniteDuration
 class AmarthaScheduler (startTime: Int, interval: FiniteDuration, amarthaService: AmarthaService,
                         override val http: HttpRequestBuilder)
                        (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
-  extends Scheduler(startTime, Some(interval)) with TelegramRequestBuilder {
+  extends Scheduler(startTime, Some(interval)) with TelegramClient {
 
   override def task: String = {
     val amarthaConf = AmarthaConf()

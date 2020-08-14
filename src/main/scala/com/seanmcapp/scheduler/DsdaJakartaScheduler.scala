@@ -2,8 +2,9 @@ package com.seanmcapp.scheduler
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
+import com.seanmcapp.external.TelegramClient
 import com.seanmcapp.util.parser.decoder.{DsdaJakartaDecoder, DsdaWaterGate}
-import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
+import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
@@ -12,7 +13,7 @@ import scala.xml.XML
 
 class DsdaJakartaScheduler(startTime: Int, interval: FiniteDuration, override val http: HttpRequestBuilder)
                     (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
-  extends Scheduler(startTime, Some(interval)) with DsdaJakartaDecoder with TelegramRequestBuilder {
+  extends Scheduler(startTime, Some(interval)) with DsdaJakartaDecoder with TelegramClient {
 
   private val DSDA_JAKARTA_URL = "http://poskobanjirdsda.jakarta.go.id/xmldata.xml"
   private val NORMAL_STATUS = "Normal"
