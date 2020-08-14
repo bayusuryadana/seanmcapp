@@ -4,7 +4,7 @@ import java.net.URLEncoder
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
-import com.seanmcapp.external.{AirVisual, AirvisualCity, FutureUtils, TelegramClient}
+import com.seanmcapp.external.{AirVisual, FutureUtils, TelegramClient}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
@@ -19,7 +19,7 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration, airVisual: Ai
   private val AirUnhealthy = Array(0x1F637)
   private val AirRisky = Array(0x1F480)
 
-  override def task: Map[AirvisualCity, Int] = {
+  override def task: Unit = {
     println("=== AirVisual check ===")
 
     val cityResults = FutureUtils.await(airVisual.getCityResults)
@@ -31,7 +31,6 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration, airVisual: Ai
       res + appendString
     }
     telegramClient.sendMessage(-1001359004262L, URLEncoder.encode(stringMessage, "UTF-8"))
-    cityResults
   }
 
   private def getEmojiFromAqi(aqi: Int): String = {

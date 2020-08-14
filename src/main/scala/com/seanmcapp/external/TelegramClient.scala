@@ -5,9 +5,10 @@ import spray.json.JsValue
 
 import scala.concurrent.Future
 
+// $COVERAGE-OFF$
 class TelegramClient(http: HttpRequestClient) {
 
-  val telegramConf = TelegramConf()
+  val telegramConf: TelegramConf = TelegramConf()
 
   def sendPhoto(chatId: Long, photoUrl: String, caption: String): Future[Either[String, TelegramResponse]] = {
     val urlString = telegramConf.endpoint + "/sendphoto" +
@@ -16,13 +17,17 @@ class TelegramClient(http: HttpRequestClient) {
       "&caption=" + caption
 
     val response = http.sendRequest(urlString)
-    decode[TelegramResponse](response)
+    val result = decode[TelegramResponse](response)
+    println(s"[INFO] send photo to chatId: $chatId")
+    result
   }
 
   def sendMessage(chatId: Long, text: String): Future[Either[String, TelegramResponse]] = {
     val urlString = telegramConf.endpoint + "/sendmessage?chat_id=" + chatId + "&text=" + text + "&parse_mode=markdown"
     val response = http.sendRequest(urlString)
-    decode[TelegramResponse](response)
+    val result = decode[TelegramResponse](response)
+    println(s"[INFO] send message to chatId: $chatId with text: $text")
+    result
   }
 
   def sendPhotoWithFileUpload(chatId: Long, caption: String = "", data: Array[Byte]): Future[Either[String, TelegramResponse]] = ???

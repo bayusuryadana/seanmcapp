@@ -7,6 +7,7 @@ import sttp.client._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
+// $COVERAGE-OFF$
 class HttpRequestClient {
 
   def sendRequest(url: String): Future[Either[String, String]] = {

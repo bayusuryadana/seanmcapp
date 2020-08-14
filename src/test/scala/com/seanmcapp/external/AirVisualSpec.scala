@@ -1,6 +1,5 @@
 package com.seanmcapp.external
 
-import com.seanmcapp.util.parser.decoder.AirvisualCity
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito
@@ -26,7 +25,7 @@ class AirVisualSpec extends AsyncWordSpec with Matchers {
       AirvisualCity("Indonesia", "Central Kalimantan", "Palangkaraya") -> 119
     )
 
-    airVisualFetcher.getCityResults().map { res =>
+    airVisualFetcher.getCityResults.map { res =>
       res shouldBe expected
     }
   }
