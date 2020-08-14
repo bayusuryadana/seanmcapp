@@ -1,9 +1,6 @@
 package com.seanmcapp.fetcher
 
 import com.seanmcapp.util.requestbuilder.{HeaderMap, ParamMap}
-import io.circe.Decoder
-import io.circe.generic.auto._
-import io.circe.parser._
 import scalaj.http.MultiPart
 import sttp.client._
 

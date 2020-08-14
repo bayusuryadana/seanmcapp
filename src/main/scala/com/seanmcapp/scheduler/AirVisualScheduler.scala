@@ -4,18 +4,15 @@ import java.net.URLEncoder
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
-import com.seanmcapp.config.AirvisualConf
-import com.seanmcapp.util.parser.decoder.{AirvisualCity, AirvisualDecoder, AirvisualResponse}
-import com.seanmcapp.util.requestbuilder.{HttpRequestBuilder, TelegramRequestBuilder}
+import com.seanmcapp.fetcher.{AirVisualFetcher, AirvisualCity}
+import com.seanmcapp.util.requestbuilder.TelegramRequestBuilder
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.{Await, ExecutionContext}
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
-class AirVisualScheduler(startTime: Int, interval: FiniteDuration, override val http: HttpRequestBuilder)
+class AirVisualScheduler(startTime: Int, interval: FiniteDuration, airVisualFetcher: AirVisualFetcher)
                         (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
-  extends Scheduler(startTime, Some(interval)) with AirvisualDecoder with TelegramRequestBuilder {
-
-  private val airVisualBaseUrl = "https://api.airvisual.com/v2/city"
+  extends Scheduler(startTime, Some(interval)) with TelegramRequestBuilder {
 
   private val AirGood = Array(0x1F340)
   private val AirModerate = Array(0x1F60E)
@@ -23,19 +20,10 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration, override val 
   private val AirUnhealthy = Array(0x1F637)
   private val AirRisky = Array(0x1F480)
 
-  private val cities = List(
-    AirvisualCity("Indonesia", "Jakarta", "Jakarta"),
-    AirvisualCity("Indonesia", "West Java", "Bekasi"),
-    AirvisualCity("Indonesia", "West Java", "Depok"),
-    AirvisualCity("Singapore", "Singapore", "Singapore"),
-    AirvisualCity("Indonesia", "Riau", "Pekanbaru"),
-    AirvisualCity("Indonesia", "Central Kalimantan", "Palangkaraya")
-  )
-
   override def task: Map[AirvisualCity, Int] = {
     println("=== AirVisual check ===")
 
-    val cityResults = cities.map(city => getCityAQI(city)).toMap
+    val cityResults = Await.result(airVisualFetcher.getCityResults, Duration.Inf)
 
     val stringMessage = cityResults.foldLeft("*Seanmcearth* melaporkan kondisi udara saat ini:") { (res, row) =>
       val city = row._1
@@ -45,22 +33,6 @@ class AirVisualScheduler(startTime: Int, interval: FiniteDuration, override val 
     }
     sendMessage(-1001359004262L, URLEncoder.encode(stringMessage, "UTF-8"))
     cityResults
-  }
-
-  private def getCityAQI(city: AirvisualCity): (AirvisualCity, Int) = {
-
-    val airvisualConf = AirvisualConf()
-
-    val apiParams = "?country=%s&state=%s&city=%s&key=%s"
-    val apiUrl = airVisualBaseUrl + apiParams.format(
-      URLEncoder.encode(city.country, "UTF-8"),
-      URLEncoder.encode(city.state, "UTF-8"),
-      URLEncoder.encode(city.city, "UTF-8"),
-      airvisualConf.key)
-
-    val response = http.sendGetRequest(apiUrl)
-    val airVisualResponse = decode[AirvisualResponse](response)
-    (city, airVisualResponse.data.current.pollution.aqius)
   }
 
   private def getEmojiFromAqi(aqi: Int): String = {

@@ -3,7 +3,6 @@ package com.seanmcapp.fetcher
 import java.net.URLEncoder
 
 import com.seanmcapp.config.AirvisualConf
-import com.seanmcapp.util.parser.decoder.{AirvisualCity, AirvisualResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -21,7 +20,7 @@ class AirVisualFetcher(http: HttpRequestClient) {
     AirvisualCity("Indonesia", "Central Kalimantan", "Palangkaraya")
   )
 
-  def getCityResults(): Future[Map[AirvisualCity, Int]] = {
+  def getCityResults: Future[Map[AirvisualCity, Int]] = {
     val citiesF = cities.map(city => getCityAQI(city))
     Future.sequence(citiesF).map(_.flatten.toMap)
   }
@@ -48,3 +47,9 @@ class AirVisualFetcher(http: HttpRequestClient) {
   }
 
 }
+
+case class AirvisualResponse(status: String, data: AirvisualData)
+case class AirvisualData(city: String, current: AirvisualCurrentData)
+case class AirvisualCurrentData(pollution: AirvisualPollution)
+case class AirvisualPollution(aqius: Int)
+case class AirvisualCity(country: String, state: String, city: String)
