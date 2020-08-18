@@ -1,5 +1,6 @@
 package com.seanmcapp.service
 
+import akka.actor.ActorSystem
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
@@ -18,7 +19,7 @@ class BroadcastService(telegramClient: TelegramClient) {
   private val CHAT_ID = "chat_id"
 
   def broadcastWithPhoto(byteSource: Source[ByteString, Any], formFields: Map[String, String])
-                        (implicit mat: Materializer, secretKey: String) : Future[BroadcastOutput] = {
+                        (implicit system: ActorSystem, secretKey: String) : Future[BroadcastOutput] = {
     secretKey match {
       case SECRET_KEY =>
         byteSource.runFold(ByteString.empty)(_ ++ _).map { byteString =>

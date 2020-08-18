@@ -3,7 +3,6 @@ package com.seanmcapp
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
-import akka.stream.ActorMaterializer
 
 import scala.concurrent.Future
 import scala.util.Try

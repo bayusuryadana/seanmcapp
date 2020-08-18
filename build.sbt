@@ -52,9 +52,8 @@ libraryDependencies ++= Seq(
 coverageExcludedPackages :=
   ".*com.seanmcapp.util.*;" +
   ".*com.seanmcapp.config.*;" +
-  ".*com.seanmcapp.scheduler.*;" +
-  ".*Boot.*;.*Route.*;.*Injection.*;.*ScheduleManager.*;"
-coverageMinimum := 80
+  ".*Boot.*;"
+coverageMinimum := 85
 coverageFailOnMinimum := true
 
 fork in Test := true

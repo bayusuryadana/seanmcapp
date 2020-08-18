@@ -10,8 +10,9 @@ import com.seanmcapp.repository.seanmcwallet.Wallet
 import io.circe.syntax._
 
 import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext
 
-class Setup(implicit system: ActorSystem) extends Directives with Injection {
+class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection {
 
   import com.seanmcapp.external._
   val route: server.Route = List(
@@ -57,7 +58,7 @@ class Setup(implicit system: ActorSystem) extends Directives with Injection {
     toStrictEntity(3.seconds) {
       post((path("broadcast") & headerValue(getHeader("secretkey")) & fileUpload("photo") & formFieldMap) {
         case (secretKey, (_, byteSource), formFields) =>
-          complete(broadcastService.broadcastWithPhoto(byteSource, formFields)(mat, secretKey).map(_.asJson.asString))
+          complete(broadcastService.broadcastWithPhoto(byteSource, formFields)(system, secretKey).map(_.asJson.asString))
       })
     },
 
