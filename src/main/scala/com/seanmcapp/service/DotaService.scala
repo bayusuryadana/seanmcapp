@@ -1,14 +1,21 @@
 package com.seanmcapp.service
 
+import com.seanmcapp.external.{DotaClient, MatchResponse}
 import com.seanmcapp.repository.dota._
-import com.seanmcapp.util.parser.encoder._
-import com.seanmcapp.util.parser.decoder.MatchResponse
-import com.seanmcapp.util.requestbuilder.{DotaRequestBuilder, HttpRequestBuilder}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: HeroAttributeRepo, override val http: HttpRequestBuilder) extends DotaRequestBuilder {
+case class WinSummary(win: Int, games: Int, percentage: Double, rating: Option[Double])
+
+case class PlayerInfo(player:Player, winSummary: WinSummary, matches: Seq[MatchResponse], topHero: Seq[(Hero, WinSummary)])
+
+case class HeroInfo(hero: Hero, heroAttribute: HeroAttribute, topPlayer: Seq[(Player, WinSummary)])
+
+case class HomePageResponse(players: Seq[PlayerInfo], heroes: Seq[HeroInfo])
+
+class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: HeroAttributeRepo,
+                  dotaClient: DotaClient) extends ScheduledTask {
 
   private[service] val MINIMUM_MATCHES = 30
 
@@ -26,7 +33,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
       val heroAttributesMap = heroAttributes.map(attr => attr.id -> attr).toMap
 
       val playersInfo = players.map { player =>
-        val playerMatches = getMatches(player)
+        val playerMatches = dotaClient.getMatches(player)
         val winSummary = toWinSummary(playerMatches)
         val recentMatches = playerMatches.sortBy(-_.startTime).take(3)
         val heroesWinSummary = playerMatches.groupBy(_.heroId).toSeq.map { case (heroId, matches) =>
@@ -42,7 +49,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
 
       val heroesInfo = heroes.map { hero =>
         val playersWinSummary = players.map { player =>
-          val playerMatches = getMatches(player).filter(_.heroId == hero.id)
+          val playerMatches = dotaClient.getMatches(player).filter(_.heroId == hero.id)
           player -> toWinSummary(playerMatches)
         }
         val cPlayer = playersWinSummary.map(_._2.percentage).sum / playersWinSummary.map(_._2.games).sum
@@ -74,6 +81,42 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
   private def calculateRating(R: Double, v:Int, C: Double): Double = {
     val m = MINIMUM_MATCHES
     (R * v + C * m) / (v + m)
+  }
+
+  override def run: Any = {
+    val statsAndAttrF = Future(dotaClient.getHeroStatsAndAttr)
+    val heroLoreMapF = Future(dotaClient.getHeroLore)
+
+    for {
+      players <- playerRepo.getAll
+      (heroes, heroAttributes) <- statsAndAttrF
+      heroLoreMap <- heroLoreMapF
+    } yield {
+      val playerResults = players.map { player =>
+        val playerResult = dotaClient.getPlayerDetail(player)
+        val playerModel = Player(player.id, player.realName,
+          playerResult.profile.avatarfull, playerResult.profile.personaName, playerResult.rankTier)
+        playerRepo.update(playerModel)
+        playerResult
+      }
+
+      val heroInput = heroes.map { hero =>
+        val heroImage = hero.img.stripPrefix("/apps/dota2/images/heroes/").stripSuffix("?")
+        val heroIcon = hero.icon.stripPrefix("/apps/dota2/images/heroes/")
+        val heroName = heroImage.stripSuffix("_full.png")
+        val heroLore = heroLoreMap.get(heroName) match {
+          case Some(h) => h
+          case None =>
+            println(s"lore not found for $heroName")
+            ""
+        }
+        Hero(hero.id, hero.localizedName, hero.primaryAttr, hero.attackType, hero.roles.mkString(","), heroImage, heroIcon, heroLore)
+      }
+      heroRepo.insertOrUpdate(heroInput)
+      heroAttrRepo.insertOrUpdate(heroAttributes)
+
+      (playerResults, heroInput, heroAttributes)
+    }
   }
 
 }

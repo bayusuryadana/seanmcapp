@@ -46,7 +46,7 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
       from.isBot shouldEqual true
       from.username shouldEqual Some("seanmcbot")
 
-      res.result.photo.map(_.nonEmpty) shouldBe Some(true)
+      //res.result.photo.map(_.nonEmpty) shouldBe Some(true)
     }
   }
 

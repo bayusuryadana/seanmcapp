@@ -1,36 +1,22 @@
 package com.seanmcapp.service
 
-import java.util.concurrent.TimeUnit
-
-import com.seanmcapp.config.StorageConf
-import com.seanmcapp.external.TelegramClient
+import com.seanmcapp.external.{CBCClient, TelegramClient, TelegramResponse, TelegramUpdate}
 import com.seanmcapp.repository.instagram._
-import com.seanmcapp.util.cache.MemoryCache
-import com.seanmcapp.util.parser.decoder.{TelegramInputDecoder, TelegramUpdate}
-import com.seanmcapp.util.parser.encoder.{TelegramOutputEncoder, TelegramResponse}
-import com.seanmcapp.util.requestbuilder.HttpRequestBuilder
-import scalacache.memoization.memoizeSync
+import com.seanmcapp.util.MemoryCache
+import scalacache.Cache
 import scalacache.modes.sync._
-import spray.json.JsValue
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
 
-class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, override val http: HttpRequestBuilder)
-  extends TelegramClient with TelegramInputDecoder with TelegramOutputEncoder with MemoryCache {
+class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, cbcClient: CBCClient, telegramClient: TelegramClient) extends MemoryCache {
 
-  implicit val recommendationCache = createCache[Map[Long, Array[Long]]]
-  implicit val lastPhotoCache = createCache[Long]
-  val duration = Duration(1, TimeUnit.DAYS)
-
-  private[service] val storageConf = StorageConf()
+  implicit val lastPhotoCache: Cache[Long] = createCache[Long]
 
   def random: Future[Option[Photo]] = photoRepo.getRandom(None)
 
-  def randomFlow(payload: JsValue): Future[Option[TelegramResponse]] = {
-    val update = decode[TelegramUpdate](payload)
-    val message = update.message.getOrElse(throw new Exception("This request is does not have a message: " + payload))
+  def randomFlow(telegramUpdate: TelegramUpdate): Future[Option[TelegramResponse]] = {
+    val message = telegramUpdate.message.getOrElse(throw new Exception("This request is does not have a message"))
     val chatId = message.chat.id
     val userId = message.from.id
     val userFullName = message.from.firstName + " " + message.from.lastName.getOrElse("")
@@ -38,7 +24,7 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, override val 
       case Some(entity) =>
         val command = message.text.getOrElse("")
           .substring(entity.offset, entity.offset + entity.length)
-          .stripSuffix(telegramConf.botname)
+          .stripSuffix(telegramClient.telegramConf.botname)
         executeCommand(command, chatId, userId, userFullName)
 
       case _ =>
@@ -62,7 +48,7 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, override val 
         photoFlow(photoF, customerF, chatId, userId, userFullName)
       case Some(s) if s == "/recommendation" =>
         lastPhotoCache.get(chatId).flatMap { lastPhotoId =>
-          getRecommendation.get(lastPhotoId).map { recommendations =>
+          cbcClient.getRecommendation.get(lastPhotoId).map { recommendations =>
             val r = scala.util.Random
             val photoId = recommendations(r.nextInt(recommendations.length))
             val customerF = customerRepo.get(userId)
@@ -73,17 +59,6 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, override val 
       case _ =>
         println("[ERROR] Command not recognized: " + command)
         Future.successful(None)
-    }
-  }
-
-  private[service] def getRecommendation: Map[Long, Array[Long]] = {
-    memoizeSync(Some(duration)) {
-      val filename = "knn.csv"
-      val url = s"${storageConf.host}/${storageConf.bucket}/$filename"
-      http.sendGetRequest(url).split("\n").map { line =>
-        val row = line.split(",")
-        row.head.toLong -> row.tail.map(_.toLong)
-      }.toMap
     }
   }
 
@@ -105,9 +80,9 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, override val 
         println(s"[INFO][CBC] chatId: $chatId, id: ${photo.id}, caption: ${photo.caption}")
         lastPhotoCache.put(userId)(photo.id)
         val photoId = photo.id
-        val url = s"${storageConf.host}/${storageConf.bucket}/cbc/$photoId.jpg"
+        val url = s"${cbcClient.storageConf.host}/${cbcClient.storageConf.bucket}/cbc/$photoId.jpg"
         val caption = photo.caption + "%0A%40" + photo.account
-        sendPhoto(chatId, url, caption)
+        telegramClient.sendPhoto(chatId, url, caption)
       }
     }
   }

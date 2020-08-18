@@ -1,8 +1,8 @@
 package com.seanmcapp.scheduler
 
 import com.seanmcapp.SchedulerForTest
+import com.seanmcapp.api.AmarthaAPI
 import com.seanmcapp.mock.requestbuilder.TelegramClientMock
-import com.seanmcapp.service.AmarthaService
 import com.seanmcapp.util.MonthUtil
 import com.seanmcapp.util.parser.{AmarthaResult, AmarthaTransaction}
 import org.joda.time.DateTime
@@ -15,7 +15,7 @@ import org.scalatest.wordspec.AsyncWordSpec
 class AmarthaSchedulerSpec extends AsyncWordSpec with Matchers with SchedulerForTest {
 
   "AmarthaScheduler should return correctly" in {
-    val amarthaService = Mockito.mock(classOf[AmarthaService])
+    val amarthaService = Mockito.mock(classOf[AmarthaAPI])
     val amarthaResult = Mockito.mock(classOf[AmarthaResult])
     val dateTimeSplit = DateTime.now().minusDays(1).toString("dd MM YYYY").split(" ")
     val monthMap = MonthUtil.map.toList.map { case (key, value) => value -> key}.toMap

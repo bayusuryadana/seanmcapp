@@ -1,26 +1,54 @@
 package com.seanmcapp.external
 
-import com.seanmcapp.util.requestbuilder.{HeaderMap, ParamMap}
-import scalaj.http.MultiPart
-import sttp.client._
+import scalaj.http.{Http, HttpRequest, MultiPart}
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success, Try}
 
-// $COVERAGE-OFF$
-class HttpRequestClient {
+case class ParamMap(params: Map[String, String])
 
-  def sendRequest(url: String): Future[Either[String, String]] = {
-    val request = basicRequest.get(uri"$url")
-    implicit val backend: SttpBackend[Identity, Nothing, NothingT] = HttpURLConnectionBackend()
-    Future(request.send()).map(_.body)
+case class HeaderMap(headers: Map[String, String])
+
+trait HttpRequestClient {
+
+  def sendGetRequest(url: String): String
+
+  def sendRequest(url: String, params: Option[ParamMap] = None, postData: Option[String] = None,
+                  headers: Option[HeaderMap] = None, multiPart: Option[MultiPart] = None): String
+
+}
+
+object HttpRequestClientImpl extends HttpRequestClient {
+
+  def sendGetRequest(url: String): String = {
+    Try(Http(url).asString.throwError.body) match {
+      case Success(res) => res
+      case Failure(e) => throw new Exception(e)
+    }
   }
 
-//  def sendRequest[T](url: String,
-//                  params: Option[ParamMap] = None,
-//                  postData: Option[String] = None,
-//                  headers: Option[HeaderMap] = None,
-//                  multiPart: Option[MultiPart] = None
-//                 ): Future[Either[String, T]] = ???
+  def sendRequest(url: String,
+                  params: Option[ParamMap] = None,
+                  postData: Option[String] = None,
+                  headers: Option[HeaderMap] = None,
+                  multiPart: Option[MultiPart] = None
+                 ): String = {
+    val httpRequest = Http(url).add(params).add(postData).add(headers).add(multiPart)
+    Try(httpRequest.asString.throwError.body) match {
+      case Success(res) => res
+      case Failure(e) => throw new Exception(e)
+    }
+  }
+
+  implicit class HttpRequestUtil(httpRequest: HttpRequest) {
+    def add(input: Option[_]): HttpRequest = {
+      input match {
+        case Some(param: ParamMap) => httpRequest.params(param.params)
+        case Some(postData: String) => httpRequest.postData(postData)
+        case Some(headers: HeaderMap) => httpRequest.headers(headers.headers)
+        case Some(multiPart: MultiPart) => httpRequest.postMulti(multiPart)
+        case _ => httpRequest
+      }
+    }
+  }
 
 }

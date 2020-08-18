@@ -1,30 +1,57 @@
 package com.seanmcapp
 
-import com.seanmcapp.external.{AirVisual, HttpRequestClient, TelegramClient}
+import com.seanmcapp.external._
+import com.seanmcapp.repository.{FileRepo, FileRepoImpl}
+import com.seanmcapp.repository.birthday.{PeopleRepo, PeopleRepoImpl}
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
-import com.seanmcapp.repository.seanmcwallet.WalletRepoImpl
-import com.seanmcapp.service.{AmarthaService, BroadcastService, CBCService, DotaService, InstagramFetcher, WalletService}
-import com.seanmcapp.storage.ImageStorageImpl
-import com.seanmcapp.util.requestbuilder.HttpRequestBuilderImpl
+import com.seanmcapp.repository.seanmcwallet.{WalletRepo, WalletRepoImpl}
+import com.seanmcapp.service._
 
 trait Injection {
 
-  val httpClient = new HttpRequestClient
+  val peopleRepo: PeopleRepo = PeopleRepoImpl
+  val photoRepo: PhotoRepo = PhotoRepoImpl
+  val customerRepo: CustomerRepo = CustomerRepoImpl
+  val playerRepo: PlayerRepo = PlayerRepoImpl
+  val heroRepo: HeroRepo = HeroRepoImpl
+  val heroAttributeRepo: HeroAttributeRepo = HeroAttributeRepoImpl
+  val fileRepo: FileRepo = FileRepoImpl
+  val walletRepo: WalletRepo = WalletRepoImpl
+
+  val httpClient: HttpRequestClient = HttpRequestClientImpl
   val telegramClient = new TelegramClient(httpClient)
 
-  val airVisual = new AirVisual(httpClient)
+  val airVisualClient = new AirVisualClient(httpClient)
+  val airVisualService = new AirVisualService(airVisualClient, telegramClient)
 
-  val cbcAPI = new CBCService(PhotoRepoImpl, CustomerRepoImpl, HttpRequestBuilderImpl)
+  val amarthaClient = new AmarthaClient(httpClient)
+  val amarthaService = new AmarthaService(amarthaClient, telegramClient)
 
-  val dotaAPI = new DotaService(PlayerRepoImpl, HeroRepoImpl, HeroAttributeRepoImpl, HttpRequestBuilderImpl)
+  val birthdayService = new BirthdayService(peopleRepo, telegramClient)
 
-  val instagramFetcher = new InstagramFetcher(PhotoRepoImpl, ImageStorageImpl, HttpRequestBuilderImpl)
+  val broadcastService = new BroadcastService(telegramClient)
 
-  val walletAPI = new WalletService(WalletRepoImpl)
+  val cbcClient = new CBCClient(httpClient)
+  val cbcService = new CBCService(photoRepo, customerRepo, cbcClient, telegramClient)
 
-  val broadcastAPI = new BroadcastService(HttpRequestBuilderImpl)
+  val dotaClient = new DotaClient(httpClient)
+  val dotaService = new DotaService(playerRepo, heroRepo, heroAttributeRepo, dotaClient)
 
-  val amarthaAPI = new AmarthaService(HttpRequestBuilderImpl)
+  val dsdaJakartaClient = new DsdaJakartaClient(httpClient)
+  val dsdaJakartaService = new DsdaJakartaService(dsdaJakartaClient, telegramClient)
+
+  val iGrowClient = new IGrowClient(httpClient)
+  val iGrowService = new IGrowService(iGrowClient, telegramClient)
+
+  val instagramClient = new InstagramClient(httpClient)
+  val instagramService = new InstagramService(photoRepo, fileRepo, instagramClient)
+
+  val nCovClient = new NCovClient(httpClient)
+  val nCovService = new NCovService(nCovClient, telegramClient)
+
+  val walletService = new WalletService(walletRepo)
+
+  val warmupDBService = new WarmupDBService(peopleRepo)
 
 }
