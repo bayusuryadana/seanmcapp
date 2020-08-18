@@ -1,7 +1,6 @@
 package com.seanmcapp.service
 
 import akka.actor.ActorSystem
-import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import com.seanmcapp.config.BroadcastConf
