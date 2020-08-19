@@ -12,28 +12,17 @@ class AirVisualClient(http: HttpRequestClient) {
     AirvisualCity("Indonesia", "Jakarta", "Jakarta"),
     AirvisualCity("Indonesia", "West Java", "Bekasi"),
     AirvisualCity("Indonesia", "West Java", "Depok"),
-    AirvisualCity("Singapore", "Singapore", "Singapore"),
-    AirvisualCity("Indonesia", "Riau", "Pekanbaru"),
-    AirvisualCity("Indonesia", "Central Kalimantan", "Palangkaraya")
+    AirvisualCity("Singapore", "Singapore", "Singapore")
   )
 
-  def getCityResults: Map[AirvisualCity, Int] = cities.map(city => getCityAQI(city)).toMap
-
-  private def getCityAQI(city: AirvisualCity): (AirvisualCity, Int) = {
-
+  def getCityResults: Map[AirvisualCity, Int] = cities.map { city =>
     val airvisualConf = AirvisualConf()
+    val apiUrl = s"$airVisualBaseUrl?country=${city.country}&state=${city.state}&city=${city.city}&key=${airvisualConf.key}"
 
-    val apiParams = "?country=%s&state=%s&city=%s&key=%s"
-    val apiUrl = airVisualBaseUrl + apiParams.format(
-      URLEncoder.encode(city.country, "UTF-8"),
-      URLEncoder.encode(city.state, "UTF-8"),
-      URLEncoder.encode(city.city, "UTF-8"),
-      airvisualConf.key)
-
-    val response = http.sendRequest(apiUrl)
+    val response = http.sendGetRequest(URLEncoder.encode(apiUrl, "UTF-8"))
     val airVisualResponse = decode[AirvisualResponse](response)
     (city, airVisualResponse.data.current.pollution.aqius)
-  }
+  }.toMap
 
 }
 
