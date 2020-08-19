@@ -1,7 +1,8 @@
-package com.seanmcapp.repository.birthday
+package com.seanmcapp.repository
 
-import org.scalatest.wordspec.AsyncWordSpec
+import com.seanmcapp.repository.birthday.{People, PeopleRepoImpl}
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 
 class PeopleRepoSpec extends AsyncWordSpec with Matchers {
 

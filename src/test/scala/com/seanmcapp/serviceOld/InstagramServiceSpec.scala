@@ -2,7 +2,7 @@ package com.seanmcapp.service
 
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
-import com.seanmcapp.mock.repository.PhotoRepoMock
+import com.seanmcapp.repository.PhotoRepoMock
 import com.seanmcapp.repository.FileRepo
 import com.seanmcapp.repository.instagram.Photo
 import com.seanmcapp.util.requestbuilder.HttpRequestBuilder

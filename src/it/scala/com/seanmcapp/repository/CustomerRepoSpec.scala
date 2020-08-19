@@ -1,7 +1,8 @@
-package com.seanmcapp.repository.instagram
+package com.seanmcapp.repository
 
-import org.scalatest.wordspec.AsyncWordSpec
+import com.seanmcapp.repository.instagram.{Customer, CustomerRepoImpl}
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 
 class CustomerRepoSpec extends AsyncWordSpec with Matchers {
 

@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.mock.repository.WalletRepoMock
+import com.seanmcapp.repository.WalletRepoMock
 import com.seanmcapp.repository.seanmcwallet.Wallet
 import com.seanmcapp.util.parser.{WalletCommon, WalletOutput}
 import org.scalatest.wordspec.AsyncWordSpec

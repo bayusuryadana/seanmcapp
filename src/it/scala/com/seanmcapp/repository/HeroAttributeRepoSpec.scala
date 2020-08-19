@@ -1,5 +1,6 @@
-package com.seanmcapp.repository.dota
+package com.seanmcapp.repository
 
+import com.seanmcapp.repository.dota.{HeroAttribute, HeroAttributeRepoImpl}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 

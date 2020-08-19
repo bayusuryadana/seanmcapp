@@ -1,7 +1,8 @@
-package com.seanmcapp.repository.dota
+package com.seanmcapp.repository
 
-import org.scalatest.wordspec.AsyncWordSpec
+import com.seanmcapp.repository.dota.{Player, PlayerRepoImpl}
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 
 class PlayerRepoSpec extends AsyncWordSpec with Matchers {
 

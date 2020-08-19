@@ -1,7 +1,7 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.mock.repository.{HeroAttributeRepoMock, HeroRepoMock, PlayerRepoMock}
-import com.seanmcapp.mock.requestbuilder.DotaRequestBuilderMock
+import com.seanmcapp.DotaRequestBuilderMock
+import com.seanmcapp.repository.{HeroAttributeRepoMock, HeroRepoMock, PlayerRepoMock}
 import com.seanmcapp.repository.dota.{Hero, HeroAttribute, Player}
 import com.seanmcapp.util.parser.decoder.MatchResponse
 import com.seanmcapp.util.parser.encoder._

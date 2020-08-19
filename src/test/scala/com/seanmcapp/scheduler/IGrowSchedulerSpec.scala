@@ -1,7 +1,6 @@
 package com.seanmcapp.scheduler
 
-import com.seanmcapp.SchedulerForTest
-import com.seanmcapp.mock.requestbuilder.TelegramClientMock
+import com.seanmcapp.{SchedulerForTest, TelegramClientMock}
 import com.seanmcapp.util.parser.decoder.IgrowData
 import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.Mockito.when

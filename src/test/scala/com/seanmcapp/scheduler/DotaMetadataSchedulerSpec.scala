@@ -1,7 +1,7 @@
 package com.seanmcapp.scheduler
 
 import com.seanmcapp.SchedulerForTest
-import com.seanmcapp.mock.repository.{HeroAttributeRepoMock, HeroRepoMock, PlayerRepoMock}
+import com.seanmcapp.repository.{HeroAttributeRepoMock, HeroRepoMock, PlayerRepoMock}
 import com.seanmcapp.repository.dota.{Hero, HeroAttribute}
 import com.seanmcapp.util.parser.decoder.{PlayerResponse, ProfileResponse}
 import org.mockito.Mockito.when

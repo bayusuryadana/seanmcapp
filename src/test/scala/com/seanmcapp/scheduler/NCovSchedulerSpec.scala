@@ -1,7 +1,6 @@
 package com.seanmcapp.scheduler
 
-import com.seanmcapp.SchedulerForTest
-import com.seanmcapp.mock.requestbuilder.TelegramClientMock
+import com.seanmcapp.{SchedulerForTest, TelegramClientMock}
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatest.matchers.should.Matchers
 import org.mockito.Mockito._

@@ -1,4 +1,4 @@
-package com.seanmcapp.mock.repository
+package com.seanmcapp.repository
 
 import com.seanmcapp.repository.birthday.{People, PeopleRepo}
 

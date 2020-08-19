@@ -1,8 +1,8 @@
-package com.seanmcapp.repository.wallet
+package com.seanmcapp.repository
 
 import com.seanmcapp.repository.seanmcwallet.{Wallet, WalletRepoImpl}
-import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration

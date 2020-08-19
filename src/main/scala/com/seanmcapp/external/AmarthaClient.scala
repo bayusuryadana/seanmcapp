@@ -3,7 +3,7 @@ package com.seanmcapp.external
 import java.util.concurrent.TimeUnit
 
 import com.seanmcapp.util.MemoryCache
-import io.circe.Decoder
+import io.circe.{Decoder, Printer}
 import io.circe.syntax._
 import scalacache.Cache
 import scalacache.memoization.memoizeSync
@@ -16,16 +16,7 @@ class AmarthaClient(http: HttpRequestClient) extends MemoryCache {
   implicit val tokenCache: Cache[AmarthaAuthData] = createCache[AmarthaAuthData]
   private val duration = Duration(30, TimeUnit.MINUTES)
 
-  val baseUrl = "https://dashboard.amartha.com/v2"
-
-  val auth = "/auth"
-  // account = "/investor/me"
-  val allSummary = "/investor/account"
-  // miniSummary = "/account/summary"
-  val marketplace = "/marketplace" // not priority
-  val listMitra = "/portofolio/list-mitra"
-  val details = "/portofolio/detail-mitra?id=" // ${loanId}
-  val transaction = "/account/transaction"
+  import AmarthaEndpoint._
 
   def getAllSummary(accessToken: String): AmarthaSummary =
     send[AmarthaSummary](accessToken, baseUrl + allSummary)
@@ -43,7 +34,7 @@ class AmarthaClient(http: HttpRequestClient) extends MemoryCache {
   def getTokenAuth(username: String, password: String): AmarthaAuthData = {
     memoizeSync(Some(duration)) {
       val amarthaPayload = AmarthaAuthPayload(username, password)
-      val payload = amarthaPayload.asJson.asString.getOrElse(throw new NullPointerException("[ERROR] Cannot get username and password"))
+      val payload = amarthaPayload.asJson.printWith(Printer.noSpacesSortKeys)
       val url = baseUrl + auth
       val headers = HeaderMap(Map(
         "Content-Type" -> "application/json",
@@ -62,4 +53,17 @@ class AmarthaClient(http: HttpRequestClient) extends MemoryCache {
     val httpResponse = http.sendRequest(url, headers = Some(headers))
     decode[AmarthaResponse[T]](httpResponse).data
   }
+}
+
+object AmarthaEndpoint {
+  val baseUrl = "https://dashboard.amartha.com/v2"
+
+  val auth = "/auth"
+  // account = "/investor/me"
+  val allSummary = "/investor/account"
+  // miniSummary = "/account/summary"
+  val marketplace = "/marketplace" // not priority
+  val listMitra = "/portofolio/list-mitra"
+  val details = "/portofolio/detail-mitra?id=" // ${loanId}
+  val transaction = "/account/transaction"
 }

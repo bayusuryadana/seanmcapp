@@ -65,66 +65,6 @@
         "pembayaranImbalHasil": 9200,
         "pokokInvestasiDiterima": 240000,
         "isGracePeriod": false
-      },
-      {
-        "createdAt": "2020-07-15T17:18:50.395566+07:00",
-        "installmentType": "NORMAL",
-        "frequency": 1,
-        "loanPeriod": 1,
-        "plafond": 4000000,
-        "sisaPokok": 3680000,
-        "pembayaranPokokInvestasi": 80000,
-        "pembayaranImbalHasil": 9200,
-        "pokokInvestasiDiterima": 320000,
-        "isGracePeriod": false
-      },
-      {
-        "createdAt": "2020-07-22T17:49:28.393699+07:00",
-        "installmentType": "NORMAL",
-        "frequency": 1,
-        "loanPeriod": 1,
-        "plafond": 4000000,
-        "sisaPokok": 3600000,
-        "pembayaranPokokInvestasi": 80000,
-        "pembayaranImbalHasil": 9200,
-        "pokokInvestasiDiterima": 400000,
-        "isGracePeriod": false
-      },
-      {
-        "createdAt": "2020-07-29T16:41:07.458861+07:00",
-        "installmentType": "NORMAL",
-        "frequency": 1,
-        "loanPeriod": 1,
-        "plafond": 4000000,
-        "sisaPokok": 3520000,
-        "pembayaranPokokInvestasi": 80000,
-        "pembayaranImbalHasil": 9200,
-        "pokokInvestasiDiterima": 480000,
-        "isGracePeriod": false
-      },
-      {
-        "createdAt": "2020-08-05T16:21:28.606864+07:00",
-        "installmentType": "NORMAL",
-        "frequency": 1,
-        "loanPeriod": 1,
-        "plafond": 4000000,
-        "sisaPokok": 3440000,
-        "pembayaranPokokInvestasi": 80000,
-        "pembayaranImbalHasil": 9200,
-        "pokokInvestasiDiterima": 560000,
-        "isGracePeriod": false
-      },
-      {
-        "createdAt": "2020-08-12T18:01:27.154093+07:00",
-        "installmentType": "NORMAL",
-        "frequency": 1,
-        "loanPeriod": 1,
-        "plafond": 4000000,
-        "sisaPokok": 3360000,
-        "pembayaranPokokInvestasi": 80000,
-        "pembayaranImbalHasil": 9200,
-        "pokokInvestasiDiterima": 640000,
-        "isGracePeriod": false
       }
     ],
     "summary": {

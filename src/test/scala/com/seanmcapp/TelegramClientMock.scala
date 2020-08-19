@@ -1,8 +1,7 @@
-package com.seanmcapp.mock.requestbuilder
+package com.seanmcapp
 
 import com.seanmcapp.config.TelegramConf
-import com.seanmcapp.external.TelegramClient
-import com.seanmcapp.util.parser.encoder.TelegramResponse
+import com.seanmcapp.external._
 
 import scala.io.Source
 

@@ -1,13 +1,13 @@
 package com.seanmcapp.service
 
+import com.seanmcapp.TelegramClientMock
 import com.seanmcapp.config.StorageConf
-import com.seanmcapp.mock.repository.{CustomerRepoMock, PhotoRepoMock}
-import com.seanmcapp.mock.requestbuilder.{HttpRequestBuilderMock, TelegramClientMock}
+import com.seanmcapp.repository.{CustomerRepoMock, PhotoRepoMock}
+import com.seanmcapp.mock.requestbuilder.HttpRequestBuilderMock
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatest.matchers.should.Matchers
 
 import scala.io.Source
-import spray.json._
 
 class CBCServiceSpec extends AsyncWordSpec with Matchers {
 
