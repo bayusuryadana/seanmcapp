@@ -10,7 +10,7 @@ import scala.io.Source
 
 class AirVisualClientSpec extends AnyWordSpec with Matchers {
 
-  "AirVisualFetcher should fetch correctly" in {
+  "getCityResults" in {
     val http = Mockito.mock(classOf[HttpRequestClient])
     val airVisualFetcher = new AirVisualClient(http)
     val mockResponse = Source.fromResource("scheduler/airvisual_response.json").mkString

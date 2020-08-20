@@ -6,7 +6,7 @@ class DsdaJakartaService(dsdaJakartaClient: DsdaJakartaClient, telegramClient: T
 
   private val NORMAL_STATUS = "Normal"
 
-  override def run: Any = {
+  override def run: String = {
     val dsdaJakartaResponse = dsdaJakartaClient.getReport
     val waterGates = dsdaJakartaResponse.waterGates
       .filter(w => !w.status.split(":")(1).trim.equalsIgnoreCase(NORMAL_STATUS))

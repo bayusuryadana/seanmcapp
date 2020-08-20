@@ -5,12 +5,16 @@ import com.seanmcapp.external.{IGrowClient, TelegramClient}
 
 class IGrowService(igrowClient: IGrowClient, telegramClient: TelegramClient) extends ScheduledTask {
 
-  override def run: Any = {
+  private[service] val schedulerConf = SchedulerConf()
+
+  override def run: Seq[String] = {
     val igrowResponse = igrowClient.getList
-    val schedulerConf = SchedulerConf()
-    igrowResponse.data.filter(_.stock > 0).foreach { data =>
+    igrowResponse.data.filter(_.stock > 0).flatMap { data =>
       val stringMessage = s"${data.name}%0A${data.price}%0Asisa ${data.stock} unit"
-      schedulerConf.igrow.foreach(chatId => telegramClient.sendMessage(chatId, stringMessage))
+      schedulerConf.igrow.map { chatId =>
+        telegramClient.sendMessage(chatId, stringMessage)
+        stringMessage
+      }
     }
   }
 
