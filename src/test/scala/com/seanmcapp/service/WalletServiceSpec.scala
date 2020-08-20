@@ -2,12 +2,10 @@ package com.seanmcapp.service
 
 import com.seanmcapp.repository.WalletRepoMock
 import com.seanmcapp.repository.seanmcwallet.Wallet
-import com.seanmcapp.util.parser.{WalletCommon, WalletOutput}
-import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatest.matchers.should.Matchers
-import spray.json._
+import org.scalatest.wordspec.AsyncWordSpec
 
-class WalletServiceSpec extends AsyncWordSpec with Matchers with WalletCommon {
+class WalletServiceSpec extends AsyncWordSpec with Matchers {
 
   private val secretKey = "team-secret"
 
@@ -30,14 +28,14 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers with WalletCommon {
 
   "insert should return the inserted object" in {
     val wallet = Wallet(0, 201909, "Japan 2020", "Travel", "SGD", 100, false, "DBS")
-    walletService.insert(wallet.toJson)(secretKey).map { res =>
+    walletService.insert(wallet)(secretKey).map { res =>
       res shouldBe WalletOutput(200, None, Some(1), List(Wallet(0, 201909, "Japan 2020", "Travel", "SGD", 100, false, "DBS")))
     }
   }
 
   "update should return number of updated object" in {
     val wallet = Wallet(0, 201909, "Japan 2020", "Travel", "SGD", 100, true, "DBS")
-    walletService.update(wallet.toJson)(secretKey).map { res =>
+    walletService.update(wallet)(secretKey).map { res =>
       res shouldBe WalletOutput(200, None, Some(1), List.empty[Wallet])
     }
   }
