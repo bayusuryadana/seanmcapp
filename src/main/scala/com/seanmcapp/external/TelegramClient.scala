@@ -39,16 +39,16 @@ class TelegramClient(http: HttpRequestClient) {
 }
 
 // Telegram common
-case class TelegramUser(id: Long, isBot: Boolean, firstName: String, lastName: Option[String], username: Option[String])
-case class TelegramChat(id: Long, chatType: String, title: Option[String], firstName: Option[String])
+case class TelegramUser(id: Long, is_bot: Boolean, first_name: String, last_name: Option[String], username: Option[String])
+case class TelegramChat(id: Long, `type`: String, title: Option[String], first_name: Option[String])
 
 // Telegram Input (webhook)
-case class TelegramUpdate(message: Option[TelegramMessage], callbackQuery: Option[TelegramCallbackQuery])
+case class TelegramUpdate(message: Option[TelegramMessage], callback_query: Option[TelegramCallbackQuery])
 case class TelegramCallbackQuery(id: String, from: TelegramUser, data: String)
 case class TelegramMessage(from: TelegramUser, chat: TelegramChat, text: Option[String], entities: Option[Seq[TelegramMessageEntity]])
-case class TelegramMessageEntity(entityType: String, offset: Int, length: Int)
+case class TelegramMessageEntity(`type`: String, offset: Int, length: Int)
 
 // Telegram Response (send message / photo response)
-case class TelegramResult(messageId: Long, chat: TelegramChat, from: Option[TelegramUser], date: Int, text: Option[String], caption: Option[String])
+case class TelegramResult(message_id: Long, chat: TelegramChat, from: Option[TelegramUser], date: Int, text: Option[String], caption: Option[String])
 case class TelegramResponse(ok: Boolean, result: TelegramResult)
 

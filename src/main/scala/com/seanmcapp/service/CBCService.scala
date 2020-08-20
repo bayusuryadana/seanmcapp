@@ -19,7 +19,7 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, cbcClient: CB
     val message = telegramUpdate.message.getOrElse(throw new Exception("This request is does not have a message"))
     val chatId = message.chat.id
     val userId = message.from.id
-    val userFullName = message.from.firstName + " " + message.from.lastName.getOrElse("")
+    val userFullName = message.from.first_name + " " + message.from.last_name.getOrElse("")
     val result = message.entities.getOrElse(List.empty).headOption match {
       case Some(entity) =>
         val command = message.text.getOrElse("")
@@ -33,7 +33,7 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, cbcClient: CB
     }
 
     // logging group chat :D
-    if (message.chat.chatType != "private")
+    if (message.chat.`type` != "private")
       println(s"[CHAT] $userFullName@${message.chat.title.getOrElse("???")}:${message.text.getOrElse("???")}")
 
     result

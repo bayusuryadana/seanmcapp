@@ -1,25 +1,29 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.TelegramClientMock
-import com.seanmcapp.config.StorageConf
+import com.seanmcapp.config.{StorageConf, TelegramConf}
 import com.seanmcapp.repository.{CustomerRepoMock, PhotoRepoMock}
-import com.seanmcapp.mock.requestbuilder.HttpRequestBuilderMock
-import org.scalatest.wordspec.AsyncWordSpec
+import org.mockito.Mockito
+import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 
 import scala.io.Source
 
 class CBCServiceSpec extends AsyncWordSpec with Matchers {
 
-  val storageConfMock = StorageConf("access", "secret", "host", "bucket")
-  val knnUrl = s"${storageConfMock.host}/${storageConfMock.bucket}/knn.csv"
-  val responseMap: Map[String, String] = Map(
-    knnUrl -> Source.fromResource("instagram/knn.csv").mkString
-  )
-  val cbcService = new CBCService(PhotoRepoMock, CustomerRepoMock, new HttpRequestBuilderMock(responseMap))
-    with TelegramClientMock {
-    override val storageConf = storageConfMock
-  }
+  import com.seanmcapp.external._
+
+  val cbcClient = Mockito.mock(classOf[CBCClient])
+  val telegramClient = new CBCTelegramClientMock
+  val telegramConf = TelegramConf("endpoint", "@seanmcbot")
+  val storageConf = StorageConf("access", "secret", "host", "bucket")
+  when(cbcClient.storageConf).thenReturn(storageConf)
+  val responseMock = Source.fromResource("instagram/knn.csv").getLines().map { line =>
+    val items = line.split(",")
+    items.head.toLong -> items.tail.map(_.toLong)
+  }.toMap
+  when(cbcClient.getRecommendation).thenReturn(responseMock)
+  val cbcService = new CBCService(PhotoRepoMock, CustomerRepoMock, cbcClient, telegramClient)
 
   "should return any random photos - API random endpoint" in {
     cbcService.random.map { res =>
@@ -28,8 +32,9 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
   }
 
   "should return any random photos using private chat type input - telegram random endpoint" in {
-    val input = Source.fromResource("telegram/274852283_request.json").mkString.parseJson
-    cbcService.randomFlow(input).map { response =>
+    val input = Source.fromResource("telegram/274852283_request.json").mkString
+    val telegramUpdate = decode[TelegramUpdate](input)
+    cbcService.randomFlow(telegramUpdate).map { response =>
 
       response shouldNot be(None)
       val res = response.getOrElse(cancel("response is not defined"))
@@ -37,13 +42,13 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
       res.ok shouldEqual true
       val chat = res.result.chat
       chat.id shouldEqual 274852283
-      chat.chatType shouldEqual "private"
-      chat.firstName shouldBe Some("Bayu")
+      chat.`type` shouldEqual "private"
+      chat.first_name shouldBe Some("Bayu")
 
       res.result.from.isDefined shouldEqual true
       val from = res.result.from.getOrElse(cancel("response is not defined"))
       from.id shouldEqual 354236808
-      from.isBot shouldEqual true
+      from.is_bot shouldEqual true
       from.username shouldEqual Some("seanmcbot")
 
       //res.result.photo.map(_.nonEmpty) shouldBe Some(true)
@@ -51,8 +56,9 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
   }
 
   "should return any random photos using group chat type input - telegram random endpoint" in {
-    val input = Source.fromResource("telegram/-111546505_request.json").mkString.parseJson
-    cbcService.randomFlow(input).map { response =>
+    val input = Source.fromResource("telegram/-111546505_request.json").mkString
+    val telegramUpdate = decode[TelegramUpdate](input)
+    cbcService.randomFlow(telegramUpdate).map { response =>
 
       response shouldNot be(None)
       val res = response.getOrElse(cancel("response is not defined"))
@@ -60,12 +66,12 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
       res.ok shouldEqual true
       val chat = res.result.chat
       chat.id shouldEqual -111546505
-      chat.chatType shouldEqual "group"
+      chat.`type` shouldEqual "group"
       chat.title shouldBe Some("Kelompok abang redho")
 
       val from = res.result.from
       from.map(_.id) shouldBe Some(354236808)
-      from.map(_.isBot) shouldBe Some(true)
+      from.map(_.is_bot) shouldBe Some(true)
       from.flatMap(_.username) shouldBe Some("seanmcbot")
     }
   }
@@ -96,11 +102,11 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
     }
   }
 
-  "should get correct mapping for recommendation" in {
-    val result = cbcService.getRecommendation
-    result.keys shouldEqual Set(
-      772020198343721705L, 1699704484487729075L, 2197263767212894174L, 2241324772649595331L, 1413884082743596438L, 1116926637369974369L)
-  }
+//  "should get correct mapping for recommendation" in {
+//    val result = cbcService.getRecommendation
+//    result.keys shouldEqual Set(
+//      772020198343721705L, 1699704484487729075L, 2197263767212894174L, 2241324772649595331L, 1413884082743596438L, 1116926637369974369L)
+//  }
 
   "should return a recommendation photos based on recommendation csv file - telegram recommendation endpoint" in {
     // this test will be based on the last fetched photo in previous test above, please keep in mind

@@ -1,11 +1,12 @@
-package com.seanmcapp
+package com.seanmcapp.service
 
 import com.seanmcapp.config.TelegramConf
 import com.seanmcapp.external._
+import org.mockito.Mockito
 
 import scala.io.Source
 
-trait TelegramClientMock extends TelegramClient {
+class CBCTelegramClientMock extends TelegramClient(Mockito.mock(classOf[HttpRequestClient])) {
 
   override val telegramConf = TelegramConf("endpoint", "@seanmcbot")
 
