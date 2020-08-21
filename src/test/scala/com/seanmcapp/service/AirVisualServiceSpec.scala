@@ -20,7 +20,11 @@ class AirVisualServiceSpec extends AnyWordSpec with Matchers {
     when(airVisualClient.getCityResults).thenReturn(mockResponse)
     val airVisualService = new AirVisualService(airVisualClient, telegramClient)
     val result = airVisualService.run
-    val expected = ""
+    val expected = s"""*Seanmcearth* melaporkan kondisi udara saat ini:
+                      |Jakarta (AQI 30 🍀)
+                      |Bekasi (AQI 80 😎)
+                      |Depok (AQI 130 😰)
+                      |Singapore (AQI 180 😷)""".stripMargin
     result shouldBe expected
   }
 
