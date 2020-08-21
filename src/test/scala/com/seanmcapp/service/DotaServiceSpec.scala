@@ -1,17 +1,15 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.mock.repository.{HeroAttributeRepoMock, HeroRepoMock, PlayerRepoMock}
-import com.seanmcapp.mock.requestbuilder.DotaRequestBuilderMock
+import com.seanmcapp.external.{MatchResponse, PlayerResponse, ProfileResponse}
 import com.seanmcapp.repository.dota.{Hero, HeroAttribute, Player}
-import com.seanmcapp.util.parser.decoder.MatchResponse
-import com.seanmcapp.util.parser.encoder._
-import com.seanmcapp.util.requestbuilder.HttpRequestBuilderImpl
-import org.scalatest.wordspec.AsyncWordSpec
+import com.seanmcapp.repository.{HeroAttributeRepoMock, HeroRepoMock, PlayerRepoMock}
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 
 class DotaServiceSpec extends AsyncWordSpec with Matchers {
 
-  val dotaService = new DotaService(PlayerRepoMock, HeroRepoMock, HeroAttributeRepoMock, HttpRequestBuilderImpl) with DotaRequestBuilderMock
+  val dotaClient = new DotaClientMock
+  val dotaService = new DotaService(PlayerRepoMock, HeroRepoMock, HeroAttributeRepoMock, dotaClient)
 
   "should fetch correct response and transform response properly - Home endpoint" in {
     dotaService.home.map { res =>
@@ -67,6 +65,24 @@ class DotaServiceSpec extends AsyncWordSpec with Matchers {
 
       val expected = HomePageResponse(playerInfos, heroInfos)
       res shouldBe expected
+    }
+  }
+
+  "Scheduler" in {
+    val expectedPlayerResponse = List(
+      PlayerResponse(ProfileResponse("kill", "https://steamcdn-a.akamaihd.net/some_avatar_full.jpg"), Some(45)),
+      PlayerResponse(ProfileResponse("SeanmcrayZ", "https://steamcdn-a.akamaihd.net/some_avatar_full.jpg"), Some(54))
+    )
+    val expectedHeroResponse = List(Hero(1, "Anti-Mage", "agi", "Melee", "Carry,Escape,Nuker", "antimage_full.png", "antimage_icon.png", ""))
+
+    val expectedHeroAttributeResponse = List(
+      HeroAttribute(1,200,0.25,75,0.0,-1,25,29,33,23,24,12,1.3,3.0,1.8,150,0,1.4,310,0.5,true)
+    )
+
+    dotaService.run.map { res =>
+      res._1 shouldBe expectedPlayerResponse
+      res._2.map(hero => hero.copy(lore = "")) shouldBe expectedHeroResponse
+      res._3 shouldBe expectedHeroAttributeResponse
     }
   }
 

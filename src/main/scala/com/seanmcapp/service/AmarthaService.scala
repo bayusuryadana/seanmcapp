@@ -1,38 +1,25 @@
 package com.seanmcapp.service
 
-import java.util.concurrent.TimeUnit
+import java.text.NumberFormat
 
-import com.seanmcapp.util.cache.MemoryCache
-import com.seanmcapp.util.parser._
-import com.seanmcapp.util.requestbuilder.{HeaderMap, HttpRequestBuilder}
-import scalacache.memoization.memoizeSync
-import scalacache.modes.sync._
-import spray.json.JsonReader
+import com.seanmcapp.config.AmarthaConf
+import com.seanmcapp.external.{AmarthaClient, AmarthaResult, AmarthaTransaction, TelegramClient}
+import com.seanmcapp.util.MonthUtil
+import org.joda.time.DateTime
 
-import scala.concurrent.duration.Duration
 import scala.util.Try
 
-class AmarthaService(http: HttpRequestBuilder) extends AmarthaCommon with MemoryCache {
-
-  implicit val tokenCache = createCache[AmarthaAuthData]
-  private val duration = Duration(30, TimeUnit.MINUTES)
-  import AmarthaEndpoint._
-
-  def getAmarthaResult(username: String, password: String): String = {
-    val result = processResult(username, password)
-    encode(result).compactPrint
-  }
+class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClient) extends ScheduledTask {
 
   def processResult(username: String, password: String): AmarthaResult = {
-    val urlSummary = baseUrl + allSummary
-    val authData = getTokenAuth(username, password)
+    val authData = amarthaClient.getTokenAuth(username, password)
     val accessToken = authData.accessToken
-    val summary = send[AmarthaSummary](accessToken, urlSummary).copy(namaInvestor = Some(authData.name))
 
-    val urlMitraList = baseUrl + listMitra
-    val mitraList = send[AmarthaMitraIdList](accessToken, urlMitraList).portofolio.map { amarthaPortofolio =>
-      val urlDetail = baseUrl + details + amarthaPortofolio.loanId
-      val amarthaDetail = send[AmarthaDetail](accessToken, urlDetail)
+    val summary = amarthaClient.getAllSummary(accessToken).copy(namaInvestor = Some(authData.name))
+
+    val amarthaMitraList = amarthaClient.getMitraList(accessToken)
+    val mitraList = amarthaMitraList.portofolio.map { amarthaPortofolio =>
+      val amarthaDetail = amarthaClient.getMitraDetail(accessToken, amarthaPortofolio.loanId)
       amarthaPortofolio.copy(
         area = Some(amarthaDetail.loan.areaName),
         branchName = Some(amarthaDetail.loan.branchName),
@@ -46,8 +33,7 @@ class AmarthaService(http: HttpRequestBuilder) extends AmarthaCommon with Memory
     val mitraIdNameMap = mitraList.map { amarthaPortfolio =>
       amarthaPortfolio.loanId -> amarthaPortfolio.name
     }.toMap
-    val urlTransaction = baseUrl + transaction
-    val transactionList = send[List[AmarthaTransaction]](accessToken, urlTransaction).map { amarthaTransaction =>
+    val transactionList = amarthaClient.getTransaction(accessToken).map { amarthaTransaction =>
       val idOpt = Try(amarthaTransaction.loanId.toLong).toOption
       val borrowerNameOpt = idOpt.flatMap(id => mitraIdNameMap.get(id))
       amarthaTransaction.copy(borrowerName = borrowerNameOpt)
@@ -56,43 +42,24 @@ class AmarthaService(http: HttpRequestBuilder) extends AmarthaCommon with Memory
     AmarthaResult(summary, mitraList, transactionList)
   }
 
-  private def send[T:JsonReader](accessToken: String, url: String): T = {
-    val headers = HeaderMap(Map(
-      "x-access-token" -> accessToken
-    ))
-    val httpResponse = http.sendRequest(url, headers = Some(headers))
-    val dataResponse = decode[AmarthaResponse](httpResponse).data
-    decode[T](dataResponse)
+  override def run: String = {
+    val amarthaConf = AmarthaConf()
+    val transactionList = processResult(amarthaConf.username, amarthaConf.password).transaction
+    val currentDateString = DateTime.now().minusDays(1).toString("YYYYMMdd")
+
+    val transactionMap = transactionList.map { t =>
+      val dateString = t.date.split(" ")
+      val date = dateString(0)
+      val month = MonthUtil.map.getOrElse(dateString(1), new Exception(s"cannot find month mapping for: ${dateString(1)}"))
+      val year = dateString(2)
+      t.copy(date = s"${year+month+date}")
+    }.groupBy(_.date)
+    val transactionToday = transactionMap.getOrElse(currentDateString, List.empty[AmarthaTransaction]) // TODO: need better handle
+    val revenueToday = transactionToday.map(_.debit.replaceAll("\\.","").toLong).sum
+    val revenueTodayStringFormat = NumberFormat.getIntegerInstance.format(revenueToday)
+    val message = s"[Amartha]%0AToday's revenue: Rp. $revenueTodayStringFormat"
+    telegramClient.sendMessage(274852283L, message)
+    message
   }
 
-  private def getTokenAuth(username: String, password: String): AmarthaAuthData = {
-    memoizeSync(Some(duration)) {
-      val amarthaPayload = AmarthaAuthPayload(username, password)
-      val payload = encode(amarthaPayload).compactPrint
-      val url = baseUrl + auth
-      val headers = HeaderMap(Map(
-        "Content-Type" -> "application/json",
-        "User-Agent" -> "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
-      ))
-      val httpResponse = http.sendRequest(url, postData = Some(payload), headers = Some(headers))
-
-      val amarthaResponse = decode[AmarthaResponse](httpResponse)
-      val amarthaAuthData = decode[AmarthaAuthData](amarthaResponse.data)
-
-      amarthaAuthData
-    }
-  }
-}
-
-object AmarthaEndpoint {
-  val baseUrl = "https://dashboard.amartha.com/v2"
-
-  val auth = "/auth"
-  // account = "/investor/me"
-  val allSummary = "/investor/account"
-  // miniSummary = "/account/summary"
-  val marketplace = "/marketplace" // not priority
-  val listMitra = "/portofolio/list-mitra"
-  val details = "/portofolio/detail-mitra?id=" // ${loanId}
-  val transaction = "/account/transaction"
 }

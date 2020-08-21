@@ -1,29 +1,44 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.mock.requestbuilder.HttpRequestBuilderMock
+import com.seanmcapp.external.{AmarthaClient, AmarthaResult, AmarthaTransaction, TelegramClient, TelegramResponse, TelegramResult}
+import com.seanmcapp.util.MonthUtil
+import org.joda.time.DateTime
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito
+import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.wordspec.AnyWordSpec
 
-import scala.io.Source
+class AmarthaServiceSpec extends AnyWordSpec with Matchers {
 
-class AmarthaServiceSpec extends AsyncWordSpec with Matchers {
-  import AmarthaEndpoint._
-  "AmarthaService should return correctly" in {
-    val detailResponseMap = List(793917, 793142, 755750, 759541, 753724).map { id =>
-      baseUrl + details + id -> Source.fromResource(s"amartha/detail/$id.json").mkString
-    }.toMap
-    val responseMap = Map(
-      baseUrl + auth -> Source.fromResource("amartha/auth.json").mkString,
-      baseUrl + allSummary -> Source.fromResource("amartha/summary.json").mkString,
-      baseUrl + listMitra -> Source.fromResource("amartha/list-mitra.json").mkString,
-      baseUrl + transaction -> Source.fromResource("amartha/transaction.json").mkString
-    ) ++ detailResponseMap
+  // TODO: will refactor processResult
+  "processResult" in {
+    val amarthaClient = Mockito.mock(classOf[AmarthaClient])
+    val telegramClient = Mockito.mock(classOf[TelegramClient])
+    val amarthaService = new AmarthaService(amarthaClient, telegramClient)
 
-    val amarthaService = new AmarthaService(new HttpRequestBuilderMock(responseMap))
+    // val result = amarthaService.processResult("username", "password")
+    true shouldBe true
+    }
 
-    val result = amarthaService.getAmarthaResult("username","password")
-    val expected = Source.fromResource("amartha/expected.json").mkString
-    result shouldBe expected
+  "Scheduler" in {
+    val amarthaClient = Mockito.mock(classOf[AmarthaClient])
+    val telegramClient = Mockito.mock(classOf[TelegramClient])
+    val amarthaResult = Mockito.mock(classOf[AmarthaResult])
+    val dateTimeSplit = DateTime.now().minusDays(1).toString("dd MM YYYY").split(" ")
+    val monthMap = MonthUtil.map.toList.map { case (key, value) => value -> key}.toMap
+    val resultDate = s"${dateTimeSplit(0)} ${monthMap(dateTimeSplit(1))} ${dateTimeSplit(2)}"
+    val amarthaTransaction = List(
+      AmarthaTransaction(None, "0", resultDate, "10.000", "123", "123", "Imbal Hasil")
+    )
+    when(amarthaResult.transaction).thenReturn(amarthaTransaction)
+    val telegramResponse = Mockito.mock(classOf[TelegramResponse])
+    when(telegramClient.sendMessage(any(), any())).thenReturn(telegramResponse)
+    val amarthaService = new AmarthaService(amarthaClient, telegramClient) {
+      override def processResult(username: String, password: String): AmarthaResult = amarthaResult
+    }
+    val result = amarthaService.run
+    result shouldBe "[Amartha]%0AToday's revenue: Rp. 10,000"
   }
 
 }

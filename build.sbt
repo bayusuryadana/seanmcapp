@@ -12,7 +12,9 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream-testkit" % "2.6.3" % Test,
 
   // json serializer
-  "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.11",
+  "io.circe" %% "circe-core" % "0.13.0",
+  "io.circe" %% "circe-generic" % "0.13.0",
+  "io.circe" %% "circe-parser" % "0.13.0",
 
   // http builder
   "org.scalaj" %% "scalaj-http" % "2.4.2",
@@ -50,8 +52,8 @@ libraryDependencies ++= Seq(
 coverageExcludedPackages :=
   ".*com.seanmcapp.util.*;" +
   ".*com.seanmcapp.config.*;" +
-  ".*Boot.*;.*Route.*;.*Injection.*;.*ScheduleManager.*;"
-coverageMinimum := 80
+  ".*Boot.*;"
+coverageMinimum := 60
 coverageFailOnMinimum := true
 
 fork in Test := true

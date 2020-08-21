@@ -2,13 +2,13 @@ package com.seanmcapp.service
 
 import com.seanmcapp.config.WalletConf
 import com.seanmcapp.repository.seanmcwallet.{Wallet, WalletRepo}
-import com.seanmcapp.util.parser.{WalletCommon, WalletOutput}
-import spray.json.JsValue
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class WalletService(walletRepo: WalletRepo) extends WalletCommon {
+case class WalletOutput(code: Int, message: Option[String], row: Option[Int], response: Seq[Wallet])
+
+class WalletService(walletRepo: WalletRepo) {
 
   private[service] val SECRET_KEY = WalletConf().secretKey
 
@@ -16,13 +16,11 @@ class WalletService(walletRepo: WalletRepo) extends WalletCommon {
     auth(secretKey, walletRepo.getAll.map(wallet => WalletOutput(200, None, Some(wallet.size), wallet)))
   }
 
-  def insert(payload: JsValue)(implicit secretKey: String): Future[WalletOutput] = {
-    val walletInput = decode[Wallet](payload)
+  def insert(walletInput: Wallet)(implicit secretKey: String): Future[WalletOutput] = {
     auth(secretKey, walletRepo.insert(walletInput).map(wallet => WalletOutput(200, None, Some(1), Seq(wallet))))
   }
 
-  def update(payload: JsValue)(implicit secretKey: String): Future[WalletOutput] = {
-    val walletInput = decode[Wallet](payload)
+  def update(walletInput: Wallet)(implicit secretKey: String): Future[WalletOutput] = {
     auth(secretKey, walletRepo.update(walletInput).map(wallet => WalletOutput(200, None, Some(wallet), Seq.empty[Wallet])))
   }
 
