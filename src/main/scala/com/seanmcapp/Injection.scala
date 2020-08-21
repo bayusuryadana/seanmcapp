@@ -8,6 +8,7 @@ import com.seanmcapp.repository.instagram._
 import com.seanmcapp.repository.seanmcwallet.{WalletRepo, WalletRepoImpl}
 import com.seanmcapp.service._
 
+// $COVERAGE-OFF$
 trait Injection {
 
   val peopleRepo: PeopleRepo = PeopleRepoImpl

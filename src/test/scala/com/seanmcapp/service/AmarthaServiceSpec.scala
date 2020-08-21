@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.external.{AmarthaClient, AmarthaResult, AmarthaTransaction, TelegramClient, TelegramResponse, TelegramResult}
+import com.seanmcapp.external.{AmarthaClient, AmarthaResult, AmarthaTransaction, TelegramClient, TelegramResponse}
 import com.seanmcapp.util.MonthUtil
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.any

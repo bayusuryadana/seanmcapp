@@ -1,5 +1,6 @@
 package com.seanmcapp.external
 
+// $COVERAGE-OFF$
 case class AmarthaResponse[T](status: Int, code: Int, message: String, data: T)
 
 case class AmarthaAuthData(accessToken: String, isActivated: Boolean, referrerUrl: String, name: String)

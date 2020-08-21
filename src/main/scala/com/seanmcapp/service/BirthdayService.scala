@@ -5,6 +5,7 @@ import com.seanmcapp.repository.birthday.PeopleRepo
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+// $COVERAGE-OFF$
 class BirthdayService(peopleRepo: PeopleRepo, telegramClient: TelegramClient) extends ScheduledTask {
 
   override def run: Any = {

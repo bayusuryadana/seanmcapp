@@ -11,6 +11,7 @@ import scala.util.Try
 
 class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClient) extends ScheduledTask {
 
+  // $COVERAGE-OFF$
   def processResult(username: String, password: String): AmarthaResult = {
     val authData = amarthaClient.getTokenAuth(username, password)
     val accessToken = authData.accessToken
@@ -41,6 +42,7 @@ class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClien
 
     AmarthaResult(summary, mitraList, transactionList)
   }
+  // $COVERAGE-ON$
 
   override def run: String = {
     val amarthaConf = AmarthaConf()
