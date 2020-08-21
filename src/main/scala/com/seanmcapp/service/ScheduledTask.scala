@@ -2,6 +2,7 @@ package com.seanmcapp.service
 
 import org.joda.time.{DateTime, DateTimeZone}
 
+// $COVERAGE-OFF$
 trait ScheduledTask {
 
   val ICT = "+07:00"

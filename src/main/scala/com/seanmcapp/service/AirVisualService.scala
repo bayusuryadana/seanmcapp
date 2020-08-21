@@ -12,7 +12,7 @@ class AirVisualService(airVisualClient: AirVisualClient, telegramClient: Telegra
   private val AirUnhealthy = Array(0x1F637)
   private val AirRisky = Array(0x1F480)
 
-  override def run: Any = {
+  override def run: String = {
     val cityResults = airVisualClient.getCityResults
 
     val stringMessage = cityResults.foldLeft("*Seanmcearth* melaporkan kondisi udara saat ini:") { (res, row) =>
@@ -22,6 +22,7 @@ class AirVisualService(airVisualClient: AirVisualClient, telegramClient: Telegra
       res + appendString
     }
     telegramClient.sendMessage(-1001359004262L, URLEncoder.encode(stringMessage, "UTF-8"))
+    stringMessage
   }
 
   private def getEmojiFromAqi(aqi: Int): String = {
@@ -29,8 +30,7 @@ class AirVisualService(airVisualClient: AirVisualClient, telegramClient: Telegra
       case _ if aqi <= 50 => new String(AirGood, 0, AirGood.length)
       case _ if aqi > 50 & aqi <= 100 => new String(AirModerate, 0, AirModerate.length)
       case _ if aqi > 100 & aqi <= 150 => new String(AirSensitive, 0, AirSensitive.length)
-      case _ if aqi > 150 & aqi <= 200 => new String(AirUnhealthy, 0, AirUnhealthy.length)
-      case _ if aqi > 200 => new String(AirRisky, 0, AirRisky.length)
+      case _ if aqi > 150 => new String(AirUnhealthy, 0, AirUnhealthy.length)
     }
   }
 

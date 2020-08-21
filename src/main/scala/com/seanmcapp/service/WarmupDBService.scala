@@ -5,6 +5,7 @@ import com.seanmcapp.repository.birthday.PeopleRepo
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
+// $COVERAGE-OFF$
 class WarmupDBService(peopleRepo: PeopleRepo) extends ScheduledTask {
 
   override def run: Any = {

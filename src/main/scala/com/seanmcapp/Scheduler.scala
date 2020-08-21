@@ -11,7 +11,7 @@ import scala.concurrent.duration.{Duration, FiniteDuration}
 
 class Scheduler(startTime: Int, intervalOpt: Option[FiniteDuration], scheduledTask: ScheduledTask)
                         (implicit system: ActorSystem) extends Runnable {
-  private val ICT = "+07:00"
+  private[seanmcapp] val ICT = "+07:00"
   protected def now: DateTime = new DateTime().toDateTime(DateTimeZone.forID(ICT))
   protected val scheduler = system.scheduler
   private implicit val _ec: ExecutionContext = system.dispatcher
@@ -29,7 +29,7 @@ class Scheduler(startTime: Int, intervalOpt: Option[FiniteDuration], scheduledTa
   override def run: Unit = scheduledTask.run
   // $COVERAGE-ON$
 
-  private def getStartTimeDuration(hour: Int): FiniteDuration = {
+  private[seanmcapp] def getStartTimeDuration(hour: Int): FiniteDuration = {
     if (hour < 0) {
       Duration(startTime, TimeUnit.SECONDS)
     } else {

@@ -4,6 +4,7 @@ import io.circe.Decoder
 import io.circe.generic.AutoDerivation
 import io.circe.parser.decode
 
+// $COVERAGE-OFF$
 trait JsonDecoder[T] {
   def apply(s: String): Either[String, T]
 }

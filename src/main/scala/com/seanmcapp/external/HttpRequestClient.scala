@@ -4,6 +4,7 @@ import scalaj.http.{Http, HttpRequest, MultiPart}
 
 import scala.util.{Failure, Success, Try}
 
+// $COVERAGE-OFF$
 case class ParamMap(params: Map[String, String])
 
 case class HeaderMap(headers: Map[String, String])

@@ -9,6 +9,7 @@ import com.seanmcapp.external.TelegramClient
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
+// $COVERAGE-OFF$
 case class BroadcastOutput(success: Boolean, reason: Option[String])
 
 class BroadcastService(telegramClient: TelegramClient) {
