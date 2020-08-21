@@ -7,10 +7,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-case class HeroAttribute(id: Int, baseHealth: Int, baseHealthRegen: Double, baseMana: Int, baseManaRegen: Double,
-                         baseArmor: Int, baseMR: Int, baseAttackMin: Int, baseAttackMax: Int, baseStr: Int, baseAgi: Int, baseInt: Int,
-                         strGain: Double, agiGain: Double, intGain: Double, attackRange: Int, projectileSpeed: Int, attackRate: Double,
-                         moveSpeed: Int, turnRate: Double, cmEnabled: Boolean)
+case class HeroAttribute(id: Int, base_health: Int, base_health_regen: Double, base_mana: Int, base_mana_regen: Double,
+                         base_armor: Int, base_mr: Int, base_attack_min: Int, base_attack_max: Int, base_str: Int, base_agi: Int, base_int: Int,
+                         str_gain: Double, agi_gain: Double, int_gain: Double, attack_range: Int, projectile_speed: Int, attack_rate: Double,
+                         move_speed: Int, turn_rate: Double, cm_enabled: Boolean)
 
 object HeroAttribute {
 

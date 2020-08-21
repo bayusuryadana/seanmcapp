@@ -10,15 +10,15 @@ import scala.concurrent.Future
 import scala.util.matching.Regex
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class InstagramAccountResponse(id: String)
+case class InstagramAccountResponse(logging_page_id: String)
 
-case class InstagramResponse(graphql: InstagramData)
+case class InstagramResponse(data: InstagramData)
 case class InstagramData(user: InstagramUser)
-case class InstagramUser(media: InstagramMedia)
-case class InstagramMedia(count: Int, pageInfo: InstagramPageInfo, edges: Seq[InstagramEdge])
-case class InstagramPageInfo(hasNextPage: Boolean, endCursor: Option[String])
+case class InstagramUser(edge_owner_to_timeline_media: InstagramMedia)
+case class InstagramMedia(count: Int, page_info: InstagramPageInfo, edges: Seq[InstagramEdge])
+case class InstagramPageInfo(has_next_page: Boolean, end_cursor: Option[String])
 case class InstagramEdge(node: InstagramNode)
-case class InstagramNode(id: String, thumbnailSrc: String, date: Long, caption: InstagramMediaCaption)
+case class InstagramNode(id: String, thumbnail_src: String, taken_at_timestamp: Long, edge_media_to_caption: InstagramMediaCaption)
 case class InstagramMediaCaption(edges: Seq[InstagramEdgeCaption])
 case class InstagramEdgeCaption(node: InstagramCaption)
 case class InstagramCaption(text: String)
@@ -69,7 +69,7 @@ class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient
     val idsSet = photos.map(_.id).toSet
     val sequenceResult = accountList.toSeq.map { item =>
       val account = item._1
-      val id = instagramClient.getAccountResponse(account, cookie).id.replace("profilePage_", "").toLong
+      val id = instagramClient.getAccountResponse(account, cookie).logging_page_id.replace("profilePage_", "").toLong
 
       /**
         * based on this answer https://stackoverflow.com/questions/49265339/instagram-a-1-url-not-working-anymore-problems-with-graphql-query-to-get-da
@@ -116,13 +116,13 @@ class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient
   private def fetch(userId: Long, endCursor: Option[String], account: String, cookie: String): Seq[Photo] = {
     val instagramResponse = instagramClient.getPhotos(userId, endCursor, cookie)
 
-    val instagramPageInfo = instagramResponse.graphql.user.media.pageInfo
-    val photos = instagramResponse.graphql.user.media.edges.map(_.node).map { node =>
-      Photo(node.id.toLong, node.thumbnailSrc, node.date, node.caption.edges.headOption.map(_.node.text).getOrElse(""), account)
+    val instagramPageInfo = instagramResponse.data.user.edge_owner_to_timeline_media.page_info
+    val photos = instagramResponse.data.user.edge_owner_to_timeline_media.edges.map(_.node).map { node =>
+      Photo(node.id.toLong, node.thumbnail_src, node.taken_at_timestamp, node.edge_media_to_caption.edges.headOption.map(_.node.text).getOrElse(""), account)
     }
 
-    val result = if (instagramPageInfo.hasNextPage && instagramPageInfo.endCursor.isDefined) {
-      photos ++ fetch(userId, instagramPageInfo.endCursor, account, cookie)
+    val result = if (instagramPageInfo.has_next_page && instagramPageInfo.end_cursor.isDefined) {
+      photos ++ fetch(userId, instagramPageInfo.end_cursor, account, cookie)
     } else {
       photos
     }

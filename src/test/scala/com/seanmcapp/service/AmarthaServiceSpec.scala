@@ -17,7 +17,7 @@ class AmarthaServiceSpec extends AnyWordSpec with Matchers {
     val telegramClient = Mockito.mock(classOf[TelegramClient])
     val amarthaService = new AmarthaService(amarthaClient, telegramClient)
 
-    val result = amarthaService.processResult("username", "password")
+    // val result = amarthaService.processResult("username", "password")
     true shouldBe true
     }
 

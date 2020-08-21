@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.external.{DotaClient, MatchResponse}
+import com.seanmcapp.external.{DotaClient, MatchResponse, PlayerResponse}
 import com.seanmcapp.repository.dota._
 
 import scala.concurrent.Future
@@ -35,8 +35,8 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
       val playersInfo = players.map { player =>
         val playerMatches = dotaClient.getMatches(player)
         val winSummary = toWinSummary(playerMatches)
-        val recentMatches = playerMatches.sortBy(-_.startTime).take(3)
-        val heroesWinSummary = playerMatches.groupBy(_.heroId).toSeq.map { case (heroId, matches) =>
+        val recentMatches = playerMatches.sortBy(-_.start_time).take(3)
+        val heroesWinSummary = playerMatches.groupBy(_.hero_id).toSeq.map { case (heroId, matches) =>
           val hero = heroesMap.getOrElse(heroId, Hero.dummy(heroId))
           hero -> toWinSummary(matches)
         }
@@ -49,7 +49,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
 
       val heroesInfo = heroes.map { hero =>
         val playersWinSummary = players.map { player =>
-          val playerMatches = dotaClient.getMatches(player).filter(_.heroId == hero.id)
+          val playerMatches = dotaClient.getMatches(player).filter(_.hero_id == hero.id)
           player -> toWinSummary(playerMatches)
         }
         val cPlayer = playersWinSummary.map(_._2.percentage).sum / playersWinSummary.map(_._2.games).sum
@@ -83,7 +83,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
     (R * v + C * m) / (v + m)
   }
 
-  override def run: Any = {
+  override def run: Future[(Seq[PlayerResponse], Seq[Hero], Seq[HeroAttribute])] = {
     val statsAndAttrF = Future(dotaClient.getHeroStatsAndAttr)
     val heroLoreMapF = Future(dotaClient.getHeroLore)
 
@@ -95,7 +95,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
       val playerResults = players.map { player =>
         val playerResult = dotaClient.getPlayerDetail(player)
         val playerModel = Player(player.id, player.realName,
-          playerResult.profile.avatarfull, playerResult.profile.personaName, playerResult.rankTier)
+          playerResult.profile.avatarfull, playerResult.profile.personaname, playerResult.rank_tier)
         playerRepo.update(playerModel)
         playerResult
       }
@@ -110,7 +110,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
             println(s"lore not found for $heroName")
             ""
         }
-        Hero(hero.id, hero.localizedName, hero.primaryAttr, hero.attackType, hero.roles.mkString(","), heroImage, heroIcon, heroLore)
+        Hero(hero.id, hero.localized_name, hero.primary_attr, hero.attack_type, hero.roles.mkString(","), heroImage, heroIcon, heroLore)
       }
       heroRepo.insertOrUpdate(heroInput)
       heroAttrRepo.insertOrUpdate(heroAttributes)
