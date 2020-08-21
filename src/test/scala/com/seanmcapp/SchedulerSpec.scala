@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorSystem
 import com.seanmcapp.service.ScheduledTask
-import org.joda.time.{DateTime, DateTimeZone, LocalDateTime}
+import org.joda.time.{DateTime, DateTimeZone}
 import org.mockito.Mockito
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
