@@ -66,7 +66,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     // amartha
     get {
       (path("amartha") & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
-        complete(amarthaService.processResult(username, password).asJson.encode.getOrElse(throw new NullPointerException("[ERROR] Error while parsing Amartha result")))
+        complete(amarthaService.processResult(username, password).asJson.encode)
       }
     },
 
