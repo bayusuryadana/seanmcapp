@@ -33,9 +33,7 @@ class Scheduler(startTime: Int, intervalOpt: Option[FiniteDuration], scheduledTa
     if (hour < 0) {
       Duration(startTime, TimeUnit.SECONDS)
     } else {
-      val init = new LocalDateTime()
-        .withTime(hour, 0, 0, 0)
-        .toDateTime(DateTimeZone.forID(ICT))
+      val init = new DateTime().toDateTime(DateTimeZone.forID(ICT)).withTime(hour, 0, 0, 0)
       val target = if (now.getHourOfDay >= hour) init.plusDays(1) else init
       val numberInMillis = target.getMillis - now.getMillis
       Duration(numberInMillis, TimeUnit.MILLISECONDS)
