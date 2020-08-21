@@ -18,7 +18,7 @@ package object external extends AutoDerivation {
     implicit def decode[T: Decoder](input: String): T = {
       DecoderProvider[T].apply(input) match {
         case Right(res) => res
-        case Left(e) => throw new Exception(s"Unable to deserialize json response\n$e\n:\n$input")
+        case Left(e) => throw new Exception(s"Unable to deserialize json response\n===== Exception =====\n$e\n\n===== INPUT =====\n$input")
       }
     }
 }

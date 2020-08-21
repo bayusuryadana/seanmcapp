@@ -12,6 +12,7 @@ import io.circe.syntax._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 
+// $COVERAGE-OFF$
 class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection {
 
   import com.seanmcapp.external._
@@ -83,7 +84,6 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     }
   }
 
-  // $COVERAGE-OFF$
   private val everyDay = Some(Duration(1, TimeUnit.DAYS))
 
   val scheduleList: List[Scheduler] = List(
@@ -98,6 +98,5 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(0, everyDay, dsdaJakartaService),
     new Scheduler(7, everyDay, amarthaService),
   )
-  // $COVERAGE-ON$
 
 }
