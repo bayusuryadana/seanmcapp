@@ -187,7 +187,7 @@
       "price": 6200000,
       "price_formatted": "Rp 6.200.000",
       "stock": 0,
-      "contract_period": 2,
+      "contract_period": 0.5,
       "image": "https:\/\/igrow.asia\/asset\/img\/bibit\/55.png",
       "is_coming_soon": false,
       "expired_label": "2 years",

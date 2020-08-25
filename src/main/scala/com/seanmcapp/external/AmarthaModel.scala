@@ -76,7 +76,7 @@ case class AmarthaInstallment(createdAt: String, // datetime format "2020-06-25T
                               frequency: Int, // number of payment done in this record
                               installmentType: String, // NORMAL, TANPA-ANGSURAN - TODO: useless status?
                               isGracePeriod: Boolean,
-                              pembayaranImbalHasil: Long,
+                              pembayaranImbalHasil: Double,
                               pembayaranPokokInvestasi: Long
                              )
 

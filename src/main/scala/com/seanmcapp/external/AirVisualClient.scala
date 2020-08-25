@@ -19,7 +19,7 @@ class AirVisualClient(http: HttpRequestClient) {
     val airvisualConf = AirvisualConf()
     val apiUrl = s"$airVisualBaseUrl?country=${city.country}&state=${city.state}&city=${city.city}&key=${airvisualConf.key}"
 
-    val response = http.sendGetRequest(URLEncoder.encode(apiUrl, "UTF-8"))
+    val response = http.sendGetRequest(apiUrl)
     val airVisualResponse = decode[AirvisualResponse](response)
     (city, airVisualResponse.data.current.pollution.aqius)
   }.toMap
