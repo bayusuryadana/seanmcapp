@@ -1,7 +1,5 @@
 package com.seanmcapp.external
 
-import java.net.URLEncoder
-
 import com.seanmcapp.config.AirvisualConf
 
 class AirVisualClient(http: HttpRequestClient) {
