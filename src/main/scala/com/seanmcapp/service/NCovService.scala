@@ -18,8 +18,8 @@ class NCovService(ncovClient: NCovClient, telegramClient: TelegramClient) extend
 
     val sgActiveCase = sgResults(0).toInt-sgResults(1).toInt-sgResults(2).toInt
     val idActiveCase = idResults(0).toInt-idResults(1).toInt-idResults(2).toInt
-    val sgResult = s"Singapore new case: ${sgResults(0)}, active case: $sgActiveCase"
-    val idResult = s"Indonesia new case: ${idResults(0)}, active case: $idActiveCase"
+    val sgResult = s"Singapore new cases: ${sgResults(0)}\ndeath cases: ${sgResults(1)}\nrecovered cases: ${sgResults(2)}\nactive case: $sgActiveCase\n"
+    val idResult = s"Indonesia new cases: ${idResults(0)}\ndeath cases: ${idResults(1)}\nrecovered cases: ${idResults(2)}\nactive case: $idActiveCase\n"
     telegramClient.sendMessage(-1001359004262L, URLEncoder.encode(s"$sgResult\n$idResult", "UTF-8"))
     s"$sgResult\n$idResult"
   }

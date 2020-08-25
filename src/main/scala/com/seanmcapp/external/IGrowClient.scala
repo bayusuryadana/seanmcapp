@@ -2,7 +2,7 @@ package com.seanmcapp.external
 
 case class IgrowResponse(data: Seq[IgrowData])
 
-case class IgrowData(name: String, price: Long, stock: Int, `return`: String, contract_period: Int)
+case class IgrowData(name: String, price: Long, stock: Int, `return`: String, contract_period: Double)
 
 class IGrowClient(http: HttpRequestClient) {
 
