@@ -36,7 +36,6 @@ case class AmarthaPortofolio(tenor: Int,
                              creditScoreGrade: String,
                              disbursementDate: String, // format 2019-07-18T07:00:00+07:00
                              isInsurance: Boolean,
-                             isInsuranceRefund: Boolean,
                              isSharia: Boolean,
                              loanId: Long,
                              name: String,

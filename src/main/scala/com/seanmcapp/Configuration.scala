@@ -4,6 +4,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.util.Try
 
+// $COVERAGE-OFF$
 abstract class Configuration[T](prefix: String) {
 
   def apply(): T = {
