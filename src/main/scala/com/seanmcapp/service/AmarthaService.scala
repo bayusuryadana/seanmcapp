@@ -1,5 +1,6 @@
 package com.seanmcapp.service
 
+import java.net.URLEncoder
 import java.text.NumberFormat
 
 import com.seanmcapp.AmarthaConf
@@ -11,7 +12,6 @@ import scala.collection.parallel.CollectionConverters._
 
 class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClient) extends ScheduledTask {
 
-  // $COVERAGE-OFF$
   def processResult(username: String, password: String): List[AmarthaMitra] = {
     val accessToken = getAccessToken(username, password)
 
@@ -49,7 +49,6 @@ class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClien
     val authData = amarthaClient.getTokenAuth(username, password)
     authData.accessToken
   }
-  // $COVERAGE-ON$
 
   override def run: String = {
     val amarthaConf = AmarthaConf()
@@ -67,8 +66,8 @@ class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClien
     val transactionToday = transactionMap.getOrElse(currentDateString, List.empty[AmarthaTransaction]) // TODO: need better handle
     val revenueToday = transactionToday.map(_.debit.replaceAll("\\.","").toLong).sum
     val revenueTodayStringFormat = NumberFormat.getIntegerInstance.format(revenueToday)
-    val message = s"[Amartha]%0AToday's revenue: Rp. $revenueTodayStringFormat"
-    telegramClient.sendMessage(274852283L, message)
+    val message = s"Amartha -- Today's revenue: Rp. $revenueTodayStringFormat"
+    telegramClient.sendMessage(274852283L, URLEncoder.encode(message, "utf-8"))
     message
   }
 

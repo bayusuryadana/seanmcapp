@@ -37,7 +37,7 @@ class AmarthaServiceSpec extends AnyWordSpec with Matchers {
     when(telegramClient.sendMessage(any(), any())).thenReturn(telegramResponse)
     val amarthaService = new AmarthaService(amarthaClient, telegramClient)
     val result = amarthaService.run
-    result shouldBe "[Amartha]%0AToday's revenue: Rp. 10,000"
+    result shouldBe "Amartha -- Today's revenue: Rp. 10,000"
   }
 
 }
