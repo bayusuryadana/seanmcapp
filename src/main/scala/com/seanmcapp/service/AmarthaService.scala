@@ -2,51 +2,59 @@ package com.seanmcapp.service
 
 import java.text.NumberFormat
 
-import com.seanmcapp.config.AmarthaConf
-import com.seanmcapp.external.{AmarthaClient, AmarthaResult, AmarthaTransaction, TelegramClient}
+import com.seanmcapp.AmarthaConf
+import com.seanmcapp.external.{AmarthaClient, AmarthaMitra, AmarthaTransaction, TelegramClient}
 import com.seanmcapp.util.MonthUtil
 import org.joda.time.DateTime
 
-import scala.util.Try
+import scala.collection.parallel.CollectionConverters._
 
 class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClient) extends ScheduledTask {
 
   // $COVERAGE-OFF$
-  def processResult(username: String, password: String): AmarthaResult = {
-    val authData = amarthaClient.getTokenAuth(username, password)
-    val accessToken = authData.accessToken
-
-    val summary = amarthaClient.getAllSummary(accessToken).copy(namaInvestor = Some(authData.name))
+  def processResult(username: String, password: String): List[AmarthaMitra] = {
+    val accessToken = getAccessToken(username, password)
 
     val amarthaMitraList = amarthaClient.getMitraList(accessToken)
-    val mitraList = amarthaMitraList.portofolio.map { amarthaPortofolio =>
+    val mitraList = amarthaMitraList.portofolio.par.map { amarthaPortofolio =>
       val amarthaDetail = amarthaClient.getMitraDetail(accessToken, amarthaPortofolio.loanId)
-      amarthaPortofolio.copy(
-        area = Some(amarthaDetail.loan.areaName),
-        branchName = Some(amarthaDetail.loan.branchName),
-        dueDate = Some(amarthaDetail.loan.dueDate),
-        installment = Some(amarthaDetail.installment),
-        provinceName = Some(amarthaDetail.loan.provinceName),
-        scheduleDay = Some(amarthaDetail.loan.scheduleDay),
-        sector = Some(amarthaDetail.loan.sector),
-      )
-    }
-    val mitraIdNameMap = mitraList.map { amarthaPortfolio =>
-      amarthaPortfolio.loanId -> amarthaPortfolio.name
-    }.toMap
-    val transactionList = amarthaClient.getTransaction(accessToken).map { amarthaTransaction =>
-      val idOpt = Try(amarthaTransaction.loanId.toLong).toOption
-      val borrowerNameOpt = idOpt.flatMap(id => mitraIdNameMap.get(id))
-      amarthaTransaction.copy(borrowerName = borrowerNameOpt)
+      AmarthaMitra(amarthaPortofolio, amarthaDetail)
+    }.toList
+
+    mitraList
+  }
+
+  def getCSV(username: String, password: String): String = {
+    val mitraList = processResult(username, password)
+    val doubleMap = mitraList.map { mitra =>
+      val installment = mitra.installment.map { installment =>
+        installment.createdAt -> installment.frequency
+      }.toMap
+      mitra -> installment
+    }.sortBy(_._1.detail.disbursementDate)
+
+    val sortedDateSet = doubleMap.map(_._2).flatMap(_.keys).distinct.sorted
+    val result = doubleMap.map { case (mitra, installment) =>
+      val data = sortedDateSet.map { dateCol =>
+        installment.get(dateCol).map(_.toString).getOrElse("")
+      }
+      s"${mitra.name}-${mitra.id}" -> data
     }
 
-    AmarthaResult(summary, mitraList, transactionList)
+    val header = sortedDateSet.foldLeft(", ")((r, date) => r + s"$date, ")
+    result.foldLeft(s"$header\n")((res, data) => res + s"${data._1}, ${data._2.foldLeft("")((r, num) => r + s"$num, ")}\n")
+  }
+
+  private def getAccessToken(username: String, password: String): String = {
+    val authData = amarthaClient.getTokenAuth(username, password)
+    authData.accessToken
   }
   // $COVERAGE-ON$
 
   override def run: String = {
     val amarthaConf = AmarthaConf()
-    val transactionList = processResult(amarthaConf.username, amarthaConf.password).transaction
+    val accessToken = getAccessToken(amarthaConf.username, amarthaConf.password)
+    val transactionList = amarthaClient.getTransaction(accessToken)
     val currentDateString = DateTime.now().minusDays(1).toString("YYYYMMdd")
 
     val transactionMap = transactionList.map { t =>

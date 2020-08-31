@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.config.WalletConf
+import com.seanmcapp.WalletConf
 import com.seanmcapp.repository.seanmcwallet.{Wallet, WalletRepo}
 
 import scala.concurrent.ExecutionContext.Implicits.global

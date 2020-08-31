@@ -2,7 +2,7 @@ package com.seanmcapp.external
 
 import java.util.concurrent.TimeUnit
 
-import com.seanmcapp.config.StorageConf
+import com.seanmcapp.StorageConf
 import com.seanmcapp.util.MemoryCache
 import scalacache.Cache
 import scalacache.memoization.memoizeSync

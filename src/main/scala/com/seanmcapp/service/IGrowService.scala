@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.config.SchedulerConf
+import com.seanmcapp.SchedulerConf
 import com.seanmcapp.external.{IGrowClient, TelegramClient}
 
 class IGrowService(igrowClient: IGrowClient, telegramClient: TelegramClient) extends ScheduledTask {

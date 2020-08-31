@@ -1,6 +1,6 @@
 package com.seanmcapp.external
 
-import com.seanmcapp.config.AirvisualConf
+import com.seanmcapp.AirvisualConf
 
 class AirVisualClient(http: HttpRequestClient) {
 

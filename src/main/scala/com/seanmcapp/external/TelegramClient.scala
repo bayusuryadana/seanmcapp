@@ -1,6 +1,6 @@
 package com.seanmcapp.external
 
-import com.seanmcapp.config.TelegramConf
+import com.seanmcapp.TelegramConf
 import scalaj.http.MultiPart
 
 // $COVERAGE-OFF$

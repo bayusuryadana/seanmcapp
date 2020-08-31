@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.config.TelegramConf
+import com.seanmcapp.TelegramConf
 import com.seanmcapp.external._
 import org.mockito.Mockito
 
