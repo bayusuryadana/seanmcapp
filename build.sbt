@@ -11,6 +11,9 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http-testkit" % "10.1.11" % Test,
   "com.typesafe.akka" %% "akka-stream-testkit" % "2.6.3" % Test,
 
+  // parallel collection
+  "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0",
+
   // json serializer
   "io.circe" %% "circe-core" % "0.13.0",
   "io.circe" %% "circe-generic" % "0.13.0",

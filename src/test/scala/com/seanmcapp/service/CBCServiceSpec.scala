@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.config.{StorageConf, TelegramConf}
+import com.seanmcapp.{StorageConf, TelegramConf}
 import com.seanmcapp.repository.{CustomerRepoMock, PhotoRepoMock}
 import org.mockito.Mockito
 import org.mockito.Mockito.when

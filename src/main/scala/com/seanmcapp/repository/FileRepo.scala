@@ -2,7 +2,7 @@ package com.seanmcapp.repository
 
 import java.io.InputStream
 
-import com.seanmcapp.config.StorageConf
+import com.seanmcapp.StorageConf
 import io.minio.{MinioClient, ObjectStat}
 
 import scala.util.Try

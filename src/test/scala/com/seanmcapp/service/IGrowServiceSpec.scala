@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.config.SchedulerConf
+import com.seanmcapp.SchedulerConf
 import com.seanmcapp.external.{IGrowClient, IgrowData, IgrowResponse, TelegramClient, TelegramResponse}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito

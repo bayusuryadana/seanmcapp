@@ -1,6 +1,7 @@
 package com.seanmcapp.external
 
-import scalaj.http.{Http, HttpRequest, MultiPart}
+import com.seanmcapp.HttpConf
+import scalaj.http.{BaseHttp, HttpOptions, HttpRequest, MultiPart}
 
 import scala.util.{Failure, Success, Try}
 
@@ -52,4 +53,18 @@ object HttpRequestClientImpl extends HttpRequestClient {
     }
   }
 
+}
+
+object Http extends BaseHttp {
+
+  private[external] val httpConf = HttpConf()
+
+  override def apply(url: String): HttpRequest = {
+    val httpOptions = Seq(
+      HttpOptions.connTimeout(httpConf.connTimeout),
+      HttpOptions.readTimeout(httpConf.readTimeout),
+      HttpOptions.followRedirects(httpConf.followRedirects)
+    )
+    super.apply(url).options(httpOptions)
+  }
 }

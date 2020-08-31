@@ -3,7 +3,7 @@ package com.seanmcapp.service
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import com.seanmcapp.config.BroadcastConf
+import com.seanmcapp.BroadcastConf
 import com.seanmcapp.external.TelegramClient
 
 import scala.concurrent.Future

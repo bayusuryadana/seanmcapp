@@ -1,6 +1,6 @@
 package com.seanmcapp.external
 
-import com.seanmcapp.config.StorageConf
+import com.seanmcapp.StorageConf
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.when

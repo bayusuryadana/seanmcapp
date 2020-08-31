@@ -67,7 +67,10 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     get {
       (path("amartha") & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
         complete(amarthaService.processResult(username, password).asJson.encode)
-      }
+      } ~
+        (path("amartha" / "CSV" ) & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
+          complete(amarthaService.getCSV(username, password))
+        }
     },
 
     // homepage
@@ -96,7 +99,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(17, everyDay, airVisualService),
     new Scheduler(20, everyDay, nCovService),
     new Scheduler(0, everyDay, dsdaJakartaService),
-    new Scheduler(7, everyDay, amarthaService),
+    new Scheduler(18, everyDay, amarthaService),
   )
 
 }
