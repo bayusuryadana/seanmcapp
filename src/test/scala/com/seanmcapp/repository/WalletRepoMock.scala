@@ -14,7 +14,7 @@ object WalletRepoMock extends WalletRepo {
 
   override def getAll: Future[Seq[Wallet]] = Future.successful(walletList)
 
-  override def insert(wallet: Wallet): Future[Wallet] = Future.successful(wallet)
+  override def insert(wallet: Wallet): Future[Int] = Future.successful(1)
 
   override def update(wallet: Wallet): Future[Int] = Future.successful(1)
 

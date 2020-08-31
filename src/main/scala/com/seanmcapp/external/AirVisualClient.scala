@@ -16,6 +16,7 @@ class AirVisualClient(http: HttpRequestClient) {
   def getCityResults: Map[AirvisualCity, Int] = cities.map { city =>
     val airvisualConf = AirvisualConf()
     val apiUrl = s"$airVisualBaseUrl?country=${city.country}&state=${city.state}&city=${city.city}&key=${airvisualConf.key}"
+      .replace(" ", "%20")
 
     val response = http.sendGetRequest(apiUrl)
     val airVisualResponse = decode[AirvisualResponse](response)
