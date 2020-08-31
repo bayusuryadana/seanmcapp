@@ -10,7 +10,7 @@ class AirVisualService(airVisualClient: AirVisualClient, telegramClient: Telegra
   private val AirModerate = Array(0x1F60E)
   private val AirSensitive = Array(0x1F630)
   private val AirUnhealthy = Array(0x1F637)
-  private val AirRisky = Array(0x1F480)
+  // private val AirRisky = Array(0x1F480) -- Anti Rizky .|.
 
   override def run: String = {
     val cityResults = airVisualClient.getCityResults
