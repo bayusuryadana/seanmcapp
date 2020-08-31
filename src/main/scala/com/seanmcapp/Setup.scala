@@ -12,6 +12,7 @@ import io.circe.syntax._
 
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
+import scala.util.Try
 
 // $COVERAGE-OFF$
 class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection {
@@ -34,24 +35,26 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     // wallet
     get {
       (path("wallet") & headerValue(getHeader("secretkey"))) { secretKey =>
-        complete(walletService.getAll(secretKey).map(_.asJson.encode))
+        complete(walletService.dashboard(secretKey).asJson.encode)
+      } ~ (path("wallet" / "data" / Remaining.?) & headerValue(getHeader("secretkey"))) { (date, secretKey) =>
+        complete(walletService.data(secretKey, date.flatMap(d => Try(d.toInt).toOption)).asJson.encode)
       }
     },
     post {
       (path("wallet") & headerValue(getHeader("secretkey")) & entity(as[String])) { (secretKey, payload) =>
         val wallet = decode[Wallet](payload)
-        complete(walletService.insert(wallet)(secretKey).map(_.asJson.encode))
+        complete(walletService.insert(wallet)(secretKey).toString)
       }
     },
     put {
       (path("wallet") & headerValue(getHeader("secretkey")) & entity(as[String])) { (secretKey, payload) =>
         val wallet = decode[Wallet](payload)
-        complete(walletService.update(wallet)(secretKey).map(_.asJson.encode))
+        complete(walletService.update(wallet)(secretKey).toString)
       }
     },
     delete {
       (path("wallet" / Remaining) & headerValue(getHeader("secretkey"))) { (id, secretKey) =>
-        complete(walletService.delete(id.toInt)(secretKey).map(_.asJson.encode))
+        complete(walletService.delete(id.toInt)(secretKey).toString)
       }
     },
 

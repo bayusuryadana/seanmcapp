@@ -27,7 +27,7 @@ trait WalletRepo {
 
   def getAll: Future[Seq[Wallet]]
 
-  def insert(wallet: Wallet): Future[Wallet]
+  def insert(wallet: Wallet): Future[Int]
 
   def update(wallet: Wallet): Future[Int]
 
@@ -39,11 +39,11 @@ object WalletRepoImpl extends TableQuery(new WalletInfo(_)) with WalletRepo with
 
   def getAll: Future[Seq[Wallet]] = run(this.result)
 
-  def insert(wallet: Wallet): Future[Wallet] = {
+  def insert(wallet: Wallet): Future[Int] = {
     val insertQuery = this.returning(this.map(_.id)).into((item, id) => item.copy(id = id))
     run((insertQuery += wallet).asTry).map {
-      case Failure(ex) => throw new Exception(ex.getMessage)
-      case Success(value) => value
+      case Failure(_) => 0 // TODO: need better handle
+      case Success(_) => 1
     }
   }
 
