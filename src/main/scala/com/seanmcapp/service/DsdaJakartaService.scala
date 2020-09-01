@@ -19,7 +19,7 @@ class DsdaJakartaService(dsdaJakartaClient: DsdaJakartaClient, telegramClient: T
 
       waterGates.map(w => result.append(s"\n${w.name.trim}: ${w.status.split(":")(1).trim}"))
 
-      telegramClient.sendMessage(-1001359004262L, URLEncoder.encode(result.toString, "utf-8"))
+      telegramClient.sendMessage(-111546505L, URLEncoder.encode(result.toString, "utf-8"))
       result.toString
     } else {
       ""
