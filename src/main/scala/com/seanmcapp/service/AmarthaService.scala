@@ -54,7 +54,7 @@ class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClien
     val amarthaConf = AmarthaConf()
     val accessToken = getAccessToken(amarthaConf.username, amarthaConf.password)
     val transactionList = amarthaClient.getTransaction(accessToken)
-    val currentDateString = DateTime.now().minusDays(1).toString("YYYYMMdd")
+    val currentDateString = DateTime.now().toString("YYYYMMdd")
 
     val transactionMap = transactionList.map { t =>
       val dateString = t.date.split(" ")
