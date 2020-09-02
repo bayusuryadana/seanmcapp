@@ -26,7 +26,7 @@ class AmarthaServiceSpec extends AnyWordSpec with Matchers {
     val telegramClient = Mockito.mock(classOf[TelegramClient])
     val amarthaAuthData = AmarthaAuthData("token", true, "", "Ismurroozi")
     when(amarthaClient.getTokenAuth(any(), any())).thenReturn(amarthaAuthData)
-    val dateTimeSplit = DateTime.now().minusDays(1).toString("dd MM YYYY").split(" ")
+    val dateTimeSplit = DateTime.now().toString("dd MM YYYY").split(" ")
     val monthMap = MonthUtil.map.toList.map { case (key, value) => value -> key}.toMap
     val resultDate = s"${dateTimeSplit(0)} ${monthMap(dateTimeSplit(1))} ${dateTimeSplit(2)}"
     val amarthaTransaction = List(
