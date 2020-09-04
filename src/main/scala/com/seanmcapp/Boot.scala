@@ -7,7 +7,7 @@ import akka.http.scaladsl.Http.ServerBinding
 import scala.concurrent.Future
 import scala.util.Try
 
-object Boot extends App {
+object Boot extends App with CORSHandler {
 
   implicit val system = ActorSystem("seanmcapp")
   implicit val _ec = system.dispatcher
@@ -27,7 +27,7 @@ object Boot extends App {
     system.registerOnTermination(runningJob.map(_.cancel()))
 
     println(s"Server is started on port $port")
-    Http().bindAndHandle(setup.route, "0.0.0.0", port)
+    Http().bindAndHandle(corsHandler(setup.route), "0.0.0.0", port)
   }
 
   def stop(bindingFut: Future[ServerBinding]): Unit = {
