@@ -4,7 +4,7 @@ import java.net.URLEncoder
 import java.text.NumberFormat
 
 import com.seanmcapp.AmarthaConf
-import com.seanmcapp.external.{AmarthaClient, AmarthaMitra, AmarthaTransaction, TelegramClient}
+import com.seanmcapp.external.{AmarthaClient, AmarthaMitra, AmarthaTransaction, AmarthaTransactionType, TelegramClient}
 import com.seanmcapp.util.MonthUtil
 import org.joda.time.DateTime
 
@@ -63,10 +63,17 @@ class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClien
       val year = dateString(2)
       t.copy(date = s"${year+month+date}")
     }.groupBy(_.date)
-    val transactionToday = transactionMap.getOrElse(currentDateString, List.empty[AmarthaTransaction]) // TODO: need better handle
-    val revenueToday = transactionToday.map(_.debit.replaceAll("\\.","").toLong).sum
+    val roiToday = transactionMap.getOrElse(currentDateString, List.empty[AmarthaTransaction])
+      .filter(_.`type` == AmarthaTransactionType.ROI) // TODO: need better handle
+    val revenueToday = roiToday.map(_.debit.replaceAll("\\.","").toLong).sum
     val revenueTodayStringFormat = NumberFormat.getIntegerInstance.format(revenueToday)
-    val message = s"Amartha -- Today's revenue: Rp. $revenueTodayStringFormat"
+    val currentBalance = transactionList.head.saldo
+    val paidPercentDecimal = roiToday.count(_.debit != "0").toDouble / roiToday.length
+    val message =
+      s"""[Amartha]
+         |Today's revenue: Rp. $revenueTodayStringFormat
+         |Current balance: Rp. $currentBalance
+         |Paid percentage: ${(paidPercentDecimal * 100).toInt}%""".stripMargin
     telegramClient.sendMessage(274852283L, URLEncoder.encode(message, "utf-8"))
     message
   }

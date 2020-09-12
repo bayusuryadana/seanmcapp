@@ -57,11 +57,11 @@ class AmarthaClientSpec extends AnyWordSpec with Matchers {
   "getTransaction" in {
     val result = amarthaService.getTransaction("access_token")
     val expected = List(
-      AmarthaTransaction("0", "13 Aug 2020", "90.800", "Imbal Hasil"),
-      AmarthaTransaction("0", "13 Aug 2020", "90.800", "Imbal Hasil"),
-      AmarthaTransaction("0", "13 Aug 2020", "0", "Imbal Hasil"),
-      AmarthaTransaction("0", "13 Aug 2020", "90.800", "Imbal Hasil"),
-      AmarthaTransaction("0", "13 Aug 2020", "89.200", "Imbal Hasil")
+      AmarthaTransaction("0", "13 Aug 2020", "90.800", "Imbal Hasil", "17.744.750"),
+      AmarthaTransaction("0", "13 Aug 2020", "90.800", "Imbal Hasil", "17.653.950"),
+      AmarthaTransaction("0", "13 Aug 2020", "0", "Imbal Hasil", "17.563.150"),
+      AmarthaTransaction("0", "13 Aug 2020", "90.800", "Imbal Hasil", "17.563.150"),
+      AmarthaTransaction("0", "13 Aug 2020", "89.200", "Imbal Hasil", "17.472.350")
     )
     result shouldBe expected
   }

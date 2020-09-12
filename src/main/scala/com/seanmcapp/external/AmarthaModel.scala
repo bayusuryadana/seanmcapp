@@ -20,7 +20,9 @@ case class AmarthaSummary(namaInvestor: Option[String],
 case class AmarthaTransaction(credit: String,
                               date: String, // dateformat "02 Oct 2019"
                               debit: String,
-                              `type`: String)
+                              `type`: String,
+                              saldo: String
+                             )
 
 object AmarthaTransactionType {
   val ROI = "Imbal Hasil" // debit
