@@ -30,14 +30,19 @@ class AmarthaServiceSpec extends AnyWordSpec with Matchers {
     val monthMap = MonthUtil.map.toList.map { case (key, value) => value -> key}.toMap
     val resultDate = s"${dateTimeSplit(0)} ${monthMap(dateTimeSplit(1))} ${dateTimeSplit(2)}"
     val amarthaTransaction = List(
-      AmarthaTransaction("0", resultDate, "10.000", "Imbal Hasil")
+      AmarthaTransaction("0", resultDate, "10.000", "Imbal Hasil", "17.744.750"),
+      AmarthaTransaction("0", resultDate, "0", "Imbal Hasil", "17.744.750")
     )
     when(amarthaClient.getTransaction(any())).thenReturn(amarthaTransaction)
     val telegramResponse = Mockito.mock(classOf[TelegramResponse])
     when(telegramClient.sendMessage(any(), any())).thenReturn(telegramResponse)
     val amarthaService = new AmarthaService(amarthaClient, telegramClient)
     val result = amarthaService.run
-    result shouldBe "Amartha -- Today's revenue: Rp. 10,000"
+    val expected = s"""[Amartha]
+                      |Today's revenue: Rp. 10,000
+                      |Current balance: Rp. 17.744.750
+                      |Paid percentage: 50%""".stripMargin
+    result shouldBe expected
   }
 
 }
