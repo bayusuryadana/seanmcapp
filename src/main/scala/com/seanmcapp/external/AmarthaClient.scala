@@ -14,6 +14,10 @@ import scala.concurrent.duration.Duration
 class AmarthaClient(http: HttpRequestClient) extends MemoryCache {
 
   implicit val tokenCache: Cache[AmarthaAuthData] = createCache[AmarthaAuthData]
+  implicit val mitraListCache: Cache[AmarthaMitraIdList] = createCache[AmarthaMitraIdList]
+  implicit val mitraDetailCache: Cache[AmarthaDetail] = createCache[AmarthaDetail]
+  implicit val transactionCache: Cache[List[AmarthaTransaction]] = createCache[List[AmarthaTransaction]]
+
   private val duration = Duration(30, TimeUnit.MINUTES)
 
   import AmarthaEndpoint._
@@ -21,14 +25,21 @@ class AmarthaClient(http: HttpRequestClient) extends MemoryCache {
   def getAllSummary(accessToken: String): AmarthaSummary =
     send[AmarthaSummary](accessToken, baseUrl + allSummary)
 
-  def getMitraList(accessToken: String): AmarthaMitraIdList =
-    send[AmarthaMitraIdList](accessToken, baseUrl + listMitra)
+  def getMitraList(accessToken: String): AmarthaMitraIdList = {
+    memoizeSync(Some(duration)) {
+      send[AmarthaMitraIdList](accessToken, baseUrl + listMitra)
+    }
+  }
 
   def getMitraDetail(accessToken: String, loanId: Long): AmarthaDetail =
-    send[AmarthaDetail](accessToken, baseUrl + details + loanId)
+    memoizeSync(Some(duration)) {
+      send[AmarthaDetail](accessToken, baseUrl + details + loanId)
+    }
 
   def getTransaction(accessToken: String): List[AmarthaTransaction] = {
-    send[List[AmarthaTransaction]](accessToken, baseUrl + transaction)
+    memoizeSync(Some(duration)) {
+      send[List[AmarthaTransaction]](accessToken, baseUrl + transaction)
+    }
   }
 
   def getTokenAuth(username: String, password: String): AmarthaAuthData = {
