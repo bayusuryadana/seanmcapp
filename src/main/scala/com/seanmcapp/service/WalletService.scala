@@ -14,21 +14,14 @@ case class WalletOutput(code: Int, message: Option[String], row: Option[Int], re
 
 class WalletService(walletRepo: WalletRepo) {
 
-  implicit class GroupDate(wallets: Seq[Wallet]) {
-    def groupByDate(): SortedMap[Int, Seq[Wallet]] = wallets.filter(_.date <= todayDate.toInt).groupBy(_.date).to(SortedMap)
-  }
-
-  private val expensesSet = Set("Daily", "Rent", "Zakat", "Travel", "Fashion", "IT Stuff", "Misc", "Wellness")
-  private val investSet = Set("Funding")
   private val activeIncomeSet = Set("Salary", "Bonus")
-
-  private val pieSet = expensesSet ++ investSet
+  private val expenseSet = Set("Daily", "Rent", "Zakat", "Travel", "Fashion", "IT Stuff", "Misc", "Wellness", "Funding")
 
   private[service] val SECRET_KEY = WalletConf().secretKey
 
   def dashboard(implicit secretKey: String): DashboardView = {
     val wallets = authAndAwait(secretKey, walletRepo.getAll)
-    val numberOfMonths = 12
+    val numberOfMonths = 6
 
     def sumAccount(account: String): Int = wallets.collect { case w if w.done && w.account == account => w.amount }.sum
     val sgd = sumAccount("DBS").formatNumber
@@ -38,13 +31,12 @@ class WalletService(walletRepo: WalletRepo) {
       "IDR" -> idr
     )
 
-    // all of these data is based on SGD
-    // must use floating number to be acurate
+    // pie data is based on SGD
     val adjWallet = adjustWallet(wallets)
-    val pieMap = adjWallet.filter(w => w.done && pieSet.contains(w.category)).groupBy(_.category).toSeq
+    val pieMap = adjWallet.filter(w => w.done && expenseSet.contains(w.category)).groupBy(_.category).toSeq
       .map(cat => (cat._1, cat._2.map(-_.amount).sum))
     val totalIncome = adjWallet.filter(w => w.done && activeIncomeSet.contains(w.category)).map(_.amount).sum.toDouble
-    val pie = pieMap.map(i => (i._1, (i._2 / totalIncome * 10000).toInt / 100.0 )).unzip
+    val pie = pieMap.map(i => (i._1, (i._2 / totalIncome * 100).round2Digits())).unzip
 
     val monthsLabel = wallets.groupByDate().keys.takeRight(numberOfMonths).toSeq
     val currencies = Seq("SGD", "IDR")
@@ -56,7 +48,7 @@ class WalletService(walletRepo: WalletRepo) {
     }.toMap
 
     val expenseChart = currencies.map { c =>
-      c -> pieSet.toSeq.map { cat =>
+      c -> expenseSet.toSeq.map { cat =>
         cat -> groupedWallet.map(_.collect { case w if w.currency == c && w.category == cat => -w.amount}.sum)
             .takeRight(numberOfMonths).toSeq
       }.toMap
@@ -132,6 +124,14 @@ class WalletService(walletRepo: WalletRepo) {
     }
   }
 
+  implicit class GroupDate(wallets: Seq[Wallet]) {
+    def groupByDate(): SortedMap[Int, Seq[Wallet]] = wallets.filter(_.date <= todayDate.toInt).groupBy(_.date).to(SortedMap)
+  }
+
+  implicit class DoubleHelper(d: Double) {
+    def round2Digits(): Double = BigDecimal(d).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+  }
+
   private def calculateBalance(wallets: Seq[Wallet], requestDate: Int, account: String): Balance = {
     val beginning = wallets.filter(w => w.date < requestDate && w.account == account).map(_.amount).sum
     val summary = wallets.filter(w => w.date == requestDate && w.account == account)
@@ -149,10 +149,16 @@ class WalletService(walletRepo: WalletRepo) {
   }
 
   private def adjustWallet(wallets: Seq[Wallet]): Seq[Wallet] = {
-    // this const will exchange to SGD
-    val MYR = 3.087415185
-    val THB	= 23.47115051
-    val IDR =	10370
+    /**
+      * this const to be divided to SGD
+      * 1 MYR = 7.6011 THB
+      * 1 SGD = 23.5 THB
+      * 1 SGD = 3.0916 MYR
+      * 1 SGD = 10,290 IDR
+      */
+    val MYR = 3.0916
+    val THB	= 23.5
+    val IDR =	10290
 
     wallets.map(w => w.copy(amount = w.currency match {
       case "MYR" => (w.amount / MYR).toInt
