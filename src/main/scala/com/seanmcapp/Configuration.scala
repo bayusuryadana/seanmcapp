@@ -88,3 +88,10 @@ object WalletConf extends Configuration[WalletConf]("wallet") {
     WalletConf(Try(c.getString("secret-key")).getOrElse(""))
   }
 }
+
+case class StockConf(list: List[String])
+object StockConf extends Configuration[StockConf]("stock") {
+  override def buildConfig(c: Config): StockConf = {
+    StockConf(Try(c.getString("list").split(",").toList).getOrElse(List.empty[String]))
+  }
+}

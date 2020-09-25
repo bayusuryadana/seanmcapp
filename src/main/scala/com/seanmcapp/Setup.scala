@@ -76,6 +76,11 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
         }
     },
 
+    // stock
+    get {
+      path("stock")(complete(stockService.getStock().asJson.encode))
+    },
+
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !")))
 

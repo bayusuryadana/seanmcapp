@@ -53,6 +53,9 @@ trait Injection {
 
   val walletService = new WalletService(walletRepo)
 
+  val stockClient = new StockClient(httpClient)
+  val stockService = new StockService(stockClient)
+
   val warmupDBService = new WarmupDBService(peopleRepo)
 
 }
