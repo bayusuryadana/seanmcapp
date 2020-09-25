@@ -10,5 +10,4 @@ class NCovClient(http: HttpRequestClient) {
 
   def getReport: List[String] = urls.map {u => http.sendGetRequest(u)}
 
-
 }
