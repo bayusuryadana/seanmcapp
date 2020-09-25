@@ -72,7 +72,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
         complete(amarthaService.processResult(username, password).asJson.encode)
       } ~
         (path("amartha" / "CSV" ) & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
-          complete(amarthaService.getCSV(username, password))
+          complete(amarthaService.getCSV(username, password).asJson.encode)
         }
     },
 
