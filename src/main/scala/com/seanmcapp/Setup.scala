@@ -69,10 +69,10 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     // amartha
     get {
       (path("amartha") & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
-        complete(amarthaService.processResult(username, password).asJson.encode)
+        complete(amarthaService.getMitraList(username, password).asJson.encode)
       } ~
-        (path("amartha" / "CSV" ) & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
-          complete(amarthaService.getCSV(username, password).asJson.encode)
+        (path("amartha" / "view" ) & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
+          complete(amarthaService.getAmarthaView(username, password).asJson.encode)
         }
     },
 

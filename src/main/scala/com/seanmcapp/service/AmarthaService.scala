@@ -4,7 +4,7 @@ import java.net.URLEncoder
 import java.text.NumberFormat
 
 import com.seanmcapp.AmarthaConf
-import com.seanmcapp.external.{AmarthaClient, AmarthaMitra, AmarthaTransaction, AmarthaTransactionType, TelegramClient}
+import com.seanmcapp.external._
 import com.seanmcapp.util.MonthUtil
 import org.joda.time.DateTime
 
@@ -13,9 +13,12 @@ import scala.collection.parallel.CollectionConverters._
 
 class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClient) extends ScheduledTask {
 
-  def processResult(username: String, password: String): List[AmarthaMitra] = {
+  def getMitraList(username: String, password: String): List[AmarthaMitra] = {
     val accessToken = getAccessToken(username, password)
+    getMitraList(accessToken)
+  }
 
+  def getMitraList(accessToken: String): List[AmarthaMitra] = {
     val amarthaMitraList = amarthaClient.getMitraList(accessToken)
     val mitraList = amarthaMitraList.portofolio.par.map { amarthaPortofolio =>
       val amarthaDetail = amarthaClient.getMitraDetail(accessToken, amarthaPortofolio.loanId)
@@ -25,8 +28,10 @@ class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClien
     mitraList
   }
 
-  def getCSV(username: String, password: String): AmarthaView = {
-    val mitraList = processResult(username, password)
+  def getAmarthaView(username: String, password: String): AmarthaView = {
+    val accessToken = getAccessToken(username, password)
+    val summary = amarthaClient.getAllSummary(accessToken)
+    val mitraList = getMitraList(accessToken)
     val doubleMap = mitraList.map { mitra =>
       val installment = mitra.installment.groupBy(_.createdAt).toSeq.map { case (date, installment) =>
         date -> installment.map(_.frequency).sum
@@ -46,7 +51,7 @@ class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClien
     }.to(SortedMap)
 
     val totalAmountLeft = result.values.map(_.remainingPaymentAmount.replace(",","").toLong).sum.formatNumber
-    AmarthaView(totalAmountLeft, sortedDateSet, result)
+    AmarthaView(summary.nilaiAset.formatNumber, summary.totalAllrevenue.formatNumber, totalAmountLeft, sortedDateSet, result)
   }
 
   private def getAccessToken(username: String, password: String): String = {
