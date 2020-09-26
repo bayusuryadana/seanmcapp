@@ -2,8 +2,10 @@ how to make dockerize postgres with pre-populated data
 
 https://medium.com/@sherryhsu/set-up-postgresql-database-using-with-production-data-using-docker-f164694341f1
 
-- dump or create your DB schema and data as SQL file
-<br/>`pg_dump --host=<host> --port=<port> --username=<username> --password --dbname=<dbname> > backup.sql`
+- pull DB from docker repo
+- apply changes on local docker
+- dump DB schema and data as SQL file (password = "password")
+<br/>`pg_dump --host=localhost --port=5432 --username=postgres --password --dbname=postgres > backup.sql`
 
 - create dockerfile like below, these lines will download the postgres itself and copy the `backup.sql` to `/docker-entrypoint-initdb.d/` as all the sql scripts will be automatically run during container startup
 ```

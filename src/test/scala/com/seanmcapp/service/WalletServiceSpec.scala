@@ -2,6 +2,7 @@ package com.seanmcapp.service
 
 import com.seanmcapp.repository.WalletRepoMock
 import com.seanmcapp.repository.seanmcwallet.Wallet
+import org.mockito.Mockito
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 
@@ -9,7 +10,9 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers {
 
   private val secretKey = "team-secret"
 
-  val walletService = new WalletService(WalletRepoMock) {
+  val amarthaServiceMock = Mockito.mock(classOf[AmarthaService])
+  val stockServiceMock = Mockito.mock(classOf[StockService])
+  val walletService = new WalletService(WalletRepoMock, amarthaServiceMock, stockServiceMock) {
     override val SECRET_KEY = secretKey
   }
 

@@ -74,3 +74,11 @@ CREATE TABLE wallets (
     done boolean NOT NULL,
     account varchar(20) NOT NULL
 );
+
+CREATE TABLE stocks (
+    id varchar(4),
+    qty integer NOT NULL,
+    avg integer NOT NULL,
+    best_buy integer NOT NULL,
+    intrinsic integer NOT NULL
+);

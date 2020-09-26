@@ -4,17 +4,18 @@ import java.net.URLEncoder
 import java.text.NumberFormat
 
 import com.seanmcapp.AmarthaConf
-import com.seanmcapp.external.{AmarthaClient, AmarthaMitra, AmarthaTransaction, AmarthaTransactionType, TelegramClient}
+import com.seanmcapp.external._
 import com.seanmcapp.util.MonthUtil
 import org.joda.time.DateTime
 
+import scala.collection.SortedMap
 import scala.collection.parallel.CollectionConverters._
 
 class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClient) extends ScheduledTask {
 
-  def processResult(username: String, password: String): List[AmarthaMitra] = {
-    val accessToken = getAccessToken(username, password)
+  private val amarthaConf = AmarthaConf()
 
+  private def getMitraList(accessToken: String): List[AmarthaMitra] = {
     val amarthaMitraList = amarthaClient.getMitraList(accessToken)
     val mitraList = amarthaMitraList.portofolio.par.map { amarthaPortofolio =>
       val amarthaDetail = amarthaClient.getMitraDetail(accessToken, amarthaPortofolio.loanId)
@@ -24,11 +25,13 @@ class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClien
     mitraList
   }
 
-  def getCSV(username: String, password: String): String = {
-    val mitraList = processResult(username, password)
+  def getAmarthaView(): AmarthaView = {
+    val accessToken = getAccessToken(amarthaConf.username, amarthaConf.password)
+    val summary = amarthaClient.getAllSummary(accessToken)
+    val mitraList = getMitraList(accessToken)
     val doubleMap = mitraList.map { mitra =>
-      val installment = mitra.installment.map { installment =>
-        installment.createdAt -> installment.frequency
+      val installment = mitra.installment.groupBy(_.createdAt).toSeq.map { case (date, installment) =>
+        date -> installment.map(_.frequency).sum
       }.toMap
       mitra -> installment
     }.sortBy(_._1.detail.disbursementDate)
@@ -38,11 +41,14 @@ class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClien
       val data = sortedDateSet.map { dateCol =>
         installment.get(dateCol).map(_.toString).getOrElse("")
       }
-      s"${mitra.name}-${mitra.id}" -> data
-    }
+      val numberOfRemainingPayment = 50 - data.flatMap(_.toIntOption).sum
+      val remainingPaymentAmount = (numberOfRemainingPayment * mitra.detail.weeklyPayment).formatNumber
 
-    val header = sortedDateSet.foldLeft(", ")((r, date) => r + s"$date, ")
-    result.foldLeft(s"$header\n")((res, data) => res + s"${data._1}, ${data._2.foldLeft("")((r, num) => r + s"$num, ")}\n")
+      mitra.id -> AmarthaMitraView(mitra.id, mitra.name, s"${mitra.detail.ROIPercentage}%", numberOfRemainingPayment, remainingPaymentAmount, data)
+    }.to(SortedMap)
+
+    val totalAmountLeft = result.values.map(_.remainingPaymentAmount.replace(",","").toLong).sum.formatNumber
+    AmarthaView(summary.nilaiAset.formatNumber, summary.totalAllrevenue.formatNumber, totalAmountLeft, sortedDateSet, result)
   }
 
   private def getAccessToken(username: String, password: String): String = {
@@ -51,7 +57,6 @@ class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClien
   }
 
   override def run: String = {
-    val amarthaConf = AmarthaConf()
     val accessToken = getAccessToken(amarthaConf.username, amarthaConf.password)
     val transactionList = amarthaClient.getTransaction(accessToken)
     val currentDateString = DateTime.now().toString("YYYYMMdd")
@@ -76,6 +81,13 @@ class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClien
          |Paid percentage: ${(paidPercentDecimal * 100).toInt}%""".stripMargin
     telegramClient.sendMessage(274852283L, URLEncoder.encode(message, "utf-8"))
     message
+  }
+
+  implicit class Formatter(in: Long) {
+    def formatNumber: String = {
+      val formatter = NumberFormat.getIntegerInstance
+      formatter.format(in)
+    }
   }
 
 }

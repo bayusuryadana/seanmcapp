@@ -20,4 +20,3 @@ case class DataView(cmsData: CMSData, wallet: Seq[Wallet], sgdBalance: Balance, 
 case class CMSData(thisMonth: String, thisYear: String, nextDate: String, prevDate: String)
 
 case class Balance(beginning: String, plannedEnding: String, realEnding: String)
-

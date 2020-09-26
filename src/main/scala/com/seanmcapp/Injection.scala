@@ -5,7 +5,7 @@ import com.seanmcapp.repository.{FileRepo, FileRepoImpl}
 import com.seanmcapp.repository.birthday.{PeopleRepo, PeopleRepoImpl}
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
-import com.seanmcapp.repository.seanmcwallet.{WalletRepo, WalletRepoImpl}
+import com.seanmcapp.repository.seanmcwallet.{StockRepo, StockRepoImpl, WalletRepo, WalletRepoImpl}
 import com.seanmcapp.service._
 
 // $COVERAGE-OFF$
@@ -19,6 +19,7 @@ trait Injection {
   val heroAttributeRepo: HeroAttributeRepo = HeroAttributeRepoImpl
   val fileRepo: FileRepo = FileRepoImpl
   val walletRepo: WalletRepo = WalletRepoImpl
+  val stockRepo: StockRepo = StockRepoImpl
 
   val httpClient: HttpRequestClient = HttpRequestClientImpl
   val telegramClient = new TelegramClient(httpClient)
@@ -51,7 +52,10 @@ trait Injection {
   val nCovClient = new NCovClient(httpClient)
   val nCovService = new NCovService(nCovClient, telegramClient)
 
-  val walletService = new WalletService(walletRepo)
+  val stockClient = new StockClient(httpClient)
+  val stockService = new StockService(stockClient, stockRepo)
+
+  val walletService = new WalletService(walletRepo, amarthaService, stockService)
 
   val warmupDBService = new WarmupDBService(peopleRepo)
 

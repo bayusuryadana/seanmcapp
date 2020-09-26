@@ -2,6 +2,8 @@ package com.seanmcapp.external
 
 import org.joda.time.DateTime
 
+import scala.collection.SortedMap
+
 // $COVERAGE-OFF$
 case class AmarthaResponse[T](status: Int, code: Int, message: String, data: T)
 
@@ -111,3 +113,11 @@ case class AmarthaLoanDetail(tenor: Int, ROI: Long, principal: Long, disbursemen
   val weeklyPayment: Long = weeklyPrincipal + weeklyReturn
 }
 case class AmarthaAttribute(isInsurance: Boolean, isSharia: Boolean, creditScore: String, urlPic1: String, urlPic2: String)
+
+////////////////////////////// OUTPUT MODEL ///////////////////////////////////////
+
+case class AmarthaView(totalAsset: String, totalROI: String, totalAmountLeft: String, header: Seq[String],
+                       data: SortedMap[Long, AmarthaMitraView])
+
+case class AmarthaMitraView(id: Long, name: String, ROI: String, numberOfRemainingPayment: Int,
+                            remainingPaymentAmount: String, data: List[String])
