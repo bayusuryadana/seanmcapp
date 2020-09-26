@@ -2,6 +2,7 @@ package com.seanmcapp.external
 
 import java.util.concurrent.TimeUnit
 
+import com.seanmcapp.StockConf
 import com.seanmcapp.util.MemoryCache
 import scalacache.Cache
 import scalacache.memoization.memoizeSync
@@ -20,7 +21,7 @@ class StockClient(http: HttpRequestClient) extends MemoryCache {
         s"id=${stockIdList.foldLeft("")((s, c) => s"$s$c:IJ,").dropRight(1)}&interval=d1"
       val headers = HeaderMap(Map(
         "x-rapidapi-host" -> "bloomberg-market-and-financial-news.p.rapidapi.com",
-        "x-rapidapi-key" -> "1917b0cf26msh7824c7e68f8c4cap16c0a7jsn3583cd703049"
+        "x-rapidapi-key" -> StockConf().key
       ))
       val response = http.sendRequest(url, headers = Some(headers))
       decode[StockResponse](response)
