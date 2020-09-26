@@ -38,7 +38,9 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
         complete(walletService.dashboard(secretKey).asJson.encode)
       } ~ (path("wallet" / "data" / Remaining.?) & headerValue(getHeader("secretkey"))) { (date, secretKey) =>
         complete(walletService.data(secretKey, date.flatMap(d => Try(d.toInt).toOption)).asJson.encode)
-      }
+      } ~ (path("wallet" / "amartha" ) & headerValue(getHeader("secretkey"))) { secretKey =>
+        complete(walletService.amartha(secretKey).asJson.encode)
+      } ~ path("wallet" / "stock")(complete(stockService.getStock().map(_.asJson.encode)))
     },
     post {
       (path("wallet") & headerValue(getHeader("secretkey")) & entity(as[String])) { (secretKey, payload) =>
@@ -64,21 +66,6 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
         case (secretKey, (_, byteSource), formFields) =>
           complete(broadcastService.broadcastWithPhoto(byteSource, formFields)(system, secretKey).map(_.asJson.encode))
       })
-    },
-
-    // amartha
-    get {
-      (path("amartha") & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
-        complete(amarthaService.getMitraList(username, password).asJson.encode)
-      } ~
-        (path("amartha" / "view" ) & headerValue(getHeader("username")) & headerValue(getHeader("password"))) { (username, password) =>
-          complete(amarthaService.getAmarthaView(username, password).asJson.encode)
-        }
-    },
-
-    // stock
-    get {
-      path("stock")(complete(stockService.getStock().map(_.asJson.encode)))
     },
 
     // homepage

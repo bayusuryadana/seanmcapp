@@ -52,10 +52,10 @@ trait Injection {
   val nCovClient = new NCovClient(httpClient)
   val nCovService = new NCovService(nCovClient, telegramClient)
 
-  val walletService = new WalletService(walletRepo)
-
   val stockClient = new StockClient(httpClient)
   val stockService = new StockService(stockClient, stockRepo)
+
+  val walletService = new WalletService(walletRepo, amarthaService, stockService)
 
   val warmupDBService = new WarmupDBService(peopleRepo)
 

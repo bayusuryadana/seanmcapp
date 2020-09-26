@@ -4,6 +4,7 @@ import java.text.NumberFormat
 import java.util.Calendar
 
 import com.seanmcapp.WalletConf
+import com.seanmcapp.external.AmarthaView
 import com.seanmcapp.repository.seanmcwallet.{Wallet, WalletRepo}
 
 import scala.collection.SortedMap
@@ -12,7 +13,7 @@ import scala.concurrent.{Await, Future}
 
 case class WalletOutput(code: Int, message: Option[String], row: Option[Int], response: Seq[Wallet])
 
-class WalletService(walletRepo: WalletRepo) {
+class WalletService(walletRepo: WalletRepo, amarthaService: AmarthaService, stockService: StockService) {
 
   private val activeIncomeSet = Set("Salary", "Bonus")
   private val expenseSet = Set("Daily", "Rent", "Zakat", "Travel", "Fashion", "IT Stuff", "Misc", "Wellness", "Funding")
@@ -103,6 +104,16 @@ class WalletService(walletRepo: WalletRepo) {
     val IDR = calculateBalance(wallets, requestDate, "BCA")
 
     DataView(cmsData, walletResult, SGD, IDR)
+  }
+
+  def amartha(secretKey: String): AmarthaView = {
+    val f = Future.successful(amarthaService.getAmarthaView())
+    authAndAwait(secretKey, f)
+  }
+
+  def stock(secretKey: String): Future[SortedMap[String, StockData]] = {
+    val f = Future.successful(stockService.getStock())
+    authAndAwait(secretKey, f)
   }
 
   def insert(walletInput: Wallet)(implicit secretKey: String): Int = {

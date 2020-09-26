@@ -13,12 +13,9 @@ import scala.collection.parallel.CollectionConverters._
 
 class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClient) extends ScheduledTask {
 
-  def getMitraList(username: String, password: String): List[AmarthaMitra] = {
-    val accessToken = getAccessToken(username, password)
-    getMitraList(accessToken)
-  }
+  private val amarthaConf = AmarthaConf()
 
-  def getMitraList(accessToken: String): List[AmarthaMitra] = {
+  private def getMitraList(accessToken: String): List[AmarthaMitra] = {
     val amarthaMitraList = amarthaClient.getMitraList(accessToken)
     val mitraList = amarthaMitraList.portofolio.par.map { amarthaPortofolio =>
       val amarthaDetail = amarthaClient.getMitraDetail(accessToken, amarthaPortofolio.loanId)
@@ -28,8 +25,8 @@ class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClien
     mitraList
   }
 
-  def getAmarthaView(username: String, password: String): AmarthaView = {
-    val accessToken = getAccessToken(username, password)
+  def getAmarthaView(): AmarthaView = {
+    val accessToken = getAccessToken(amarthaConf.username, amarthaConf.password)
     val summary = amarthaClient.getAllSummary(accessToken)
     val mitraList = getMitraList(accessToken)
     val doubleMap = mitraList.map { mitra =>
@@ -60,7 +57,6 @@ class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClien
   }
 
   override def run: String = {
-    val amarthaConf = AmarthaConf()
     val accessToken = getAccessToken(amarthaConf.username, amarthaConf.password)
     val transactionList = amarthaClient.getTransaction(accessToken)
     val currentDateString = DateTime.now().toString("YYYYMMdd")
