@@ -26,34 +26,25 @@ case class InstagramCaption(text: String)
 class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient: InstagramClient) {
 
   private[service] val accountList = Map(
-    /**
+    /** DISCONTINUED
       * ui.cantik	662
       * ub.cantik	517
+      * unj.cantik	425
+      * bidadari_ub	257
       *
+      * STILL UPDATING
       * ugmcantik	781
       * cantik.its	217
-      * unj.cantik	425
       * unpad.geulis	1262
       * undip.cantik	833
-      *
-      * bidadari_ub	257
       * uicantikreal	175
       */
-
-    // deprecated
-    //"ui.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,
-    //"ub.cantik"    -> "[\\w ]+\\. [\\w ]+['’]\\d\\d".r,
-    //"unj.cantik"   -> "[\\w ]+\\, [\\w]+ ['’]\\d\\d".r,
 
     // existing
     "ugmcantik"    -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
     "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
     "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
     "cantik.its"   -> ".+".r,
-
-    // TODO: should use another function than regex
-    // new
-    "bidadari_ub"  -> ".*".r,
     "uicantikreal" -> ".*".r,
   )
 
