@@ -45,7 +45,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
           hero.copy(lore = "") -> heroWinSummary.copy(rating = Some(calculateRating(heroWinSummary.percentage, heroWinSummary.games, cHero)))
         }.sortBy(-_._2.rating.getOrElse(0.0)).take(3)
         PlayerInfo(player, winSummary, recentMatches, topHero)
-      }
+      }.sortBy(-_.matches.head.start_time)
 
       val heroesInfo = heroes.map { hero =>
         val playersWinSummary = players.map { player =>
