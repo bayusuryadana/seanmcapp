@@ -15,20 +15,6 @@ class DotaServiceSpec extends AsyncWordSpec with Matchers {
     dotaService.home.map { res =>
       val playerInfos = List(
         PlayerInfo(
-          Player(137382742, "Rahmat Rasyidi Hakim", "https://someurl", "kill", Some(45)),
-          WinSummary(2, 2, 1.0, None),
-          List(
-            MatchResponse(4827077503L, 1, true, 2095, 22, 18, 1560129450, 7, 5, 12),
-            MatchResponse(4824100132L, 132, false, 2230, 22, 18, 1560047832, 3, 4, 24)
-          ),
-          List(
-            (
-              Hero(18, "Sven", "str", "Melee", "Carry,Disabler,Initiator,Durable,Nuker", "sven_full.png", "sven_icon.png", ""),
-              WinSummary(2, 2, 1.0, Some(0.53125))
-            )
-          )
-        ),
-        PlayerInfo(
           Player(105742997, "Bayu Suryadana", "https://someurl", "SeanmcrayZ", Some(35)),
           WinSummary(0, 2, 0.0, None),
           List(
@@ -39,6 +25,20 @@ class DotaServiceSpec extends AsyncWordSpec with Matchers {
             (
               Hero(26, "Lion", "int", "Ranged", "Support,Disabler,Nuker,Initiator", "lion_full.png", "lion_icon.png", ""),
               WinSummary(0, 2, 0.0, Some(0.0))
+            )
+          )
+        ),
+        PlayerInfo(
+          Player(137382742, "Rahmat Rasyidi Hakim", "https://someurl", "kill", Some(45)),
+          WinSummary(2, 2, 1.0, None),
+          List(
+            MatchResponse(4827077503L, 1, true, 2095, 22, 18, 1560129450, 7, 5, 12),
+            MatchResponse(4824100132L, 132, false, 2230, 22, 18, 1560047832, 3, 4, 24)
+          ),
+          List(
+            (
+              Hero(18, "Sven", "str", "Melee", "Carry,Disabler,Initiator,Durable,Nuker", "sven_full.png", "sven_icon.png", ""),
+              WinSummary(2, 2, 1.0, Some(0.53125))
             )
           )
         )
