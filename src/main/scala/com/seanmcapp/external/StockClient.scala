@@ -2,8 +2,7 @@ package com.seanmcapp.external
 
 class StockClient(http: HttpRequestClient) {
 
-  def getStockResult(): StockResponse = {
-    val stockIdList = List("MMLP", "GJTL", "BBNI", "AUTO", "PGAS", "BNGA") // StockConf().list
+  def getStockResult(stockIdList: Seq[String]): StockResponse = {
     val url = s"https://bloomberg-market-and-financial-news.p.rapidapi.com/market/get-chart?" +
       s"id=${stockIdList.foldLeft("")((s,c) => s"$s$c:IJ,").dropRight(1)}&interval=d1"
     val headers = HeaderMap(Map(
