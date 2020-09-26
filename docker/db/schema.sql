@@ -81,4 +81,4 @@ CREATE TABLE stocks (
     avg integer NOT NULL,
     best_buy integer NOT NULL,
     intrinsic integer NOT NULL
-)
+);

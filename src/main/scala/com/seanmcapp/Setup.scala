@@ -78,7 +78,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
 
     // stock
     get {
-      path("stock")(complete(stockService.getStock().asJson.encode))
+      path("stock")(complete(stockService.getStock().map(_.asJson.encode)))
     },
 
     // homepage
