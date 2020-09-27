@@ -12,6 +12,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 case class InstagramAccountResponse(logging_page_id: String)
 
+case class InstagramRequestParameter(id: String, first: Int, after: Option[String])
+
 case class InstagramResponse(data: InstagramData)
 case class InstagramData(user: InstagramUser)
 case class InstagramUser(edge_owner_to_timeline_media: InstagramMedia)
@@ -48,41 +50,36 @@ class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient
     "uicantikreal" -> ".*".r,
   )
 
-  def fetch(cookie: String): Future[Seq[Option[Int]]] = {
-    println("cookie: " + cookie)
+  def fetch(sessionId: String): Future[Seq[Option[Int]]] = {
+    println("sessionId: " + sessionId)
     for {
       photos <- photoRepo.getAll
-      result <- process(cookie, photos)
+      result <- process(sessionId, photos)
     } yield result
   }
 
-  private def process(cookie: String, photos: Seq[Photo]): Future[Seq[Option[Int]]] = {
+  private def process(sessionId: String, photos: Seq[Photo]): Future[Seq[Option[Int]]] = {
     val idsSet = photos.map(_.id).toSet
     val sequenceResult = accountList.toSeq.map { item =>
       val account = item._1
-      val id = instagramClient.getAccountResponse(account, cookie).logging_page_id.replace("profilePage_", "").toLong
-
-      /**
-        * based on this answer https://stackoverflow.com/questions/49265339/instagram-a-1-url-not-working-anymore-problems-with-graphql-query-to-get-da
-        * you can use either:
-        * query_id=17888483320059182 OR query_hash=472f257a40c653c64c666ce877d59d2b
-        */
-      println("fetching: " + account)
-      val fetchedPhotos = fetch(id, None, account, cookie)
-      println("fetched: " + fetchedPhotos.size)
-      val nonFetchedPhotos = fetchedPhotos.filterNot(photo => idsSet.contains(photo.id))
-      println("non-exists: " + nonFetchedPhotos.size)
-      val filteredPhotos = nonFetchedPhotos.collect(filteringNonRelatedImage(item._2))
-      println("filtered by rule: " + filteredPhotos.size)
+      val id = instagramClient.getAccountResponse(account).logging_page_id.replace("profilePage_", "")
+      println(s"fetching: $account with id $id")
+      val fetchedPhotos = fetch(id, account, None, sessionId)
+      println(s"fetched: ${fetchedPhotos.size}")
+      val unFetchedPhotos = fetchedPhotos.filterNot(photo => idsSet.contains(photo.id))
+      println(s"non-exists: ${unFetchedPhotos.size}")
+      val filteredPhotos = unFetchedPhotos.collect(filteringNonRelatedImage(item._2))
+      println(s"filtered by rule: ${filteredPhotos.size}")
       val savedPhotos = savingToStorage(filteredPhotos)
-      println("saved photos to storage: " + savedPhotos.size)
+      println(s"saved photos to storage: ${savedPhotos.size}")
       val result = photoRepo.insert(savedPhotos).map { res =>
-        println("saved photos to database: " + res.getOrElse(-1))
+        println(s"saved photos to database: ${res.getOrElse(-1)}")
         res
       }
       result
     }
 
+    println(s"fetching finished")
     Future.sequence(sequenceResult)
   }
 
@@ -104,8 +101,8 @@ class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient
 
   }
 
-  private def fetch(userId: Long, endCursor: Option[String], account: String, cookie: String): Seq[Photo] = {
-    val instagramResponse = instagramClient.getPhotos(userId, endCursor, cookie)
+  private def fetch(userId: String, account: String, endCursor: Option[String], sessionId: String): Seq[Photo] = {
+    val instagramResponse = instagramClient.getPhotos(userId, endCursor, sessionId)
 
     val instagramPageInfo = instagramResponse.data.user.edge_owner_to_timeline_media.page_info
     val photos = instagramResponse.data.user.edge_owner_to_timeline_media.edges.map(_.node).map { node =>
@@ -113,7 +110,7 @@ class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient
     }
 
     val result = if (instagramPageInfo.has_next_page && instagramPageInfo.end_cursor.isDefined) {
-      photos ++ fetch(userId, instagramPageInfo.end_cursor, account, cookie)
+      photos ++ fetch(userId, account, instagramPageInfo.end_cursor, sessionId)
     } else {
       photos
     }
