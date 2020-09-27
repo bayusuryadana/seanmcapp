@@ -15,9 +15,9 @@ class InstagramClientSpec extends AnyWordSpec with Matchers {
     val accountId = "262582140"
     val http = Mockito.mock(classOf[HttpRequestClient])
     val fetchResponse = Source.fromResource("instagram/init_response.json").mkString
-    when(http.sendRequest(any(), any(), any(), any(), any())).thenReturn(fetchResponse)
+    when(http.sendGetRequest(any())).thenReturn(fetchResponse)
     val instagramClient = new InstagramClient(http)
-    val response = instagramClient.getAccountResponse(accountId, "cookie")
+    val response = instagramClient.getAccountResponse(accountId)
     val expected = InstagramAccountResponse("profilePage_262582140")
     response shouldBe expected
   }
@@ -27,7 +27,7 @@ class InstagramClientSpec extends AnyWordSpec with Matchers {
     val fetchResponse = Source.fromResource("instagram/fetch_response.json").mkString
     when(http.sendRequest(any(), any(), any(), any(), any())).thenReturn(fetchResponse)
     val instagramClient = new InstagramClient(http)
-    val response = instagramClient.getPhotos(1, None, "")
+    val response = instagramClient.getPhotos("1", None, "")
     val expected = InstagramResponse(
       InstagramData(
         InstagramUser(
