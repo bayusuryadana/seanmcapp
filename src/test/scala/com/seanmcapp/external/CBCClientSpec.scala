@@ -17,7 +17,7 @@ class CBCClientSpec extends AnyWordSpec with Matchers {
       override val storageConf = StorageConf("access", "secret", "host", "bucket")
     }
     val mockResponse = Source.fromResource("instagram/knn.csv").mkString
-    when(http.sendGetRequest(any())).thenReturn(mockResponse)
+    when(http.sendGetRequest(any(), any())).thenReturn(mockResponse)
     val expected = Map(
       1699704484487729075L -> Array(2093920084464867448L, 1966150887791311229L, 2231065756832796103L, 1681917276393329115L, 1512865706260228584L),
       2197263767212894174L -> Array(1625747162149643196L, 1539532601709498694L, 1751421769561283743L, 1066637181476134902L, 1436167541432803036L),

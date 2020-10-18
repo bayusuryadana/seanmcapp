@@ -10,6 +10,8 @@ import scala.concurrent.Future
 import scala.util.matching.Regex
 import scala.concurrent.ExecutionContext.Implicits.global
 
+case class InstagramCsrfToken(csrf_token: String)
+
 case class InstagramAccountResponse(logging_page_id: String)
 
 case class InstagramRequestParameter(id: String, first: Int, after: Option[String])
@@ -25,7 +27,7 @@ case class InstagramMediaCaption(edges: Seq[InstagramEdgeCaption])
 case class InstagramEdgeCaption(node: InstagramCaption)
 case class InstagramCaption(text: String)
 
-class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient: InstagramClient) {
+class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient: InstagramClient) extends ScheduledTask {
 
   private[service] val accountList = Map(
     /** DISCONTINUED
@@ -50,7 +52,8 @@ class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient
     "uicantikreal" -> ".*".r,
   )
 
-  def fetch(sessionId: String): Future[Seq[Option[Int]]] = {
+  override def run(): Future[Seq[Option[Int]]] = {
+    val sessionId = instagramClient.postLogin()
     println("sessionId: " + sessionId)
     for {
       photos <- photoRepo.getAll

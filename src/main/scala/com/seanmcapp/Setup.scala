@@ -26,9 +26,6 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
       complete(cbcService.randomFlow(telegramUpdate).map(_.map(_.asJson.encode)))
     }),
 
-    // instagram fetcher API
-    get(path("instagram" / Remaining)(cookie => complete(instagramService.fetch(cookie).map(_.asJson.encode)))),
-
     // dota APP
     get(path("dota")(complete(dotaService.home.map(_.asJson.encode)))),
 
@@ -83,6 +80,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
   }
 
   private val everyDay = Some(Duration(1, TimeUnit.DAYS))
+  private val everyHour = Some(Duration(1, TimeUnit.HOURS))
 
   val scheduleList: List[Scheduler] = List(
     new Scheduler(-1, None, warmupDBService),
@@ -95,6 +93,8 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(20, everyDay, nCovService),
     new Scheduler(0, everyDay, dsdaJakartaService),
     new Scheduler(18, everyDay, amarthaService),
+    new Scheduler(10, everyDay, instagramService),
+    new Scheduler(4, everyHour, instagramStoryService)
   )
 
 }

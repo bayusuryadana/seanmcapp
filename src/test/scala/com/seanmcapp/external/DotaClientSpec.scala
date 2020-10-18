@@ -17,7 +17,7 @@ class DotaClientSpec extends AnyWordSpec with Matchers {
   "getMatches" in {
     val playerId = "105742997"
     val mockResponse = Source.fromResource(s"matches/$playerId.json").mkString
-    when(http.sendGetRequest(any())).thenReturn(mockResponse)
+    when(http.sendGetRequest(any(), any())).thenReturn(mockResponse)
     val player = Player(playerId.toInt, "", "", "", None)
     val result = dotaClient.getMatches(player)
     val expected = List(
@@ -30,7 +30,7 @@ class DotaClientSpec extends AnyWordSpec with Matchers {
   "getPeers" in {
     val playerId = 131673450
     val mockResponse = Source.fromResource(s"peers/$playerId.json").mkString
-    when(http.sendGetRequest(any())).thenReturn(mockResponse)
+    when(http.sendGetRequest(any(), any())).thenReturn(mockResponse)
     val result = dotaClient.getPeers(playerId)
     val expected = List(
       PeerResponse(104466002,236,470),
@@ -44,7 +44,7 @@ class DotaClientSpec extends AnyWordSpec with Matchers {
 
   "getHeroStatsAndAttr" in {
     val heroStatsMockResponse = Source.fromResource("scheduler/dota/hero_stats.json").mkString
-    when(http.sendGetRequest(any())).thenReturn(heroStatsMockResponse)
+    when(http.sendGetRequest(any(), any())).thenReturn(heroStatsMockResponse)
     val result = dotaClient.getHeroStatsAndAttr
     val expected = (
       List(HeroResponse(1, "Anti-Mage", "agi", "Melee", List("Carry", "Escape", "Nuker"),
@@ -56,7 +56,7 @@ class DotaClientSpec extends AnyWordSpec with Matchers {
 
   "getHeroLore" in {
     val heroLoreMockResponse = Source.fromResource("scheduler/dota/lore.json").mkString
-    when(http.sendGetRequest(any())).thenReturn(heroLoreMockResponse)
+    when(http.sendGetRequest(any(), any())).thenReturn(heroLoreMockResponse)
     val result = dotaClient.getHeroLore
     val expected = Map(
       "bloodseeker" -> "bloodseeker lore",
@@ -72,7 +72,7 @@ class DotaClientSpec extends AnyWordSpec with Matchers {
     val playerId = "105742997"
     val player = Player(playerId.toInt, "", "", "", None)
     val mockResponse = Source.fromResource("scheduler/dota/player_" + player.id + ".json").mkString
-    when(http.sendGetRequest(any())).thenReturn(mockResponse)
+    when(http.sendGetRequest(any(), any())).thenReturn(mockResponse)
     val result = dotaClient.getPlayerDetail(player)
     val expected = PlayerResponse(ProfileResponse("SeanmcrayZ", "https://steamcdn-a.akamaihd.net/some_avatar_full.jpg"),
       Some(54))
