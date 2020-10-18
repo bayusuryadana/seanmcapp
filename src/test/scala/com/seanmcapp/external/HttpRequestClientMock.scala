@@ -1,6 +1,6 @@
 package com.seanmcapp.external
 
-import scalaj.http.MultiPart
+import scalaj.http.{HttpResponse, MultiPart}
 
 class HttpRequestClientMock(responseMap: Map[String, String]) extends HttpRequestClient {
 
@@ -14,8 +14,9 @@ class HttpRequestClientMock(responseMap: Map[String, String]) extends HttpReques
                            headers: Option[HeaderMap] = None,
                            multiPart: Option[MultiPart] = None,
                            postForm: Option[Seq[(String, String)]] = None
-                          ): String = {
-    responseMap.getOrElse(url, "")
+                          ): HttpResponse[String] = {
+    val emptyResponse = HttpResponse[String]("", 0, Map.empty[String, IndexedSeq[String]])
+    responseMap.get(url).map(res => emptyResponse.copy(body = res)).getOrElse(emptyResponse)
   }
 
 }

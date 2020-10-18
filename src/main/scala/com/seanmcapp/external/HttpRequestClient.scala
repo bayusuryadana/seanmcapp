@@ -26,7 +26,7 @@ object HttpRequestClientImpl extends HttpRequestClient {
     val httpRequest = Http(url).add(headers)
     Try(httpRequest.asString.throwError.body) match {
       case Success(res) => res
-      case Failure(e) => throw new Exception(e)
+      case Failure(e) => throw new Exception(s"Failed to get request: $url", e)
     }
   }
 
@@ -40,7 +40,7 @@ object HttpRequestClientImpl extends HttpRequestClient {
     val httpRequest = Http(url).add(params).add(postData).add(headers).add(multiPart).add(postForm)
     Try(httpRequest.asString.throwError) match {
       case Success(res) => res
-      case Failure(e) => throw new Exception(e)
+      case Failure(e) => throw new Exception(s"Failed to send request: $httpRequest", e)
     }
   }
 

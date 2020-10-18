@@ -9,11 +9,8 @@ class TelegramClient(http: HttpRequestClient) {
   val telegramConf: TelegramConf = TelegramConf()
 
   def sendPhoto(chatId: Long, photoUrl: String, caption: String): TelegramResponse = {
-    val urlString = telegramConf.endpoint + "/sendphoto" +
-      "?chat_id=" + chatId +
-      "&photo=" + photoUrl +
-      "&caption=" + caption
-
+    val urlString = s"${telegramConf.endpoint}/sendphoto?chat_id=$chatId&photo=$photoUrl&caption=$caption"
+    println(urlString)
     val response = http.sendGetRequest(urlString)
     val result = decode[TelegramResponse](response)
     println(s"[INFO] send photo to chatId: $chatId")
@@ -21,7 +18,7 @@ class TelegramClient(http: HttpRequestClient) {
   }
 
   def sendMessage(chatId: Long, text: String): TelegramResponse = {
-    val urlString = telegramConf.endpoint + "/sendmessage?chat_id=" + chatId + "&text=" + text + "&parse_mode=markdown"
+    val urlString = s"${telegramConf.endpoint}/sendmessage?chat_id=$chatId&text=$text&parse_mode=markdown"
     val response = http.sendGetRequest(urlString)
     val result = decode[TelegramResponse](response)
     println(s"[INFO] send message to chatId: $chatId with text: $text")
@@ -32,7 +29,17 @@ class TelegramClient(http: HttpRequestClient) {
     val parts = MultiPart("photo", caption, "application/octet-stream", data)
     val params = Some(ParamMap(Map("chat_id" -> String.valueOf(chatId), "caption" -> caption)))
 
-    val response = http.sendRequest(telegramConf.endpoint + "/sendphoto", params, multiPart = Some(parts))
+    val response = http.sendRequest(s"${telegramConf.endpoint}/sendphoto", params, multiPart = Some(parts))
+    println(s"[INFO] send photo to chatId: $chatId")
+    decode[TelegramResponse](response.body)
+  }
+
+  def sendVideoWithFileUpload(chatId: Long, caption: String = "", data: Array[Byte]): TelegramResponse = {
+    val parts = MultiPart("video", caption, "application/octet-stream", data)
+    val params = Some(ParamMap(Map("chat_id" -> String.valueOf(chatId), "caption" -> caption)))
+
+    val response = http.sendRequest(s"${telegramConf.endpoint}/sendvideo", params, multiPart = Some(parts))
+    println(s"[INFO] send video to chatId: $chatId")
     decode[TelegramResponse](response.body)
   }
 
