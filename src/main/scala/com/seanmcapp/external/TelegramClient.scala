@@ -33,7 +33,7 @@ class TelegramClient(http: HttpRequestClient) {
     val params = Some(ParamMap(Map("chat_id" -> String.valueOf(chatId), "caption" -> caption)))
 
     val response = http.sendRequest(telegramConf.endpoint + "/sendphoto", params, multiPart = Some(parts))
-    decode[TelegramResponse](response)
+    decode[TelegramResponse](response.body)
   }
 
 }

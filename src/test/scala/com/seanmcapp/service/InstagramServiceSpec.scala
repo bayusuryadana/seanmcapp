@@ -60,7 +60,7 @@ class InstagramServiceSpec extends AsyncWordSpec with Matchers {
       override def savingToStorage(filteredPhotos: Seq[Photo]): Seq[Photo] = filteredPhotos
     }
 
-    instagramService.fetch("").map { res =>
+    instagramService.run().map { res =>
       res shouldBe Seq(Some(1))
     }
   }

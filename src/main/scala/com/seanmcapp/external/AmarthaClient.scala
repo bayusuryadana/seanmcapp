@@ -53,7 +53,7 @@ class AmarthaClient(http: HttpRequestClient) extends MemoryCache {
       ))
       val httpResponse = http.sendRequest(url, postData = Some(payload), headers = Some(headers))
 
-      decode[AmarthaResponse[AmarthaAuthData]](httpResponse).data
+      decode[AmarthaResponse[AmarthaAuthData]](httpResponse.body).data
     }
   }
 

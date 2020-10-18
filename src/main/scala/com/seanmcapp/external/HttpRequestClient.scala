@@ -1,7 +1,7 @@
 package com.seanmcapp.external
 
 import com.seanmcapp.HttpConf
-import scalaj.http.{BaseHttp, HttpOptions, HttpRequest, MultiPart}
+import scalaj.http.{BaseHttp, HttpOptions, HttpRequest, HttpResponse, MultiPart}
 
 import scala.util.{Failure, Success, Try}
 
@@ -16,7 +16,7 @@ trait HttpRequestClient {
 
   def sendRequest(url: String, params: Option[ParamMap] = None, postData: Option[String] = None,
                   headers: Option[HeaderMap] = None, multiPart: Option[MultiPart] = None,
-                  postForm: Option[Seq[(String, String)]] = None): String
+                  postForm: Option[Seq[(String, String)]] = None): HttpResponse[String]
 
 }
 
@@ -36,12 +36,10 @@ object HttpRequestClientImpl extends HttpRequestClient {
                   headers: Option[HeaderMap] = None,
                   multiPart: Option[MultiPart] = None,
                   postForm: Option[Seq[(String, String)]] = None
-                 ): String = {
+                 ): HttpResponse[String] = {
     val httpRequest = Http(url).add(params).add(postData).add(headers).add(multiPart).add(postForm)
     Try(httpRequest.asString.throwError) match {
-      case Success(res) =>
-        println(res.headers)
-        res.body
+      case Success(res) => res
       case Failure(e) => throw new Exception(e)
     }
   }

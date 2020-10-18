@@ -27,7 +27,7 @@ case class InstagramMediaCaption(edges: Seq[InstagramEdgeCaption])
 case class InstagramEdgeCaption(node: InstagramCaption)
 case class InstagramCaption(text: String)
 
-class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient: InstagramClient) {
+class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient: InstagramClient) extends ScheduledTask {
 
   private[service] val accountList = Map(
     /** DISCONTINUED
@@ -52,16 +52,13 @@ class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient
     "uicantikreal" -> ".*".r,
   )
 
-  def fetch(sessionId: String): Future[Seq[Option[Int]]] = {
+  override def run(): Future[Seq[Option[Int]]] = {
+    val sessionId = instagramClient.postLogin()
     println("sessionId: " + sessionId)
     for {
       photos <- photoRepo.getAll
       result <- process(sessionId, photos)
     } yield result
-  }
-
-  def auth(): String = {
-    instagramClient.postLogin()
   }
 
   private def process(sessionId: String, photos: Seq[Photo]): Future[Seq[Option[Int]]] = {

@@ -31,7 +31,11 @@ class InstagramClient(http: HttpRequestClient) {
       "x-csrftoken" -> csrfToken.csrf_token
     ))
     val response = http.sendRequest(url, postForm = Some(postForm), headers = Some(headers))
-    response
+    val cookie = response.headers.getOrElse("Set-Cookie", throw new Exception("Cookie not found")).reduce(_ + _)
+    val regex = "sessionid=(.*?);".r
+    val session = regex.findFirstIn(cookie).getOrElse(throw new Exception("Cookie not found"))
+
+    session.stripPrefix("sessionid=").stripSuffix(";")
   }
 
   def getAccountResponse(accountId: String): InstagramAccountResponse = {
