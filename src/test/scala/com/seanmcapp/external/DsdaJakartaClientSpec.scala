@@ -1,7 +1,7 @@
 package com.seanmcapp.external
 
 import com.seanmcapp.util.{DsdaWaterGate, DsdaWaterGateResponse}
-import org.mockito.ArgumentMatchers.anyString
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers
@@ -28,7 +28,7 @@ class DsdaJakartaClientSpec extends AnyWordSpec with Matchers {
         |</DocumentElement>
         |""".stripMargin
     val http = Mockito.mock(classOf[HttpRequestClient])
-    when(http.sendGetRequest(anyString())).thenReturn(mockXml)
+    when(http.sendGetRequest(any(), any())).thenReturn(mockXml)
     val dsdaJakartaScheduler = new DsdaJakartaClient(http)
     val expected = DsdaWaterGateResponse(List(
       DsdaWaterGate("Manggarai", "Status : Siaga 3"),

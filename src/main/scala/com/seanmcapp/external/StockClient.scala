@@ -23,7 +23,7 @@ class StockClient(http: HttpRequestClient) extends MemoryCache {
         "x-rapidapi-host" -> "bloomberg-market-and-financial-news.p.rapidapi.com",
         "x-rapidapi-key" -> StockConf().key
       ))
-      val response = http.sendRequest(url, headers = Some(headers))
+      val response = http.sendGetRequest(url, headers = Some(headers))
       decode[StockResponse](response)
     }
   }

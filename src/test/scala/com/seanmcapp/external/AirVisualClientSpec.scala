@@ -14,7 +14,7 @@ class AirVisualClientSpec extends AnyWordSpec with Matchers {
     val http = Mockito.mock(classOf[HttpRequestClient])
     val airVisualFetcher = new AirVisualClient(http)
     val mockResponse = Source.fromResource("scheduler/airvisual_response.json").mkString
-    when(http.sendGetRequest(any())).thenReturn(mockResponse)
+    when(http.sendGetRequest(any(), any())).thenReturn(mockResponse)
     val expected = Map(
       AirvisualCity("Indonesia", "Jakarta", "Jakarta") -> 119,
       AirvisualCity("Indonesia", "West Java", "Bekasi") -> 119,

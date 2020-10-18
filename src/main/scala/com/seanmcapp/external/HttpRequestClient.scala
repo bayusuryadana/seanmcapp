@@ -12,7 +12,7 @@ case class HeaderMap(headers: Map[String, String])
 
 trait HttpRequestClient {
 
-  def sendGetRequest(url: String): String
+  def sendGetRequest(url: String, headers: Option[HeaderMap] = None): String
 
   def sendRequest(url: String, params: Option[ParamMap] = None, postData: Option[String] = None,
                   headers: Option[HeaderMap] = None, multiPart: Option[MultiPart] = None,
@@ -22,8 +22,9 @@ trait HttpRequestClient {
 
 object HttpRequestClientImpl extends HttpRequestClient {
 
-  def sendGetRequest(url: String): String = {
-    Try(Http(url).asString.throwError.body) match {
+  def sendGetRequest(url: String, headers: Option[HeaderMap] = None): String = {
+    val httpRequest = Http(url).add(headers)
+    Try(httpRequest.asString.throwError.body) match {
       case Success(res) => res
       case Failure(e) => throw new Exception(e)
     }

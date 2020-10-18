@@ -14,7 +14,7 @@ class IGrowClientSpec extends AnyWordSpec with Matchers {
     val http = Mockito.mock(classOf[HttpRequestClient])
     val igrowClient = new IGrowClient(http)
     val mockResponse = Source.fromResource("scheduler/igrow_response.json").mkString
-    when(http.sendGetRequest(any())).thenReturn(mockResponse)
+    when(http.sendGetRequest(any(), any())).thenReturn(mockResponse)
     val expected = IgrowResponse(List(
       IgrowData("Gemilang Sarea Farm Eggs Project", 4000000, 26, "18% per annum", "3 years"),
       IgrowData("Tilapia Sumber Nila Berkah", 4800000, 0, "18% per annum", "2 years"),

@@ -61,7 +61,7 @@ class AmarthaClient(http: HttpRequestClient) extends MemoryCache {
     val headers = HeaderMap(Map(
       "x-access-token" -> accessToken
     ))
-    val httpResponse = http.sendRequest(url, headers = Some(headers))
+    val httpResponse = http.sendGetRequest(url, headers = Some(headers))
     decode[AmarthaResponse[T]](httpResponse).data
   }
 }

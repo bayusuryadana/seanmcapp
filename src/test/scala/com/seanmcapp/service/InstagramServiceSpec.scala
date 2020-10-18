@@ -23,7 +23,7 @@ class InstagramServiceSpec extends AsyncWordSpec with Matchers {
     val accountName = "ugmcantik"
     val initUrl = "https://www.instagram.com/" + accountName + "/?__a=1"
     val initResponse = Source.fromResource("instagram/init_response.json").mkString
-    when(http.sendRequest(ArgumentMatchers.eq(initUrl), any(), any(), any(), any())).thenReturn(initResponse)
+    when(http.sendGetRequest(ArgumentMatchers.eq(initUrl), any())).thenReturn(initResponse)
     when(instagramClient.getAccountResponse(any())).thenReturn(InstagramAccountResponse("profilePage_262582140"))
     val photoMock = InstagramResponse(
       InstagramData(

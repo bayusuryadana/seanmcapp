@@ -45,7 +45,7 @@ class InstagramClient(http: HttpRequestClient) {
     val params = InstagramRequestParameter(userId, numberOfBatch, endCursor).asJson.encode
     val url = s"https://www.instagram.com/graphql/query/?query_hash=18a7b935ab438c4514b1f742d8fa07a7&variables=$params"
     val headers = Some(HeaderMap(Map("cookie" -> s"sessionid=$sessionId")))
-    val httpResponse = http.sendRequest(url, headers = headers)
+    val httpResponse = http.sendGetRequest(url, headers = headers)
     decode[InstagramResponse](httpResponse)
   }
 
