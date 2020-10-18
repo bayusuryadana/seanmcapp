@@ -95,3 +95,13 @@ object StockConf extends Configuration[StockConf]("stock") {
     StockConf(Try(c.getString("api-key")).getOrElse(""))
   }
 }
+
+case class InstagramConf(username: String, password: String)
+object InstagramConf extends Configuration[InstagramConf]("instagram") {
+  override def buildConfig(c: Config): InstagramConf = {
+    InstagramConf(
+      Try(c.getString("username")).getOrElse(""),
+      Try(c.getString("password")).getOrElse("")
+    )
+  }
+}

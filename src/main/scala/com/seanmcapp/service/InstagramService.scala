@@ -10,6 +10,8 @@ import scala.concurrent.Future
 import scala.util.matching.Regex
 import scala.concurrent.ExecutionContext.Implicits.global
 
+case class InstagramCsrfToken(csrf_token: String)
+
 case class InstagramAccountResponse(logging_page_id: String)
 
 case class InstagramRequestParameter(id: String, first: Int, after: Option[String])
@@ -56,6 +58,10 @@ class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient
       photos <- photoRepo.getAll
       result <- process(sessionId, photos)
     } yield result
+  }
+
+  def auth(): String = {
+    instagramClient.postLogin()
   }
 
   private def process(sessionId: String, photos: Seq[Photo]): Future[Seq[Option[Int]]] = {

@@ -1,9 +1,38 @@
 package com.seanmcapp.external
 
-import com.seanmcapp.service.{InstagramAccountResponse, InstagramRequestParameter, InstagramResponse}
+import com.seanmcapp.InstagramConf
+import com.seanmcapp.service.{InstagramAccountResponse, InstagramCsrfToken, InstagramRequestParameter, InstagramResponse}
 import io.circe.syntax._
+import org.joda.time.DateTime
 
 class InstagramClient(http: HttpRequestClient) {
+
+  val instagramConf = InstagramConf()
+
+  def postLogin(): String = {
+    val initUrl = s"https://www.instagram.com/accounts/login/"
+    val initResponse = http.sendGetRequest(initUrl)
+    val r = "\"csrf_token\":\"(.*?)\"".r
+    val csrfString = s"{${r.findFirstIn(initResponse).getOrElse(throw new Exception("Token not found"))}}"
+    val csrfToken = decode[InstagramCsrfToken](csrfString)
+
+    val url = "https://www.instagram.com/accounts/login/ajax/"
+    val time = DateTime.now.getMillis / 1000
+    val postForm = Map(
+      "username" -> instagramConf.username,
+      "enc_password" -> s"#PWD_INSTAGRAM_BROWSER:0:$time:${instagramConf.password}",
+      "queryParams" -> "{}",
+      "optIntoOneTap" -> "false"
+    ).toSeq
+    val headers = HeaderMap(Map(
+      "user-agent" -> "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36",
+      "x-requested-with" -> "XMLHttpRequest",
+      "referer" -> "https://www.instagram.com/accounts/login/",
+      "x-csrftoken" -> csrfToken.csrf_token
+    ))
+    val response = http.sendRequest(url, postForm = Some(postForm), headers = Some(headers))
+    response
+  }
 
   def getAccountResponse(accountId: String): InstagramAccountResponse = {
     val url = s"https://www.instagram.com/$accountId/?__a=1"

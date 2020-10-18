@@ -27,7 +27,11 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     }),
 
     // instagram fetcher API
-    get(path("instagram" / Remaining)(cookie => complete(instagramService.fetch(cookie).map(_.asJson.encode)))),
+
+    get(
+      path("instagram")(complete(instagramService.auth()))
+      ~ path("instagram" / Remaining)(cookie => complete(instagramService.fetch(cookie).map(_.asJson.encode)))
+    ),
 
     // dota APP
     get(path("dota")(complete(dotaService.home.map(_.asJson.encode)))),
