@@ -76,20 +76,16 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
     }
   }
 
-//  "should return a recommendation photos based on recommendation csv file - telegram recommendation endpoint" in {
-//    // this test will be based on the last fetched photo in previous test above, please keep in mind
-//    val command = "/recommendation"
-//    val chatId = 274852283
-//    val userId = 123
-//    val userFullName = "Yukihira Soma"
-//    cbcService.executeCommand(command, chatId, userId, userFullName).map { response =>
-//      response shouldNot be(None)
-//      val res = response.getOrElse(cancel("response is not defined"))
-//
-//      res.ok shouldEqual true
-//      val chat = res.result.chat
-//      chat.id shouldEqual 274852283
-//      res.result.caption shouldEqual Some("Delicia Gemma. Hukum 2011%0A%40unpad.geulis")
-//    }
-//  }
+  "should return a recommendation photos based on recommendation csv file - telegram recommendation endpoint" in {
+    // this test will be based on the last fetched photo in previous test above, please keep in mind
+    val userId = 274852283
+    val userFullName = "Yukihira Soma"
+    cbcService.cbcFlow(userId, userFullName, "recommendation").map { response =>
+      response shouldNot be(None)
+      val res = response.getOrElse(cancel("response is not defined"))
+      res.id shouldEqual 884893623514815734L
+      res.caption shouldEqual "Delicia Gemma. Hukum 2011"
+      res.account shouldEqual "unpad.geulis"
+    }
+  }
 }
