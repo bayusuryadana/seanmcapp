@@ -105,3 +105,10 @@ object InstagramConf extends Configuration[InstagramConf]("instagram") {
     )
   }
 }
+
+case class DiscordConf(token: String)
+object DiscordConf extends Configuration[DiscordConf]("discord") {
+  override def buildConfig(c: Config): DiscordConf = {
+    DiscordConf(Try(c.getString("token")).getOrElse(""))
+  }
+}

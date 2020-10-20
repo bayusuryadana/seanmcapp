@@ -2,6 +2,8 @@ name := "seanmcapp"
 version := "latest"
 scalaVersion := "2.13.1"
 
+resolvers += Resolver.JCenterRepository
+
 libraryDependencies ++= Seq(
   // framework
   "com.typesafe.akka" %% "akka-http" % "10.1.11",
@@ -50,13 +52,16 @@ libraryDependencies ++= Seq(
 
   // enum
   "com.beachape" %% "enumeratum" % "1.5.15",
+
+  // discord bot
+  "net.katsstuff" %% "ackcord" % "0.17.1"
 )
 
 coverageExcludedPackages :=
   ".*com.seanmcapp.util.*;" +
   ".*com.seanmcapp.config.*;" +
   ".*Boot.*;"
-coverageMinimum := 60
+coverageMinimum := 50
 coverageFailOnMinimum := true
 
 fork in Test := true

@@ -22,24 +22,9 @@ class PhotoRepoSpec extends AsyncWordSpec with Matchers {
   }
 
   "should return random photo" in {
-    val response = PhotoRepoImpl.getRandom(None)
+    val response = PhotoRepoImpl.getRandom
     response.map { res =>
       res should not be None
-    }
-  }
-
-  "should return not return photo from particular account" in {
-    val response = PhotoRepoImpl.getRandom(Some("ugmcantik"))
-    response.map { res =>
-      res shouldBe None
-    }
-  }
-
-  "should return photo from particular account" in {
-    val response = PhotoRepoImpl.getRandom(Some("ui.cantik"))
-    response.map { res =>
-      res should not be None
-      res.map(_.account) shouldEqual Some("ui.cantik")
     }
   }
 

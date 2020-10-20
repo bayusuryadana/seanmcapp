@@ -25,7 +25,7 @@ trait PhotoRepo {
 
   def get(id: Long): Future[Option[Photo]]
 
-  def getRandom(account: Option[String] = None): Future[Option[Photo]]
+  def getRandom: Future[Option[Photo]]
 
   def insert(photos: Seq[Photo]): Future[Option[Int]]
 
@@ -41,12 +41,8 @@ object PhotoRepoImpl extends TableQuery(new PhotoInfo(_)) with PhotoRepo with DB
     run(this.filter(_.id === id).result.headOption)
   }
 
-  def getRandom(account: Option[String] = None): Future[Option[Photo]] = {
-    val rand = SimpleFunction.nullary[Double]("random")
-    account match {
-      case Some(accString:String) => run(this.filter(_.account === accString).sortBy(_ => rand).result.headOption)
-      case _ => run(this.sortBy(_ => rand).result.headOption)
-    }
+  def getRandom: Future[Option[Photo]] = {
+    run(this.sortBy(_ => SimpleFunction.nullary[Double]("random")).result.headOption)
   }
 
   def insert(photos: Seq[Photo]): Future[Option[Int]] = run((this ++= photos).asTry).map {

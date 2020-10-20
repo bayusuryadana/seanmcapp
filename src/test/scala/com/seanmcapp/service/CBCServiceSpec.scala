@@ -76,52 +76,16 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
     }
   }
 
-  "command should return any random photo on particular account" in {
-    val chatId = 274852283
-    val command = "/cbc_ui_cantik"
-    cbcService.executeCommand(command, chatId, 123L, "Fawwaz Afifanto").map { response =>
-
-      response shouldNot be(None)
-      val res = response.getOrElse(cancel("response is not defined"))
-
-      res.ok shouldEqual true
-      res.result.caption shouldEqual Some("Ritha Amelia D. Psikologi'12%0A%40ui.cantik")
-    }
-  }
-
-  "command should return any random photo on particular account (2)" in {
-    val chatId = 274852283
-    val command = "/cbc_bidadari_ub"
-    cbcService.executeCommand(command, chatId, 123L, "Fawwaz Afifanto").map { response =>
-
-      response shouldNot be(None)
-      val res = response.getOrElse(cancel("response is not defined"))
-
-      res.ok shouldEqual true
-      res.result.caption shouldEqual Some("Nadia Raissa. FISIP'13%0A%40bidadari.ub")
-    }
-  }
-
-//  "should get correct mapping for recommendation" in {
-//    val result = cbcService.getRecommendation
-//    result.keys shouldEqual Set(
-//      772020198343721705L, 1699704484487729075L, 2197263767212894174L, 2241324772649595331L, 1413884082743596438L, 1116926637369974369L)
-//  }
-
   "should return a recommendation photos based on recommendation csv file - telegram recommendation endpoint" in {
     // this test will be based on the last fetched photo in previous test above, please keep in mind
-    val command = "/recommendation"
-    val chatId = 274852283
-    val userId = 123
+    val userId = 274852283
     val userFullName = "Yukihira Soma"
-    cbcService.executeCommand(command, chatId, userId, userFullName).map { response =>
+    cbcService.cbcFlow(userId, userFullName, "recommendation").map { response =>
       response shouldNot be(None)
       val res = response.getOrElse(cancel("response is not defined"))
-
-      res.ok shouldEqual true
-      val chat = res.result.chat
-      chat.id shouldEqual 274852283
-      res.result.caption shouldEqual Some("Delicia Gemma. Hukum 2011%0A%40unpad.geulis")
+      res.id shouldEqual 884893623514815734L
+      res.caption shouldEqual "Delicia Gemma. Hukum 2011"
+      res.account shouldEqual "unpad.geulis"
     }
   }
 }
