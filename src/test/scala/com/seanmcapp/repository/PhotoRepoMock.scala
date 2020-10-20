@@ -19,13 +19,9 @@ object PhotoRepoMock extends PhotoRepo {
 
   override def get(id: Long): Future[Option[Photo]] = Future.successful(photoList.find(_.id == id))
 
-  override def getRandom(account: Option[String]): Future[Option[Photo]] = {
+  override def getRandom: Future[Option[Photo]] = {
     val random = Random.nextInt()
-    val filterResult = account match {
-      case Some(acc) => photoList.filter(_.account == acc)
-      case _ => photoList
-    }
-    val result = filterResult.sortBy(_ => random).headOption
+    val result = photoList.sortBy(_ => random).headOption
     Future.successful(result)
   }
 

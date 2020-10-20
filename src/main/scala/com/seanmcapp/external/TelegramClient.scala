@@ -10,10 +10,10 @@ class TelegramClient(http: HttpRequestClient) {
 
   def sendPhoto(chatId: Long, photoUrl: String, caption: String): TelegramResponse = {
     val urlString = s"${telegramConf.endpoint}/sendphoto?chat_id=$chatId&photo=$photoUrl&caption=$caption"
-    println(urlString)
     val response = http.sendGetRequest(urlString)
     val result = decode[TelegramResponse](response)
-    println(s"[INFO] send photo to chatId: $chatId")
+    println(s"[INFO] send photo to chatId: $chatId with caption: $caption")
+    println(s"$photoUrl")
     result
   }
 

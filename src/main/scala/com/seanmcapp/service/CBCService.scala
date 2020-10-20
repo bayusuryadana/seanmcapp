@@ -13,7 +13,7 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, cbcClient: CB
 
   implicit val lastPhotoCache: Cache[Long] = createCache[Long]
 
-  def random: Future[Option[Photo]] = photoRepo.getRandom(None)
+  def random: Future[Option[Photo]] = photoRepo.getRandom
 
   def randomFlow(telegramUpdate: TelegramUpdate): Future[Option[TelegramResponse]] = {
     val message = telegramUpdate.message.getOrElse(throw new Exception("This request is does not have a message"))
@@ -25,7 +25,19 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, cbcClient: CB
         val command = message.text.getOrElse("")
           .substring(entity.offset, entity.offset + entity.length)
           .stripSuffix(telegramClient.telegramConf.botname)
-        executeCommand(command, chatId, userId, userFullName)
+        def sendPhoto(photo: Photo): TelegramResponse = {
+          val caption = photo.caption + "%0A%40" + photo.account
+          telegramClient.sendPhoto(chatId, getPhotoUrl(photo.id), caption)
+        }
+        command.split("_").headOption match {
+          case Some(s) if s == "/cbc" =>
+            cbcFlow(userId, userFullName, "cbc").map(_.map(sendPhoto))
+          case Some(s) if s == "/recommendation" =>
+            cbcFlow(userId, userFullName, "recommendation").map(_.map(sendPhoto))
+          case _ =>
+            println("[ERROR] Command not recognized: " + command)
+            Future.successful(None)
+        }
 
       case _ =>
         println("[ERROR] No entities (command) found")
@@ -39,33 +51,22 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, cbcClient: CB
     result
   }
 
-  private[service] def executeCommand(command: String, chatId: Long, userId: Long, userFullName: String): Future[Option[TelegramResponse]] = {
-    command.split("_").headOption match {
-      case Some(s) if s == "/cbc" =>
-        val account = if (command.split("_").length > 1) Some(command.replace("_", ".").stripPrefix("/cbc.")) else None
-        val customerF = customerRepo.get(userId)
-        val photoF = photoRepo.getRandom(account)
-        photoFlow(photoF, customerF, chatId, userId, userFullName)
-      case Some(s) if s == "/recommendation" =>
-        lastPhotoCache.get(chatId).flatMap { lastPhotoId =>
+  def cbcFlow(userId: Long, userFullName: String, `type`: String): Future[Option[Photo]] = {
+    val photoF = `type` match {
+      case "cbc" => photoRepo.getRandom
+      case "recommendation" =>
+        lastPhotoCache.get(userId).flatMap { lastPhotoId =>
           cbcClient.getRecommendation.get(lastPhotoId).map { recommendations =>
             val r = scala.util.Random
             val photoId = recommendations(r.nextInt(recommendations.length))
-            val customerF = customerRepo.get(userId)
-            val photoF = photoRepo.get(photoId)
-            photoFlow(photoF, customerF, chatId, userId, userFullName)
+            photoRepo.get(photoId)
           }
         }.getOrElse(Future.successful(None))
-      case _ =>
-        println("[ERROR] Command not recognized: " + command)
-        Future.successful(None)
+      case _ => throw new Exception("flow type not recognized")
     }
-  }
 
-  private def photoFlow(photoF: Future[Option[Photo]], customerF: Future[Option[Customer]],
-                        chatId: Long, userId: Long, userFullName: String): Future[Option[TelegramResponse]] = {
     for {
-      customerOpt <- customerF
+      customerOpt <- customerRepo.get(userId)
       photoOpt <- photoF
     } yield {
       photoOpt.map { photo =>
@@ -77,14 +78,12 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, cbcClient: CB
         }
 
         // Set cache, logging and send photo
-        println(s"[INFO][CBC] chatId: $chatId, id: ${photo.id}, caption: ${photo.caption}")
         lastPhotoCache.put(userId)(photo.id)
-        val photoId = photo.id
-        val url = s"${cbcClient.storageConf.host}/${cbcClient.storageConf.bucket}/cbc/$photoId.jpg"
-        val caption = photo.caption + "%0A%40" + photo.account
-        telegramClient.sendPhoto(chatId, url, caption)
+        photo
       }
     }
   }
+
+  def getPhotoUrl(photoId: Long) = s"${cbcClient.storageConf.host}/${cbcClient.storageConf.bucket}/cbc/$photoId.jpg"
 
 }

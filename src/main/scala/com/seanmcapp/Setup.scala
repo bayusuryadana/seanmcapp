@@ -17,6 +17,8 @@ import scala.util.Try
 // $COVERAGE-OFF$
 class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection {
 
+  val discord = new DiscordClient(cbcService).run()
+
   val route: server.Route = List(
 
     // cbc API
