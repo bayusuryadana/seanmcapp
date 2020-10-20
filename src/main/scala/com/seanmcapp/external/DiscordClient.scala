@@ -25,8 +25,7 @@ class DiscordClient(cbcService: CBCService) {
 }
 
 class DiscordController(requests: Requests, cbcService: CBCService) extends CommandController(requests) {
-  val command: NamedCommand[NotUsed] = Command
-    .named(Seq("!seanmcbot"), Seq("cbc", "recommendation", "help"))
+  val command: NamedCommand[NotUsed] = Command.named(Seq("!seanmcbot"), Seq("cbc", "recommendation", "help"))
     .asyncOptRequest { m =>
       val command = m.message.content.split(" ")(1)
       val resF = command match {
