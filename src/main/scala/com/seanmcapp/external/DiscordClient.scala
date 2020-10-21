@@ -11,6 +11,7 @@ import com.seanmcapp.service.CBCService
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 
+// $COVERAGE-OFF$
 class DiscordClient(cbcService: CBCService) {
 
   private val discordConf = DiscordConf()
