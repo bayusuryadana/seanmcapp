@@ -17,6 +17,27 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers {
     override val SECRET_KEY = secretKey
   }
 
+  "dashboard should return correct data" in {
+    val dashboardView = walletService.dashboard(secretKey)
+    dashboardView.savingAccount.get("SGD") shouldBe Some("1,300")
+    dashboardView.chart.expense("SGD") shouldBe Map(
+      "Fashion" -> List(0),
+      "Zakat" -> List(0),
+      "Misc" -> List(0),
+      "Travel" -> List(850),
+      "Rent" -> List(700),
+      "Funding" -> List(0),
+      "Daily" -> List(745),
+      "IT Stuff" -> List(0),
+      "Wellness" -> List(0)
+    )
+  }
+
+  "data should return correct data" in {
+    val dataView = walletService.data(secretKey, None)
+    dataView shouldBe DataView(CMSData("October", "2020", "202011", "202009"), List(), Balance("-295", "-295", "-295"), Balance("0","0","0"))
+  }
+
   "amartha should return amarthaView" in {
     val responseMock = Mockito.mock(classOf[AmarthaView])
     when(amarthaServiceMock.getAmarthaView()).thenReturn(responseMock)
