@@ -39,7 +39,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
         complete(walletService.data(secretKey, date.flatMap(d => Try(d.toInt).toOption)).asJson.encode)
       } ~ (path("wallet" / "amartha" ) & headerValue(getHeader("secretkey"))) { secretKey =>
         complete(walletService.amartha(secretKey).asJson.encode)
-      } ~ path("wallet" / "stock")(complete(stockService.getStock().map(_.asJson.encode)))
+      }
     },
     post {
       (path("wallet") & headerValue(getHeader("secretkey")) & entity(as[String])) { (secretKey, payload) =>

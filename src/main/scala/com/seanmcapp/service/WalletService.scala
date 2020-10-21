@@ -13,7 +13,7 @@ import scala.concurrent.{Await, Future}
 
 case class WalletOutput(code: Int, message: Option[String], row: Option[Int], response: Seq[Wallet])
 
-class WalletService(walletRepo: WalletRepo, amarthaService: AmarthaService, stockService: StockService) {
+class WalletService(walletRepo: WalletRepo, amarthaService: AmarthaService) {
 
   private val activeIncomeSet = Set("Salary", "Bonus")
   private val expenseSet = Set("Daily", "Rent", "Zakat", "Travel", "Fashion", "IT Stuff", "Misc", "Wellness", "Funding")
@@ -108,11 +108,6 @@ class WalletService(walletRepo: WalletRepo, amarthaService: AmarthaService, stoc
 
   def amartha(secretKey: String): AmarthaView = {
     val f = Future.successful(amarthaService.getAmarthaView())
-    authAndAwait(secretKey, f)
-  }
-
-  def stock(secretKey: String): Future[SortedMap[String, StockData]] = {
-    val f = Future.successful(stockService.getStock())
     authAndAwait(secretKey, f)
   }
 
