@@ -1,32 +1,40 @@
 package com.seanmcapp.external
 
-import com.seanmcapp.service.{InstagramAccountResponse, InstagramCaption, InstagramData, InstagramEdge, InstagramEdgeCaption, InstagramMedia, InstagramMediaCaption, InstagramNode, InstagramPageInfo, InstagramResponse, InstagramUser}
+import com.seanmcapp.service.{InstagramAccountResponse, InstagramCaption, InstagramData, InstagramEdge, InstagramEdgeCaption, InstagramMedia, InstagramMediaCaption, InstagramNode, InstagramPageInfo, InstagramResponse, InstagramStoryData, InstagramStoryItem, InstagramStoryReel, InstagramStoryResponse, InstagramStoryVideoResource, InstagramUser}
 import org.mockito.Mockito
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import scalaj.http.HttpResponse
 
 import scala.io.Source
 
 class InstagramClientSpec extends AnyWordSpec with Matchers {
 
+  val http = Mockito.mock(classOf[HttpRequestClient])
+  val instagramClient = new InstagramClient(http)
+
+  "postLogin" in {
+    when(http.sendGetRequest(any(), any())).thenReturn("\"csrf_token\":\"token\"")
+    val httpResponse = HttpResponse[String]("", 200, Map("Set-Cookie" -> Vector("sessionid=session;")))
+    when(http.sendRequest(any(), any(), any(), any(), any(), any())).thenReturn(httpResponse)
+    val response = instagramClient.postLogin()
+    response shouldEqual "session"
+  }
+
   "getAccountResponse" in {
     val accountId = "262582140"
-    val http = Mockito.mock(classOf[HttpRequestClient])
     val fetchResponse = Source.fromResource("instagram/init_response.json").mkString
     when(http.sendGetRequest(any(), any())).thenReturn(fetchResponse)
-    val instagramClient = new InstagramClient(http)
     val response = instagramClient.getAccountResponse(accountId)
     val expected = InstagramAccountResponse("profilePage_262582140")
     response shouldBe expected
   }
 
   "getPhotos" in {
-    val http = Mockito.mock(classOf[HttpRequestClient])
     val fetchResponse = Source.fromResource("instagram/fetch_response.json").mkString
     when(http.sendGetRequest(any(), any())).thenReturn(fetchResponse)
-    val instagramClient = new InstagramClient(http)
     val response = instagramClient.getPhotos("1", None, "")
     val expected = InstagramResponse(
       InstagramData(
@@ -55,6 +63,25 @@ class InstagramClientSpec extends AnyWordSpec with Matchers {
           )
         )
       )
+    )
+    response shouldBe expected
+  }
+
+  "getStories" in {
+    val fetchResponse = Source.fromResource("instagram/fetch_stories.json").mkString
+    when(http.sendGetRequest(any(), any())).thenReturn(fetchResponse)
+    val response = instagramClient.getStories("1", "")
+    val expected = InstagramStoryResponse(
+      InstagramStoryData(List(
+        InstagramStoryReel(List(
+          InstagramStoryItem("2424716613985265804","GraphStoryImage","https://pic1.url",None),
+          InstagramStoryItem("2424802368570123380","GraphStoryVideo","https://pic2.url",
+            Some(List(
+              InstagramStoryVideoResource("https://video-baseline.url","BASELINE"),
+              InstagramStoryVideoResource("https://video-main.url","MAIN"))
+            ))
+        ))
+      ))
     )
     response shouldBe expected
   }
