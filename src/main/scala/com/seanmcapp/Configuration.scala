@@ -89,13 +89,6 @@ object WalletConf extends Configuration[WalletConf]("wallet") {
   }
 }
 
-case class StockConf(key: String)
-object StockConf extends Configuration[StockConf]("stock") {
-  override def buildConfig(c: Config): StockConf = {
-    StockConf(Try(c.getString("api-key")).getOrElse(""))
-  }
-}
-
 case class InstagramConf(username: String, password: String)
 object InstagramConf extends Configuration[InstagramConf]("instagram") {
   override def buildConfig(c: Config): InstagramConf = {

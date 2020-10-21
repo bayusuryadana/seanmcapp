@@ -13,7 +13,7 @@ import scala.concurrent.{Await, Future}
 
 case class WalletOutput(code: Int, message: Option[String], row: Option[Int], response: Seq[Wallet])
 
-class WalletService(walletRepo: WalletRepo, amarthaService: AmarthaService, stockService: StockService) {
+class WalletService(walletRepo: WalletRepo, amarthaService: AmarthaService) {
 
   private val activeIncomeSet = Set("Salary", "Bonus")
   private val expenseSet = Set("Daily", "Rent", "Zakat", "Travel", "Fashion", "IT Stuff", "Misc", "Wellness", "Funding")
@@ -82,20 +82,7 @@ class WalletService(walletRepo: WalletRepo, amarthaService: AmarthaService, stoc
     val prevDate = adjustDate(requestDate-1).toString
 
     val requestedMonth = requestDate % 100
-    val monthString = requestedMonth match {
-      case 1 => "January"
-      case 2 => "February"
-      case 3 => "March"
-      case 4 => "April"
-      case 5 => "May"
-      case 6 => "June"
-      case 7 => "July"
-      case 8 => "August"
-      case 9 => "September"
-      case 10 => "October"
-      case 11 => "November"
-      case 12 => "December"
-    }
+    val monthString = getMonth(requestedMonth)
     val yearString = (requestDate / 100).toString
     val cmsData = CMSData(monthString, yearString, nextDate, prevDate)
 
@@ -108,11 +95,6 @@ class WalletService(walletRepo: WalletRepo, amarthaService: AmarthaService, stoc
 
   def amartha(secretKey: String): AmarthaView = {
     val f = Future.successful(amarthaService.getAmarthaView())
-    authAndAwait(secretKey, f)
-  }
-
-  def stock(secretKey: String): Future[SortedMap[String, StockData]] = {
-    val f = Future.successful(stockService.getStock())
     authAndAwait(secretKey, f)
   }
 
@@ -194,6 +176,23 @@ class WalletService(walletRepo: WalletRepo, amarthaService: AmarthaService, stoc
     def formatNumber: String = {
       val formatter = NumberFormat.getIntegerInstance
       formatter.format(in)
+    }
+  }
+
+  private[service] def getMonth(i: Int): String = {
+    i match {
+      case 1 => "January"
+      case 2 => "February"
+      case 3 => "March"
+      case 4 => "April"
+      case 5 => "May"
+      case 6 => "June"
+      case 7 => "July"
+      case 8 => "August"
+      case 9 => "September"
+      case 10 => "October"
+      case 11 => "November"
+      case 12 => "December"
     }
   }
 

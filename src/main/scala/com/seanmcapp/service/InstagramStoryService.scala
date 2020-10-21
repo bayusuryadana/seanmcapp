@@ -32,9 +32,7 @@ class InstagramStoryService(instagramClient: InstagramClient, telegramClient: Te
         case "GraphStoryImage" =>
           val imgUrl = i.display_url
           if (storiesCache.get(i.id).isEmpty) {
-            val inputStream = new URL(imgUrl).openStream
-            val data  = LazyList.continually(inputStream.read).takeWhile(_ != -1).map(_.toByte).toArray
-            telegramClient.sendPhotoWithFileUpload(chatId, data = data)
+            telegramClient.sendPhotoWithFileUpload(chatId, data = getDataByte(imgUrl))
             storiesCache.put(i.id)(imgUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
           }
           imgUrl
@@ -42,13 +40,18 @@ class InstagramStoryService(instagramClient: InstagramClient, telegramClient: Te
           val videos = i.video_resources.getOrElse(Seq.empty[InstagramStoryVideoResource])
           val videoUrl = videos.find(_.profile == "MAIN").orElse(videos.headOption).getOrElse(throw new Exception("Video not found")).src
           if (storiesCache.get(i.id).isEmpty) {
-            val inputStream = new URL(videoUrl).openStream
-            val data  = LazyList.continually(inputStream.read).takeWhile(_ != -1).map(_.toByte).toArray
-            telegramClient.sendVideoWithFileUpload(chatId, data = data)
+            telegramClient.sendVideoWithFileUpload(chatId, data = getDataByte(videoUrl))
             storiesCache.put(i.id)(videoUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
           }
           videoUrl
       }
     })
   }
+
+  // $COVERAGE-OFF$
+  private[service] def getDataByte(url: String): Array[Byte] = {
+    val inputStream = new URL(url).openStream
+    LazyList.continually(inputStream.read).takeWhile(_ != -1).map(_.toByte).toArray
+  }
+  // $COVERAGE-ON$
 }

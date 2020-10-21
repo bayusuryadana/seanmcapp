@@ -56,7 +56,6 @@ class InstagramClient(http: HttpRequestClient) {
   def getStories(userId: String, sessionId: String): InstagramStoryResponse = {
     val params = InstagramStoryRequestParameter(Seq(userId), false).asJson.encode
     val url = s"https://www.instagram.com/graphql/query/?query_hash=c9c56db64beb4c9dea2d17740d0259d9&variables=$params"
-    println(url)
     val headers = Some(HeaderMap(Map("cookie" -> s"sessionid=$sessionId")))
     val httpResponse = http.sendGetRequest(url, headers = headers)
     decode[InstagramStoryResponse](httpResponse)

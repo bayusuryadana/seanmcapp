@@ -50,8 +50,6 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
       from.id shouldEqual 354236808
       from.is_bot shouldEqual true
       from.username shouldEqual Some("seanmcbot")
-
-      //res.result.photo.map(_.nonEmpty) shouldBe Some(true)
     }
   }
 
@@ -76,6 +74,25 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
     }
   }
 
+  "should return none given non valid TelegramUpdate" in {
+    val telegramUpdate = Mockito.mock(classOf[TelegramUpdate])
+    val telegramMessage = TelegramMessage(TelegramUser(1, false, "Bayu", None, None), TelegramChat(1, "type", None, None), None, None)
+    when(telegramUpdate.message).thenReturn(Some(telegramMessage))
+    cbcService.randomFlow(telegramUpdate).map { response =>
+      response shouldBe None
+    }
+  }
+
+  "should return none given TelegramUpdate with unrecognised command" in {
+    val telegramUpdate = Mockito.mock(classOf[TelegramUpdate])
+    val telegramMessageEntity = TelegramMessageEntity("type", 1, 3)
+    val telegramMessage = TelegramMessage(TelegramUser(1, false, "Bayu", None, None), TelegramChat(1, "type", None, None), Some("/wow"), Some(Seq(telegramMessageEntity)))
+    when(telegramUpdate.message).thenReturn(Some(telegramMessage))
+    cbcService.randomFlow(telegramUpdate).map { response =>
+      response shouldBe None
+    }
+  }
+
   "should return a recommendation photos based on recommendation csv file - telegram recommendation endpoint" in {
     // this test will be based on the last fetched photo in previous test above, please keep in mind
     val userId = 274852283
@@ -86,6 +103,12 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
       res.id shouldEqual 884893623514815734L
       res.caption shouldEqual "Delicia Gemma. Hukum 2011"
       res.account shouldEqual "unpad.geulis"
+    }
+  }
+
+  "should throw an exception if command is not valid" in {
+    assertThrows[Exception] {
+      cbcService.cbcFlow(1, "name", "wow")
     }
   }
 }

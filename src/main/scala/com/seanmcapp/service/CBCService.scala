@@ -22,14 +22,17 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, cbcClient: CB
     val userFullName = message.from.first_name + " " + message.from.last_name.getOrElse("")
     val result = message.entities.getOrElse(List.empty).headOption match {
       case Some(entity) =>
-        val command = message.text.getOrElse("")
+        val command = message.text.flatMap(_
           .substring(entity.offset, entity.offset + entity.length)
           .stripSuffix(telegramClient.telegramConf.botname)
+          .split("_")
+          .headOption
+        )
         def sendPhoto(photo: Photo): TelegramResponse = {
           val caption = photo.caption + "%0A%40" + photo.account
           telegramClient.sendPhoto(chatId, getPhotoUrl(photo.id), caption)
         }
-        command.split("_").headOption match {
+        command match {
           case Some(s) if s == "/cbc" =>
             cbcFlow(userId, userFullName, "cbc").map(_.map(sendPhoto))
           case Some(s) if s == "/recommendation" =>

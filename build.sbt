@@ -61,7 +61,7 @@ coverageExcludedPackages :=
   ".*com.seanmcapp.util.*;" +
   ".*com.seanmcapp.config.*;" +
   ".*Boot.*;"
-coverageMinimum := 50
+coverageMinimum := 90
 coverageFailOnMinimum := true
 
 fork in Test := true
