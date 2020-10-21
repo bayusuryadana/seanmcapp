@@ -25,19 +25,25 @@ class DiscordClient(cbcService: CBCService) {
 }
 
 class DiscordController(requests: Requests, cbcService: CBCService) extends CommandController(requests) {
-  val command: NamedCommand[NotUsed] = Command.named(Seq("!seanmcbot"), Seq("cbc", "recommendation", "help"))
+  val command: NamedCommand[NotUsed] = Command.named(Seq("!cbc"), Seq("g", "r", "help"))
     .asyncOptRequest { m =>
       val command = m.message.content.split(" ")(1)
       val resF = command match {
         case "help" =>
           val message = s"""```
                            |Perintah:
-                           |cbc - gacha 1 foto
-                           |recommendation - dengan bantuan AI, anda akan mendapatkan foto yg mirip dengan gacha terakhir (termasuk perintah ini)
+                           |g - gacha
+                           |r - recommend
                            |```
                            |""".stripMargin
           Future.successful(Some(m.textChannel.sendMessage(message)))
-        case _ => cbcService.cbcFlow(m.user.id.toString.toLong, m.user.username, command).map(_.map{ photo =>
+        case _ =>
+          val `type` = command match {
+            case "g" => "cbc"
+            case "r" => "recommendation"
+            case _ => throw new Exception("command not recognized")
+          }
+          cbcService.cbcFlow(m.user.id.toString.toLong, m.user.username, `type`).map(_.map{ photo =>
           val photoUrl = cbcService.getPhotoUrl(photo.id)
           m.textChannel.sendMessage(
             content = s"${photo.caption}\n@${photo.account}",

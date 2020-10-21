@@ -1,8 +1,10 @@
 package com.seanmcapp.service
 
+import com.seanmcapp.external.AmarthaView
 import com.seanmcapp.repository.WalletRepoMock
 import com.seanmcapp.repository.seanmcwallet.Wallet
 import org.mockito.Mockito
+import org.mockito.Mockito._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 
@@ -13,6 +15,14 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers {
   val amarthaServiceMock = Mockito.mock(classOf[AmarthaService])
   val walletService = new WalletService(WalletRepoMock, amarthaServiceMock) {
     override val SECRET_KEY = secretKey
+  }
+
+  "amartha should return amarthaView" in {
+    val responseMock = Mockito.mock(classOf[AmarthaView])
+    when(amarthaServiceMock.getAmarthaView()).thenReturn(responseMock)
+    walletService.amartha(secretKey)
+    verify(amarthaServiceMock, times(1)).getAmarthaView()
+    succeed
   }
 
   "insert should return the inserted object" in {
