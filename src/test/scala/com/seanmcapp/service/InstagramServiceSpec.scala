@@ -14,16 +14,8 @@ import scala.io.Source
 class InstagramServiceSpec extends AsyncWordSpec with Matchers {
 
   "should return number of image that have been successfully fetched" in {
-
     val fileRepoMock = mock(classOf[FileRepo])
-
-    val http = mock(classOf[HttpRequestClient])
     val instagramClient = mock(classOf[InstagramClient])
-
-    val accountName = "ugmcantik"
-    val initUrl = "https://www.instagram.com/" + accountName + "/?__a=1"
-    val initResponse = Source.fromResource("instagram/init_response.json").mkString
-    when(http.sendGetRequest(ArgumentMatchers.eq(initUrl), any())).thenReturn(initResponse)
     when(instagramClient.getAccountResponse(any())).thenReturn(InstagramAccountResponse("profilePage_262582140"))
     val photoMock = InstagramResponse(
       InstagramData(
@@ -56,7 +48,7 @@ class InstagramServiceSpec extends AsyncWordSpec with Matchers {
     when(instagramClient.getPhotos(any(), any(), any())).thenReturn(photoMock)
 
     val instagramService = new InstagramService(PhotoRepoMock, fileRepoMock, instagramClient) {
-      override val accountList = Map(accountName -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r)
+      override val accountList = Map("ugmcantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r)
       override def savingToStorage(filteredPhotos: Seq[Photo]): Seq[Photo] = filteredPhotos
     }
 
