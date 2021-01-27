@@ -34,7 +34,7 @@ class InstagramStoryServiceSpec extends AnyWordSpec with Matchers {
       override private[service] def getDataByte(url: String) = Array.emptyByteArray
     }
     val result = instagramStoryService.run()
-    result shouldBe List("https://pic1.url", "https://video-main.url")
+    result shouldBe List("https://pic1.url", "https://video-main.url", "https://pic1.url", "https://video-main.url")
   }
 
 }
