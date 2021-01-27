@@ -35,7 +35,8 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers {
 
   "data should return correct data" in {
     val dataView = walletService.data(secretKey, None)
-    dataView shouldBe DataView(CMSData("October", "2020", "202011", "202009"), List(), Balance("-295", "-295", "-295"), Balance("0","0","0"))
+    dataView.sgdBalance shouldBe Balance("-295", "-295", "-295")
+    dataView.idrBalance shouldBe Balance("0","0","0")
   }
 
   "amartha should return amarthaView" in {

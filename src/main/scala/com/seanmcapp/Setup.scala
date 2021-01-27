@@ -1,7 +1,5 @@
 package com.seanmcapp
 
-import java.util.concurrent.TimeUnit
-
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.HttpHeader
 import akka.http.scaladsl.server
@@ -81,22 +79,24 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     }
   }
 
-  private val everyDay = Some(Duration(1, TimeUnit.DAYS))
-  private val everyHour = Some(Duration(1, TimeUnit.HOURS))
-
   val scheduleList: List[Scheduler] = List(
-    new Scheduler(-1, None, warmupDBService),
-    new Scheduler(-5, None, warmupDBService),
-    new Scheduler(3, everyDay, dotaService),
-    new Scheduler(6, everyDay, birthdayService),
-    new Scheduler(6, everyDay, iGrowService),
-    new Scheduler(8, everyDay, airVisualService),
-    new Scheduler(17, everyDay, airVisualService),
-    new Scheduler(20, everyDay, nCovService),
-    new Scheduler(0, everyDay, dsdaJakartaService),
-    new Scheduler(18, everyDay, amarthaService),
-    new Scheduler(10, everyDay, instagramService),
-    new Scheduler(4, everyHour, instagramStoryService)
+    /**
+      * this is not using normal cron convention format.
+      * This cron4s expressions go from seconds to day of week in the following order:
+      * (Seconds, Minutes, Hour Of Day, Day Of Month, Month, Day Of Week)
+      */
+    new Scheduler(warmupDBService, "0 * * * * ?", false),
+    new Scheduler(warmupDBService, "*/5 * * * * ?", false),
+    new Scheduler(dotaService, "0 0 2 * * ?"),
+    new Scheduler(birthdayService, "0 0 6 * * ?"),
+    new Scheduler(iGrowService, "0 0 6 * * ?"),
+    new Scheduler(airVisualService, "0 0 8 * * ?"),
+    new Scheduler(airVisualService, "0 0 17 * * ?"),
+    new Scheduler(nCovService, "0 0 20 * * ?"),
+    new Scheduler(dsdaJakartaService, "0 0 0 * * ?"),
+    new Scheduler(amarthaService, "0 0 18 * * ?"),
+    new Scheduler(instagramService, "0 0 10 * * ?"),
+    new Scheduler(instagramStoryService, "0 0 * * * ?"),
   )
 
 }

@@ -40,6 +40,7 @@ libraryDependencies ++= Seq(
 
   // joda time
   "joda-time" % "joda-time" % "2.10.5",
+  "org.joda"  % "joda-convert" % "2.2.1",
 
   // caching
   "com.github.cb372" %% "scalacache-guava" % "0.28.0",
@@ -54,7 +55,11 @@ libraryDependencies ++= Seq(
   "com.beachape" %% "enumeratum" % "1.5.15",
 
   // discord bot
-  "net.katsstuff" %% "ackcord" % "0.17.1"
+  "net.katsstuff" %% "ackcord" % "0.17.1",
+
+  // cron
+  "com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.6.1",
+  "com.github.alonsodomin.cron4s" %% "cron4s-joda" % "0.6.1",
 )
 
 coverageExcludedPackages :=
