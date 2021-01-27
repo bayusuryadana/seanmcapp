@@ -25,27 +25,30 @@ class InstagramStoryService(instagramClient: InstagramClient, telegramClient: Te
   override def run(): Seq[String] = {
     val sessionId = instagramClient.postLogin()
     //val userId = instagramClient.getAccountResponse("").logging_page_id.replace("profilePage_", "")
-    val stories = instagramClient.getStories("277395688", sessionId)
-    stories.data.reels_media.flatMap(_.items.map { i =>
-      val chatId = -1001359004262L
-      i.__typename match {
-        case "GraphStoryImage" =>
-          val imgUrl = i.display_url
-          if (storiesCache.get(i.id).isEmpty) {
-            telegramClient.sendPhotoWithFileUpload(chatId, data = getDataByte(imgUrl))
-            storiesCache.put(i.id)(imgUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
-          }
-          imgUrl
-        case "GraphStoryVideo" =>
-          val videos = i.video_resources.getOrElse(Seq.empty[InstagramStoryVideoResource])
-          val videoUrl = videos.find(_.profile == "MAIN").orElse(videos.headOption).getOrElse(throw new Exception("Video not found")).src
-          if (storiesCache.get(i.id).isEmpty) {
-            telegramClient.sendVideoWithFileUpload(chatId, data = getDataByte(videoUrl))
-            storiesCache.put(i.id)(videoUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
-          }
-          videoUrl
-      }
-    })
+    val accounts = List("277395688", "302844663")
+    val storyResults = accounts.map(id => instagramClient.getStories(id, sessionId))
+    storyResults.flatMap { story =>
+      story.data.reels_media.flatMap(_.items.map { i =>
+        val chatId = -1001359004262L
+        i.__typename match {
+          case "GraphStoryImage" =>
+            val imgUrl = i.display_url
+            if (storiesCache.get(i.id).isEmpty) {
+              telegramClient.sendPhotoWithFileUpload(chatId, data = getDataByte(imgUrl))
+              storiesCache.put(i.id)(imgUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
+            }
+            imgUrl
+          case "GraphStoryVideo" =>
+            val videos = i.video_resources.getOrElse(Seq.empty[InstagramStoryVideoResource])
+            val videoUrl = videos.find(_.profile == "MAIN").orElse(videos.headOption).getOrElse(throw new Exception("Video not found")).src
+            if (storiesCache.get(i.id).isEmpty) {
+              telegramClient.sendVideoWithFileUpload(chatId, data = getDataByte(videoUrl))
+              storiesCache.put(i.id)(videoUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
+            }
+            videoUrl
+        }
+      })
+    }
   }
 
   // $COVERAGE-OFF$
