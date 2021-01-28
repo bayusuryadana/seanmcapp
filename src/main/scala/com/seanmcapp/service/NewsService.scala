@@ -12,7 +12,7 @@ case class NewsResult(title: String, url: String, flag: Array[Int])
 
 class NewsService(newsClient: NewsClient, telegramClient: TelegramClient) extends ScheduledTask {
 
-  override def run: String = {
+  override def run: List[NewsResult] = {
     val responses = newsClient.getNews
     val results = responses.toList.map { case (key, response) =>
       NewsConstant.mapping(key).parser(Jsoup.parse(response))
@@ -22,9 +22,9 @@ class NewsService(newsClient: NewsClient, telegramClient: TelegramClient) extend
     val message = results.zipWithIndex.foldLeft(initMessage) { (message, res) =>
       message + s"${res._2+1}. [${res._1.title}](${res._1.url}) ${new String(res._1.flag, 0, res._1.flag.length)}\n\n"
     }
-    telegramClient.sendMessage(274852283L, URLEncoder.encode(message, "UTF-8"))
+    telegramClient.sendMessage(-1001359004262L, URLEncoder.encode(message, "UTF-8"))
 
-    message
+    results
   }
 
 }

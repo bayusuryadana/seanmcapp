@@ -66,7 +66,7 @@ object Http extends BaseHttp {
   override def apply(url: String): HttpRequest = {
     val httpOptions = Seq(
       HttpOptions.connTimeout(httpConf.connTimeout),
-      HttpOptions.readTimeout(15000),
+      HttpOptions.readTimeout(httpConf.readTimeout),
       HttpOptions.followRedirects(httpConf.followRedirects)
     )
     super.apply(url).options(httpOptions)

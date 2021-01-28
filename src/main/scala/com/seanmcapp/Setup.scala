@@ -66,7 +66,6 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     },
 
     // homepage
-    get(path("news")(complete(newsService.run.asJson.encode))),
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !")))
 
   ).reduce{ (a,b) => a~b }
