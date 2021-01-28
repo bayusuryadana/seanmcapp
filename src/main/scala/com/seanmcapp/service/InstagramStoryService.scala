@@ -29,20 +29,21 @@ class InstagramStoryService(instagramClient: InstagramClient, telegramClient: Te
     storyResults.flatMap { story =>
       story.data.reels_media.flatMap(_.items.map { i =>
         val chatId = -1001359004262L
+        val idKey = s"instastory-${i.id}"
         i.__typename match {
           case "GraphStoryImage" =>
             val imgUrl = i.display_url
-            if (redisRepo.get(i.id).isEmpty) {
+            if (redisRepo.get(idKey).isEmpty) {
               telegramClient.sendPhotoWithFileUpload(chatId, data = getDataByte(imgUrl))
-              redisRepo.set(i.id, imgUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
+              redisRepo.set(idKey, imgUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
             }
             imgUrl
           case "GraphStoryVideo" =>
             val videos = i.video_resources.getOrElse(Seq.empty[InstagramStoryVideoResource])
             val videoUrl = videos.find(_.profile == "MAIN").orElse(videos.headOption).getOrElse(throw new Exception("Video not found")).src
-            if (redisRepo.get(i.id).isEmpty) {
+            if (redisRepo.get(idKey).isEmpty) {
               telegramClient.sendVideoWithFileUpload(chatId, data = getDataByte(videoUrl))
-              redisRepo.set(i.id, videoUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
+              redisRepo.set(idKey, videoUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
             }
             videoUrl
         }
