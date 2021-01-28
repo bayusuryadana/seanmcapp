@@ -18,7 +18,7 @@ class TelegramClient(http: HttpRequestClient) {
   }
 
   def sendMessage(chatId: Long, text: String): TelegramResponse = {
-    val urlString = s"${telegramConf.endpoint}/sendmessage?chat_id=$chatId&text=$text&parse_mode=markdown"
+    val urlString = s"${telegramConf.endpoint}/sendmessage?chat_id=$chatId&text=$text&parse_mode=markdown&disable_web_page_preview=true&disable_notification=true"
     val response = http.sendGetRequest(urlString)
     val result = decode[TelegramResponse](response)
     println(s"[INFO] send message to chatId: $chatId with text: $text")

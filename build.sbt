@@ -63,6 +63,10 @@ libraryDependencies ++= Seq(
 
   // redis
   "net.debasishg" %% "redisclient" % "3.30",
+
+  // jsoup (Java HTML parser)
+  "org.jsoup" % "jsoup" % "1.13.1",
+
 )
 
 coverageExcludedPackages :=
