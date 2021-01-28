@@ -5,8 +5,6 @@ import java.util.concurrent.TimeUnit
 
 import com.seanmcapp.external.{InstagramClient, TelegramClient}
 import com.seanmcapp.repository.RedisRepo
-import com.seanmcapp.util.MemoryCache
-import scalacache.modes.sync._
 
 import scala.concurrent.duration.FiniteDuration
 
