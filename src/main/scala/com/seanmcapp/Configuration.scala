@@ -109,7 +109,6 @@ object DiscordConf extends Configuration[DiscordConf]("discord") {
 case class RedisConf(connectionUrl: String)
 object RedisConf extends Configuration[RedisConf]("redis") {
   override def buildConfig(c: Config): RedisConf = {
-    RedisConf(Try(c.getString("connection-url"))
-      .getOrElse("redis://localhost:6379")) // default value for integration-test
+    RedisConf(Try(c.getString("connection-url")).getOrElse(""))
   }
 }

@@ -1,15 +1,12 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.external.{HttpRequestClient, InstagramClient}
+import com.seanmcapp.external.InstagramClient
 import com.seanmcapp.repository.{FileRepo, PhotoRepoMock}
 import com.seanmcapp.repository.instagram.Photo
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
-
-import scala.io.Source
 
 class InstagramServiceSpec extends AsyncWordSpec with Matchers {
 
