@@ -97,6 +97,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(amarthaService, "0 0 18 * * ?"),
     new Scheduler(instagramService, "0 0 10 * * ?"),
     new Scheduler(instagramStoryService, "0 0 * * * ?"),
+    new Scheduler(newsService, "0 0 6 * * ?"),
   )
 
 }
