@@ -105,3 +105,10 @@ object DiscordConf extends Configuration[DiscordConf]("discord") {
     DiscordConf(Try(c.getString("token")).getOrElse(""))
   }
 }
+
+case class RedisConf(connectionUrl: String)
+object RedisConf extends Configuration[RedisConf]("redis") {
+  override def buildConfig(c: Config): RedisConf = {
+    RedisConf(Try(c.getString("connection-url")).getOrElse(""))
+  }
+}

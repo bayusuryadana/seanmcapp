@@ -4,6 +4,7 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 
 import com.seanmcapp.external.{InstagramClient, TelegramClient}
+import com.seanmcapp.repository.RedisRepo
 import com.seanmcapp.util.MemoryCache
 import scalacache.modes.sync._
 
@@ -18,9 +19,7 @@ case class InstagramStoryItem(id: String, __typename: String, display_url: Strin
 case class InstagramStoryVideoResource(src: String, profile: String)
 
 
-class InstagramStoryService(instagramClient: InstagramClient, telegramClient: TelegramClient) extends MemoryCache with ScheduledTask {
-
-  implicit val storiesCache = createCache[String]
+class InstagramStoryService(instagramClient: InstagramClient, telegramClient: TelegramClient, redisRepo: RedisRepo) extends ScheduledTask {
 
   override def run(): Seq[String] = {
     val sessionId = instagramClient.postLogin()
@@ -33,17 +32,17 @@ class InstagramStoryService(instagramClient: InstagramClient, telegramClient: Te
         i.__typename match {
           case "GraphStoryImage" =>
             val imgUrl = i.display_url
-            if (storiesCache.get(i.id).isEmpty) {
+            if (redisRepo.get(i.id).isEmpty) {
               telegramClient.sendPhotoWithFileUpload(chatId, data = getDataByte(imgUrl))
-              storiesCache.put(i.id)(imgUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
+              redisRepo.set(i.id, imgUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
             }
             imgUrl
           case "GraphStoryVideo" =>
             val videos = i.video_resources.getOrElse(Seq.empty[InstagramStoryVideoResource])
             val videoUrl = videos.find(_.profile == "MAIN").orElse(videos.headOption).getOrElse(throw new Exception("Video not found")).src
-            if (storiesCache.get(i.id).isEmpty) {
+            if (redisRepo.get(i.id).isEmpty) {
               telegramClient.sendVideoWithFileUpload(chatId, data = getDataByte(videoUrl))
-              storiesCache.put(i.id)(videoUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
+              redisRepo.set(i.id, videoUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
             }
             videoUrl
         }
