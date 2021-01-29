@@ -15,8 +15,10 @@ class NewsService(newsClient: NewsClient, telegramClient: TelegramClient) extend
   override def run: List[NewsResult] = {
     val responses = newsClient.getNews
     val results = responses.toList.map { case (key, response) =>
-      NewsConstant.mapping(key).parser(Jsoup.parse(response))
-    }
+      val newsObject = NewsConstant.mapping(key)
+      val result = newsObject.parser(Jsoup.parse(response))
+      (newsObject.order, result)
+    }.sortBy(_._1).map(_._2)
 
     val initMessage = s"Awali harimu dengan berita ${new String(Array(0x1f4f0),0,1)} dari Seanmctoday by @seanmcbot\n\n"
     val message = results.zipWithIndex.foldLeft(initMessage) { (message, res) =>
@@ -29,15 +31,15 @@ class NewsService(newsClient: NewsClient, telegramClient: TelegramClient) extend
 
 }
 
-case class NewsObject(url: String, parser: Document => NewsResult)
+case class NewsObject(order: Int, url: String, parser: Document => NewsResult)
 
 object NewsConstant {
   val mapping = Map(
-    "cna" -> NewsObject("https://www.channelnewsasia.com/news/singapore", cnaParser),
-    "mothership" -> NewsObject("https://mothership.sg", mothershipParser),
-    "reuters" -> NewsObject("https://www.reuters.com", reutersParser),
-    "kumparan" -> NewsObject("https://kumparan.com/trending", kumparanParser),
-    "tirto" -> NewsObject( "https://tirto.id", tirtoParser),
+    "tirto" -> NewsObject(1, "https://tirto.id", tirtoParser),
+    "kumparan" -> NewsObject(2, "https://kumparan.com/trending", kumparanParser),
+    "mothership" -> NewsObject(3, "https://mothership.sg", mothershipParser),
+    "cna" -> NewsObject(4, "https://www.channelnewsasia.com/news/singapore", cnaParser),
+    "reuters" -> NewsObject(5, "https://www.reuters.com", reutersParser),
   )
 
   private def cnaParser(d: Document): NewsResult = {
