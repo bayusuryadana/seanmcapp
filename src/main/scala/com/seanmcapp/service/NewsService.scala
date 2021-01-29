@@ -20,7 +20,7 @@ class NewsService(newsClient: NewsClient, telegramClient: TelegramClient) extend
       (newsObject.order, result)
     }.sortBy(_._1).map(_._2)
 
-    val initMessage = s"Awali harimu dengan berita ${new String(Array(0x1f4f0),0,1)} dari Seanmctoday by @seanmcbot\n\n"
+    val initMessage = s"Awali harimu dengan berita ${new String(Array(0x1f4f0),0,1)} dari **Seanmctoday** by @seanmcbot\n\n"
     val message = results.zipWithIndex.foldLeft(initMessage) { (message, res) =>
       message + s"${res._2+1}. [${res._1.title}](${res._1.url}) ${new String(res._1.flag, 0, res._1.flag.length)}\n\n"
     }
