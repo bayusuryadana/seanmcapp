@@ -21,10 +21,13 @@ class InstagramStoryService(instagramClient: InstagramClient, telegramClient: Te
 
   override def run(): Seq[String] = {
     val sessionId = instagramClient.postLogin()
-    //val userId = instagramClient.getAccountResponse("").logging_page_id.replace("profilePage_", "")
-    val accounts = List("277395688", "302844663")
-    val storyResults = accounts.map(id => instagramClient.getStories(id, sessionId))
-    storyResults.flatMap { story =>
+    val accountMap = Map(
+      "Alvida" -> "302844663",
+      "Buggy" -> "277395688",
+      "Gecko Moria" -> "5646204159"
+    )
+    accountMap.toList.flatMap { case (name, id) =>
+      val story = instagramClient.getStories(id, sessionId)
       story.data.reels_media.flatMap(_.items.map { i =>
         val chatId = -1001359004262L
         val idKey = s"instastory-${i.id}"
@@ -32,7 +35,7 @@ class InstagramStoryService(instagramClient: InstagramClient, telegramClient: Te
           case "GraphStoryImage" =>
             val imgUrl = i.display_url
             if (redisRepo.get(idKey).isEmpty) {
-              telegramClient.sendPhotoWithFileUpload(chatId, data = getDataByte(imgUrl))
+              telegramClient.sendPhotoWithFileUpload(chatId, name, getDataByte(imgUrl))
               redisRepo.set(idKey, imgUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
             }
             imgUrl
@@ -40,7 +43,7 @@ class InstagramStoryService(instagramClient: InstagramClient, telegramClient: Te
             val videos = i.video_resources.getOrElse(Seq.empty[InstagramStoryVideoResource])
             val videoUrl = videos.find(_.profile == "MAIN").orElse(videos.headOption).getOrElse(throw new Exception("Video not found")).src
             if (redisRepo.get(idKey).isEmpty) {
-              telegramClient.sendVideoWithFileUpload(chatId, data = getDataByte(videoUrl))
+              telegramClient.sendVideoWithFileUpload(chatId, name, getDataByte(videoUrl))
               redisRepo.set(idKey, videoUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
             }
             videoUrl
