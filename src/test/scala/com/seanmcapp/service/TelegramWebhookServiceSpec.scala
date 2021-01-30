@@ -1,0 +1,86 @@
+package com.seanmcapp.service
+
+import com.seanmcapp.external.{TelegramChat, TelegramMessage, TelegramMessageEntity, TelegramUpdate, TelegramUser, decode}
+import com.seanmcapp.repository.instagram.Photo
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito
+import org.mockito.Mockito.when
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
+
+import scala.concurrent.Future
+import scala.io.Source
+
+class TelegramWebhookServiceSpec extends AsyncWordSpec with Matchers {
+
+  val cbcService = Mockito.mock(classOf[CBCService])
+  when(cbcService.getPhotoUrl(any())).thenReturn("")
+  val photo = Photo(1, "http://", 1407772083, "caption", "account")
+  when(cbcService.cbcFlow(any(), any(), any())).thenReturn(Future.successful(Some(photo)))
+  val hadithService = Mockito.mock(classOf[HadithService])
+  val telegramClient = new TelegramWebhookTelegramClientMock
+  val telegramWebookService = new TelegramWebhookService(cbcService, hadithService, telegramClient)
+
+  "should return any random photos using private chat type input - telegram random endpoint" in {
+    val chatId = 274852283L
+    val input = Source.fromResource(s"telegram/${chatId}_request.json").mkString
+    val telegramUpdate = decode[TelegramUpdate](input)
+    telegramWebookService.receive(telegramUpdate).map { response =>
+      response shouldNot be(None)
+      val res = response.getOrElse(cancel("response is not defined"))
+
+      res.ok shouldEqual true
+      val chat = res.result.chat
+      chat.id shouldEqual 274852283
+      chat.`type` shouldEqual "private"
+      chat.first_name shouldBe Some("Bayu")
+
+      res.result.from.isDefined shouldEqual true
+      val from = res.result.from.getOrElse(cancel("response is not defined"))
+      from.id shouldEqual 354236808
+      from.is_bot shouldEqual true
+      from.username shouldEqual Some("seanmcbot")
+    }
+  }
+
+  "should return any random photos using group chat type input - telegram random endpoint" in {
+    val chatId = -111546505L
+    val input = Source.fromResource(s"telegram/${chatId}_request.json").mkString
+    val telegramUpdate = decode[TelegramUpdate](input)
+    telegramWebookService.receive(telegramUpdate).map { response =>
+      response shouldNot be(None)
+      val res = response.getOrElse(cancel("response is not defined"))
+
+      res.ok shouldEqual true
+      val chat = res.result.chat
+      chat.id shouldEqual -111546505
+      chat.`type` shouldEqual "group"
+      chat.title shouldBe Some("Kelompok abang redho")
+
+      val from = res.result.from
+      from.map(_.id) shouldBe Some(354236808)
+      from.map(_.is_bot) shouldBe Some(true)
+      from.flatMap(_.username) shouldBe Some("seanmcbot")
+    }
+  }
+
+  "should return none given non valid TelegramUpdate" in {
+    val telegramUpdate = Mockito.mock(classOf[TelegramUpdate])
+    val telegramMessage = TelegramMessage(TelegramUser(1, false, "Bayu", None, None), TelegramChat(1, "type", None, None), None, None)
+    when(telegramUpdate.message).thenReturn(Some(telegramMessage))
+    telegramWebookService.receive(telegramUpdate).map { response =>
+      response shouldBe None
+    }
+  }
+
+  "should return none given TelegramUpdate with unrecognised command" in {
+    val telegramUpdate = Mockito.mock(classOf[TelegramUpdate])
+    val telegramMessageEntity = TelegramMessageEntity("type", 1, 3)
+    val telegramMessage = TelegramMessage(TelegramUser(1, false, "Bayu", None, None), TelegramChat(1, "type", None, None), Some("/wow"), Some(Seq(telegramMessageEntity)))
+    when(telegramUpdate.message).thenReturn(Some(telegramMessage))
+    telegramWebookService.receive(telegramUpdate).map { response =>
+      response shouldBe None
+    }
+  }
+
+}

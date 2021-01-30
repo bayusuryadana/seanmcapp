@@ -23,7 +23,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     get(path("cbc" / "random")(complete(cbcService.random.map(_.map(_.asJson.encode))))),
     post((path("cbc" / "webhook") & entity(as[String])) { payload =>
       val telegramUpdate = decode[TelegramUpdate](payload)
-      complete(cbcService.randomFlow(telegramUpdate).map(_.map(_.asJson.encode)))
+      complete(telegramWebhookService.receive(telegramUpdate).map(_.map(_.asJson.encode)))
     }),
 
     // dota APP
