@@ -43,6 +43,9 @@ trait Injection {
   val dsdaJakartaClient = new DsdaJakartaClient(httpClient)
   val dsdaJakartaService = new DsdaJakartaService(dsdaJakartaClient, telegramClient)
 
+  val hadithClient = new HadithClient(httpClient)
+  val hadithService = new HadithService(hadithClient)
+
   val iGrowClient = new IGrowClient(httpClient)
   val iGrowService = new IGrowService(iGrowClient, telegramClient)
 
