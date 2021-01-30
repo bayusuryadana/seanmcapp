@@ -1,7 +1,5 @@
 package com.seanmcapp.service
 
-import java.net.URLEncoder
-
 import com.seanmcapp.external.{DsdaJakartaClient, TelegramClient}
 
 class DsdaJakartaService(dsdaJakartaClient: DsdaJakartaClient, telegramClient: TelegramClient) extends ScheduledTask {
@@ -19,7 +17,7 @@ class DsdaJakartaService(dsdaJakartaClient: DsdaJakartaClient, telegramClient: T
 
       waterGates.map(w => result.append(s"\n${w.name.trim}: ${w.status.split(":")(1).trim}"))
 
-      telegramClient.sendMessage(-111546505L, URLEncoder.encode(result.toString, "utf-8"))
+      telegramClient.sendMessage(-111546505L, result.toString)
       result.toString
     } else {
       ""

@@ -51,9 +51,6 @@ libraryDependencies ++= Seq(
   // xml
   "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
 
-  // enum
-  "com.beachape" %% "enumeratum" % "1.5.15",
-
   // discord bot
   "net.katsstuff" %% "ackcord" % "0.17.1",
 

@@ -35,13 +35,16 @@ trait Injection {
   val broadcastService = new BroadcastService(telegramClient)
 
   val cbcClient = new CBCClient(httpClient)
-  val cbcService = new CBCService(photoRepo, customerRepo, cbcClient, telegramClient)
+  val cbcService = new CBCService(photoRepo, customerRepo, cbcClient)
 
   val dotaClient = new DotaClient(httpClient)
   val dotaService = new DotaService(playerRepo, heroRepo, heroAttributeRepo, dotaClient)
 
   val dsdaJakartaClient = new DsdaJakartaClient(httpClient)
   val dsdaJakartaService = new DsdaJakartaService(dsdaJakartaClient, telegramClient)
+
+  val hadithClient = new HadithClient(httpClient)
+  val hadithService = new HadithService(hadithClient)
 
   val iGrowClient = new IGrowClient(httpClient)
   val iGrowService = new IGrowService(iGrowClient, telegramClient)
@@ -59,5 +62,7 @@ trait Injection {
   val walletService = new WalletService(walletRepo, amarthaService)
 
   val warmupDBService = new WarmupDBService(peopleRepo)
+
+  val telegramWebhookService = new TelegramWebhookService(cbcService, hadithService, telegramClient)
 
 }

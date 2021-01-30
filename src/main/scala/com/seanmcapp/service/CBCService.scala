@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.external.{CBCClient, TelegramClient, TelegramResponse, TelegramUpdate}
+import com.seanmcapp.external.CBCClient
 import com.seanmcapp.repository.instagram._
 import com.seanmcapp.util.MemoryCache
 import scalacache.Cache
@@ -9,50 +9,11 @@ import scalacache.modes.sync._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, cbcClient: CBCClient, telegramClient: TelegramClient) extends MemoryCache {
+class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, cbcClient: CBCClient) extends MemoryCache {
 
   implicit val lastPhotoCache: Cache[Long] = createCache[Long]
 
   def random: Future[Option[Photo]] = photoRepo.getRandom
-
-  def randomFlow(telegramUpdate: TelegramUpdate): Future[Option[TelegramResponse]] = {
-    val message = telegramUpdate.message.getOrElse(throw new Exception("This request is does not have a message"))
-    val chatId = message.chat.id
-    val userId = message.from.id
-    val userFullName = message.from.first_name + " " + message.from.last_name.getOrElse("")
-    val result = message.entities.getOrElse(List.empty).headOption match {
-      case Some(entity) =>
-        val command = message.text.flatMap(_
-          .substring(entity.offset, entity.offset + entity.length)
-          .stripSuffix(telegramClient.telegramConf.botname)
-          .split("_")
-          .headOption
-        )
-        def sendPhoto(photo: Photo): TelegramResponse = {
-          val caption = photo.caption + "%0A%40" + photo.account
-          telegramClient.sendPhoto(chatId, getPhotoUrl(photo.id), caption)
-        }
-        command match {
-          case Some(s) if s == "/cbc" =>
-            cbcFlow(userId, userFullName, "cbc").map(_.map(sendPhoto))
-          case Some(s) if s == "/recommendation" =>
-            cbcFlow(userId, userFullName, "recommendation").map(_.map(sendPhoto))
-          case _ =>
-            println("[ERROR] Command not recognized: " + command)
-            Future.successful(None)
-        }
-
-      case _ =>
-        println("[ERROR] No entities (command) found")
-        Future.successful(None)
-    }
-
-    // logging group chat :D
-    if (message.chat.`type` != "private")
-      println(s"[CHAT] $userFullName@${message.chat.title.getOrElse("???")}:${message.text.getOrElse("???")}")
-
-    result
-  }
 
   def cbcFlow(userId: Long, userFullName: String, `type`: String): Future[Option[Photo]] = {
     val photoF = `type` match {

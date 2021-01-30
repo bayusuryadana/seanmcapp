@@ -6,7 +6,7 @@ import org.mockito.Mockito
 
 import scala.io.Source
 
-class CBCTelegramClientMock extends TelegramClient(Mockito.mock(classOf[HttpRequestClient])) {
+class TelegramWebhookTelegramClientMock extends TelegramClient(Mockito.mock(classOf[HttpRequestClient])) {
 
   override val telegramConf = TelegramConf("endpoint", "@seanmcbot")
 
@@ -16,12 +16,11 @@ class CBCTelegramClientMock extends TelegramClient(Mockito.mock(classOf[HttpRequ
   }
 
   override def sendMessage(chatId: Long, text: String): TelegramResponse = {
-    decode[TelegramResponse](defaultSendMessageResponse)
+    decode[TelegramResponse](defaultSendMessageResponse.replace("{text}", text))
   }
 
   override def sendPhotoWithFileUpload(chatId: Long, caption: String, data: Array[Byte]): TelegramResponse = {
-    val source = Source.fromResource(s"telegram/${chatId}_response.json").mkString.replace("{caption}", caption)
-    decode[TelegramResponse](source)
+    decode[TelegramResponse](defaultSendMessageResponse)
   }
 
   private val defaultSendMessageResponse: String =
@@ -42,7 +41,7 @@ class CBCTelegramClientMock extends TelegramClient(Mockito.mock(classOf[HttpRequ
     |      "type": "private"
     |    },
     |    "date": 1566468039,
-    |    "text": "hello"
+    |    "text": "{text}"
     |  }
     |}
   """.stripMargin

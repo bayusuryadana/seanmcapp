@@ -1,7 +1,5 @@
 package com.seanmcapp.service
 
-import java.net.URLEncoder
-
 import com.seanmcapp.external.{AirVisualClient, TelegramClient}
 
 class AirVisualService(airVisualClient: AirVisualClient, telegramClient: TelegramClient) extends ScheduledTask {
@@ -21,7 +19,7 @@ class AirVisualService(airVisualClient: AirVisualClient, telegramClient: Telegra
       val appendString = "\n" + city.city + " (AQI " + aqius + " " + getEmojiFromAqi(aqius) + ")"
       res + appendString
     }
-    telegramClient.sendMessage(-1001359004262L, URLEncoder.encode(stringMessage, "UTF-8"))
+    telegramClient.sendMessage(-1001359004262L, stringMessage)
     stringMessage
   }
 

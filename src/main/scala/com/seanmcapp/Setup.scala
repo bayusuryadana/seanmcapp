@@ -15,16 +15,18 @@ import scala.util.Try
 // $COVERAGE-OFF$
 class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection {
 
-  val discord = new DiscordClient(cbcService).run()
+  val discord = new DiscordClient(cbcService, hadithService).run()
 
   val route: server.Route = List(
 
+    // webhook
+    post((path("webhook") & entity(as[String])) { payload =>
+      val telegramUpdate = decode[TelegramUpdate](payload)
+      complete(telegramWebhookService.receive(telegramUpdate).map(_.map(_.asJson.encode)))
+    }),
+
     // cbc API
     get(path("cbc" / "random")(complete(cbcService.random.map(_.map(_.asJson.encode))))),
-    post((path("cbc" / "webhook") & entity(as[String])) { payload =>
-      val telegramUpdate = decode[TelegramUpdate](payload)
-      complete(cbcService.randomFlow(telegramUpdate).map(_.map(_.asJson.encode)))
-    }),
 
     // dota APP
     get(path("dota")(complete(dotaService.home.map(_.asJson.encode)))),
