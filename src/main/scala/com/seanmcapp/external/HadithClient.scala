@@ -23,8 +23,3 @@ class HadithClient(http: HttpRequestClient) {
   }
 
 }
-
-object HadithConstant {
-  val EN = "en"
-  val AR = "ar"
-}

@@ -18,10 +18,11 @@ class TelegramWebhookServiceSpec extends AsyncWordSpec with Matchers {
   val photo = Photo(1, "http://", 1407772083, "caption", "account")
   when(cbcService.cbcFlow(any(), any(), any())).thenReturn(Future.successful(Some(photo)))
   val hadithService = Mockito.mock(classOf[HadithService])
+  when(hadithService.random).thenReturn("some hadith")
   val telegramClient = new TelegramWebhookTelegramClientMock
   val telegramWebookService = new TelegramWebhookService(cbcService, hadithService, telegramClient)
 
-  "should return any random photos using private chat type input - telegram random endpoint" in {
+  "should return any random photos using private chat type input - cbc" in {
     val chatId = 274852283L
     val input = Source.fromResource(s"telegram/${chatId}_request.json").mkString
     val telegramUpdate = decode[TelegramUpdate](input)
@@ -43,7 +44,7 @@ class TelegramWebhookServiceSpec extends AsyncWordSpec with Matchers {
     }
   }
 
-  "should return any random photos using group chat type input - telegram random endpoint" in {
+  "should return any random photos using group chat type input - cbc" in {
     val chatId = -111546505L
     val input = Source.fromResource(s"telegram/${chatId}_request.json").mkString
     val telegramUpdate = decode[TelegramUpdate](input)
@@ -61,6 +62,22 @@ class TelegramWebhookServiceSpec extends AsyncWordSpec with Matchers {
       from.map(_.id) shouldBe Some(354236808)
       from.map(_.is_bot) shouldBe Some(true)
       from.flatMap(_.username) shouldBe Some("seanmcbot")
+    }
+  }
+
+  "should return any random hadith using private chat type input - hadith" in {
+    val chatId = 274852283L
+    val input = Source.fromResource(s"telegram/${chatId}_request.json").mkString
+    val telegramUpdate = decode[TelegramUpdate](input)
+    val modifiedTelegramUpdate = telegramUpdate.copy(message = telegramUpdate.message.map(_.copy(
+      text = Some("/hadith"),
+      entities = Some(Seq(TelegramMessageEntity("bot_command", 0, 7)))
+    )))
+    telegramWebookService.receive(modifiedTelegramUpdate).map { response =>
+      response shouldNot be(None)
+      val res = response.getOrElse(cancel("response is not defined"))
+
+      res.result.text shouldBe Some("some hadith")
     }
   }
 

@@ -1,13 +1,16 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.external.{HadithClient, HadithConstant, HadithDataResponse}
+import com.seanmcapp.external.{HadithClient, HadithDataResponse}
 
 class HadithService(hadithClient: HadithClient) {
 
+  private val AR = "ar"
+  private val EN = "en"
+
   def random: String = {
     val hadithDataResponse = hadithClient.random
-    val hadithArabic = getHadithString(hadithDataResponse, HadithConstant.AR)
-    val hadithEnglish = getHadithString(hadithDataResponse, HadithConstant.EN)
+    val hadithArabic = getHadithString(hadithDataResponse, AR)
+    val hadithEnglish = getHadithString(hadithDataResponse, EN)
     val collection = hadithDataResponse.collection
 
     s"$hadithArabic\n\n$hadithEnglish\n\n$collection"

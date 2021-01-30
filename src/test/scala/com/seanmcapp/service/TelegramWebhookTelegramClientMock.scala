@@ -16,7 +16,7 @@ class TelegramWebhookTelegramClientMock extends TelegramClient(Mockito.mock(clas
   }
 
   override def sendMessage(chatId: Long, text: String): TelegramResponse = {
-    decode[TelegramResponse](defaultSendMessageResponse)
+    decode[TelegramResponse](defaultSendMessageResponse.replace("{text}", text))
   }
 
   override def sendPhotoWithFileUpload(chatId: Long, caption: String, data: Array[Byte]): TelegramResponse = {
@@ -41,7 +41,7 @@ class TelegramWebhookTelegramClientMock extends TelegramClient(Mockito.mock(clas
     |      "type": "private"
     |    },
     |    "date": 1566468039,
-    |    "text": "hello"
+    |    "text": "{text}"
     |  }
     |}
   """.stripMargin

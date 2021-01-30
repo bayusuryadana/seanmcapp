@@ -1,7 +1,5 @@
 package com.seanmcapp.service
 
-import java.net.URLEncoder
-
 import com.seanmcapp.external.{NewsClient, TelegramClient}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -24,7 +22,7 @@ class NewsService(newsClient: NewsClient, telegramClient: TelegramClient) extend
     val message = results.zipWithIndex.foldLeft(initMessage) { (message, res) =>
       message + s"${res._2+1}. [${res._1.title}](${res._1.url}) ${new String(res._1.flag, 0, res._1.flag.length)}\n\n"
     }
-    telegramClient.sendMessage(-1001359004262L, URLEncoder.encode(message, "UTF-8"))
+    telegramClient.sendMessage(-1001359004262L, message)
 
     results
   }

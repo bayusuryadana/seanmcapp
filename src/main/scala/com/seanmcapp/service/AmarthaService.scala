@@ -1,6 +1,5 @@
 package com.seanmcapp.service
 
-import java.net.URLEncoder
 import java.text.NumberFormat
 
 import com.seanmcapp.AmarthaConf
@@ -79,7 +78,7 @@ class AmarthaService(amarthaClient: AmarthaClient, telegramClient: TelegramClien
          |Today's revenue: Rp. $revenueTodayStringFormat
          |Current balance: Rp. $currentBalance
          |Paid percentage: ${(paidPercentDecimal * 100).toInt}%""".stripMargin
-    telegramClient.sendMessage(274852283L, URLEncoder.encode(message, "utf-8"))
+    telegramClient.sendMessage(274852283L, message)
     message
   }
 

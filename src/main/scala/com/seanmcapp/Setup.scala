@@ -19,12 +19,14 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
 
   val route: server.Route = List(
 
-    // cbc API
-    get(path("cbc" / "random")(complete(cbcService.random.map(_.map(_.asJson.encode))))),
-    post((path("cbc" / "webhook") & entity(as[String])) { payload =>
+    // webhook
+    post((path("webhook") & entity(as[String])) { payload =>
       val telegramUpdate = decode[TelegramUpdate](payload)
       complete(telegramWebhookService.receive(telegramUpdate).map(_.map(_.asJson.encode)))
     }),
+
+    // cbc API
+    get(path("cbc" / "random")(complete(cbcService.random.map(_.map(_.asJson.encode))))),
 
     // dota APP
     get(path("dota")(complete(dotaService.home.map(_.asJson.encode)))),
