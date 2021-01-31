@@ -11,10 +11,11 @@ class TelegramClient(http: HttpRequestClient) {
   val telegramConf: TelegramConf = TelegramConf()
 
   def sendPhoto(chatId: Long, photoUrl: String, caption: String): TelegramResponse = {
-    val urlString = s"${telegramConf.endpoint}/sendphoto?chat_id=$chatId&photo=$photoUrl&caption=$caption"
+    val sanitizedCaption = URLEncoder.encode(caption, "UTF-8")
+    val urlString = s"${telegramConf.endpoint}/sendphoto?chat_id=$chatId&photo=$photoUrl&caption=$sanitizedCaption"
     val response = http.sendGetRequest(urlString)
     val result = decode[TelegramResponse](response)
-    println(s"[INFO] send photo to chatId: $chatId with caption: $caption")
+    println(s"[INFO] send photo to chatId: $chatId with caption: $sanitizedCaption")
     println(s"$photoUrl")
     result
   }

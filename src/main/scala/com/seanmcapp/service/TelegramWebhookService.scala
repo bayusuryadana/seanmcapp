@@ -43,7 +43,7 @@ class TelegramWebhookService(CBCService: CBCService, hadithService: HadithServic
   }
 
   private def cbcSendPhoto(photo: Photo, chatId: Long): TelegramResponse = {
-    val caption = photo.caption + "%0A%40" + photo.account
+    val caption = s"${photo.caption}\n@${photo.account}"
     telegramClient.sendPhoto(chatId, CBCService.getPhotoUrl(photo.id), caption)
   }
 

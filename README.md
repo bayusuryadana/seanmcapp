@@ -4,8 +4,8 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c80ce1baef8543eaaa730e45b3cc6c02)](https://www.codacy.com/app/bayusuryadana/seanmcapp?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=bayusuryadana/seanmcapp&amp;utm_campaign=Badge_Grade)
 
 ## Feature
-- API: CBC, Dota, Wallet
-- Scheduler: AirVisual, Birthday, DotaMetadata, DsdaJakarta, IGrow, NCov
+- API: webhook telegram, CBC, Dota, Wallet, broadcast Telegram
+- Scheduler: AirVisual, Amartha, Birthday, DotaMetadata, DsdaJakarta, IGrow, Instagram, NCov, News
 
 ## Prerequisites
 1. Scala & SBT (automatically installed if you use intellij IDEA)
@@ -14,6 +14,7 @@
 ## Infrastructure
 1. Postgre SQL 
 2. Amazon S3 (using Minio for IT test)
+3. Redis
 
 ## Contribute
 ### Compile
@@ -31,6 +32,9 @@ run `docker-compose up -d` for running necessary service dependencies
 
 ### Local run
 run `sbt -Dconfig.resource=application-local.conf run`. It might not perfectly works since you don't have some of my credentials such as Instagram or Telegram account
+
+### Remote debugging
+run `sbt -jvm-debug 5005 run`
 
 ## Closing
 feel free to contact me at bayusuryadana@gmail.com  

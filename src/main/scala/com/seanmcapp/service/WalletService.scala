@@ -4,7 +4,6 @@ import java.text.NumberFormat
 import java.util.Calendar
 
 import com.seanmcapp.WalletConf
-import com.seanmcapp.external.AmarthaView
 import com.seanmcapp.repository.seanmcwallet.{Wallet, WalletRepo}
 
 import scala.collection.SortedMap
@@ -91,23 +90,6 @@ class WalletService(walletRepo: WalletRepo, amarthaService: AmarthaService) {
     val IDR = calculateBalance(wallets, requestDate, "BCA")
 
     DataView(cmsData, walletResult, SGD, IDR)
-  }
-
-  def amartha(secretKey: String): AmarthaView = {
-    val f = Future.successful(amarthaService.getAmarthaView())
-    authAndAwait(secretKey, f)
-  }
-
-  def insert(walletInput: Wallet)(implicit secretKey: String): Int = {
-    authAndAwait(secretKey, walletRepo.insert(walletInput))
-  }
-
-  def update(walletInput: Wallet)(implicit secretKey: String): Int = {
-    authAndAwait(secretKey, walletRepo.update(walletInput))
-  }
-
-  def delete(id: Int)(implicit secretKey: String): Int = {
-    authAndAwait(secretKey, walletRepo.delete(id))
   }
 
   private def authAndAwait[T](secretKey: String, f: Future[T]): T = {

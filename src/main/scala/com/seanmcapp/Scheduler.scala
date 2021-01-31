@@ -13,25 +13,24 @@ import scala.concurrent.duration.{Duration, FiniteDuration}
 
 // $COVERAGE-OFF$
 class Scheduler(scheduledTask: ScheduledTask, cronString: String, isRepeat: Boolean = true)
-                        (implicit system: ActorSystem) extends Runnable {
+               (implicit system: ActorSystem) extends Runnable {
+
   private[seanmcapp] val ICT = "+07:00"
   protected def now: DateTime = new DateTime().toDateTime(DateTimeZone.forID(ICT))
   protected val scheduler = system.scheduler
   private implicit val _ec: ExecutionContext = system.dispatcher
 
   def start: Cancellable = {
-    val fd = getNextSchedule(cronString).getOrElse(throw new Exception("invalid while getting cron schedule"))
-    scheduler.scheduleOnce(fd)(this.run)
+    val nextSchedule = Cron(cronString).toOption.flatMap(_.next(now).map { target =>
+      Duration(target.getMillis - now.getMillis, TimeUnit.MILLISECONDS)
+    }).getOrElse(throw new Exception("invalid while getting cron schedule"))
+
+    scheduler.scheduleOnce(nextSchedule)(this.run)
   }
 
   override def run: Unit = {
     scheduledTask.run
     if (isRepeat) start
-  }
-
-  private def getNextSchedule(s: String): Option[FiniteDuration] = {
-    Cron(s).toOption.flatMap(_.next(now).map { target =>
-      Duration(target.getMillis - now.getMillis, TimeUnit.MILLISECONDS) })
   }
 
 }

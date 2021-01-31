@@ -3,7 +3,7 @@ package com.seanmcapp.external
 import java.util.concurrent.TimeUnit
 
 import com.seanmcapp.util.MemoryCache
-import io.circe.{Decoder, Printer}
+import io.circe.Printer
 import io.circe.syntax._
 import scalacache.Cache
 import scalacache.memoization.memoizeSync
@@ -14,31 +14,19 @@ import scala.concurrent.duration.Duration
 class AmarthaClient(http: HttpRequestClient) extends MemoryCache {
 
   implicit val tokenCache: Cache[AmarthaAuthData] = createCache[AmarthaAuthData]
-  implicit val mitraListCache: Cache[AmarthaMitraIdList] = createCache[AmarthaMitraIdList]
-  implicit val mitraDetailCache: Cache[AmarthaDetail] = createCache[AmarthaDetail]
   implicit val transactionCache: Cache[List[AmarthaTransaction]] = createCache[List[AmarthaTransaction]]
 
   private val duration = Duration(30, TimeUnit.MINUTES)
 
   import AmarthaEndpoint._
 
-  def getAllSummary(accessToken: String): AmarthaSummary =
-    send[AmarthaSummary](accessToken, baseUrl + allSummary)
-
-  def getMitraList(accessToken: String): AmarthaMitraIdList = {
-    memoizeSync(Some(duration)) {
-      send[AmarthaMitraIdList](accessToken, baseUrl + listMitra)
-    }
-  }
-
-  def getMitraDetail(accessToken: String, loanId: Long): AmarthaDetail =
-    memoizeSync(Some(duration)) {
-      send[AmarthaDetail](accessToken, baseUrl + details + loanId)
-    }
-
   def getTransaction(accessToken: String): List[AmarthaTransaction] = {
     memoizeSync(Some(duration)) {
-      send[List[AmarthaTransaction]](accessToken, baseUrl + transaction)
+      val headers = HeaderMap(Map(
+        "x-access-token" -> accessToken
+      ))
+      val httpResponse = http.sendGetRequest(baseUrl + transaction, headers = Some(headers))
+      decode[AmarthaResponse[List[AmarthaTransaction]]](httpResponse).data
     }
   }
 
@@ -56,25 +44,11 @@ class AmarthaClient(http: HttpRequestClient) extends MemoryCache {
       decode[AmarthaResponse[AmarthaAuthData]](httpResponse.body).data
     }
   }
-
-  private def send[T:Decoder](accessToken: String, url: String): T = {
-    val headers = HeaderMap(Map(
-      "x-access-token" -> accessToken
-    ))
-    val httpResponse = http.sendGetRequest(url, headers = Some(headers))
-    decode[AmarthaResponse[T]](httpResponse).data
-  }
 }
 
 object AmarthaEndpoint {
   val baseUrl = "https://dashboard.amartha.com/v2"
 
   val auth = "/auth"
-  // account = "/investor/me"
-  val allSummary = "/investor/account"
-  // miniSummary = "/account/summary"
-  val marketplace = "/marketplace" // not priority
-  val listMitra = "/portofolio/list-mitra"
-  val details = "/portofolio/detail-mitra?id=" // ${loanId}
   val transaction = "/account/transaction"
 }
