@@ -1,5 +1,7 @@
 package com.seanmcapp.service
 
+import java.net.URLEncoder
+
 import com.seanmcapp.TelegramConf
 import com.seanmcapp.external._
 import org.mockito.Mockito
@@ -11,7 +13,8 @@ class TelegramWebhookTelegramClientMock extends TelegramClient(Mockito.mock(clas
   override val telegramConf = TelegramConf("endpoint", "@seanmcbot")
 
   override def sendPhoto(chatId: Long, photoUrl: String, caption: String): TelegramResponse = {
-    val source = Source.fromResource(s"telegram/${chatId}_response.json").mkString.replace("{caption}", caption)
+    val sanitizedText = URLEncoder.encode(caption, "utf-8")
+    val source = Source.fromResource(s"telegram/${chatId}_response.json").mkString.replace("{caption}", sanitizedText)
     decode[TelegramResponse](source)
   }
 

@@ -27,7 +27,7 @@ class IGrowServiceSpec extends AnyWordSpec with Matchers {
     val igrowService = new IGrowService(igrowClient, telegramClient) {
       override private[service] val schedulerConf = SchedulerConf(Seq(1L))
     }
-    val expected = List("Gemilang Sarea Farm Eggs Project%0APrice: 4000000%0AContract: 3 years%0AReturn: 18% per annum%0A26 unit left")
+    val expected = List("Gemilang Sarea Farm Eggs Project\nPrice: 4000000\nContract: 3 years\nReturn: 18% per annum\n26 unit left")
     igrowService.run shouldBe expected
   }
 
