@@ -1,10 +1,7 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.external.AmarthaView
 import com.seanmcapp.repository.WalletRepoMock
-import com.seanmcapp.repository.seanmcwallet.Wallet
 import org.mockito.Mockito
-import org.mockito.Mockito._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 
@@ -37,31 +34,6 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers {
     val dataView = walletService.data(secretKey, None)
     dataView.sgdBalance shouldBe Balance("-295", "-295", "-295")
     dataView.idrBalance shouldBe Balance("0","0","0")
-  }
-
-  "amartha should return amarthaView" in {
-    val responseMock = Mockito.mock(classOf[AmarthaView])
-    when(amarthaServiceMock.getAmarthaView()).thenReturn(responseMock)
-    walletService.amartha(secretKey)
-    verify(amarthaServiceMock, times(1)).getAmarthaView()
-    succeed
-  }
-
-  "insert should return the inserted object" in {
-    val wallet = Wallet(0, 201909, "Japan 2020", "Travel", "SGD", 100, false, "DBS")
-    val res = walletService.insert(wallet)(secretKey)
-    res shouldBe 1
-  }
-
-  "update should return number of updated object" in {
-    val wallet = Wallet(0, 201909, "Japan 2020", "Travel", "SGD", 100, true, "DBS")
-    val res = walletService.update(wallet)(secretKey)
-    res shouldBe 1
-  }
-
-  "delete should return number of deleted object" in {
-    val res = walletService.delete(123)(secretKey)
-    res shouldBe 1
   }
 
   "getMonth should return month name respectively" in {

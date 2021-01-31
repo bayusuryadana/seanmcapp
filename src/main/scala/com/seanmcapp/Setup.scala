@@ -5,7 +5,6 @@ import akka.http.scaladsl.model.HttpHeader
 import akka.http.scaladsl.server
 import akka.http.scaladsl.server.Directives
 import com.seanmcapp.external._
-import com.seanmcapp.repository.seanmcwallet.Wallet
 import io.circe.syntax._
 
 import scala.concurrent.duration._
@@ -37,25 +36,6 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
         complete(walletService.dashboard(secretKey).asJson.encode)
       } ~ (path("wallet" / "data" / Remaining.?) & headerValue(getHeader("secretkey"))) { (date, secretKey) =>
         complete(walletService.data(secretKey, date.flatMap(d => Try(d.toInt).toOption)).asJson.encode)
-      } ~ (path("wallet" / "amartha" ) & headerValue(getHeader("secretkey"))) { secretKey =>
-        complete(walletService.amartha(secretKey).asJson.encode)
-      }
-    },
-    post {
-      (path("wallet") & headerValue(getHeader("secretkey")) & entity(as[String])) { (secretKey, payload) =>
-        val wallet = decode[Wallet](payload)
-        complete(walletService.insert(wallet)(secretKey).toString)
-      }
-    },
-    put {
-      (path("wallet") & headerValue(getHeader("secretkey")) & entity(as[String])) { (secretKey, payload) =>
-        val wallet = decode[Wallet](payload)
-        complete(walletService.update(wallet)(secretKey).toString)
-      }
-    },
-    delete {
-      (path("wallet" / Remaining) & headerValue(getHeader("secretkey"))) { (id, secretKey) =>
-        complete(walletService.delete(id.toInt)(secretKey).toString)
       }
     },
 
