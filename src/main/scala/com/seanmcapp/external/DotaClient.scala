@@ -24,7 +24,6 @@ class DotaClient(http: HttpRequestClient) extends MemoryCache {
   def getMatches(player: Player): Seq[MatchResponse] = {
     memoizeSync(Some(duration)) {
       val response = http.sendGetRequest(dotaBaseUrl + player.id + "/matches")
-      println(response)
       decode[Seq[MatchResponse]](response)
     }
   }
