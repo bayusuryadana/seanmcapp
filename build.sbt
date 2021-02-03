@@ -67,6 +67,7 @@ libraryDependencies ++= Seq(
 )
 
 coverageExcludedPackages :=
+  ".*couchbase.*;" +
   ".*com.seanmcapp.util.*;" +
   ".*com.seanmcapp.config.*;" +
   ".*Boot.*;"
