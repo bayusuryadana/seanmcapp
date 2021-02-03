@@ -20,6 +20,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
   private[service] val MINIMUM_MATCHES = 30
 
   def home: Future[HomePageResponse] = {
+    new Scheduler
     val playersF = playerRepo.getAll
     val heroesF = heroRepo.getAll
     val heroAttributesF = heroAttrRepo.getAll

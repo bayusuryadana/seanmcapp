@@ -4,6 +4,9 @@ scalaVersion := "2.13.1"
 
 resolvers += Resolver.JCenterRepository
 
+lazy val model = Project(id = "model", base = file("model"))
+lazy val root = Project(id = "seanmcapp", base = file(".")) dependsOn(model)
+
 libraryDependencies ++= Seq(
   // framework
   "com.typesafe.akka" %% "akka-http" % "10.1.11",
