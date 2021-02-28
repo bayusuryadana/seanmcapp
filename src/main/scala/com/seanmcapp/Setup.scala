@@ -39,6 +39,9 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
       }
     },
 
+    // instagram
+    get(path("instastory")(complete(instagramService.run().map(_.asJson.encode)))),
+
     // broadcast
     toStrictEntity(3.seconds) {
       post((path("broadcast") & headerValue(getHeader("secretkey")) & fileUpload("photo") & formFieldMap) {
