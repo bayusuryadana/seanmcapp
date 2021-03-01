@@ -40,7 +40,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     },
 
     // instagram
-    get(path("instastory")(complete(instagramService.run().map(_.asJson.encode)))),
+    get(path("instastory")(complete(instagramStoryService.run().asJson.encode))),
 
     // broadcast
     toStrictEntity(3.seconds) {
