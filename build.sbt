@@ -64,6 +64,9 @@ libraryDependencies ++= Seq(
   // jsoup (Java HTML parser)
   "org.jsoup" % "jsoup" % "1.13.1",
 
+  // session
+  "com.softwaremill.akka-http-session" %% "core" % "0.5.11",
+
 )
 
 coverageExcludedPackages :=

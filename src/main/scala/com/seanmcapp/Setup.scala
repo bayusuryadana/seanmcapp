@@ -5,6 +5,8 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpHeader}
 import akka.http.scaladsl.server
 import akka.http.scaladsl.server.Directives
 import com.seanmcapp.external._
+import com.softwaremill.session.CsrfDirectives._
+import com.softwaremill.session.CsrfOptions._
 import io.circe.syntax._
 
 import scala.concurrent.duration._
@@ -12,7 +14,7 @@ import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 // $COVERAGE-OFF$
-class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection {
+class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection with Session {
 
   private val utf8 = ContentTypes.`text/html(UTF-8)`
 
@@ -39,13 +41,29 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     /////////// WEB ///////////
     get(path("dota")(complete(dotaService.home.map(HttpEntity(utf8, _))))),
 
-    (get & pathPrefix("wallet")) {
-      (pathEndOrSingleSlash | (pathPrefix("dashboard") & pathEndOrSingleSlash)) {
-        val dashboardView = walletService.dashboard(tempSecretKey)
-        complete(HttpEntity(utf8, com.seanmcapp.wallet.html.dashboard(dashboardView).body))
-      } ~ (pathPrefix("data") & pathEndOrSingleSlash & parameters('date.?)) { date =>
-        val dataView = walletService.data(tempSecretKey, date.flatMap(d => Try(d.toInt).toOption))
-        complete(HttpEntity(utf8, com.seanmcapp.wallet.html.data(dataView).body))
+    pathPrefix("wallet") {
+      post {
+        (pathPrefix("do_login") & pathEndOrSingleSlash & entity(as[String])) { body =>
+          mySetSession(body) {
+            setNewCsrfToken(checkHeader)(_.complete("login done!"))
+          }
+        } ~ (pathPrefix("do_logout") & pathEndOrSingleSlash) {
+          myRequiredSession(_ => myInvalidateSession(_.complete("logout done!")))
+        }
+      } ~
+      get {
+
+        randomTokenCsrfProtection(checkHeader) {
+          myRequiredSession { session =>
+            (pathEndOrSingleSlash | (pathPrefix("dashboard") & pathEndOrSingleSlash)) {
+              val dashboardView = walletService.dashboard(session)
+              _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.dashboard(dashboardView).body))
+            } ~ (pathPrefix("data") & pathEndOrSingleSlash & parameters('date.?)) { date =>
+              val dataView = walletService.data(session, date.flatMap(d => Try(d.toInt).toOption))
+              _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.data(dataView).body))
+            }
+          }
+        }
       }
     },
 
