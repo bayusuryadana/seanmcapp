@@ -1,26 +1,3 @@
-function expensePie(label, data) {
-    new Chart(document.getElementById('expensePie').getContext("2d"), {
-        type: 'pie',
-        data: {
-            labels: label,
-            datasets: [{
-                backgroundColor: [
-                    '#e3e3e3',
-                    '#4acccd',
-                    '#fcc468',
-                    '#ef8157',
-                    '#7ed6a5',
-                    '#f4c0fc',
-                    '#d6cfc6',
-                    '#9fd2d6',
-                ],
-                borderWidth: 1,
-                data: data
-            }]
-        }
-    });
-}
-
 function create() {
     var payload = {
         id: 0,

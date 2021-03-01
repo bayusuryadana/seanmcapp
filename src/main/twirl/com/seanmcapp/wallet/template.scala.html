@@ -1,0 +1,118 @@
+@(page: String)(content: Html)
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+
+        <link rel="apple-touch-icon" sizes="76x76" href="/assets/wallet/images/apple-icon.png">
+        <link rel="icon" type="image/png" href="/assets/wallet/images/favicon.png">
+
+        <title>SeanmcwalleT | @page</title>
+
+        <!--     Fonts and icons     -->
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+
+        <!-- CSS Files -->
+        <link href="/assets/wallet/stylesheets/bootstrap.min.css" rel="stylesheet" />
+        <link href="/assets/wallet/stylesheets/paper-dashboard.css" rel="stylesheet" />
+
+        <!--   Core JS Files   -->
+        <script src="/assets/wallet/javascripts/plugins/jquery.min.js"></script>
+        <script src="/assets/wallet/javascripts/plugins/popper.min.js"></script>
+        <script src="/assets/wallet/javascripts/plugins/bootstrap.min.js"></script>
+        <script src="/assets/wallet/javascripts/plugins/perfect-scrollbar.jquery.min.js"></script>
+        <script src="/assets/wallet/javascripts/plugins/paper-dashboard.min.js"></script>
+        <!-- Chart JS -->
+        <script src="/assets/wallet/javascripts/plugins/chartjs.min.js"></script>
+        <!--  Notifications Plugin    -->
+        <script src="/assets/wallet/javascripts/plugins/bootstrap-notify.js"></script>
+    </head>
+    <body>
+        <div class="wrapper">
+            <div class="sidebar" data-color="white" data-active-color="danger">
+                    <!--
+          Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red | yellow"
+      -->
+                <div class="logo">
+                    <a href="http://www.creative-tim.com" class="simple-text logo-mini">
+                        <div class="logo-image-small">
+                            <img src="/assets/wallet/images/logo-small.png">
+                        </div>
+                    </a>
+                    <a href="http://www.creative-tim.com" class="simple-text logo-normal">
+                    seanmcwallet
+                        <!-- <div class="logo-image-big">
+                  <img src="../assets/img/logo-big.png">
+                </div> -->
+                    </a>
+                </div>
+                <div class="sidebar-wrapper">
+                    <ul class="nav">
+                        <li class="@if(page == "Dashboard"){active}">
+                            <a href="/wallet/dashboard">
+                                <i class="nc-icon nc-bank"></i>
+                                <p>Dashboard</p>
+                            </a>
+                        </li>
+                        <li class="@if(page == "Data"){active}">
+                            <a href="/wallet/data">
+                                <i class="nc-icon nc-tile-56"></i>
+                                <p>Data</p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="main-panel">
+                <!-- Navbar -->
+                <nav class="navbar navbar-expand-lg navbar-absolute fixed-top navbar-transparent">
+                    <div class="container-fluid">
+                        <div class="navbar-wrapper">
+                            <div class="navbar-toggle">
+                                <button type="button" class="navbar-toggler">
+                                    <span class="navbar-toggler-bar bar1"></span>
+                                    <span class="navbar-toggler-bar bar2"></span>
+                                    <span class="navbar-toggler-bar bar3"></span>
+                                </button>
+                            </div>
+                            <a class="navbar-brand" href="javascript:;">@(page)</a>
+                        </div>
+                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-bar navbar-kebab"></span>
+                            <span class="navbar-toggler-bar navbar-kebab"></span>
+                            <span class="navbar-toggler-bar navbar-kebab"></span>
+                        </button>
+                        <div class="collapse navbar-collapse justify-content-end" id="navigation">
+                            <ul class="navbar-nav">
+                                <li class="nav-item">
+                                    <a class="nav-link btn-rotate" href="/wallet/clear">
+                                        <i class="nc-icon nc-user-run"></i>
+                                        <p>
+                                            <span class="d-lg-none d-md-block">Log out</span>
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+
+                @content
+
+                <footer class="footer footer-black footer-white">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="credits ml-auto">
+                                <span class="copyright">seanmcrayz - 2019</span>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </body>
+</html>

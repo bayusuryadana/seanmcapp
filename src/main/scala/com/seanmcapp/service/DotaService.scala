@@ -21,13 +21,14 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
   private val heroImageBaseURL = "https://api.opendota.com/apps/dota2/images/heroes/"
   private val rankImageBaseURL = "https://www.opendota.com/assets/images/dota2/rank_icons/"
   
-  def web: Future[String] = {
-    home.map { homePage =>
-      com.seanmcapp.dota.html.home(heroImageBaseURL, rankImageBaseURL, homePage).body
+  def home: Future[String] = {
+    val homePageResponseF = getHomePageData
+    homePageResponseF.map { homePageResponse =>
+      com.seanmcapp.dota.html.home(heroImageBaseURL, rankImageBaseURL, homePageResponse).body
     }
   }
 
-  def home: Future[HomePageResponse] = {
+  private[service] def getHomePageData: Future[HomePageResponse] = {
     val playersF = playerRepo.getAll
     val heroesF = heroRepo.getAll
     val heroAttributesF = heroAttrRepo.getAll

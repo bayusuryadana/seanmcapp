@@ -132,12 +132,18 @@ body {
 }
 
 .hero-detail-top-player {
-    border: 1px solid whitesmoke;
+    border: none !important;
+    padding: 8px 0 !important;
 }
 
 .hero-detail-top-player-image {
     border-radius: 100%;
     width: 50%;
+    margin: 10px 0;
+}
+
+.hero-detail-top-player-name {
+    font-size: 1.1em;
 }
 
 #hero-detail-lore{

@@ -12,7 +12,7 @@ class DotaServiceSpec extends AsyncWordSpec with Matchers {
   val dotaService = new DotaService(PlayerRepoMock, HeroRepoMock, HeroAttributeRepoMock, dotaClient)
 
   "should fetch correct response and transform response properly - Home endpoint" in {
-    dotaService.home.map { res =>
+    dotaService.getHomePageData.map { res =>
       val playerInfos = List(
         PlayerInfo(
           Player(105742997, "Bayu Suryadana", "https://someurl", "SeanmcrayZ", Some(35)),

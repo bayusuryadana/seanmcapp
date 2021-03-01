@@ -59,7 +59,7 @@ trait Injection {
   val newsClient = new NewsClient(httpClient)
   val newsService = new NewsService(newsClient, telegramClient)
 
-  val walletService = new WalletService(walletRepo, amarthaService)
+  val walletService = new WalletService(walletRepo)
 
   val warmupDBService = new WarmupDBService(peopleRepo)
 

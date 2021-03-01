@@ -23,12 +23,6 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
   val userId = 274852283
   val userFullName = "Yukihira Soma"
 
-  "should return any random photos - API random endpoint" in {
-    cbcService.random.map { res =>
-      res.map(_.thumbnailSrc) shouldBe Some("https://someurl")
-    }
-  }
-
   "should return a random photos - cbc" in {
     cbcService.cbcFlow(userId, userFullName, "cbc").map { response =>
       response shouldNot be(None)

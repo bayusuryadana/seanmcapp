@@ -14,51 +14,46 @@ import scala.util.Try
 // $COVERAGE-OFF$
 class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection {
 
+  private val utf8 = ContentTypes.`text/html(UTF-8)`
+
   val discord = new DiscordClient(cbcService, hadithService).run()
 
   val route: server.Route = List(
 
-    // webhook
+    /////////// WEBHOOK ///////////
     post((path("webhook") & entity(as[String])) { payload =>
       val telegramUpdate = decode[TelegramUpdate](payload)
       complete(telegramWebhookService.receive(telegramUpdate).map(_.map(_.asJson.encode)))
     }),
 
-    // cbc API
-    get(path("cbc" / "random")(complete(cbcService.random.map(_.map(_.asJson.encode))))),
+    /////////// API ///////////
+    get(path( "api" /"instastory")(complete(instagramStoryService.run().asJson.encode))),
 
-    // dota APP
-    get(path("dota")(complete(dotaService.home.map(_.asJson.encode)))),
-
-    // wallet
-    get {
-      (path("wallet") & headerValue(getHeader("secretkey"))) { secretKey =>
-        complete(walletService.dashboard(secretKey).asJson.encode)
-      } ~ (path("wallet" / "data" / Remaining.?) & headerValue(getHeader("secretkey"))) { (date, secretKey) =>
-        complete(walletService.data(secretKey, date.flatMap(d => Try(d.toInt).toOption)).asJson.encode)
-      }
-    },
-
-    // instagram
-    get(path("instastory")(complete(instagramStoryService.run().asJson.encode))),
-
-    // broadcast
     toStrictEntity(3.seconds) {
       post((path("broadcast") & headerValue(getHeader("secretkey")) & fileUpload("photo") & formFieldMap) {
         case (secretKey, (_, byteSource), formFields) =>
           complete(broadcastService.broadcastWithPhoto(byteSource, formFields)(system, secretKey).map(_.asJson.encode))
       })
     },
-    
-    // web
+
+    /////////// WEB ///////////
+    get(path("dota")(complete(dotaService.home.map(HttpEntity(utf8, _))))),
+
+    (get & pathPrefix("wallet")) {
+      (pathEndOrSingleSlash | (pathPrefix("dashboard") & pathEndOrSingleSlash)) {
+        val dashboardView = walletService.dashboard(tempSecretKey)
+        complete(HttpEntity(utf8, com.seanmcapp.wallet.html.dashboard(dashboardView).body))
+      } ~ (pathPrefix("data") & pathEndOrSingleSlash & parameters('date.?)) { date =>
+        val dataView = walletService.data(tempSecretKey, date.flatMap(d => Try(d.toInt).toOption))
+        complete(HttpEntity(utf8, com.seanmcapp.wallet.html.data(dataView).body))
+      }
+    },
+
     (get & pathPrefix("assets" / Remaining)){ resourcePath =>
       getFromResource(s"assets/$resourcePath")
     },
-    
-    get(path("web" / "dota")(complete(dotaService.web.map(HttpEntity(ContentTypes.`text/html(UTF-8)`, _))))),
 
-    // homepage
-    get(path("")(complete("Life is a gift, keep smiling and giving goodness !")))
+    get(path("")(complete(HttpEntity(utf8, com.seanmcapp.html.index().body))))
 
   ).reduce{ (a,b) => a~b }
 
