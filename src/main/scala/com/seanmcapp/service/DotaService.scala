@@ -18,9 +18,13 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
                   dotaClient: DotaClient) extends ScheduledTask {
 
   private[service] val MINIMUM_MATCHES = 30
+  private val heroImageBaseURL = "https://api.opendota.com/apps/dota2/images/heroes/"
+  private val rankImageBaseURL = "https://www.opendota.com/assets/images/dota2/rank_icons/"
   
-  def web: String = {
-    com.seanmcapp.html.ehek("Test brow").body
+  def web: Future[String] = {
+    home.map { homePage =>
+      com.seanmcapp.dota.html.home(heroImageBaseURL, rankImageBaseURL, homePage).body
+    }
   }
 
   def home: Future[HomePageResponse] = {

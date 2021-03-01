@@ -55,7 +55,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
       getFromResource(s"assets/$resourcePath")
     },
     
-    get(path("web" / "dota")(complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, dotaService.web)))),
+    get(path("web" / "dota")(complete(dotaService.web.map(HttpEntity(ContentTypes.`text/html(UTF-8)`, _))))),
 
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !")))
