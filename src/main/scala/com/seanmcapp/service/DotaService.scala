@@ -18,6 +18,10 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
                   dotaClient: DotaClient) extends ScheduledTask {
 
   private[service] val MINIMUM_MATCHES = 30
+  
+  def web: String = {
+    com.seanmcapp.html.ehek("Test brow").body
+  }
 
   def home: Future[HomePageResponse] = {
     val playersF = playerRepo.getAll

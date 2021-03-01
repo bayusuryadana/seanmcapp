@@ -1,7 +1,7 @@
 package com.seanmcapp
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model.HttpHeader
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpHeader}
 import akka.http.scaladsl.server
 import akka.http.scaladsl.server.Directives
 import com.seanmcapp.external._
@@ -49,6 +49,13 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
           complete(broadcastService.broadcastWithPhoto(byteSource, formFields)(system, secretKey).map(_.asJson.encode))
       })
     },
+    
+    // web
+    (get & pathPrefix("assets" / Remaining)){ resourcePath =>
+      getFromResource(s"assets/$resourcePath")
+    },
+    
+    get(path("web" / "dota")(complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, dotaService.web)))),
 
     // homepage
     get(path("")(complete("Life is a gift, keep smiling and giving goodness !")))
