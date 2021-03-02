@@ -31,3 +31,4 @@ jobs:
       run: sbt coverageReport
     - name: Upload report
       run: bash <(curl -s https://codecov.io/bash)
+      if: ${{ always() }}
