@@ -92,6 +92,8 @@ class WalletService(walletRepo: WalletRepo) {
     DataView(cmsData, walletResult, SGD, IDR)
   }
 
+  def login(secretKey: String): Boolean = secretKey == SECRET_KEY
+
   private def authAndAwait[T](secretKey: String, f: Future[T]): T = {
     secretKey match {
       case SECRET_KEY => Await.result(f, Duration.Inf)

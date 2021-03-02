@@ -20,7 +20,7 @@ trait Session {
 
   def mySetSession(v: String) = setSession(refreshable, usingCookies, v)
   def myRequiredSession: Directive1[String] = optionalSession(refreshable, usingCookies).flatMap {
-    case None       => redirect("/wallet/login", StatusCodes.PermanentRedirect)
+    case None       => redirect("/wallet/login", StatusCodes.SeeOther)
     case Some(data) => provide(data)
   }
   val myInvalidateSession = invalidateSession(refreshable, usingCookies)

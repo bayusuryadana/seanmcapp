@@ -1,12 +1,10 @@
 package com.seanmcapp
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpHeader}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpHeader, StatusCodes}
 import akka.http.scaladsl.server
 import akka.http.scaladsl.server.Directives
 import com.seanmcapp.external._
-import com.softwaremill.session.CsrfDirectives._
-import com.softwaremill.session.CsrfOptions._
 import io.circe.syntax._
 
 import scala.concurrent.duration._
@@ -43,25 +41,27 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
 
     pathPrefix("wallet") {
       post {
-        (pathPrefix("do_login") & pathEndOrSingleSlash & entity(as[String])) { body =>
-          mySetSession(body) {
-            setNewCsrfToken(checkHeader)(_.complete("login done!"))
+        (pathPrefix("do_login") & formField('secretKey)) { body =>
+          if (walletService.login(body)) {
+            mySetSession(body)(_.redirect("/wallet", StatusCodes.Found))
+          } else {
+            redirect("/wallet/login", StatusCodes.SeeOther)
           }
-        } ~ (pathPrefix("do_logout") & pathEndOrSingleSlash) {
-          myRequiredSession(_ => myInvalidateSession(_.complete("logout done!")))
         }
       } ~
       get {
-
-        randomTokenCsrfProtection(checkHeader) {
-          myRequiredSession { session =>
-            (pathEndOrSingleSlash | (pathPrefix("dashboard") & pathEndOrSingleSlash)) {
-              val dashboardView = walletService.dashboard(session)
-              _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.dashboard(dashboardView).body))
-            } ~ (pathPrefix("data") & pathEndOrSingleSlash & parameters('date.?)) { date =>
-              val dataView = walletService.data(session, date.flatMap(d => Try(d.toInt).toOption))
-              _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.data(dataView).body))
-            }
+        pathPrefix("login") {
+          complete(HttpEntity(utf8, com.seanmcapp.wallet.html.login().body))
+        } ~
+        myRequiredSession { session =>
+          pathEndOrSingleSlash {
+            val dashboardView = walletService.dashboard(session)
+            _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.dashboard(dashboardView).body))
+          } ~ (pathPrefix("data") & parameters('date.?)) { date =>
+            val dataView = walletService.data(session, date.flatMap(d => Try(d.toInt).toOption))
+            _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.data(dataView).body))
+          } ~ pathPrefix("do_logout") {
+            myInvalidateSession(_.redirect("/wallet/login", StatusCodes.Found))
           }
         }
       }
