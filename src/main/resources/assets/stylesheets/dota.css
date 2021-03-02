@@ -1,0 +1,151 @@
+body {
+    background-color: #1C242D;
+    color: whitesmoke;
+}
+
+.container {
+    margin: 100px auto;
+}
+
+@media (min-width: 1700px) {
+    .container {
+        max-width: 1615px;
+    }
+}
+
+@media (min-width: 2018px) {
+    .container {
+        max-width: 1917px;
+    }
+}
+
+@media (min-width: 2396px) {
+    .container {
+        max-width: 2276px;
+    }
+}
+
+.player-container[style*='display: block'] {
+    display: flex !important;
+}
+
+.tabs, .tabs-expand, .tabs-expand ul, .tabs li, .tabs-expand li {
+    background-color: #1C242D !important;
+    border: none !important;
+}
+
+.tabs-expand>ul.tabs-list>li.active {
+    border-bottom: 5px solid whitesmoke !important;
+}
+
+.tabs-expand h2 {
+    color: whitesmoke;
+}
+
+.player-img {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+}
+
+.social-box {
+    background-color: #2E3740;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.social-box .header {
+    background-color: #2A323A;
+}
+
+.social-box .top-hero-row {
+    padding: 5px;
+}
+
+.top-hero-img {
+    width: inherit;
+    border-radius: 10%;
+    border: solid;
+}
+
+.skills {
+    background-color: #2E3740;
+    color: rgba(255,255,255,0.6);
+}
+
+.recent-hero-img {
+    border-radius: 15%;
+    border: thin solid;
+}
+
+.va-center-manual {
+    margin: auto;
+}
+
+#_heroes {
+    margin-top: 1rem;
+}
+
+.hero-image {
+    padding: 0;
+    margin: 5px;
+    width: 128px;
+    display: inline-block;
+}
+
+.hero-image:hover {
+    cursor: pointer;
+}
+
+.hero-image:hover .hero-name-overlay {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.hero-name-overlay {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    font-size: small;
+}
+
+#hero-detail {
+    display: none;
+}
+
+#hero-detail-title {
+    border-bottom: solid 2px rgba(255, 255, 255, 0.6);
+    padding-bottom: 5px;
+}
+
+#hero-detail-header {
+    padding-bottom: 20px;
+    margin-bottom: 0;
+}
+
+#hero-detail-skills {
+    padding: 20px 0;
+    background-color: #2A323A;
+}
+
+.top-player-row {
+    padding-top: 0 !important;
+}
+
+.hero-detail-top-player {
+    border: none !important;
+    padding: 8px 0 !important;
+}
+
+.hero-detail-top-player-image {
+    border-radius: 100%;
+    width: 50%;
+    margin: 10px 0;
+}
+
+.hero-detail-top-player-name {
+    font-size: 1.1em;
+}
+
+#hero-detail-lore{
+    padding: 20px;
+}

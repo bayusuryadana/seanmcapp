@@ -12,7 +12,7 @@ import scala.concurrent.{Await, Future}
 
 case class WalletOutput(code: Int, message: Option[String], row: Option[Int], response: Seq[Wallet])
 
-class WalletService(walletRepo: WalletRepo, amarthaService: AmarthaService) {
+class WalletService(walletRepo: WalletRepo) {
 
   private val activeIncomeSet = Set("Salary", "Bonus")
   private val expenseSet = Set("Daily", "Rent", "Zakat", "Travel", "Fashion", "IT Stuff", "Misc", "Wellness", "Funding")
@@ -91,6 +91,8 @@ class WalletService(walletRepo: WalletRepo, amarthaService: AmarthaService) {
 
     DataView(cmsData, walletResult, SGD, IDR)
   }
+
+  def login(secretKey: String): Boolean = secretKey == SECRET_KEY
 
   private def authAndAwait[T](secretKey: String, f: Future[T]): T = {
     secretKey match {

@@ -64,12 +64,17 @@ libraryDependencies ++= Seq(
   // jsoup (Java HTML parser)
   "org.jsoup" % "jsoup" % "1.13.1",
 
+  // session
+  "com.softwaremill.akka-http-session" %% "core" % "0.5.11",
+
 )
 
 coverageExcludedPackages :=
   ".*com.seanmcapp.util.*;" +
   ".*com.seanmcapp.config.*;" +
-  ".*Boot.*;"
+  ".*Boot.*;" +
+  ".*com.seanmcapp.*html.*;"
+
 coverageMinimum := 90
 coverageFailOnMinimum := true
 
@@ -92,3 +97,4 @@ dockerRepository := Some("seanmcrayz")
 enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
 enablePlugins(AshScriptPlugin)
+enablePlugins(SbtTwirl)

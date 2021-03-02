@@ -1,7 +1,7 @@
 package com.seanmcapp
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model.HttpHeader
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpHeader, StatusCodes}
 import akka.http.scaladsl.server
 import akka.http.scaladsl.server.Directives
 import com.seanmcapp.external._
@@ -12,37 +12,23 @@ import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 // $COVERAGE-OFF$
-class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection {
+class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection with Session {
+
+  private val utf8 = ContentTypes.`text/html(UTF-8)`
 
   val discord = new DiscordClient(cbcService, hadithService).run()
 
   val route: server.Route = List(
 
-    // webhook
+    /////////// WEBHOOK ///////////
     post((path("webhook") & entity(as[String])) { payload =>
       val telegramUpdate = decode[TelegramUpdate](payload)
       complete(telegramWebhookService.receive(telegramUpdate).map(_.map(_.asJson.encode)))
     }),
 
-    // cbc API
-    get(path("cbc" / "random")(complete(cbcService.random.map(_.map(_.asJson.encode))))),
+    /////////// API ///////////
+    get(path( "api" /"instastory")(complete(instagramStoryService.run().asJson.encode))),
 
-    // dota APP
-    get(path("dota")(complete(dotaService.home.map(_.asJson.encode)))),
-
-    // wallet
-    get {
-      (path("wallet") & headerValue(getHeader("secretkey"))) { secretKey =>
-        complete(walletService.dashboard(secretKey).asJson.encode)
-      } ~ (path("wallet" / "data" / Remaining.?) & headerValue(getHeader("secretkey"))) { (date, secretKey) =>
-        complete(walletService.data(secretKey, date.flatMap(d => Try(d.toInt).toOption)).asJson.encode)
-      }
-    },
-
-    // instagram
-    get(path("instastory")(complete(instagramStoryService.run().asJson.encode))),
-
-    // broadcast
     toStrictEntity(3.seconds) {
       post((path("broadcast") & headerValue(getHeader("secretkey")) & fileUpload("photo") & formFieldMap) {
         case (secretKey, (_, byteSource), formFields) =>
@@ -50,8 +36,42 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
       })
     },
 
-    // homepage
-    get(path("")(complete("Life is a gift, keep smiling and giving goodness !")))
+    /////////// WEB ///////////
+    get(path("dota")(complete(dotaService.home.map(HttpEntity(utf8, _))))),
+
+    pathPrefix("wallet") {
+      post {
+        (pathPrefix("do_login") & formField('secretKey)) { body =>
+          if (walletService.login(body)) {
+            setSession(body)(_.redirect("/wallet", StatusCodes.Found))
+          } else {
+            redirect("/wallet/login", StatusCodes.SeeOther)
+          }
+        }
+      } ~
+      get {
+        pathPrefix("login") {
+          complete(HttpEntity(utf8, com.seanmcapp.wallet.html.login().body))
+        } ~
+        validateSession { session =>
+          pathEndOrSingleSlash {
+            val dashboardView = walletService.dashboard(session)
+            _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.dashboard(dashboardView).body))
+          } ~ (pathPrefix("data") & parameters('date.?)) { date =>
+            val dataView = walletService.data(session, date.flatMap(d => Try(d.toInt).toOption))
+            _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.data(dataView).body))
+          } ~ pathPrefix("do_logout") {
+            invalidateSession(_.redirect("/wallet/login", StatusCodes.Found))
+          }
+        }
+      }
+    },
+
+    (get & pathPrefix("assets" / Remaining)){ resourcePath =>
+      getFromResource(s"assets/$resourcePath")
+    },
+
+    get(path("")(complete(HttpEntity(utf8, com.seanmcapp.html.index().body))))
 
   ).reduce{ (a,b) => a~b }
 

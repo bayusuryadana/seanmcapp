@@ -4,8 +4,9 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c80ce1baef8543eaaa730e45b3cc6c02)](https://www.codacy.com/app/bayusuryadana/seanmcapp?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=bayusuryadana/seanmcapp&amp;utm_campaign=Badge_Grade)
 
 ## Feature
-- API: webhook telegram, CBC, Dota, Wallet, broadcast Telegram
-- Scheduler: AirVisual, Amartha, Birthday, DotaMetadata, DsdaJakarta, IGrow, Instagram, NCov, News
+- API: telegram webhook & broadcast interface
+- Web: Dota & Wallet app
+- Scheduler: AirVisual, Amartha, Birthday, DotaMetadata, DsdaJakarta, IGrow, Instagram, Instastory, NCov, News
 
 ## Prerequisites
 1. Scala & SBT (automatically installed if you use intellij IDEA)

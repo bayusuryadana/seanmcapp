@@ -13,8 +13,6 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, cbcClient: CB
 
   implicit val lastPhotoCache: Cache[Long] = createCache[Long]
 
-  def random: Future[Option[Photo]] = photoRepo.getRandom
-
   def cbcFlow(userId: Long, userFullName: String, `type`: String): Future[Option[Photo]] = {
     val photoF = `type` match {
       case "cbc" => photoRepo.getRandom
