@@ -72,7 +72,9 @@ libraryDependencies ++= Seq(
 coverageExcludedPackages :=
   ".*com.seanmcapp.util.*;" +
   ".*com.seanmcapp.config.*;" +
-  ".*Boot.*;"
+  ".*Boot.*;" +
+  ".*com.seanmcapp.*html.*;"
+
 coverageMinimum := 90
 coverageFailOnMinimum := true
 

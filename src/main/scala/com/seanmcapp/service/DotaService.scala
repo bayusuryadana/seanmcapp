@@ -20,13 +20,15 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
   private[service] val MINIMUM_MATCHES = 30
   private val heroImageBaseURL = "https://api.opendota.com/apps/dota2/images/heroes/"
   private val rankImageBaseURL = "https://www.opendota.com/assets/images/dota2/rank_icons/"
-  
+
+  // $COVERAGE-OFF$
   def home: Future[String] = {
     val homePageResponseF = getHomePageData
     homePageResponseF.map { homePageResponse =>
       com.seanmcapp.dota.html.home(heroImageBaseURL, rankImageBaseURL, homePageResponse).body
     }
   }
+  // $COVERAGE-ON$
 
   private[service] def getHomePageData: Future[HomePageResponse] = {
     val playersF = playerRepo.getAll

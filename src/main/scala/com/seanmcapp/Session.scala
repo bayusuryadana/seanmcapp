@@ -9,6 +9,7 @@ import com.softwaremill.session._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+// $COVERAGE-OFF$
 trait Session {
 
   private val sessionConfig = SessionConfig.default("ZpCTHcYxSobOw3QcPGvabX7qCymLFzWzw9bWiz2rNge4kSNiDsl7XRnt5c2Hr1qK")
