@@ -40,15 +40,6 @@ object BroadcastConf extends Configuration[BroadcastConf]("broadcast") {
   }
 }
 
-case class SchedulerConf(igrow: Seq[Long])
-object SchedulerConf extends Configuration[SchedulerConf]("scheduler") {
-  override def buildConfig(c: Config): SchedulerConf = {
-    SchedulerConf(
-      Try(c.getString("igrow").split(",").map(_.toLong).toSeq).getOrElse(Seq.empty[Long])
-    )
-  }
-}
-
 case class HttpConf(connTimeout: Int, readTimeout: Int, followRedirects: Boolean)
 object HttpConf extends Configuration[HttpConf]("http") {
   override def buildConfig(c: Config): HttpConf = {

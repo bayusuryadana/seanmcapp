@@ -94,7 +94,6 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(warmupDBService, "*/5 * * * * ?", false),
     new Scheduler(dotaService, "0 0 2 * * ?"),
     new Scheduler(birthdayService, "0 0 6 * * ?"),
-    new Scheduler(iGrowService, "0 0 6 * * ?"),
     new Scheduler(airVisualService, "0 0 8 * * ?"),
     new Scheduler(airVisualService, "0 0 17 * * ?"),
     new Scheduler(nCovService, "0 0 20 * * ?"),
