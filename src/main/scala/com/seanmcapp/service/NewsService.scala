@@ -37,7 +37,7 @@ object NewsConstant {
     "kumparan" -> NewsObject(2, "https://kumparan.com/trending", kumparanParser),
     "mothership" -> NewsObject(3, "https://mothership.sg", mothershipParser),
     "cna" -> NewsObject(4, "https://www.channelnewsasia.com/news/singapore", cnaParser),
-    "reuters" -> NewsObject(5, "https://www.reuters.com", reutersParser),
+    //"reuters" -> NewsObject(5, "https://www.reuters.com", reutersParser),
   )
 
   private def cnaParser(d: Document): NewsResult = {
@@ -67,10 +67,10 @@ object NewsConstant {
     )
   }
 
-  private def reutersParser(d: Document): NewsResult = {
-    val tag = d.selectFirst("#topStory h2 a")
-    NewsResult(tag.text(), s"https://www.reuters.com${tag.attr("href")}", Array(0x1f30f))
-  }
+//  private def reutersParser(d: Document): NewsResult = {
+//    val tag = d.selectFirst("#topStory h2 a")
+//    NewsResult(tag.text(), s"https://www.reuters.com${tag.attr("href")}", Array(0x1f30f))
+//  }
 
   private def tirtoParser(d: Document): NewsResult = {
     // TODO: check whether the title matches 'POPULER', instead of hard code the index 8
