@@ -26,6 +26,11 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
       complete(telegramWebhookService.receive(telegramUpdate).map(_.map(_.asJson.encode)))
     }),
 
+    post((path("wedhook") & entity(as[String])) { payload =>
+      val telegramUpdate = decode[TelegramUpdate](payload)
+      complete(weddingService.receive(telegramUpdate).map(_.asJson.encode))
+    }),
+
     /////////// API ///////////
     get(path( "api" / "instagram" / Remaining) { session =>
       if (session == "null") complete(instagramService.startFetching().map(_.asJson.encode))
@@ -112,6 +117,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(instagramStoryService, "0 0 * * * ?"),
     new Scheduler(newsService, "0 0 6 * * ?"),
     new Scheduler(cacheCleanerService, "0 0 0 * * ?"),
+    new Scheduler(weddingService, "0 0 * * * ?")
   )
 
 }

@@ -18,7 +18,8 @@ class TelegramWebhookTelegramClientMock extends TelegramClient(Mockito.mock(clas
     decode[TelegramResponse](source)
   }
 
-  override def sendMessage(chatId: Long, text: String): TelegramResponse = {
+  override def sendMessage(chatId: Long, text: String,
+                           customEndpoint: Option[String] = None, replyMarkup: Option[String] = None): TelegramResponse = {
     decode[TelegramResponse](defaultSendMessageResponse.replace("{text}", text))
   }
 

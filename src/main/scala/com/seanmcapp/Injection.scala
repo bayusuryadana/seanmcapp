@@ -1,7 +1,8 @@
 package com.seanmcapp
 
 import com.seanmcapp.external._
-import com.seanmcapp.repository.{CacheRepo, CacheRepoImpl, FileRepo, FileRepoImpl}
+import com.seanmcapp.repository.{CacheRepo, CacheRepoImpl}
+import com.seanmcapp.repository.{FileRepo, FileRepoImpl, WeddingRepo, WeddingRepoImpl}
 import com.seanmcapp.repository.birthday.{PeopleRepo, PeopleRepoImpl}
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
@@ -20,6 +21,7 @@ trait Injection {
   val fileRepo: FileRepo = FileRepoImpl
   val walletRepo: WalletRepo = WalletRepoImpl
   val cacheRepo: CacheRepo = CacheRepoImpl
+  val weddingRepo: WeddingRepo = WeddingRepoImpl
 
   val httpClient: HttpRequestClient = HttpRequestClientImpl
   val telegramClient = new TelegramClient(httpClient)
@@ -61,6 +63,8 @@ trait Injection {
   val warmupDBService = new WarmupDBService(peopleRepo)
 
   val telegramWebhookService = new TelegramWebhookService(cbcService, hadithService, telegramClient)
+  
+  val weddingService = new WeddingService(weddingRepo, telegramClient)
 
   val cacheCleanerService = new CacheCleanerService(cacheRepo)
 }
