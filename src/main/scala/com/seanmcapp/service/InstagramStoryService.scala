@@ -19,8 +19,10 @@ case class InstagramStoryVideoResource(src: String, profile: String)
 
 class InstagramStoryService(instagramClient: InstagramClient, telegramClient: TelegramClient, redisRepo: RedisRepo) extends ScheduledTask {
 
-  override def run(): Seq[String] = {
-    val sessionId = instagramClient.postLogin()
+  override def run(): Seq[String] = fetch()
+
+  def fetch(sessionIdOpt: Option[String] = None): Seq[String] = {
+    val sessionId = sessionIdOpt.getOrElse(instagramClient.postLogin())
     val accountMap = Map(
       "Alvida" -> "302844663",
       "Buggy" -> "277395688",
