@@ -1,7 +1,7 @@
 package com.seanmcapp.service
 
 import com.seanmcapp.external.{InstagramClient, TelegramClient, TelegramResponse}
-import com.seanmcapp.repository.RedisRepoMock
+import com.seanmcapp.repository.CacheRepoMock
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.{mock, when}
@@ -31,7 +31,7 @@ class InstagramStoryServiceSpec extends AnyWordSpec with Matchers {
       ))
     )
     when(instagramClient.getStories(any(), any())).thenReturn(instagramStoryResponse)
-    val instagramStoryService = new InstagramStoryService(instagramClient, telegramClient, RedisRepoMock) {
+    val instagramStoryService = new InstagramStoryService(instagramClient, telegramClient, CacheRepoMock) {
       override private[service] def getDataByte(url: String) = Array.emptyByteArray
     }
     val result = instagramStoryService.run()

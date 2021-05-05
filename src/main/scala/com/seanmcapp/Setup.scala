@@ -27,7 +27,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     }),
 
     /////////// API ///////////
-    get(path( "api" /"instastory" / Remaining)(session => complete(instagramStoryService.fetch(Some(session)).asJson.encode))),
+    get(path( "api" /"instastory" / Remaining)(session => complete(instagramStoryService.fetch(Some(session)).map(_.asJson.encode)))),
 
     toStrictEntity(3.seconds) {
       post((path("broadcast") & headerValue(getHeader("secretkey")) & fileUpload("photo") & formFieldMap) {

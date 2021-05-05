@@ -28,8 +28,3 @@ services:
       sh -c "mc config host rm local
              mc config host add local http://localhost:9999 admin password
              mc policy set download local/seanmcapp"
-
-  redis:
-    image: redis:alpine
-    ports:
-    - "6379:6379"

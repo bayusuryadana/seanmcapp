@@ -1,7 +1,7 @@
 package com.seanmcapp
 
 import com.seanmcapp.external._
-import com.seanmcapp.repository.{FileRepo, FileRepoImpl, RedisRepo, RedisRepoImpl}
+import com.seanmcapp.repository.{CacheRepo, CacheRepoImpl, FileRepo, FileRepoImpl}
 import com.seanmcapp.repository.birthday.{PeopleRepo, PeopleRepoImpl}
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
@@ -19,7 +19,7 @@ trait Injection {
   val heroAttributeRepo: HeroAttributeRepo = HeroAttributeRepoImpl
   val fileRepo: FileRepo = FileRepoImpl
   val walletRepo: WalletRepo = WalletRepoImpl
-  val redisRepo: RedisRepo = RedisRepoImpl
+  val cacheRepo: CacheRepo = CacheRepoImpl
 
   val httpClient: HttpRequestClient = HttpRequestClientImpl
   val telegramClient = new TelegramClient(httpClient)
@@ -48,7 +48,7 @@ trait Injection {
   
   val instagramClient = new InstagramClient(httpClient)
   val instagramService = new InstagramService(photoRepo, fileRepo, instagramClient)
-  val instagramStoryService = new InstagramStoryService(instagramClient, telegramClient, redisRepo)
+  val instagramStoryService = new InstagramStoryService(instagramClient, telegramClient, cacheRepo)
 
   val nCovClient = new NCovClient(httpClient)
   val nCovService = new NCovService(nCovClient, telegramClient)

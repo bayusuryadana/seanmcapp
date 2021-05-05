@@ -97,13 +97,6 @@ object DiscordConf extends Configuration[DiscordConf]("discord") {
   }
 }
 
-case class RedisConf(connectionUrl: String)
-object RedisConf extends Configuration[RedisConf]("redis") {
-  override def buildConfig(c: Config): RedisConf = {
-    RedisConf(Try(c.getString("connection-url")).getOrElse(""))
-  }
-}
-
 case class HadithConf(key: String)
 object HadithConf extends Configuration[HadithConf]("hadith") {
   override def buildConfig(c: Config): HadithConf = {
