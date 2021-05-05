@@ -10,7 +10,7 @@ class HeroAttributeRepoSpec extends AsyncWordSpec with Matchers {
 
   "test creation dummy HeroAttribute" in {
     val heroAttr = HeroAttribute.dummy(-1)
-    heroAttr shouldEqual HeroAttribute(-1, 0, 0d, 0, 0d, 0, 0, 0, 0, 0, 0, 0, 0d, 0d, 0d, 0, 0, 0d, 0, 0d, false)
+    heroAttr shouldEqual HeroAttribute(-1, 0, 0d, 0, 0d, 0d, 0, 0, 0, 0, 0, 0, 0d, 0d, 0d, 0, 0, 0d, 0, 0d, false)
   }
 
   "should return all the hero in DB" in {
@@ -23,7 +23,7 @@ class HeroAttributeRepoSpec extends AsyncWordSpec with Matchers {
 
   "should return successful insertion" in {
     val heroList = Seq(
-      HeroAttribute(999, 0, 0d, 0, 0d, 0, 0, 0, 0, 0, 0, 0, 0d, 0d, 0d, 0, 0, 0d, 0, 0d, false)
+      HeroAttribute(999, 0, 0d, 0, 0d, 0d, 0, 0, 0, 0, 0, 0, 0d, 0d, 0d, 0, 0, 0d, 0, 0d, false)
     )
     val response = HeroAttributeRepoImpl.insertOrUpdate(heroList)
     Future.sequence(response).map { res =>

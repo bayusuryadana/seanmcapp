@@ -31,29 +31,31 @@ class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient
 
   private[service] val accountList = Map(
     /** DISCONTINUED
-      * ui.cantik	662
-      * ub.cantik	517
-      * unj.cantik	425
-      * bidadari_ub	257
+      * ui.cantik	    662
+      * ub.cantik	    517
+      * bidadari_ub	  257
       *
-      * STILL UPDATING
-      * ugmcantik	781
-      * cantik.its	217
-      * unpad.geulis	1262
-      * undip.cantik	833
-      * uicantikreal	175
+      * STILL UPDATING (total: 6165 @ 06-05-2021)
+      * ugmcantik	    980
+      * cantik.its	  396
+      * unpad.geulis	1510
+      * undip.cantik	1038
+      * uicantikreal	296
+      * unj.cantik	  509
       */
 
     // existing
     "ugmcantik"    -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
     "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
     "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
+    "unj.cantik"   -> "[\\w ]+, [A-Z]+ \\d\\d\\d\\d\\.".r,
     "cantik.its"   -> ".+".r,
-    "uicantikreal" -> ".*".r,
   )
 
-  override def run(): Future[Seq[Option[Int]]] = {
-    val sessionId = instagramClient.postLogin()
+  override def run(): Future[Seq[Option[Int]]] = startFetching()
+
+  def startFetching(sessionIdOpt: Option[String] = None): Future[Seq[Option[Int]]] = {
+    val sessionId = sessionIdOpt.getOrElse(instagramClient.postLogin())
     println("sessionId: " + sessionId)
     for {
       photos <- photoRepo.getAll

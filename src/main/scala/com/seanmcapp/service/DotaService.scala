@@ -95,14 +95,11 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
   }
 
   override def run: Future[(Seq[PlayerResponse], Seq[Hero], Seq[HeroAttribute])] = {
-    val statsAndAttrF = Future(dotaClient.getHeroStatsAndAttr)
-    val heroLoreMapF = Future(dotaClient.getHeroLore)
-
     for {
       players <- playerRepo.getAll
-      (heroes, heroAttributes) <- statsAndAttrF
-      heroLoreMap <- heroLoreMapF
     } yield {
+      val (heroes, heroAttributes) = dotaClient.getHeroStatsAndAttr
+      val heroLoreMap = dotaClient.getHeroLore
       val playerResults = players.map { player =>
         val playerResult = dotaClient.getPlayerDetail(player)
         val playerModel = Player(player.id, player.realName,

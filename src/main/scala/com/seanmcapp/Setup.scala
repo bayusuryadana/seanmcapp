@@ -27,11 +27,20 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     }),
 
     /////////// API ///////////
-    get(path( "api" /"instastory" / Remaining)(session => complete(instagramStoryService.fetch(Some(session)).map(_.asJson.encode)))),
+    get(path( "api" / "instagram" / Remaining) { session =>
+      if (session == "null") complete(instagramService.startFetching().map(_.asJson.encode))
+      else complete(instagramService.startFetching(Some(session)).map(_.asJson.encode))
+    }),
+    get(path( "api" / "instastory" / Remaining) { session =>
+      if (session == "null") complete(instagramStoryService.fetch().map(_.asJson.encode))
+      else complete(instagramStoryService.fetch(Some(session)).map(_.asJson.encode))
+    }),
+    get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
 
     toStrictEntity(3.seconds) {
       post((path("broadcast") & headerValue(getHeader("secretkey")) & fileUpload("photo") & formFieldMap) {
         case (secretKey, (_, byteSource), formFields) =>
+          println(s"Receive broadcast with formFields: $formFields")
           complete(broadcastService.broadcastWithPhoto(byteSource, formFields)(system, secretKey).map(_.asJson.encode))
       })
     },
