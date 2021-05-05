@@ -1,12 +1,13 @@
 package com.seanmcapp.service
 
 import java.net.URL
-import java.util.concurrent.TimeUnit
 
 import com.seanmcapp.external.{InstagramClient, TelegramClient}
-import com.seanmcapp.repository.RedisRepo
+import com.seanmcapp.repository.{Cache, CacheRepo}
+import org.joda.time.DateTime
 
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 case class InstagramStoryRequestParameter(reel_ids: Seq[String], precomposed_overlay: Boolean)
 
@@ -17,18 +18,18 @@ case class InstagramStoryItem(id: String, __typename: String, display_url: Strin
 case class InstagramStoryVideoResource(src: String, profile: String)
 
 
-class InstagramStoryService(instagramClient: InstagramClient, telegramClient: TelegramClient, redisRepo: RedisRepo) extends ScheduledTask {
+class InstagramStoryService(instagramClient: InstagramClient, telegramClient: TelegramClient, cacheRepo: CacheRepo) extends ScheduledTask {
 
-  override def run(): Seq[String] = fetch()
+  override def run(): Future[Seq[String]] = fetch()
 
-  def fetch(sessionIdOpt: Option[String] = None): Seq[String] = {
+  def fetch(sessionIdOpt: Option[String] = None): Future[Seq[String]] = {
     val sessionId = sessionIdOpt.getOrElse(instagramClient.postLogin())
     val accountMap = Map(
       "Alvida" -> "302844663",
       "Buggy" -> "277395688",
       "Gecko Moria" -> "5646204159"
     )
-    accountMap.toList.flatMap { case (name, id) =>
+    val resultF = accountMap.toList.flatMap { case (name, id) =>
       val story = instagramClient.getStories(id, sessionId)
       story.data.reels_media.flatMap(_.items.map { i =>
         val chatId = -1001359004262L
@@ -36,22 +37,30 @@ class InstagramStoryService(instagramClient: InstagramClient, telegramClient: Te
         i.__typename match {
           case "GraphStoryImage" =>
             val imgUrl = i.display_url
-            if (redisRepo.get(idKey).isEmpty) {
-              telegramClient.sendPhotoWithFileUpload(chatId, name, getDataByte(imgUrl))
-              redisRepo.set(idKey, imgUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
+            cacheRepo.get(idKey).map{ valOpt =>
+              if (valOpt.isEmpty) {
+                telegramClient.sendPhotoWithFileUpload(chatId, name, getDataByte(imgUrl))
+                val cache = Cache(idKey, imgUrl, Some(new DateTime().plusHours(24).getMillis / 1000))
+                cacheRepo.set(cache)
+              }
+              imgUrl
             }
-            imgUrl
           case "GraphStoryVideo" =>
             val videos = i.video_resources.getOrElse(Seq.empty[InstagramStoryVideoResource])
             val videoUrl = videos.find(_.profile == "MAIN").orElse(videos.headOption).getOrElse(throw new Exception("Video not found")).src
-            if (redisRepo.get(idKey).isEmpty) {
-              telegramClient.sendVideoWithFileUpload(chatId, name, getDataByte(videoUrl))
-              redisRepo.set(idKey, videoUrl, Some(FiniteDuration(24, TimeUnit.HOURS)))
+            cacheRepo.get(idKey).map { valOpt =>
+              if (valOpt.isEmpty) {
+                telegramClient.sendPhotoWithFileUpload(chatId, name, getDataByte(videoUrl))
+                val cache = Cache(idKey, videoUrl, Some(new DateTime().plusHours(24).getMillis / 1000))
+                cacheRepo.set(cache)
+              }
+              videoUrl
             }
-            videoUrl
         }
       })
     }
+
+    Future.sequence(resultF)
   }
 
   // $COVERAGE-OFF$

@@ -16,15 +16,14 @@ class WalletRepoSpec extends AsyncWordSpec with Matchers {
     Await.result(WalletRepoImpl.insert(wallet), Duration.Inf)
     val res2 = Await.result(WalletRepoImpl.getAll, Duration.Inf)
     res2.size shouldBe 1
-    val wallet2 = wallet.copy(amount = 200)
+    val wallet2 = res2.head.copy(amount = 200)
     Await.result(WalletRepoImpl.update(wallet2), Duration.Inf)
     val res3 = Await.result(WalletRepoImpl.getAll, Duration.Inf)
     res3.size shouldBe 1
-//    TODO: need to fix this test
-//    res3.head.amount shouldBe 200
-//    Await.result(WalletRepoImpl.delete(wallet.id), Duration.Inf)
-//    val res4 = Await.result(WalletRepoImpl.getAll, Duration.Inf)
-//    res4.size shouldBe 0
+    res3.head.amount shouldBe 200
+    Await.result(WalletRepoImpl.delete(res3.head.id), Duration.Inf)
+    val res4 = Await.result(WalletRepoImpl.getAll, Duration.Inf)
+    res4.size shouldBe 0
   }
 
 }

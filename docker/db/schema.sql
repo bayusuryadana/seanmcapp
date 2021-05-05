@@ -74,3 +74,9 @@ CREATE TABLE wallets (
     done boolean NOT NULL,
     account varchar(20) NOT NULL
 );
+
+CREATE TABLE caches (
+    key character varying(128) NOT NULL,
+    value character varying(2048) NOT NULL,
+    expiry integer
+);

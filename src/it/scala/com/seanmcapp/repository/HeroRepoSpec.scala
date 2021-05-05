@@ -16,7 +16,7 @@ class HeroRepoSpec extends AsyncWordSpec with Matchers {
   "should return all hero" in {
     val response = HeroRepoImpl.getAll
     response.map { res =>
-      res.size shouldEqual 119
+      res.size shouldEqual 120
       res.sortBy(_.id).headOption.map(_.localizedName) shouldEqual Some("Anti-Mage")
     }
   }

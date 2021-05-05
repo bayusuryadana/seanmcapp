@@ -15,7 +15,6 @@
 ## Infrastructure
 1. Postgre SQL 
 2. Amazon S3 (using Minio for IT test)
-3. Redis
 
 ## Contribute
 ### Compile

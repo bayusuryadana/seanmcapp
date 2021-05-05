@@ -58,9 +58,6 @@ libraryDependencies ++= Seq(
   "com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.6.1",
   "com.github.alonsodomin.cron4s" %% "cron4s-joda" % "0.6.1",
 
-  // redis
-  "net.debasishg" %% "redisclient" % "3.30",
-
   // jsoup (Java HTML parser)
   "org.jsoup" % "jsoup" % "1.13.1",
 

@@ -1,12 +1,14 @@
 package com.seanmcapp.service
 
 import com.seanmcapp.external.{InstagramClient, TelegramClient, TelegramResponse}
-import com.seanmcapp.repository.RedisRepoMock
+import com.seanmcapp.repository.CacheRepoMock
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.{mock, when}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class InstagramStoryServiceSpec extends AnyWordSpec with Matchers {
 
@@ -31,15 +33,17 @@ class InstagramStoryServiceSpec extends AnyWordSpec with Matchers {
       ))
     )
     when(instagramClient.getStories(any(), any())).thenReturn(instagramStoryResponse)
-    val instagramStoryService = new InstagramStoryService(instagramClient, telegramClient, RedisRepoMock) {
+    val instagramStoryService = new InstagramStoryService(instagramClient, telegramClient, CacheRepoMock) {
       override private[service] def getDataByte(url: String) = Array.emptyByteArray
     }
-    val result = instagramStoryService.run()
-    result shouldBe List(
-      "https://pic1.url", "https://video-main.url",
-      "https://pic1.url", "https://video-main.url",
-      "https://pic1.url", "https://video-main.url"
-    )
+    val resultF = instagramStoryService.run()
+    resultF.map { result =>
+      result shouldBe List(
+        "https://pic1.url", "https://video-main.url",
+        "https://pic1.url", "https://video-main.url",
+        "https://pic1.url", "https://video-main.url"
+      )
+    }
   }
 
 }
