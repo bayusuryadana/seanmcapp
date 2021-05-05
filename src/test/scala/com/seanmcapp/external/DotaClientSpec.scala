@@ -43,7 +43,7 @@ class DotaClientSpec extends AnyWordSpec with Matchers {
   }
 
   "getHeroStatsAndAttr" in {
-    val heroStatsMockResponse = Source.fromResource("scheduler/dota/hero_stats.json").mkString
+    val heroStatsMockResponse = Source.fromResource("dota/hero_stats.json").mkString
     when(http.sendGetRequest(any(), any())).thenReturn(heroStatsMockResponse)
     val result = dotaClient.getHeroStatsAndAttr
     val expected = (
@@ -55,8 +55,6 @@ class DotaClientSpec extends AnyWordSpec with Matchers {
   }
 
   "getHeroLore" in {
-    val heroLoreMockResponse = Source.fromResource("scheduler/dota/lore.json").mkString
-    when(http.sendGetRequest(any(), any())).thenReturn(heroLoreMockResponse)
     val result = dotaClient.getHeroLore
     val expected = Map(
       "bloodseeker" -> "bloodseeker lore",
@@ -71,7 +69,7 @@ class DotaClientSpec extends AnyWordSpec with Matchers {
   "getPlayerDetail" in {
     val playerId = "105742997"
     val player = Player(playerId.toInt, "", "", "", None)
-    val mockResponse = Source.fromResource("scheduler/dota/player_" + player.id + ".json").mkString
+    val mockResponse = Source.fromResource("dota/player_" + player.id + ".json").mkString
     when(http.sendGetRequest(any(), any())).thenReturn(mockResponse)
     val result = dotaClient.getPlayerDetail(player)
     val expected = PlayerResponse(ProfileResponse("SeanmcrayZ", "https://steamcdn-a.akamaihd.net/some_avatar_full.jpg"),

@@ -9,12 +9,12 @@ import scalacache.memoization.memoizeSync
 import scalacache.modes.sync._
 
 import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.io.{Codec, Source}
 
 class DotaClient(http: HttpRequestClient) extends MemoryCache {
 
   private[external] val dotaBaseUrl = "https://api.opendota.com/api/players/"
   private[external] val dotaHeroStatsUrl = "https://api.opendota.com/api/herostats"
-  private[external] val dotaLoreUrl = "https://raw.githubusercontent.com/bayusuryadana/dotaconstants/master/json/hero_lore.json"
 
   implicit val matchesCache: Cache[Seq[MatchResponse]] = createCache[Seq[MatchResponse]]
   implicit val peersCache: Cache[Seq[PeerResponse]] = createCache[Seq[PeerResponse]]
@@ -43,7 +43,13 @@ class DotaClient(http: HttpRequestClient) extends MemoryCache {
   }
 
   def getHeroLore: Map[String, String] = {
-    val heroLoreResponse = http.sendGetRequest(dotaLoreUrl)
+    val heroLoreResponse = try {
+      Source.fromResource("dota/hero_lore.json")(Codec.UTF8).getLines().mkString
+    } catch {
+      case e: Throwable =>
+        e.printStackTrace()
+        ""
+    }
     decode[Map[String, String]](heroLoreResponse)
   }
 
