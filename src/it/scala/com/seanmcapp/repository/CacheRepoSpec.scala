@@ -26,13 +26,16 @@ class CacheRepoSpec extends AsyncWordSpec with Matchers {
     }
   }
 
-  "(cont.) should return get from set value above" in {
+  "(cont.) should return get and getAll from set value above" in {
+    val response0F = CacheRepoImpl.getAll()
     val response1F = CacheRepoImpl.get(key1)
     val response2F = CacheRepoImpl.get(key2)
     for {
+      res0 <- response0F
       res1 <- response1F
       res2 <- response2F
     } yield {
+      res0.size shouldBe 2
       res1.map(_.value) shouldBe Some("value1")
       res2.map(_.value) shouldBe Some("value2")
     }

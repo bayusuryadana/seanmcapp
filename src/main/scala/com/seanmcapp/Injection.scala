@@ -62,4 +62,5 @@ trait Injection {
 
   val telegramWebhookService = new TelegramWebhookService(cbcService, hadithService, telegramClient)
 
+  val cacheCleanerService = new CacheCleanerService(cacheRepo)
 }

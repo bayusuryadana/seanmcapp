@@ -32,8 +32,7 @@ class InstagramStoryService(instagramClient: InstagramClient, telegramClient: Te
     val resultF = accountMap.toList.flatMap { case (name, id) =>
       val story = instagramClient.getStories(id, sessionId)
       story.data.reels_media.flatMap(_.items.map { i =>
-        val chatId = 274852283L
-        //val chatId = -1001359004262L
+        val chatId = -1001359004262L
         val idKey = s"instastory-${i.id}"
         i.__typename match {
           case "GraphStoryImage" =>

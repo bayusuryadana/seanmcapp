@@ -16,6 +16,8 @@ class CacheInfo(tag: Tag) extends Table[Cache](tag, "caches") {
 
 trait CacheRepo {
 
+  def getAll(): Future[Seq[Cache]]
+
   def get(key: String): Future[Option[Cache]]
 
   def set(cache: Cache): Future[Int]
@@ -25,6 +27,8 @@ trait CacheRepo {
 }
 
 object CacheRepoImpl extends TableQuery(new CacheInfo(_)) with CacheRepo with DBComponent {
+
+  def getAll(): Future[Seq[Cache]] = run(this.result)
 
   def get(key: String): Future[Option[Cache]] = run(this.filter(_.key === key).result.headOption)
 
