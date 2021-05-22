@@ -5,6 +5,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
 import scala.jdk.CollectionConverters._
+import scala.util.Try
 
 case class NewsResult(title: String, url: String, flag: Array[Int])
 
@@ -12,10 +13,9 @@ class NewsService(newsClient: NewsClient, telegramClient: TelegramClient) extend
 
   override def run: List[NewsResult] = {
     val responses = newsClient.getNews
-    val results = responses.toList.map { case (key, response) =>
+    val results = responses.toList.flatMap { case (key, response) =>
       val newsObject = NewsConstant.mapping(key)
-      val result = newsObject.parser(Jsoup.parse(response))
-      (newsObject.order, result)
+      Try(newsObject.parser(Jsoup.parse(response))).toOption.map(res => (newsObject.order, res))
     }.sortBy(_._1).map(_._2)
 
     val initMessage = s"Awali harimu dengan berita ${new String(Array(0x1f4f0),0,1)} dari **Seanmctoday** by @seanmcbot\n\n"
@@ -37,7 +37,7 @@ object NewsConstant {
     "kumparan" -> NewsObject(2, "https://kumparan.com/trending", kumparanParser),
     "mothership" -> NewsObject(3, "https://mothership.sg", mothershipParser),
     "cna" -> NewsObject(4, "https://www.channelnewsasia.com/news/singapore", cnaParser),
-    //"reuters" -> NewsObject(5, "https://www.reuters.com", reutersParser),
+    "reuters" -> NewsObject(5, "https://www.reuters.com", reutersParser),
   )
 
   private def cnaParser(d: Document): NewsResult = {
@@ -67,14 +67,18 @@ object NewsConstant {
     )
   }
 
-//  private def reutersParser(d: Document): NewsResult = {
-//    val tag = d.selectFirst("#topStory h2 a")
-//    NewsResult(tag.text(), s"https://www.reuters.com${tag.attr("href")}", Array(0x1f30f))
-//  }
+  private def reutersParser(d: Document): NewsResult = {
+    val tag = d.selectFirst(".StaticMediaMaximizer__hero___3tmwgq")
+    NewsResult(
+      tag.selectFirst(".MediaStoryCard__header___qimiYl h3 span").text(),
+      s"https://www.reuters.com${tag.selectFirst("a").attr("href")}",
+      Array(0x1f30f)
+    )
+  }
 
   private def tirtoParser(d: Document): NewsResult = {
     // TODO: check whether the title matches 'POPULER', instead of hard code the index 8
-    val tag = d.select(".welcome-title").asScala.toList(8).parent.parent.parent.selectFirst(".mb-3 a")
+    val tag = d.select(".welcome-title").asScala.toList(6).parent.parent.parent.selectFirst(".mb-3 a")
     NewsResult(tag.text(), s"https://tirto.id${tag.attr("href")}", Array(0x1f1ee, 0x1f1e9))
   }
 
