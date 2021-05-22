@@ -56,7 +56,13 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
           } else {
             redirect("/wallet/login", StatusCodes.SeeOther)
           }
-        }
+        } ~ validateSession { session => formFieldMap { fields =>
+          pathPrefix( "data" / "create") {
+            val date = fields.get("date").map(_.toInt).getOrElse(throw new Exception("date not found"))
+            walletService.create(session, date, fields)
+            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
+          }
+        }}
       } ~
       get {
         pathPrefix("login") {

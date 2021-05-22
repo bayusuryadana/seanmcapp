@@ -73,16 +73,25 @@
                                     <th>Curr</th>
                                     <th>Amt</th>
                                     <th>Cat</th>
+                                    <th>
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#formModal">
+                                            Add
+                                        </button>
+                                    </th>
                                 </thead>
                                 <tbody>
-                                    @for(wallet <- data.wallet) {
+                                @for(wallet <- data.wallet) {
                                     <tr id="@(wallet.id)" @if(!wallet.done){style="color: darkred"}>
                                         <td>@(wallet.name)</td>
                                         <td>@(wallet.currency)</td>
                                         <td>@(NumberFormat.getIntegerInstance.format(wallet.amount))</td>
                                         <td>@(wallet.category)</td>
+                                        <td>
+                                            <button class="btn btn-outline-primary"><i class="nc-icon nc-ruler-pencil"></i></button>
+                                            <button class="btn btn-outline-danger"><i class="nc-icon nc-simple-remove"></i></button>
+                                        </td>
                                     </tr>
-                                    }
+                                }
                                 </tbody>
                             </table>
                         </div>
@@ -90,12 +99,82 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle">Add item</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form name="create-form" action="/wallet/data/create" method="post" onsubmit="return validateForm()">
+                        <input type="hidden" name="date" value="@(data.cmsData.currentDate)">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" name="name" class="form-control" id="name-form" placeholder="describe the expense/income ...">
+                            </div>
+                            <div class="form-group">
+                                <label for="currency">Currency</label>
+                                <select name="currency" class="form-control" id="currency-form">
+                                    <option selected>SGD</option>
+                                    <option>IDR</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="amount">Amount</label>
+                                <input type="text" name="amount" class="form-control" id="amount-form" placeholder="put amount here ...">
+                            </div>
+                            <div class="form-group">
+                                <label for="category">Category</label>
+                                <select name="category" class="form-control" id="category-form">
+                                    <option>Bonus</option>
+                                    <option>Daily</option>
+                                    <option>Fashion</option>
+                                    <option>Funding</option>
+                                    <option>IT Stuff</option>
+                                    <option selected>Misc</option>
+                                    <option>ROI</option>
+                                    <option>Rent</option>
+                                    <option>Salary</option>
+                                    <option>Temp</option>
+                                    <option>Transfer</option>
+                                    <option>Travel</option>
+                                    <option>Wellness</option>
+                                    <option>Zakat</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Done</label>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input name="done" class="form-check-input" type="checkbox">
+                                        yes
+                                        <span class="form-check-sign">
+                                            <span class="check"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="account">Account</label>
+                                <select name="account" class="form-control" id="account-form">
+                                    <option selected>DBS</option>
+                                    <option>BCA</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <input type="submit" value="save" class="btn btn-primary">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="/assets/wallet/javascripts/data.js" type="text/javascript"></script>
-    <script>
-            $(document).ready(function() {
-              // nothing to do
-            })
-    </script>
 }

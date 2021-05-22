@@ -17,6 +17,6 @@ case class Chart(label: Seq[Int],
 
 case class DataView(cmsData: CMSData, wallet: Seq[Wallet], sgdBalance: Balance, idrBalance: Balance)
 
-case class CMSData(thisMonth: String, thisYear: String, nextDate: String, prevDate: String)
+case class CMSData(currentDate: Int, thisMonth: String, thisYear: String, nextDate: String, prevDate: String)
 
 case class Balance(beginning: String, plannedEnding: String, realEnding: String)

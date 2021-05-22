@@ -1,22 +1,45 @@
-function create() {
-    var payload = {
-        id: 0,
-        date: document.getElementById('date-create').value,
-        name: document.getElementById('name-create').value,
-        category: document.getElementById('category-create').value,
-        currency: document.getElementById('currency-create').value,
-        amount: document.getElementById('amount-create').value,
-        done: document.querySelector('#done-create').checked
-    };
-    console.log(payload);
-    var http = new XMLHttpRequest();
-    var url = "http://seanmcapp.herokuapp.com/wallet"; // TODO: use secret key from session
-    http.open('POST', url, true);
-    http.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
-    http.onreadystatechange = function() {//Call a function when the state changes.
-        if(http.readyState == 4 && http.status == 200) {
-            alert(http.responseText);
-        }
-    };
-    http.send(JSON.stringify(payload));
+function validateForm() {
+    function setSuccess(id) {
+        document.getElementById(id).parentElement.classList.remove("has-danger")
+    }
+
+    function setError(id) {
+        document.getElementById(id).parentElement.classList.add("has-danger")
+    }
+
+    let form = document.forms["create-form"];
+
+    let name = form["name"].value
+    if (!name || name.length === 0 ) {
+        setError("name-form")
+        return false;
+    } else setSuccess("name-form")
+
+    let currency = form["currency"].value
+    if (!currency || currency.length === 0 ) {
+        setError("currency-form")
+        return false;
+    } else setSuccess("currency-form")
+
+    let amount = form["amount"].value
+    if (!amount || !/^-?[\d.]+(?:e-?\d+)?$/.test(amount)) {
+        setError("amount-form")
+        return false;
+    } else setSuccess("amount-form")
+
+    let category = form["category"].value
+    if (!category || category.length === 0 ) {
+        setError("category-form")
+        return false;
+    } else setSuccess("category-form")
+
+    // "done" no need to validate
+
+    let account = form["account"].value
+    if (!account || account.length === 0 ) {
+        setError("account-form")
+        return false;
+    } else setSuccess("account-form")
+
+    return true;
 }

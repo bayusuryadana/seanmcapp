@@ -83,7 +83,7 @@ class WalletService(walletRepo: WalletRepo) {
     val requestedMonth = requestDate % 100
     val monthString = getMonth(requestedMonth)
     val yearString = (requestDate / 100).toString
-    val cmsData = CMSData(monthString, yearString, nextDate, prevDate)
+    val cmsData = CMSData(requestDate, monthString, yearString, nextDate, prevDate)
 
     val walletResult = wallets.filter(_.date == requestDate)
     val SGD = calculateBalance(wallets, requestDate, "DBS")
@@ -93,6 +93,21 @@ class WalletService(walletRepo: WalletRepo) {
   }
 
   def login(secretKey: String): Boolean = secretKey == SECRET_KEY
+
+  def create(secretKey: String, date: Int, fields: Map[String, String]): Int = {
+    val name = fields.getOrElse("name", throw new Exception("name not found"))
+    val category = fields.getOrElse("category", throw new Exception("category not found"))
+    val currency = fields.getOrElse("currency", throw new Exception("currency not found"))
+    val amount = fields.get("amount").map(_.toInt).getOrElse(throw new Exception("amount not found"))
+    val done = fields.get("done") match {
+      case Some(s) if s == "on" => true
+      case _ => false
+    }
+    val account = fields.getOrElse("account", throw new Exception("account not found"))
+
+    val input = Wallet(0, date, name, category, currency, amount, done, account)
+    authAndAwait(secretKey, walletRepo.insert(input))
+  }
 
   private def authAndAwait[T](secretKey: String, f: Future[T]): T = {
     secretKey match {
