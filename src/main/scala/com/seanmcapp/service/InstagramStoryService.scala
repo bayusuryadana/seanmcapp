@@ -50,7 +50,7 @@ class InstagramStoryService(instagramClient: InstagramClient, telegramClient: Te
             val videoUrl = videos.find(_.profile == "MAIN").orElse(videos.headOption).getOrElse(throw new Exception("Video not found")).src
             cacheRepo.get(idKey).map { valOpt =>
               if (valOpt.isEmpty) {
-                telegramClient.sendPhotoWithFileUpload(chatId, name, getDataByte(videoUrl))
+                telegramClient.sendVideoWithFileUpload(chatId, name, getDataByte(videoUrl))
                 val cache = Cache(idKey, videoUrl, Some(new DateTime().plusHours(24).getMillis / 1000))
                 cacheRepo.set(cache)
               }
