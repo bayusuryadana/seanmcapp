@@ -109,6 +109,8 @@ class WalletService(walletRepo: WalletRepo) {
     authAndAwait(secretKey, walletRepo.insert(input))
   }
 
+  def delete(secretKey: String, id: Int): Int = authAndAwait(secretKey, walletRepo.delete(id))
+
   private def authAndAwait[T](secretKey: String, f: Future[T]): T = {
     secretKey match {
       case SECRET_KEY => Await.result(f, Duration.Inf)
