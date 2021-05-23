@@ -94,16 +94,23 @@ class WalletService(walletRepo: WalletRepo) {
 
   def login(secretKey: String): Boolean = secretKey == SECRET_KEY
 
-  def create(secretKey: String, date: Int, fields: Map[String, String]): Int =
-    authAndAwait(secretKey, walletRepo.insert(parseInput(date, fields)))
+  def create(secretKey: String, date: Int, fields: Map[String, String]): Int = {
+    val wallet = parseInput(date, fields)
+    println(s"[WALLET][CREATE] ${wallet.toJsonString()}")
+    authAndAwait(secretKey, walletRepo.insert(wallet))
+  }
 
   def update(secretKey: String, date: Int, fields: Map[String, String]): Int = {
     val wallet = parseInput(date, fields)
     if (wallet.id == 0) throw new Exception("id not found")
+    println(s"[WALLET][UPDATE] ${wallet.toJsonString()}")
     authAndAwait(secretKey, walletRepo.update(wallet))
   }
 
-  def delete(secretKey: String, id: Int): Int = authAndAwait(secretKey, walletRepo.delete(id))
+  def delete(secretKey: String, id: Int): Int = {
+    println(s"[WALLET][DELETE] $id")
+    authAndAwait(secretKey, walletRepo.delete(id))
+  }
 
   private def authAndAwait[T](secretKey: String, f: Future[T]): T = {
     secretKey match {
