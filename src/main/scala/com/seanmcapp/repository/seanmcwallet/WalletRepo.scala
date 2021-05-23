@@ -11,9 +11,11 @@ import scala.util.{Failure, Success}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+// $COVERAGE-OFF$
 case class Wallet(id: Int, date: Int, name: String, category: String, currency: String, amount: Int, done: Boolean, account: String) {
   def toJsonString(): String = this.asJson.printWith(Printer.noSpacesSortKeys)
 }
+// $COVERAGE-ON$
 
 class WalletInfo(tag: Tag) extends Table[Wallet](tag, "wallets") {
   val id = column[Int]("id", O.PrimaryKey, O.AutoInc)

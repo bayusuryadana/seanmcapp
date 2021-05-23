@@ -92,6 +92,7 @@ class WalletService(walletRepo: WalletRepo) {
     DataView(cmsData, walletResult, SGD, IDR)
   }
 
+  // $COVERAGE-OFF$
   def login(secretKey: String): Boolean = secretKey == SECRET_KEY
 
   def create(secretKey: String, date: Int, fields: Map[String, String]): Int = {
@@ -111,6 +112,7 @@ class WalletService(walletRepo: WalletRepo) {
     println(s"[WALLET][DELETE] $id")
     authAndAwait(secretKey, walletRepo.delete(id))
   }
+  // $COVERAGE-ON$
 
   private def authAndAwait[T](secretKey: String, f: Future[T]): T = {
     secretKey match {
@@ -127,7 +129,7 @@ class WalletService(walletRepo: WalletRepo) {
     def round2Digits(): Double = BigDecimal(d).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
   }
 
-  private def parseInput(date: Int, fields: Map[String, String]): Wallet = {
+  private[service] def parseInput(date: Int, fields: Map[String, String]): Wallet = {
     val id = fields.get("id").map(_.toInt).getOrElse(0)
     val name = fields.getOrElse("name", throw new Exception("name not found"))
     val category = fields.getOrElse("category", throw new Exception("category not found"))

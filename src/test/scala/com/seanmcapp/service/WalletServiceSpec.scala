@@ -1,6 +1,7 @@
 package com.seanmcapp.service
 
 import com.seanmcapp.repository.WalletRepoMock
+import com.seanmcapp.repository.seanmcwallet.Wallet
 import org.mockito.Mockito
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
@@ -40,6 +41,37 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers {
     val i = List(1,2,3,4,5,6,7,8,9,10,11,12)
     val expected = List("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
     i.map(walletService.getMonth) shouldBe expected
+  }
+
+  "parseInput should return correct wallet (done)" in {
+    val date = 202101
+    val fields = Map(
+      "id" -> "1",
+      "name" -> "Condo rent",
+      "category" -> "Rent",
+      "currency" -> "SGD",
+      "amount" -> "1000",
+      "done" -> "on",
+      "account" -> "DBS"
+    )
+
+    val expected = Wallet(1, 202101, "Condo rent", "Rent", "SGD", 1000, true, "DBS")
+    walletService.parseInput(date, fields) shouldBe expected
+  }
+
+  "parseInput should return correct wallet" in {
+    val date = 202101
+    val fields = Map(
+      "id" -> "1",
+      "name" -> "Condo rent",
+      "category" -> "Rent",
+      "currency" -> "SGD",
+      "amount" -> "1000",
+      "account" -> "DBS"
+    )
+
+    val expected = Wallet(1, 202101, "Condo rent", "Rent", "SGD", 1000, false, "DBS")
+    walletService.parseInput(date, fields) shouldBe expected
   }
 
 }
