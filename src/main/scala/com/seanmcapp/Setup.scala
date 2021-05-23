@@ -56,7 +56,17 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
           } else {
             redirect("/wallet/login", StatusCodes.SeeOther)
           }
-        }
+        } ~ validateSession { session => formFieldMap { fields =>
+          pathPrefix( "data" / "create") {
+            val date = fields.get("date").map(_.toInt).getOrElse(throw new Exception("date not found"))
+            walletService.create(session, date, fields)
+            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
+          } ~ pathPrefix( "data" / "update") {
+            val date = fields.get("date").map(_.toInt).getOrElse(throw new Exception("date not found"))
+            walletService.update(session, date, fields)
+            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
+          }
+        }}
       } ~
       get {
         pathPrefix("login") {
@@ -66,6 +76,9 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
           pathEndOrSingleSlash {
             val dashboardView = walletService.dashboard(session)
             _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.dashboard(dashboardView).body))
+          } ~ (pathPrefix("data" / "delete") & parameters("id", "date")) { (id, date) =>
+            walletService.delete(session, id.toInt)
+            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
           } ~ (pathPrefix("data") & parameters('date.?)) { date =>
             val dataView = walletService.data(session, date.flatMap(d => Try(d.toInt).toOption))
             _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.data(dataView).body))

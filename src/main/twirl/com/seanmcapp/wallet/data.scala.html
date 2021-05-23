@@ -73,19 +73,124 @@
                                     <th>Curr</th>
                                     <th>Amt</th>
                                     <th>Cat</th>
+                                    <th>
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#formModal" onclick="setSubmitButton(true)">
+                                            Add
+                                        </button>
+                                    </th>
                                 </thead>
                                 <tbody>
-                                    @for(wallet <- data.wallet) {
+                                @for(wallet <- data.wallet) {
                                     <tr id="@(wallet.id)" @if(!wallet.done){style="color: darkred"}>
                                         <td>@(wallet.name)</td>
                                         <td>@(wallet.currency)</td>
                                         <td>@(NumberFormat.getIntegerInstance.format(wallet.amount))</td>
                                         <td>@(wallet.category)</td>
+                                        <td>
+                                            <button class="btn btn-outline-primary btn-round" onclick="toUpdate(@(wallet.toJsonString()))" data-toggle="modal" data-target="#formModal">
+                                                <i class="nc-icon nc-ruler-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-round" onclick="toDelete(@(wallet.id))" data-toggle="modal" data-target="#deleteModal">
+                                                <i class="nc-icon nc-simple-remove"></i>
+                                            </button>
+                                        </td>
                                     </tr>
-                                    }
+                                }
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- create/update modal -->
+        <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle">Add item</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="modal-form" name="form" method="post" onsubmit="return validateForm()">
+                        <input type="hidden" name="date" value="@(data.cmsData.currentDate)">
+                        <input type="hidden" name="id" id="id-form" value=0>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" name="name" class="form-control" id="name-form" placeholder="describe the expense/income ...">
+                            </div>
+                            <div class="form-group">
+                                <label for="currency">Currency</label>
+                                <select name="currency" class="form-control" id="currency-form">
+                                    <option id="currency-SGD" selected>SGD</option>
+                                    <option id="currency-IDR">IDR</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="amount">Amount</label>
+                                <input type="text" name="amount" class="form-control" id="amount-form" placeholder="put amount here ...">
+                            </div>
+                            <div class="form-group">
+                                <label for="category">Category</label>
+                                <select name="category" class="form-control" id="category-form">
+                                    <option id="category-Bonus">Bonus</option>
+                                    <option id="category-Daily">Daily</option>
+                                    <option id="category-Fashion">Fashion</option>
+                                    <option id="category-Funding">Funding</option>
+                                    <option id="category-IT-Stuff">IT Stuff</option>
+                                    <option id="category-Misc" selected>Misc</option>
+                                    <option id="category-ROI">ROI</option>
+                                    <option id="category-Rent">Rent</option>
+                                    <option id="category-Salary">Salary</option>
+                                    <option id="category-Temp">Temp</option>
+                                    <option id="category-Transfer">Transfer</option>
+                                    <option id="category-Travel">Travel</option>
+                                    <option id="category-Wellness">Wellness</option>
+                                    <option id="category-Zakat">Zakat</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Done</label>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input name="done" class="form-check-input" type="checkbox" id="done-form">
+                                        yes
+                                        <span class="form-check-sign">
+                                            <span class="check"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="account">Account</label>
+                                <select name="account" class="form-control" id="account-form">
+                                    <option id="account-DBS" selected>DBS</option>
+                                    <option id="account-BCA">BCA</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <input type="submit" class="btn btn-primary" id="submit-form">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- delete modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle">Are you sure want to delete this item?</h5>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="doDelete()">Delete</button>
                     </div>
                 </div>
             </div>
@@ -94,8 +199,39 @@
 
     <script src="/assets/wallet/javascripts/data.js" type="text/javascript"></script>
     <script>
-            $(document).ready(function() {
-              // nothing to do
-            })
+        // update functions
+        function setSubmitButton(isCreate) {
+            if (isCreate) {
+                document.getElementById("submit-form").setAttribute("value","create")
+                document.getElementById("modal-form").setAttribute("action","/wallet/data/create")
+            } else {
+                document.getElementById("submit-form").setAttribute("value","update")
+                document.getElementById("modal-form").setAttribute("action","/wallet/data/update")
+            }
+        }
+
+        function toUpdate(wallet) {
+            document.getElementById("id-form").setAttribute("value", wallet.id);
+            document.getElementById("name-form").setAttribute("value", wallet.name);
+            let currencyIndex = document.getElementById("currency-"+wallet.currency).index;
+            document.getElementById("currency-form").selectedIndex = currencyIndex;
+            document.getElementById("amount-form").setAttribute("value", wallet.amount);
+            let categoryIndex = document.getElementById("category-"+wallet.category).index;
+            document.getElementById("category-form").selectedIndex = categoryIndex;
+            document.getElementById("done-form").checked = wallet.done;
+            let accountIndex = document.getElementById("account-"+wallet.account).index;
+            document.getElementById("account-form").selectedIndex = accountIndex;
+            setSubmitButton(false);
+        }
+
+        // delete functions
+        var idToBeDeleted = 0;
+        function toDelete(id) {
+            idToBeDeleted = id;
+        }
+        function doDelete() {
+            let urlString = '/wallet/data/delete?id=' + idToBeDeleted + '&date=@(data.cmsData.currentDate)';
+            location.href = urlString;
+        }
     </script>
 }
