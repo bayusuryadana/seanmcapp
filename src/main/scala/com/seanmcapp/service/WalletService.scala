@@ -94,19 +94,13 @@ class WalletService(walletRepo: WalletRepo) {
 
   def login(secretKey: String): Boolean = secretKey == SECRET_KEY
 
-  def create(secretKey: String, date: Int, fields: Map[String, String]): Int = {
-    val name = fields.getOrElse("name", throw new Exception("name not found"))
-    val category = fields.getOrElse("category", throw new Exception("category not found"))
-    val currency = fields.getOrElse("currency", throw new Exception("currency not found"))
-    val amount = fields.get("amount").map(_.toInt).getOrElse(throw new Exception("amount not found"))
-    val done = fields.get("done") match {
-      case Some(s) if s == "on" => true
-      case _ => false
-    }
-    val account = fields.getOrElse("account", throw new Exception("account not found"))
+  def create(secretKey: String, date: Int, fields: Map[String, String]): Int =
+    authAndAwait(secretKey, walletRepo.insert(parseInput(date, fields)))
 
-    val input = Wallet(0, date, name, category, currency, amount, done, account)
-    authAndAwait(secretKey, walletRepo.insert(input))
+  def update(secretKey: String, date: Int, fields: Map[String, String]): Int = {
+    val wallet = parseInput(date, fields)
+    if (wallet.id == 0) throw new Exception("id not found")
+    authAndAwait(secretKey, walletRepo.update(wallet))
   }
 
   def delete(secretKey: String, id: Int): Int = authAndAwait(secretKey, walletRepo.delete(id))
@@ -124,6 +118,21 @@ class WalletService(walletRepo: WalletRepo) {
 
   implicit class DoubleHelper(d: Double) {
     def round2Digits(): Double = BigDecimal(d).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+  }
+
+  private def parseInput(date: Int, fields: Map[String, String]): Wallet = {
+    val id = fields.get("id").map(_.toInt).getOrElse(0)
+    val name = fields.getOrElse("name", throw new Exception("name not found"))
+    val category = fields.getOrElse("category", throw new Exception("category not found"))
+    val currency = fields.getOrElse("currency", throw new Exception("currency not found"))
+    val amount = fields.get("amount").map(_.toInt).getOrElse(throw new Exception("amount not found"))
+    val done = fields.get("done") match {
+      case Some(s) if s == "on" => true
+      case _ => false
+    }
+    val account = fields.getOrElse("account", throw new Exception("account not found"))
+
+    Wallet(id, date, name, category, currency, amount, done, account)
   }
 
   private def calculateBalance(wallets: Seq[Wallet], requestDate: Int, account: String): Balance = {

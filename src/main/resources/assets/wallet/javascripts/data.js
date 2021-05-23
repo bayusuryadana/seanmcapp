@@ -7,7 +7,7 @@ function validateForm() {
         document.getElementById(id).parentElement.classList.add("has-danger")
     }
 
-    let form = document.forms["create-form"];
+    let form = document.forms["form"];
 
     let name = form["name"].value
     if (!name || name.length === 0 ) {

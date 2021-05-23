@@ -61,6 +61,10 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
             val date = fields.get("date").map(_.toInt).getOrElse(throw new Exception("date not found"))
             walletService.create(session, date, fields)
             redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
+          } ~ pathPrefix( "data" / "update") {
+            val date = fields.get("date").map(_.toInt).getOrElse(throw new Exception("date not found"))
+            walletService.update(session, date, fields)
+            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
           }
         }}
       } ~
