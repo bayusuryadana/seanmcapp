@@ -3,6 +3,8 @@ package com.seanmcapp.repository
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class Cache(key: String, value: String, expiry: Option[Long])
 
@@ -32,7 +34,16 @@ object CacheRepoImpl extends TableQuery(new CacheInfo(_)) with CacheRepo with DB
 
   def get(key: String): Future[Option[Cache]] = run(this.filter(_.key === key).result.headOption)
 
-  def set(cache: Cache): Future[Int] = run(this += cache)
+  def set(cache: Cache): Future[Int] = {
+      // try insert first
+      run((this += cache).asTry).flatMap {
+        case Failure(ex) =>
+          // else try update
+          run(this.filter(_.key === cache.key).update(cache))
+        case Success(value) =>
+          Future.successful(value)
+      }
+  }
 
   def delete(key: String): Future[Int] = run(this.filter(_.key === key).delete)
 

@@ -49,6 +49,7 @@ trait Injection {
   val instagramClient = new InstagramClient(httpClient)
   val instagramService = new InstagramService(photoRepo, fileRepo, instagramClient)
   val instagramStoryService = new InstagramStoryService(instagramClient, telegramClient, cacheRepo)
+  val instagramPostService = new InstagramPostService(instagramClient, telegramClient, cacheRepo)
 
   val nCovClient = new NCovClient(httpClient)
   val nCovService = new NCovService(nCovClient, telegramClient)

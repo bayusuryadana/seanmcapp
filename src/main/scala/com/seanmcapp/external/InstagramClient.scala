@@ -44,7 +44,19 @@ class InstagramClient(http: HttpRequestClient) {
     decode[InstagramAccountResponse](httpResponse)
   }
 
-  def getPhotos(userId: String, endCursor: Option[String], sessionId: String): InstagramResponse = {
+  def getAllPost(userId: String, endCursor: Option[String], sessionId: String): Seq[InstagramNode] = {
+    val instagramResponse = getPost(userId, endCursor, sessionId)
+    val instagramMedia = instagramResponse.data.user.edge_owner_to_timeline_media
+    val result = instagramMedia.edges.map(_.node)
+    val endResult = if (instagramMedia.page_info.has_next_page && instagramMedia.page_info.end_cursor.isDefined) {
+      result ++ getAllPost(userId, instagramMedia.page_info.end_cursor, sessionId)
+    } else {
+      result
+    }
+    endResult
+  }
+
+  def getPost(userId: String, endCursor: Option[String], sessionId: String): InstagramResponse = {
     val numberOfBatch = 50
     val params = InstagramRequestParameter(userId, numberOfBatch, endCursor).asJson.encode
     val url = s"https://www.instagram.com/graphql/query/?query_hash=18a7b935ab438c4514b1f742d8fa07a7&variables=$params"

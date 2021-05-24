@@ -35,6 +35,10 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
       if (session == "null") complete(instagramStoryService.fetch().map(_.asJson.encode))
       else complete(instagramStoryService.fetch(Some(session)).map(_.asJson.encode))
     }),
+    get(path( "api" / "instapost" / Remaining) { session =>
+      if (session == "null") complete(instagramPostService.fetch().map(_.asJson.encode))
+      else complete(instagramPostService.fetch(Some(session)).map(_.asJson.encode))
+    }),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
 
     toStrictEntity(3.seconds) {

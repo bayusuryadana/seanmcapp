@@ -1,6 +1,6 @@
 package com.seanmcapp.external
 
-import java.net.URLEncoder
+import java.net.{URL, URLEncoder}
 
 import com.seanmcapp.TelegramConf
 import scalaj.http.MultiPart
@@ -29,8 +29,8 @@ class TelegramClient(http: HttpRequestClient) {
     result
   }
 
-  def sendPhotoWithFileUpload(chatId: Long, caption: String = "", data: Array[Byte]): TelegramResponse = {
-    val parts = MultiPart("photo", caption, "application/octet-stream", data)
+  def sendPhotoWithFileUpload(chatId: Long, caption: String = "", url: String): TelegramResponse = {
+    val parts = MultiPart("photo", caption, "application/octet-stream", getDataByteFromUrl(url))
     val params = Some(ParamMap(Map("chat_id" -> String.valueOf(chatId), "caption" -> caption)))
 
     val response = http.sendRequest(s"${telegramConf.endpoint}/sendphoto", params, multiPart = Some(parts))
@@ -38,8 +38,8 @@ class TelegramClient(http: HttpRequestClient) {
     decode[TelegramResponse](response.body)
   }
 
-  def sendVideoWithFileUpload(chatId: Long, caption: String = "", data: Array[Byte]): TelegramResponse = {
-    val parts = MultiPart("video", caption, "application/octet-stream", data)
+  def sendVideoWithFileUpload(chatId: Long, caption: String = "", url: String): TelegramResponse = {
+    val parts = MultiPart("video", caption, "application/octet-stream", getDataByteFromUrl(url))
     val params = Some(ParamMap(Map("chat_id" -> String.valueOf(chatId), "caption" -> caption)))
 
     val response = http.sendRequest(s"${telegramConf.endpoint}/sendvideo", params, multiPart = Some(parts))
@@ -47,6 +47,10 @@ class TelegramClient(http: HttpRequestClient) {
     decode[TelegramResponse](response.body)
   }
 
+  private def getDataByteFromUrl(url: String): Array[Byte] = {
+    val inputStream = new URL(url).openStream
+    LazyList.continually(inputStream.read).takeWhile(_ != -1).map(_.toByte).toArray
+  }
 }
 
 // Telegram common

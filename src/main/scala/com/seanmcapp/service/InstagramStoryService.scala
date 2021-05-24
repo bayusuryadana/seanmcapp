@@ -1,7 +1,5 @@
 package com.seanmcapp.service
 
-import java.net.URL
-
 import com.seanmcapp.external.{InstagramClient, TelegramClient}
 import com.seanmcapp.repository.{Cache, CacheRepo}
 import org.joda.time.DateTime
@@ -39,7 +37,7 @@ class InstagramStoryService(instagramClient: InstagramClient, telegramClient: Te
             val imgUrl = i.display_url
             cacheRepo.get(idKey).map{ valOpt =>
               if (valOpt.isEmpty) {
-                telegramClient.sendPhotoWithFileUpload(chatId, name, getDataByte(imgUrl))
+                telegramClient.sendPhotoWithFileUpload(chatId, name, imgUrl)
                 val cache = Cache(idKey, imgUrl, Some(new DateTime().plusHours(24).getMillis / 1000))
                 cacheRepo.set(cache)
               }
@@ -50,7 +48,7 @@ class InstagramStoryService(instagramClient: InstagramClient, telegramClient: Te
             val videoUrl = videos.find(_.profile == "MAIN").orElse(videos.headOption).getOrElse(throw new Exception("Video not found")).src
             cacheRepo.get(idKey).map { valOpt =>
               if (valOpt.isEmpty) {
-                telegramClient.sendVideoWithFileUpload(chatId, name, getDataByte(videoUrl))
+                telegramClient.sendVideoWithFileUpload(chatId, name, videoUrl)
                 val cache = Cache(idKey, videoUrl, Some(new DateTime().plusHours(24).getMillis / 1000))
                 cacheRepo.set(cache)
               }
@@ -62,11 +60,4 @@ class InstagramStoryService(instagramClient: InstagramClient, telegramClient: Te
 
     Future.sequence(resultF)
   }
-
-  // $COVERAGE-OFF$
-  private[service] def getDataByte(url: String): Array[Byte] = {
-    val inputStream = new URL(url).openStream
-    LazyList.continually(inputStream.read).takeWhile(_ != -1).map(_.toByte).toArray
-  }
-  // $COVERAGE-ON$
 }

@@ -23,26 +23,26 @@ class InstagramServiceSpec extends AsyncWordSpec with Matchers {
                 "2115041543081728221",
                 "https://instagram.fsin9-1.fna.fbcdn.net/v/t51.2885-15/e35/p1080x1080/82869766_181890369788913_4934734302708118273_n.jpg?_nc_ht=instagram.fsin9-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=LgwayFJRmJQAX-zZgbo&oh=589b1d4c0cb9d4845a227d77d9bdd41f&oe=5EDCB9DE",
                 1566352621,
-                InstagramMediaCaption(List(InstagramEdgeCaption(InstagramCaption("Hasna Izdihar. Magister Kenotariatan 2019\n#ugmcantik"))))
+                InstagramEdgeMediaCaption(List(InstagramNodeCaption(InstagramCaption("Hasna Izdihar. Magister Kenotariatan 2019\n#ugmcantik"))))
               )),
               InstagramEdge(InstagramNode(
                 "2114593284248831645",
                 "https://instagram.fsin9-1.fna.fbcdn.net/v/t51.2885-15/e35/p1080x1080/82869766_181890369788913_4934734302708118273_n.jpg?_nc_ht=instagram.fsin9-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=LgwayFJRmJQAX-zZgbo&oh=589b1d4c0cb9d4845a227d77d9bdd41f&oe=5EDCB9DE",
                 1566299184,
-                InstagramMediaCaption(List(InstagramEdgeCaption(InstagramCaption("Just a caption"))))
+                InstagramEdgeMediaCaption(List(InstagramNodeCaption(InstagramCaption("Just a caption"))))
               )),
               InstagramEdge(InstagramNode(
                 "2114394029768926432",
                 "https://instagram.fsin9-1.fna.fbcdn.net/v/t51.2885-15/e35/p1080x1080/82869766_181890369788913_4934734302708118273_n.jpg?_nc_ht=instagram.fsin9-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=LgwayFJRmJQAX-zZgbo&oh=589b1d4c0cb9d4845a227d77d9bdd41f&oe=5EDCB9DE",
                 1566275431,
-                InstagramMediaCaption(List(InstagramEdgeCaption(InstagramCaption("Yuan Shafira. FT 2019"))))
+                InstagramEdgeMediaCaption(List(InstagramNodeCaption(InstagramCaption("Yuan Shafira. FT 2019"))))
               ))
             )
           )
         )
       )
     )
-    when(instagramClient.getPhotos(any(), any(), any())).thenReturn(photoMock)
+    when(instagramClient.getPost(any(), any(), any())).thenReturn(photoMock)
 
     val instagramService = new InstagramService(PhotoRepoMock, fileRepoMock, instagramClient) {
       override val accountList = Map("ugmcantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r)

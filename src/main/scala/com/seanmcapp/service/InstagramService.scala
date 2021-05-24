@@ -22,10 +22,15 @@ case class InstagramUser(edge_owner_to_timeline_media: InstagramMedia)
 case class InstagramMedia(count: Int, page_info: InstagramPageInfo, edges: Seq[InstagramEdge])
 case class InstagramPageInfo(has_next_page: Boolean, end_cursor: Option[String])
 case class InstagramEdge(node: InstagramNode)
-case class InstagramNode(id: String, thumbnail_src: String, taken_at_timestamp: Long, edge_media_to_caption: InstagramMediaCaption)
-case class InstagramMediaCaption(edges: Seq[InstagramEdgeCaption])
-case class InstagramEdgeCaption(node: InstagramCaption)
+case class InstagramNode(id: String, thumbnail_src: String, taken_at_timestamp: Long,
+                         edge_media_to_caption: InstagramEdgeMediaCaption,
+                         edge_sidecar_to_children: InstagramEdgeSidecarChildren)
+case class InstagramEdgeMediaCaption(edges: Seq[InstagramNodeCaption])
+case class InstagramNodeCaption(node: InstagramCaption)
 case class InstagramCaption(text: String)
+case class InstagramEdgeSidecarChildren(edges: Seq[InstagramNodeChildren])
+case class InstagramNodeChildren(node: InstagramChildren)
+case class InstagramChildren(id: String, display_url: String, is_video: Boolean, video_url: Option[String])
 
 class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient: InstagramClient) extends ScheduledTask {
 
@@ -69,7 +74,7 @@ class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient
       val account = item._1
       val id = instagramClient.getAccountResponse(account).logging_page_id.replace("profilePage_", "")
       println(s"fetching: $account with id $id")
-      val fetchedPhotos = fetch(id, account, None, sessionId)
+      val fetchedPhotos = instagramClient.getAllPost(id, None, sessionId).map(node => convert(node, account))
       println(s"fetched: ${fetchedPhotos.size}")
       val unFetchedPhotos = fetchedPhotos.filterNot(photo => idsSet.contains(photo.id))
       println(s"non-exists: ${unFetchedPhotos.size}")
@@ -106,21 +111,8 @@ class InstagramService(photoRepo: PhotoRepo, fileRepo: FileRepo, instagramClient
 
   }
 
-  private def fetch(userId: String, account: String, endCursor: Option[String], sessionId: String): Seq[Photo] = {
-    val instagramResponse = instagramClient.getPhotos(userId, endCursor, sessionId)
-
-    val instagramPageInfo = instagramResponse.data.user.edge_owner_to_timeline_media.page_info
-    val photos = instagramResponse.data.user.edge_owner_to_timeline_media.edges.map(_.node).map { node =>
-      Photo(node.id.toLong, node.thumbnail_src, node.taken_at_timestamp, node.edge_media_to_caption.edges.headOption.map(_.node.text).getOrElse(""), account)
-    }
-
-    val result = if (instagramPageInfo.has_next_page && instagramPageInfo.end_cursor.isDefined) {
-      photos ++ fetch(userId, account, instagramPageInfo.end_cursor, sessionId)
-    } else {
-      photos
-    }
-
-    result
-  }
+  private def convert(node: InstagramNode, account: String): Photo =
+    Photo(node.id.toLong, node.thumbnail_src, node.taken_at_timestamp,
+      node.edge_media_to_caption.edges.headOption.map(_.node.text).getOrElse(""), account)
 
 }
