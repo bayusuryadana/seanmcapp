@@ -7,7 +7,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 case class InstagramPost(id: String, caption: String, media: Seq[InstagramPostChild])
-case class InstagramPostChild(isVideo: Boolean, imageURL: String, videoURL: Option[String])
+case class InstagramPostChild(isVideo: Boolean, sourceURL: String)
 
 class InstagramPostService(instagramClient: InstagramClient, telegramClient: TelegramClient, cacheRepo: CacheRepo) extends ScheduledTask {
 
@@ -27,17 +27,18 @@ class InstagramPostService(instagramClient: InstagramClient, telegramClient: Tel
         val nodes = instagramClient.getAllPost(id, None, sessionId).map(convert).filterNot(p => cacheList.contains(p.id))
 
         // saving cache
-        val cacheToUpdate = Cache(s"instapost-$id", (cacheList ++ nodes.map(_.id).toSet).reduce(_ + "," + _), None)
+        val newCacheString = (cacheList ++ nodes.map(_.id).toSet).reduce(_ + "," + _)
+        val cacheToUpdate = Cache(s"instapost-$id", newCacheString, None)
         cacheRepo.set(cacheToUpdate)
 
         // send update
-        val chatId = -1
+        val chatId = -1001359004262L
         nodes.map { node =>
           node.media.map { media =>
-            if (media.isVideo) telegramClient.sendVideoWithFileUpload(chatId, url = media.videoURL.get) else
-              telegramClient.sendPhotoWithFileUpload(chatId, url = media.imageURL)
+            if (media.isVideo) telegramClient.sendVideoWithFileUpload(chatId, data = telegramClient.getDataByteFromUrl(media.sourceURL)) else
+              telegramClient.sendPhotoWithFileUpload(chatId, data = telegramClient.getDataByteFromUrl(media.sourceURL))
           }
-          telegramClient.sendMessage(chatId, s"$name\n${node.caption}")
+          telegramClient.sendMessage(chatId, s"POST $name\n${node.caption}")
         }
       }
     }
@@ -48,8 +49,15 @@ class InstagramPostService(instagramClient: InstagramClient, telegramClient: Tel
   private def convert(node: InstagramNode): InstagramPost = {
     val id = node.id
     val caption = node.edge_media_to_caption.edges.headOption.map(_.node.text).getOrElse("")
-    val media = node.edge_sidecar_to_children.edges.map { edge =>
-      InstagramPostChild(edge.node.is_video, edge.node.display_url, edge.node.video_url)
+    val media: Seq[InstagramPostChild] = node.edge_sidecar_to_children match {
+      case Some(i) => i.edges.map { e =>
+        if (e.node.is_video) InstagramPostChild(true, e.node.video_url.getOrElse(throw new Exception("is_video but video_url not found")))
+        else InstagramPostChild(false, e.node.display_url)
+      }
+      case _ =>
+        val ipc = if (node.is_video) InstagramPostChild(true, node.video_url.getOrElse(throw new Exception("is_video but video_url not found")))
+        else InstagramPostChild(false, node.display_url)
+        Seq(ipc)
     }
     InstagramPost(id, caption, media)
   }

@@ -37,9 +37,15 @@ object CacheRepoImpl extends TableQuery(new CacheInfo(_)) with CacheRepo with DB
   def set(cache: Cache): Future[Int] = {
       // try insert first
       run((this += cache).asTry).flatMap {
-        case Failure(ex) =>
+        case Failure(ex) => // TODO: need better checking to do upsert
           // else try update
-          run(this.filter(_.key === cache.key).update(cache))
+          ex.printStackTrace()
+          run((this.filter(_.key === cache.key).update(cache)).asTry).map {
+            case Failure(ex2) =>
+              ex2.printStackTrace()
+              throw new Exception("Failed to insert/update cache")
+            case Success(value) => value
+          }
         case Success(value) =>
           Future.successful(value)
       }

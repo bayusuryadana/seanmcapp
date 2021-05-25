@@ -22,9 +22,14 @@ case class InstagramUser(edge_owner_to_timeline_media: InstagramMedia)
 case class InstagramMedia(count: Int, page_info: InstagramPageInfo, edges: Seq[InstagramEdge])
 case class InstagramPageInfo(has_next_page: Boolean, end_cursor: Option[String])
 case class InstagramEdge(node: InstagramNode)
-case class InstagramNode(id: String, thumbnail_src: String, taken_at_timestamp: Long,
+case class InstagramNode(id: String,
+                         thumbnail_src: String,
+                         taken_at_timestamp: Long,
                          edge_media_to_caption: InstagramEdgeMediaCaption,
-                         edge_sidecar_to_children: InstagramEdgeSidecarChildren)
+                         display_url: String,
+                         is_video: Boolean,
+                         video_url: Option[String],
+                         edge_sidecar_to_children: Option[InstagramEdgeSidecarChildren])
 case class InstagramEdgeMediaCaption(edges: Seq[InstagramNodeCaption])
 case class InstagramNodeCaption(node: InstagramCaption)
 case class InstagramCaption(text: String)
