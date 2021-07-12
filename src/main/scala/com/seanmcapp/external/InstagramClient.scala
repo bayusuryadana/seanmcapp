@@ -45,7 +45,7 @@ class InstagramClient(http: HttpRequestClient) {
     decode[InstagramAccountResponse](httpResponse)
   }
 
-  def getAllPosts(userId: String, endCursor: Option[String], sessionId: String): Seq[InstagramNode] = {
+  def getAllPosts(userId: String, endCursor: Option[String], sessionId: String, doRecursive: Boolean = true): Seq[InstagramNode] = {
     val instagramResponse = {
       val numberOfBatch = 50
       val params = InstagramRequestParameter(userId, numberOfBatch, endCursor).asJson.encode
@@ -56,8 +56,8 @@ class InstagramClient(http: HttpRequestClient) {
     }
     val instagramMedia = instagramResponse.data.user.edge_owner_to_timeline_media
     val result = instagramMedia.edges.map(_.node)
-    val endResult = if (instagramMedia.page_info.has_next_page && instagramMedia.page_info.end_cursor.isDefined) {
-      result ++ getAllPosts(userId, instagramMedia.page_info.end_cursor, sessionId)
+    val endResult = if (instagramMedia.page_info.has_next_page && instagramMedia.page_info.end_cursor.isDefined && doRecursive) {
+      result ++ getAllPosts(userId, instagramMedia.page_info.end_cursor, sessionId, doRecursive)
     } else {
       result
     }
