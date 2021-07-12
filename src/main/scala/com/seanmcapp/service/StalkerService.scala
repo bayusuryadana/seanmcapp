@@ -24,12 +24,11 @@ class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramC
 
   def fetch(sessionIdOpt: Option[String] = None): Future[Seq[TelegramResponse]] = {
     val sessionId = sessionIdOpt.getOrElse(instagramClient.postLogin())
+    val cacheF = cacheRepo.getAll()
     
     val resultF = accountMap.toSeq.map { case (name, id) =>
       val storiesF = Future(instagramClient.getStories(id, sessionId))
       val postsF = Future(instagramClient.getAllPosts(id, None, sessionId))
-      val cacheF = cacheRepo.getAll()
-      
       for {
         stories <- storiesF
         posts <- postsF
