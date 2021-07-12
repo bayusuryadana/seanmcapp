@@ -35,8 +35,8 @@ class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramC
         posts <- postsF
         cache <- cacheF
       } yield {
-        val storyCache = cache.filter(_.key.contains(s"instastory-")).map(_.value).toSet
-        val postCache = cache.find(_.key.contains(s"instapost-")).map(_.value.split(",").toSet).getOrElse(Set.empty[String])
+        val storyCache = cache.filter(_.key.contains(s"instastory-")).map(_.key).toSet
+        val postCache = cache.find(_.key.contains(s"instapost-")).map(_.key.split(",").toSet).getOrElse(Set.empty[String])
         
         val storiesResult = processStory(storyCache, stories, name)
         val postsResult = processPost(postCache, posts, id, name)
