@@ -92,7 +92,7 @@ class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramC
         else
           telegramClient.sendPhotoWithFileUpload(chatId, data = telegramClient.getDataByteFromUrl(media.sourceURL))
       }
-      telegramClient.sendMessage(chatId, s"[POST] $name")
+      telegramClient.sendMessage(chatId, s"[POST] $name\n\n${post.caption}")
       allMedia
     }
   }
