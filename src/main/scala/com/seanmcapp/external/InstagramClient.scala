@@ -1,9 +1,10 @@
 package com.seanmcapp.external
 
 import com.seanmcapp.InstagramConf
-import com.seanmcapp.service._
 import io.circe.syntax._
 import org.joda.time.DateTime
+
+case class InstagramStoryRequestParameter(reel_ids: Seq[String], precomposed_overlay: Boolean)
 
 class InstagramClient(http: HttpRequestClient) {
 
@@ -44,33 +45,34 @@ class InstagramClient(http: HttpRequestClient) {
     decode[InstagramAccountResponse](httpResponse)
   }
 
-  def getAllPost(userId: String, endCursor: Option[String], sessionId: String): Seq[InstagramNode] = {
-    val instagramResponse = getPost(userId, endCursor, sessionId)
+  def getAllPosts(userId: String, endCursor: Option[String], sessionId: String): Seq[InstagramNode] = {
+    val instagramResponse = {
+      val numberOfBatch = 50
+      val params = InstagramRequestParameter(userId, numberOfBatch, endCursor).asJson.encode
+      val url = s"https://www.instagram.com/graphql/query/?query_hash=18a7b935ab438c4514b1f742d8fa07a7&variables=$params"
+      val headers = getHeaders(sessionId)
+      val httpResponse = http.sendGetRequest(url, headers = headers)
+      decode[InstagramResponse](httpResponse)
+    }
     val instagramMedia = instagramResponse.data.user.edge_owner_to_timeline_media
     val result = instagramMedia.edges.map(_.node)
     val endResult = if (instagramMedia.page_info.has_next_page && instagramMedia.page_info.end_cursor.isDefined) {
-      result ++ getAllPost(userId, instagramMedia.page_info.end_cursor, sessionId)
+      result ++ getAllPosts(userId, instagramMedia.page_info.end_cursor, sessionId)
     } else {
       result
     }
     endResult
   }
 
-  def getPost(userId: String, endCursor: Option[String], sessionId: String): InstagramResponse = {
-    val numberOfBatch = 50
-    val params = InstagramRequestParameter(userId, numberOfBatch, endCursor).asJson.encode
-    val url = s"https://www.instagram.com/graphql/query/?query_hash=18a7b935ab438c4514b1f742d8fa07a7&variables=$params"
-    val headers = Some(HeaderMap(Map("cookie" -> s"sessionid=$sessionId")))
-    val httpResponse = http.sendGetRequest(url, headers = headers)
-    decode[InstagramResponse](httpResponse)
-  }
-
   def getStories(userId: String, sessionId: String): InstagramStoryResponse = {
     val params = InstagramStoryRequestParameter(Seq(userId), false).asJson.encode
     val url = s"https://www.instagram.com/graphql/query/?query_hash=c9c56db64beb4c9dea2d17740d0259d9&variables=$params"
-    val headers = Some(HeaderMap(Map("cookie" -> s"sessionid=$sessionId")))
+    val headers = getHeaders(sessionId)
     val httpResponse = http.sendGetRequest(url, headers = headers)
     decode[InstagramStoryResponse](httpResponse)
   }
+  
+  private def getHeaders(sessionId: String): Option[HeaderMap] = 
+    Some(HeaderMap(Map("cookie" -> s"sessionid=$sessionId")))
 
 }

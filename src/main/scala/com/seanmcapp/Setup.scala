@@ -27,17 +27,13 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     }),
 
     /////////// API ///////////
-    get(path( "api" / "instagram" / Remaining) { session =>
-      if (session == "null") complete(instagramService.startFetching().map(_.asJson.encode))
-      else complete(instagramService.startFetching(Some(session)).map(_.asJson.encode))
+    get(path( "api" / "instagram" / "pull" / Remaining) { session =>
+      if (session == "null") complete(cbcService.startFetching().map(_.asJson.encode))
+      else complete(cbcService.startFetching(Some(session)).map(_.asJson.encode))
     }),
-    get(path( "api" / "instastory" / Remaining) { session =>
-      if (session == "null") complete(instagramStoryService.fetch().map(_.asJson.encode))
-      else complete(instagramStoryService.fetch(Some(session)).map(_.asJson.encode))
-    }),
-    get(path( "api" / "instapost" / Remaining) { session =>
-      if (session == "null") complete(instagramPostService.fetch().map(_.asJson.encode))
-      else complete(instagramPostService.fetch(Some(session)).map(_.asJson.encode))
+    get(path( "api" / "instagram" / "push" / Remaining) { session =>
+      if (session == "null") complete(stalkerService.fetch().map(_.asJson.encode))
+      else complete(stalkerService.fetch(Some(session)).map(_.asJson.encode))
     }),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
 
@@ -125,9 +121,8 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(nCovService, "0 0 20 * * ?"),
     new Scheduler(dsdaJakartaService, "0 0 0 * * ?"),
     new Scheduler(amarthaService, "0 0 18 * * ?"),
-    new Scheduler(instagramService, "0 0 10 * * ?"),
-    new Scheduler(instagramStoryService, "0 0 * * * ?"),
-    new Scheduler(instagramPostService, "0 0 * * * ?"),
+    new Scheduler(cbcService, "0 0 10 * * ?"),
+    new Scheduler(stalkerService, "0 0 * * * ?"),
     new Scheduler(newsService, "0 0 6 * * ?"),
     new Scheduler(cacheCleanerService, "0 0 0 * * ?"),
   )
