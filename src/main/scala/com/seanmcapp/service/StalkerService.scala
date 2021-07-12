@@ -36,7 +36,7 @@ class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramC
         cache <- cacheF
       } yield {
         val storyCache = cache.filter(_.key.contains(s"instastory-")).map(_.key).toSet
-        val postCache = cache.find(_.key.contains(s"instapost-")).map(_.key.split(",").toSet).getOrElse(Set.empty[String])
+        val postCache = cache.find(_.key.contains(s"instapost-")).map(_.value.split(",").toSet).getOrElse(Set.empty[String])
         
         val storiesResult = processStory(storyCache, stories, name)
         val postsResult = processPost(postCache, posts, id, name)
@@ -58,7 +58,7 @@ class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramC
             case Some(_) => None
             case _ =>
               cacheRepo.set(createStoryCache(idKey, imgUrl))
-              val tRes = telegramClient.sendPhotoWithFileUpload(chatId, s"STORY $name", telegramClient.getDataByteFromUrl(imgUrl))
+              val tRes = telegramClient.sendPhotoWithFileUpload(chatId, s"[STORY] $name", telegramClient.getDataByteFromUrl(imgUrl))
               Some(tRes)
           }
         case "GraphStoryVideo" =>
@@ -68,7 +68,7 @@ class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramC
             case Some(_) => None
             case _ => 
               cacheRepo.set(createStoryCache(idKey, videoUrl))
-              val tRes = telegramClient.sendVideoWithFileUpload(chatId, s"STORY $name", telegramClient.getDataByteFromUrl(videoUrl))
+              val tRes = telegramClient.sendVideoWithFileUpload(chatId, s"[STORY] $name", telegramClient.getDataByteFromUrl(videoUrl))
               Some(tRes)
           }
         case _ => 
@@ -87,11 +87,12 @@ class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramC
     cacheRepo.set(cacheToUpdate)
 
     posts.map(convert).filterNot(p => postCache.contains(p.id)).flatMap { post =>
+      telegramClient.sendMessage(chatId, s"[POST] $name")
       post.media.map { media =>
         if (media.isVideo) 
-          telegramClient.sendVideoWithFileUpload(chatId, s"POST $name\n${post.caption}", telegramClient.getDataByteFromUrl(media.sourceURL)) 
+          telegramClient.sendVideoWithFileUpload(chatId, data = telegramClient.getDataByteFromUrl(media.sourceURL)) 
         else
-          telegramClient.sendPhotoWithFileUpload(chatId, s"POST $name\n${post.caption}", telegramClient.getDataByteFromUrl(media.sourceURL))
+          telegramClient.sendPhotoWithFileUpload(chatId, data = telegramClient.getDataByteFromUrl(media.sourceURL))
       }
     }
   }
