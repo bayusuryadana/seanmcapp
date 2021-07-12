@@ -18,14 +18,14 @@ class StalkerServiceSpec extends AnyWordSpec with Matchers {
     val instagramClient = mock(classOf[InstagramClient])
     when(instagramClient.postLogin()).thenReturn("")
     when(instagramClient.getStories(any(), any())).thenReturn(InstagramStoryResponse(InstagramStoryData(Nil)))
-    when(instagramClient.getAllPosts(any(), any(), any(), any())).thenReturn(Nil)
+    when(instagramClient.getAllPosts(any(), any(), any())).thenReturn(Nil)
 
     val stalkerService = new StalkerService(instagramClient, telegramClient, CacheRepoMock) {
       override val accountMap: Map[String, String] = Map("a" -> "123")
     }
     Await.result(stalkerService.run(), Duration.Inf)
     verify(instagramClient, times(1)).getStories(any(), any())
-    verify(instagramClient, times(1)).getAllPosts(any(), any(), any(), any())
+    verify(instagramClient, times(1)).getAllPosts(any(), any(), any())
   }
 
   "process story" in {

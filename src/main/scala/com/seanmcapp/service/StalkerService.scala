@@ -86,13 +86,14 @@ class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramC
     cacheRepo.set(cacheToUpdate)
 
     posts.map(convert).filterNot(p => postCache.contains(p.id)).flatMap { post =>
-      telegramClient.sendMessage(chatId, s"[POST] $name")
-      post.media.map { media =>
+      val allMedia = post.media.map { media =>
         if (media.isVideo) 
           telegramClient.sendVideoWithFileUpload(chatId, data = telegramClient.getDataByteFromUrl(media.sourceURL)) 
         else
           telegramClient.sendPhotoWithFileUpload(chatId, data = telegramClient.getDataByteFromUrl(media.sourceURL))
       }
+      telegramClient.sendMessage(chatId, s"[POST] $name")
+      allMedia
     }
   }
 

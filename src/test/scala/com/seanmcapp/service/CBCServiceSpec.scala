@@ -88,7 +88,7 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
         None
       )
     )
-    when(instagramClient.getAllPosts(any(), any(), any(), any())).thenReturn(photoMock)
+    when(instagramClient.getAllPosts(any(), any(), any())).thenReturn(photoMock)
 
     cbcService.run().map { res =>
       res shouldBe Seq(Some(1))
