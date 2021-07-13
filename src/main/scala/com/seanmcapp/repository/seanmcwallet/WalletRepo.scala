@@ -68,6 +68,7 @@ object WalletRepoImpl extends TableQuery(new WalletInfo(_)) with WalletRepo with
 
 }
 
+// $COVERAGE-OFF$
 object WalletRepoDemo extends WalletRepo with MemoryCache {
 
   implicit val walletCache: Cache[Seq[Wallet]] = createCache[Seq[Wallet]]
@@ -129,3 +130,4 @@ object WalletRepoDemo extends WalletRepo with MemoryCache {
     }
   }
 }
+// $COVERAGE-ON$
