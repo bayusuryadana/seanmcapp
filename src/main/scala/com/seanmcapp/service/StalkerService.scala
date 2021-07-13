@@ -18,7 +18,7 @@ class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramC
     "Gecko Moria" -> "5646204159"
   )
   
-  val chatId = 274852283L //-1001359004262L
+  val chatId = -1001359004262L
 
   override def run(): Future[Seq[TelegramResponse]] = fetch()
 
@@ -57,7 +57,7 @@ class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramC
             case Some(_) => None
             case _ =>
               cacheRepo.set(createStoryCache(idKey, imgUrl))
-              val tRes = telegramClient.sendPhotoWithFileUpload(chatId, s"[STORY] $name", telegramClient.getDataByteFromUrl(imgUrl))
+              val tRes = telegramClient.sendPhotoWithFileUpload(chatId, s"STORY - $name", telegramClient.getDataByteFromUrl(imgUrl))
               Some(tRes)
           }
         case "GraphStoryVideo" =>
@@ -67,7 +67,7 @@ class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramC
             case Some(_) => None
             case _ => 
               cacheRepo.set(createStoryCache(idKey, videoUrl))
-              val tRes = telegramClient.sendVideoWithFileUpload(chatId, s"[STORY] $name", telegramClient.getDataByteFromUrl(videoUrl))
+              val tRes = telegramClient.sendVideoWithFileUpload(chatId, s"STORY - $name", telegramClient.getDataByteFromUrl(videoUrl))
               Some(tRes)
           }
         case _ => 
@@ -92,7 +92,7 @@ class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramC
         else
           telegramClient.sendPhotoWithFileUpload(chatId, data = telegramClient.getDataByteFromUrl(media.sourceURL))
       }
-      telegramClient.sendMessage(chatId, s"[POST] $name\n\n${post.caption}")
+      telegramClient.sendMessage(chatId, s"POST - $name\n\n${post.caption}")
       allMedia
     }
   }
