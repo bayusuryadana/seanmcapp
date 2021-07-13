@@ -122,7 +122,7 @@ object WalletRepoDemo extends WalletRepo with MemoryCache {
         Wallet(r*i+2, iDate, "Room rent", "Rent", "SGD", -1000, true, "DBS"),
         Wallet(r*i+3, iDate, "Daily", "Daily", "SGD", -800, true, "DBS"),
         Wallet(r*i+4, iDate, "from SGD", "Transfer", "SGD", -1000, true, "DBS"),
-        Wallet(r*i+5, iDate, "to IDR", "Transfer", "IDR", 1100000, true, "BCA"),
+        Wallet(r*i+5, iDate, "to IDR", "Transfer", "IDR", 11000000, true, "BCA"),
         Wallet(r*i+6, iDate, "Stock", "Funding", "IDR", -5000000, true, "BCA"),
         Wallet(r*i+7, iDate, "Gym", "Wellness", "SGD", -500, true, "DBS"),
         Wallet(r*i+8, iDate, "Games", "IT Stuff", "SGD", -500, true, "DBS")
