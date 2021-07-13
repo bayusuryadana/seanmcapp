@@ -11,7 +11,7 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers {
   private val secretKey = "team-secret"
 
   val amarthaServiceMock = Mockito.mock(classOf[AmarthaService])
-  val walletService = new WalletService(WalletRepoMock) {
+  val walletService = new WalletService(WalletRepoMock, WalletRepoMock) {
     override val SECRET_KEY = secretKey
   }
 
