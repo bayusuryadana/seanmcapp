@@ -1,10 +1,10 @@
 package com.seanmcapp.service
 
-import java.text.NumberFormat
 import java.util.Calendar
 
 import com.seanmcapp.WalletConf
 import com.seanmcapp.repository.seanmcwallet.{Wallet, WalletRepo}
+import com.seanmcapp.service.WalletUtils._
 
 import scala.collection.SortedMap
 import scala.concurrent.duration.Duration
@@ -12,15 +12,16 @@ import scala.concurrent.{Await, Future}
 
 case class WalletOutput(code: Int, message: Option[String], row: Option[Int], response: Seq[Wallet])
 
-class WalletService(walletRepo: WalletRepo) {
+class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
 
   private val activeIncomeSet = Set("Salary", "Bonus")
   private val expenseSet = Set("Daily", "Rent", "Zakat", "Travel", "Fashion", "IT Stuff", "Misc", "Wellness", "Funding")
 
   private[service] val SECRET_KEY = WalletConf().secretKey
+  private val TEST_KEY = "test"
 
   def dashboard(implicit secretKey: String): DashboardView = {
-    val wallets = authAndAwait(secretKey, walletRepo.getAll)
+    val wallets = authAndAwait(secretKey, walletRepo.getAll, walletRepoDemo.getAll)
     val numberOfMonths = 6
 
     def sumAccount(account: String): Int = wallets.collect { case w if w.done && w.account == account => w.amount }.sum
@@ -74,11 +75,11 @@ class WalletService(walletRepo: WalletRepo) {
   }
 
   def data(secretKey: String, date: Option[Int]): DataView = {
-    val wallets = authAndAwait(secretKey, walletRepo.getAll)
+    val wallets = authAndAwait(secretKey, walletRepo.getAll, walletRepoDemo.getAll)
 
     val requestDate = date.getOrElse(todayDate)
-    val nextDate = adjustDate(requestDate+1).toString
-    val prevDate = adjustDate(requestDate-1).toString
+    val nextDate = (requestDate+1).adjustDate.toString
+    val prevDate = (requestDate-1).adjustDate.toString
 
     val requestedMonth = requestDate % 100
     val monthString = getMonth(requestedMonth)
@@ -93,30 +94,31 @@ class WalletService(walletRepo: WalletRepo) {
   }
 
   // $COVERAGE-OFF$
-  def login(secretKey: String): Boolean = secretKey == SECRET_KEY
+  def login(secretKey: String): Boolean = secretKey == SECRET_KEY || secretKey == TEST_KEY
 
   def create(secretKey: String, date: Int, fields: Map[String, String]): Int = {
     val wallet = parseInput(date, fields)
     println(s"[WALLET][CREATE] ${wallet.toJsonString()}")
-    authAndAwait(secretKey, walletRepo.insert(wallet))
+    authAndAwait(secretKey, walletRepo.insert(wallet), walletRepoDemo.insert(wallet))
   }
 
   def update(secretKey: String, date: Int, fields: Map[String, String]): Int = {
     val wallet = parseInput(date, fields)
     if (wallet.id == 0) throw new Exception("id not found")
     println(s"[WALLET][UPDATE] ${wallet.toJsonString()}")
-    authAndAwait(secretKey, walletRepo.update(wallet))
+    authAndAwait(secretKey, walletRepo.update(wallet), walletRepoDemo.update(wallet))
   }
 
   def delete(secretKey: String, id: Int): Int = {
     println(s"[WALLET][DELETE] $id")
-    authAndAwait(secretKey, walletRepo.delete(id))
+    authAndAwait(secretKey, walletRepo.delete(id), walletRepoDemo.delete(id))
   }
   // $COVERAGE-ON$
 
-  private def authAndAwait[T](secretKey: String, f: Future[T]): T = {
+  private def authAndAwait[T](secretKey: String, f: Future[T], tf: Future[T]): T = {
     secretKey match {
       case SECRET_KEY => Await.result(f, Duration.Inf)
+      case TEST_KEY => Await.result(tf, Duration.Inf)
       case _ => throw new Exception("Wrong secret key") // TODO: need better handle
     }
   }
@@ -152,14 +154,6 @@ class WalletService(walletRepo: WalletRepo) {
     Balance(beginning.formatNumber, plannedEnding.formatNumber, realEnding.formatNumber)
   }
 
-  private def adjustDate(date: Int): Int = {
-    date % 100 match {
-      case 13 =>(date / 100 + 1) * 100 + 1
-      case 0 => (date / 100 - 1) * 100 + 12
-      case _ => date
-    }
-  }
-
   private def adjustWallet(wallets: Seq[Wallet]): Seq[Wallet] = {
     /**
       * this const to be divided to SGD
@@ -189,13 +183,6 @@ class WalletService(walletRepo: WalletRepo) {
     }
     val thisYear = now.get(Calendar.YEAR)
     (thisYear.toString + thisMonthStringNumber).toInt
-  }
-
-  implicit class Formatter(in: Int) {
-    def formatNumber: String = {
-      val formatter = NumberFormat.getIntegerInstance
-      formatter.format(in)
-    }
   }
 
   private[service] def getMonth(i: Int): String = {
