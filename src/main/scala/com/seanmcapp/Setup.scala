@@ -120,7 +120,6 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(airVisualService, "0 0 17 * * ?"),
     new Scheduler(nCovService, "0 0 20 * * ?"),
     new Scheduler(dsdaJakartaService, "0 0 0 * * ?"),
-    new Scheduler(amarthaService, "0 0 18 * * ?"),
     new Scheduler(cbcService, "0 0 10 * * ?"),
     new Scheduler(stalkerService, "0 0 * * * ?"),
     new Scheduler(newsService, "0 0 6 * * ?"),
