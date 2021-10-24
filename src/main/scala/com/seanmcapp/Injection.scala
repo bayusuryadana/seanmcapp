@@ -28,9 +28,6 @@ trait Injection {
   val airVisualClient = new AirVisualClient(httpClient)
   val airVisualService = new AirVisualService(airVisualClient, telegramClient)
 
-  val amarthaClient = new AmarthaClient(httpClient)
-  val amarthaService = new AmarthaService(amarthaClient, telegramClient)
-
   val birthdayService = new BirthdayService(peopleRepo, telegramClient)
 
   val broadcastService = new BroadcastService(telegramClient)
