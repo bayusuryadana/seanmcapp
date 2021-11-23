@@ -36,6 +36,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
       else complete(stalkerService.fetch(Some(session)).map(_.asJson.encode))
     }),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
+    get(path( "api" / "tweet" )(complete(twitterService.get.asJson.encode))),
 
     toStrictEntity(3.seconds) {
       post((path("broadcast") & headerValue(getHeader("secretkey")) & fileUpload("photo") & formFieldMap) {
