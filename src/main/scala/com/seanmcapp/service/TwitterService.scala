@@ -1,90 +1,61 @@
 package com.seanmcapp.service
 
-import java.net.URLEncoder
-import java.util.Base64
+import com.seanmcapp.external.{TelegramClient, TweetObject, TwitterClient}
+import com.seanmcapp.repository.{Cache, CacheRepo}
 
-import com.seanmcapp.TwitterConf
-import com.seanmcapp.external.{HeaderMap, HttpRequestClient}
-import javax.crypto.Mac
-import javax.crypto.spec.SecretKeySpec
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-import scala.util.Random
-
-class TwitterService(httpClient: HttpRequestClient) {
-
-  private val oauth_signature_method = "HMAC-SHA1"
-  private val oauth_version = "1.0"
-
-  private val idLength = 16
-  private val config = TwitterConf()
-  private val utf8 = "utf-8"
-
-  private val baseUrlTweet = "https://api.twitter.com/2/users/:id/tweets"
-  private val baseUrlLiked = "https://api.twitter.com/2/users/:id/liked_tweets"
-  private val paramTweetFields = "tweet.fields=created_at,referenced_tweets"
-  private val paramMaxResults = "max_results=10"
+class TwitterService(twitterClient: TwitterClient, cacheRepo: CacheRepo, telegramClient: TelegramClient) extends ScheduledTask {
 
   private val accountMap = Map(
     "Alvida" -> "67603103",
     "Buggy" -> "159846549"
   )
 
-  def get = {
-    val oauth_consumer_key = config.consumerKey
-    val oauth_nonce = generateId("", Random.alphanumeric.take(idLength))
-    val oauth_timestamp = java.time.Instant.now.toEpochMilli / 1000
-    val oauth_token = config.accessToken
-    val paramString =
-      s"""$paramMaxResults&
-         |oauth_consumer_key=$oauth_consumer_key&
-         |oauth_nonce=$oauth_nonce&
-         |oauth_signature_method=$oauth_signature_method&
-         |oauth_timestamp=$oauth_timestamp&
-         |oauth_token=$oauth_token&
-         |oauth_version=$oauth_version&
-         |${paramTweetFields.replace(",","%2C")}"""
-        .stripMargin
-        .replaceAll("\\n", "")
-        .replaceAll(" //[0-9]+", "")
-    val encodedParamString = URLEncoder.encode(paramString, utf8)
+  // val chatId = -1001359004262L
+  val chatId = 274852283L
 
-    val authHeaderValue =
-      s"""OAuth oauth_consumer_key="$oauth_consumer_key",
-         |oauth_nonce="$oauth_nonce",
-         |oauth_signature=":oauth_signature",
-         |oauth_signature_method="$oauth_signature_method",
-         |oauth_timestamp=$oauth_timestamp,
-         |oauth_token=$oauth_token,
-         |oauth_version=$oauth_version"""
-        .stripMargin
-        .replaceAll("\\n", "")
-        .replaceAll(" //[0-9]+", "")
+  private val tweetPrefix = "tweet-"
+  private val likedPrefix = "liked-"
 
-    accountMap.toSeq.map { case (name, id) =>
-      val tweetResponse = generateSignatureAndSendRequest(baseUrlTweet, id, encodedParamString, authHeaderValue)
-      val likedResponse = generateSignatureAndSendRequest(baseUrlLiked, id, encodedParamString, authHeaderValue)
-      likedResponse
+  override def run: Future[Map[String, List[TweetObject]]] = {
+    val cacheF = cacheRepo.getAll()
+
+    cacheF.map { cache =>
+      accountMap.map { case (name, id) =>
+        val tweetResponse = processData(cache, name, id, tweetPrefix)
+        val likedResponse = processData(cache, name, id, likedPrefix)
+
+        name -> (tweetResponse ++ likedResponse)
+      }
     }
   }
 
-  private def generateSignatureAndSendRequest(templateUrl: String, id: String, encodedParamString: String, oAuthHeaderValue: String): String = {
-    val baseUrl = templateUrl.replace(":id", id)
-    val encodedBaseUrl = URLEncoder.encode(baseUrl, utf8)
-    val signatureBaseString = s"GET&$encodedBaseUrl&$encodedParamString"
-    val signingKey = new SecretKeySpec(s"${config.consumerSecret}&${config.accessSecret}".getBytes, "HmacSHA1")
-    val mac = Mac.getInstance("HmacSHA1")
-    mac.init(signingKey)
-    val result: Array[Byte] = mac.doFinal(signatureBaseString.getBytes)
-    val signatureResult = URLEncoder.encode(Base64.getEncoder.encodeToString(result), utf8)
+  private def processData(cache: Seq[Cache], name: String, id: String, prefix: String): List[TweetObject] = {
+    val filteredCache = cache.filter(_.key.contains(s"$prefix$id")).flatMap(_.value.split(",")).toSet
+    val (action, response) = prefix match {
+      case s if s == tweetPrefix =>
+        ("Tweet", twitterClient.getTweets(id).data)
+      case s if s == likedPrefix =>
+        ("Liked tweet", twitterClient.getLiked(id).data)
+      case _ => ("", List.empty[TweetObject])
+    }
+    val nonViewedT = response.filterNot(tw => filteredCache.contains(tw.id))
 
-    val headers = HeaderMap(Map("Authorization" -> oAuthHeaderValue.replace(":oauth_signature", signatureResult)))
-    val fullUrl = s"$baseUrl?$paramTweetFields&$paramMaxResults"
-    httpClient.sendGetRequest(fullUrl, Some(headers))
+    // sending tweet
+    nonViewedT.foreach { tweetObj =>
+      val isReply = if (tweetObj.referenced_tweets.isDefined) "reply" else ""
+      val escapedText = tweetObj.text.replace("_", "\\_")
+      val text = s"$name - $action\n$escapedText $isReply"
+      telegramClient.sendMessage(chatId, text)
+    }
+
+    // delete and add cache
+    cacheRepo.delete(s"$prefix$id")
+    Thread.sleep(1000)
+    cacheRepo.set(Cache(s"$prefix$id", response.map(_.id).foldLeft("")((res, s) => s"$res,$s"), None))
+
+    response
   }
-
-  private def generateId(acc: String, s: LazyList[Char]): String = {
-    if (s.isEmpty) acc
-    else generateId(acc + s.head, s.tail)
-  }
-
 }

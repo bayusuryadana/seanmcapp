@@ -61,5 +61,6 @@ trait Injection {
 
   val cacheCleanerService = new CacheCleanerService(cacheRepo)
 
-  val twitterService = new TwitterService(httpClient)
+  val twitterClient = new TwitterClient(httpClient)
+  val twitterService = new TwitterService(twitterClient, cacheRepo, telegramClient)
 }
