@@ -103,3 +103,15 @@ object HadithConf extends Configuration[HadithConf]("hadith") {
     HadithConf(Try(c.getString("api-key")).getOrElse(""))
   }
 }
+
+case class TwitterConf(consumerKey: String, consumerSecret: String, accessToken: String, accessSecret: String)
+object TwitterConf extends Configuration[TwitterConf]("twitter") {
+  override def buildConfig(c: Config): TwitterConf = {
+    TwitterConf(
+      Try(c.getString("consumer.key")).getOrElse(""),
+      Try(c.getString("consumer.secret")).getOrElse(""),
+      Try(c.getString("access.token")).getOrElse(""),
+      Try(c.getString("access.secret")).getOrElse(""),
+    )
+  }
+}
