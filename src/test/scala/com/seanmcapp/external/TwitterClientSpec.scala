@@ -31,7 +31,7 @@ class TwitterClientSpec extends AnyWordSpec with Matchers {
       TweetObject("liked 1", "101", "2021-11-07T18:02:45.000Z", None),
       TweetObject("liked 2", "102", "2021-11-09T09:00:19.000Z", None),
     ))
-    twitterClient.getTweets(mockId) shouldBe expected
+    twitterClient.getLiked(mockId) shouldBe expected
   }
 
 }
