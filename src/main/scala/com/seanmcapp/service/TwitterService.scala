@@ -8,7 +8,7 @@ import scala.concurrent.Future
 
 class TwitterService(twitterClient: TwitterClient, cacheRepo: CacheRepo, telegramClient: TelegramClient) extends ScheduledTask {
 
-  private val accountMap = Map(
+  private[service] val accountMap = Map(
     "Alvida" -> "67603103",
     "Buggy" -> "159846549"
   )
@@ -19,7 +19,7 @@ class TwitterService(twitterClient: TwitterClient, cacheRepo: CacheRepo, telegra
   private val tweetPrefix = "tweet-"
   private val likedPrefix = "liked-"
 
-  override def run: Future[Map[String, List[TweetObject]]] = {
+  override def run(): Future[Map[String, List[TweetObject]]] = {
     val cacheF = cacheRepo.getAll()
 
     cacheF.map { cache =>
