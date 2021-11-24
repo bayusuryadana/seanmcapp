@@ -13,8 +13,7 @@ class TwitterService(twitterClient: TwitterClient, cacheRepo: CacheRepo, telegra
     "Buggy" -> "159846549"
   )
 
-  // val chatId = -1001359004262L
-  val chatId = 274852283L
+  val chatId = -1001359004262L
 
   private val tweetPrefix = "tweet-"
   private val likedPrefix = "liked-"
