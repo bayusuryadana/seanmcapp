@@ -9,7 +9,7 @@ import scala.concurrent.Future
 class TwitterService(twitterClient: TwitterClient, cacheRepo: CacheRepo, telegramClient: TelegramClient) extends ScheduledTask {
 
   private[service] val accountMap = Map(
-    "Alvida" -> "67603103",
+    //"Alvida" -> "67603103",
     "Buggy" -> "159846549"
   )
 
