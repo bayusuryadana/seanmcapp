@@ -13,7 +13,7 @@ case class InstagramPostChild(isVideo: Boolean, sourceURL: String)
 class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramClient, cacheRepo: CacheRepo) extends ScheduledTask {
 
   val accountMap = Map(
-    //"Alvida" -> "302844663",
+    "Alvida" -> "302844663",
     "Buggy" -> "277395688",
     "Gecko Moria" -> "5646204159"
   )
