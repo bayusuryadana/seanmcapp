@@ -37,7 +37,7 @@ object NewsConstant {
     "kumparan" -> NewsObject(2, "https://kumparan.com/trending", kumparanParser),
     "mothership" -> NewsObject(3, "https://mothership.sg", mothershipParser),
     "cna" -> NewsObject(4, "https://www.channelnewsasia.com/news/singapore", cnaParser),
-    "reuters" -> NewsObject(5, "https://www.reuters.com", reutersParser),
+//    "reuters" -> NewsObject(5, "https://www.reuters.com", reutersParser),
   )
 
   private def cnaParser(d: Document): NewsResult = {
@@ -70,7 +70,7 @@ object NewsConstant {
   private def reutersParser(d: Document): NewsResult = {
     val tag = d.selectFirst(".StaticMediaMaximizer__hero___3tmwgq")
     NewsResult(
-      tag.selectFirst(".MediaStoryCard__header___qimiYl h3").text(),
+      tag.selectFirst(".MediaStoryCard__header___qimiYl a").text(),
       s"https://www.reuters.com${tag.selectFirst("a").attr("href")}",
       Array(0x1f30f)
     )
@@ -78,8 +78,8 @@ object NewsConstant {
 
   private def tirtoParser(d: Document): NewsResult = {
     // TODO: check whether the title matches 'POPULER', instead of hard code the index 5
-    val tag = d.select(".welcome-title").asScala.toList(6).parent.parent.parent.parent.selectFirst(".mb-3 a")
-    NewsResult(tag.text(), s"https://tirto.id${tag.attr("href")}", Array(0x1f1ee, 0x1f1e9))
+    val tag = d.select(".welcome-title").asScala.toList(5).parent.parent.parent.parent.selectFirst(".mb-3 a")
+    NewsResult(tag.text(), s"${tag.attr("href")}", Array(0x1f1ee, 0x1f1e9))
   }
 
 }
