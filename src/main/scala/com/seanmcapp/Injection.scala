@@ -21,6 +21,7 @@ trait Injection {
   val walletRepo: WalletRepo = WalletRepoImpl
   val walletRepoDemo: WalletRepo = WalletRepoDemo
   val cacheRepo: CacheRepo = CacheRepoImpl
+  val accountRepo: AccountRepo = AccountRepoImpl
 
   val httpClient: HttpRequestClient = HttpRequestClientImpl
   val telegramClient = new TelegramClient(httpClient)
@@ -45,7 +46,7 @@ trait Injection {
   val hadithService = new HadithService(hadithClient)
   
   val instagramClient = new InstagramClient(httpClient)
-  val stalkerService = new StalkerService(instagramClient, telegramClient, cacheRepo)
+  val stalkerService = new StalkerService(instagramClient, telegramClient, cacheRepo, accountRepo)
 
   val nCovClient = new NCovClient(httpClient)
   val nCovService = new NCovService(nCovClient, telegramClient)

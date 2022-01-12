@@ -12,6 +12,13 @@ CREATE TABLE customers (
     count integer DEFAULT 0 NOT NULL
 );
 
+CREATE TABLE accounts (
+    id bigint NOT NULL,
+    alias character varying(100) NOT NULL,
+    is_private boolean NOT NULL,
+    group_type int NOT NULL
+);
+
 CREATE TABLE heroes (
     id smallint NOT NULL,
     localized_name character varying(32) NOT NULL,

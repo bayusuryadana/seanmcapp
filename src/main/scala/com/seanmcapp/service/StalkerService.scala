@@ -1,6 +1,7 @@
 package com.seanmcapp.service
 
 import com.seanmcapp.external.{InstagramClient, InstagramNode, InstagramStoryResponse, InstagramStoryVideoResource, TelegramClient, TelegramResponse}
+import com.seanmcapp.repository.instagram.AccountRepo
 import com.seanmcapp.repository.{Cache, CacheRepo}
 import org.joda.time.DateTime
 
@@ -10,41 +11,42 @@ import scala.concurrent.ExecutionContext.Implicits.global
 case class InstagramPost(id: String, caption: String, media: Seq[InstagramPostChild])
 case class InstagramPostChild(isVideo: Boolean, sourceURL: String)
 
-class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramClient, cacheRepo: CacheRepo) extends ScheduledTask {
-
-  val accountMap = Map(
-    "Alvida" -> "302844663",
-    "Buggy" -> "277395688",
-    "Gecko Moria" -> "5646204159"
-  )
+class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramClient, cacheRepo: CacheRepo, accountRepo: AccountRepo) extends ScheduledTask {
   
   val chatId = -1001359004262L
+  val privateId = 1
 
   override def run(): Future[Seq[TelegramResponse]] = fetch()
 
   def fetch(sessionIdOpt: Option[String] = None): Future[Seq[TelegramResponse]] = {
     val sessionId = sessionIdOpt.getOrElse(instagramClient.postLogin())
     val cacheF = cacheRepo.getAll()
-    
-    val resultF = accountMap.toSeq.map { case (name, id) =>
-      val storiesF = Future(instagramClient.getStories(id, sessionId))
-      val postsF = Future(instagramClient.getAllPosts(id, None, sessionId))
-      for {
-        stories <- storiesF
-        posts <- postsF
-        cache <- cacheF
-      } yield {
-        val storyCache = cache.filter(_.key.contains(s"instastory-")).map(_.key).toSet
-        val postCache = cache.find(_.key.contains(s"instapost-$id")).map(_.value.split(",").toSet).getOrElse(Set.empty[String])
-        
-        val storiesResult = processStory(storyCache, stories, name)
-        val postsResult = processPost(postCache, posts, id, name)
-        
-        storiesResult ++ postsResult
+    val accountsF = accountRepo.getAll()
+
+    val resultF = for {
+      accounts <- accountsF
+    } yield {
+      val accountsResponses = accounts.map { account =>
+        val storiesF = Future(instagramClient.getStories(account.id, sessionId))
+        val postsF = Future(instagramClient.getAllPosts(account.id, None, sessionId))
+        for {
+          stories <- storiesF
+          posts <- postsF
+          cache <- cacheF
+        } yield {
+          val storyCache = cache.filter(_.key.contains(s"instastory-")).map(_.key).toSet
+          val postCache = cache.find(_.key.contains(s"instapost-${account.id}")).map(_.value.split(",").toSet).getOrElse(Set.empty[String])
+
+          val storiesResult = processStory(storyCache, stories, account.alias)
+          val postsResult = processPost(postCache, posts, account.id, account.alias)
+
+          storiesResult ++ postsResult
+        }
       }
+      Future.sequence(accountsResponses).map(_.flatten)
     }
     
-    Future.sequence(resultF).map(_.flatten)
+    resultF.flatten
   }
   
   private[service] def processStory(storyCache: Set[String], stories: InstagramStoryResponse, name: String): Seq[TelegramResponse] = {
