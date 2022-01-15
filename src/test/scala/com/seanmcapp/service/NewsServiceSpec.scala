@@ -20,15 +20,13 @@ class NewsServiceSpec extends AnyWordSpec with Matchers {
       "The Medium Menghadirkan Kengerian Lewat Cara yang Efektif",
       "KH Said Aqil ke Listyo Sigit: Yang Khotbah Jumat Katai Jokowi Kenapa Dibiarkan kumparanNEWS",
       "How Redditors made investors & Wall Street hedge funds lose S$8 billion, explained",
-      "117 people given lower dose of COVID-19 vaccine due to error at Bukit Merah Polyclinic",
-      "Erdogan's critics say demand for expulsions is distraction from economy woes"
+      "117 people given lower dose of COVID-19 vaccine due to error at Bukit Merah Polyclinic"
     )
     val expectedUrl = List(
-      "https://tirto.idhttps://tirto.id/the-medium-menghadirkan-kengerian-lewat-cara-yang-efektif-gkDj",
+      "https://tirto.id/the-medium-menghadirkan-kengerian-lewat-cara-yang-efektif-gkDj",
       "https://kumparan.com/kumparannews/kh-said-aqil-ke-listyo-sigit-yang-khotbah-jumat-katai-jokowi-kenapa-dibiarkan-1v4EoB66JdO",
       "https://mothership.sg/2021/01/gamestop-hedge-fund-shorting-explainer/",
-      "https://www.channelnewsasia.com/singapore/bukit-merah-polyclinic-covid19-vaccine-lower-dose-singhealth-2265136",
-      "https://www.reuters.com/world/middle-east/erdogans-critics-say-demand-expulsions-is-distraction-economy-woes-2021-10-24/",
+      "https://www.channelnewsasia.com/singapore/bukit-merah-polyclinic-covid19-vaccine-lower-dose-singhealth-2265136"
     )
     val result = newsService.run
     result.map(_.title) shouldBe expectedTitles
