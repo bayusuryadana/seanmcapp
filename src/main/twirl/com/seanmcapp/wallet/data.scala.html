@@ -216,7 +216,7 @@
             let currencyIndex = document.getElementById("currency-"+wallet.currency).index;
             document.getElementById("currency-form").selectedIndex = currencyIndex;
             document.getElementById("amount-form").setAttribute("value", wallet.amount);
-            let categoryIndex = document.getElementById("category-"+wallet.category).index;
+            let categoryIndex = document.getElementById("category-"+wallet.category.replace(" ","-")).index;
             document.getElementById("category-form").selectedIndex = categoryIndex;
             document.getElementById("done-form").checked = wallet.done;
             let accountIndex = document.getElementById("account-"+wallet.account).index;
