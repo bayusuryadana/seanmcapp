@@ -38,13 +38,13 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
     //get(path( "api" / "tweet" )(complete(twitterService.run.map(_.asJson.encode)))),
 
-    toStrictEntity(3.seconds) {
-      post((path("broadcast") & headerValue(getHeader("secretkey")) & fileUpload("photo") & formFieldMap) {
-        case (secretKey, (_, byteSource), formFields) =>
-          println(s"Receive broadcast with formFields: $formFields")
-          complete(broadcastService.broadcastWithPhoto(byteSource, formFields)(system, secretKey).map(_.asJson.encode))
-      })
-    },
+//    toStrictEntity(3.seconds) {
+//      post((path("broadcast") & headerValue(getHeader("secretkey")) & fileUpload("photo") & formFieldMap) {
+//        case (secretKey, (_, byteSource), formFields) =>
+//          println(s"Receive broadcast with formFields: $formFields")
+//          complete(broadcastService.broadcastWithPhoto(byteSource, formFields)(system, secretKey).map(_.asJson.encode))
+//      })
+//    },
 
     /////////// WEB ///////////
     get(path("dota")(complete(dotaService.home.map(HttpEntity(utf8, _))))),
