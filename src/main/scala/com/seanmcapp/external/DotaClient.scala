@@ -44,6 +44,7 @@ class DotaClient(http: HttpRequestClient) extends MemoryCache {
 
   def getHeroLore: Map[String, String] = {
     val heroLoreResponse = try {
+      // taken from here https://github.com/odota/dotaconstants/blob/master/json/hero_lore.json
       Source.fromResource("dota/hero_lore.json")(Codec.UTF8).getLines().mkString
     } catch {
       case e: Throwable =>
