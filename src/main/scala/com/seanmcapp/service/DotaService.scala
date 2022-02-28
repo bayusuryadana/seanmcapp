@@ -109,8 +109,8 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
       }
 
       val heroInput = heroes.map { hero =>
-        val heroImage = hero.img.stripPrefix("/apps/dota2/images/heroes/").stripSuffix("?")
-        val heroIcon = hero.icon.stripPrefix("/apps/dota2/images/heroes/")
+        val heroImage = hero.img.stripPrefix("/apps/dota2/images/dota_react/heroes/").stripSuffix("?")
+        val heroIcon = hero.icon.stripPrefix("/apps/dota2/images/dota_react/heroes/").stripSuffix("?")
         val heroName = heroImage.stripSuffix("_full.png")
         val heroLore = heroLoreMap.get(heroName) match {
           case Some(h) => h
