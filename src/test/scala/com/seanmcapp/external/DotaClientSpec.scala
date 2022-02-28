@@ -48,7 +48,7 @@ class DotaClientSpec extends AnyWordSpec with Matchers {
     val result = dotaClient.getHeroStatsAndAttr
     val expected = (
       List(HeroResponse(1, "Anti-Mage", "agi", "Melee", List("Carry", "Escape", "Nuker"),
-        "/apps/dota2/images/heroes/antimage_full.png?","/apps/dota2/images/heroes/antimage_icon.png")),
+        "/apps/dota2/images/dota_react/heroes/antimage_full.png?","/apps/dota2/images/dota_react/heroes/antimage_icon.png?")),
       List(HeroAttribute(1,200,0.25,75,0.0,-1,25,29,33,23,24,12,1.3,3.0,1.8,150,0,1.4,310,0.5,true))
     )
     result shouldBe expected
