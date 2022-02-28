@@ -10,8 +10,8 @@
       "Escape",
       "Nuker"
     ],
-    "img": "/apps/dota2/images/heroes/antimage_full.png?",
-    "icon": "/apps/dota2/images/heroes/antimage_icon.png",
+    "img": "/apps/dota2/images/dota_react/heroes/antimage_full.png?",
+    "icon": "/apps/dota2/images/dota_react/heroes/antimage_icon.png?",
     "base_health": 200,
     "base_health_regen": 0.25,
     "base_mana": 75,
