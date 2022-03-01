@@ -140,8 +140,8 @@
     <script>
         @for(player <- data.players) {
             @for(m <- player.matches) {
-                document.getElementById(@(player.player.id+"-"+m.match_id)).innerHTML = moment('@(m.start_time)', "X").fromNow();
-                document.getElementById(@(player.player.id+"-"+m.match_id)).title = moment('@(m.start_time)', "X").format("MMMM Do YYYY, h:mm:ss a");
+                document.getElementById('@(player.player.id+"-"+m.match_id)').innerHTML = moment('@(m.start_time)', "X").fromNow();
+                document.getElementById('@(player.player.id+"-"+m.match_id)').title = moment('@(m.start_time)', "X").format("MMMM Do YYYY, h:mm:ss a");
             }
         }
 
