@@ -80,7 +80,7 @@
                                                     <img class="recent-hero-img" src="@(imageBaseUrl+data.heroImageMap.getOrElse(m.hero_id, ""))">
                                                 </div>
                                                 <div class="cell-2 text-center va-center-manual">@(m.getKDA)</div>
-                                                <div class="cell-4 text-center va-center-manual" id="@(m.match_id)"></div>
+                                                <div class="cell-4 text-center va-center-manual" id="@(player.player.id+"-"+m.match_id)"></div>
                                                 <div class="cell-2 text-center va-center-manual">@(m.getDuration)</div>
                                                 <div class="cell-2 text-center text-bold va-center-manual @(m.getCssResult)">@(m.getResult)</div>
                                             </div>
@@ -140,8 +140,8 @@
     <script>
         @for(player <- data.players) {
             @for(m <- player.matches) {
-                document.getElementById(@(m.match_id)).innerHTML = moment('@(m.start_time)', "X").fromNow();
-                document.getElementById(@(m.match_id)).title = moment('@(m.start_time)', "X").format("MMMM Do YYYY, h:mm:ss a");
+                document.getElementById(@(player.player.id+"-"+m.match_id)).innerHTML = moment('@(m.start_time)', "X").fromNow();
+                document.getElementById(@(player.player.id+"-"+m.match_id)).title = moment('@(m.start_time)', "X").format("MMMM Do YYYY, h:mm:ss a");
             }
         }
 
