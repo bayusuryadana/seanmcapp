@@ -16,7 +16,7 @@ class NewsService(newsClient: NewsClient, airVisualClient: AirVisualClient, tele
   private val AirSensitive = Array(0x1F630)
   private val AirUnhealthy = Array(0x1F637)
   
-  override def run: List[NewsResult] = {
+  override def run: (List[NewsResult], String) = {
     // news
     val newsResponses = newsClient.getNews
     val newsResults = newsResponses.toList.flatMap { case (key, response) =>
@@ -39,9 +39,9 @@ class NewsService(newsClient: NewsClient, airVisualClient: AirVisualClient, tele
     }
     
     val combinedMessage = newsMessage + "\n\n" + aqiMessage
-    telegramClient.sendMessage(-1001359004262L, newsMessage)
+    telegramClient.sendMessage(-1001359004262L, combinedMessage)
 
-    newsResults
+    (newsResults, aqiMessage)
   }
 
   private def getEmojiFromAqi(aqi: Int): String = {

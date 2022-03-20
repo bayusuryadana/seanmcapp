@@ -33,6 +33,8 @@ trait Injection {
 
   val broadcastService = new BroadcastService(telegramClient)
 
+  val cacheCleanerService = new CacheCleanerService(cacheRepo)
+
   val cbcClient = new CBCClient(httpClient)
   val cbcService = new CBCService(photoRepo, customerRepo, fileRepo, accountRepo, cbcClient, instagramClient)
 
@@ -58,8 +60,8 @@ trait Injection {
   val warmupDBService = new WarmupDBService(peopleRepo)
 
   val telegramWebhookService = new TelegramWebhookService(cbcService, hadithService, telegramClient)
-
-  val cacheCleanerService = new CacheCleanerService(cacheRepo)
+  
+  val sportsService = new SportsService(telegramClient)
 
   val twitterClient = new TwitterClient(httpClient)
   val twitterService = new TwitterService(twitterClient, cacheRepo, telegramClient)

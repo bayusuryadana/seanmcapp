@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.external.{NewsClient, TelegramClient}
+import com.seanmcapp.external.{AirVisualClient, AirvisualCity, NewsClient, TelegramClient}
 import org.mockito.Mockito
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers
@@ -13,9 +13,19 @@ class NewsServiceSpec extends AnyWordSpec with Matchers {
   "Scheduler" in {
     val telegramClient = Mockito.mock(classOf[TelegramClient])
     val newsClient = Mockito.mock(classOf[NewsClient])
-    val newsService = new NewsService(newsClient, telegramClient)
-    val mockResponse = NewsConstant.mapping.keys.map(key => key -> Source.fromResource(s"news/$key.html").mkString).toMap
-    when(newsClient.getNews).thenReturn(mockResponse)
+    val airVisualClient = Mockito.mock(classOf[AirVisualClient])
+    val newsService = new NewsService(newsClient, airVisualClient, telegramClient)
+
+    val airVisualMockResponse = Map(
+      AirvisualCity("Indonesia", "Jakarta", "Jakarta") -> 30,
+      AirvisualCity("Indonesia", "West Java", "Bekasi") -> 80,
+      AirvisualCity("Indonesia", "West Java", "Depok") -> 130,
+      AirvisualCity("Singapore", "Singapore", "Singapore") -> 180
+    )
+    when(airVisualClient.getCityResults).thenReturn(airVisualMockResponse)
+    
+    val newsMockResponse = NewsConstant.mapping.keys.map(key => key -> Source.fromResource(s"news/$key.html").mkString).toMap
+    when(newsClient.getNews).thenReturn(newsMockResponse)
     val expectedTitles = List(
       "The Medium Menghadirkan Kengerian Lewat Cara yang Efektif",
       "KH Said Aqil ke Listyo Sigit: Yang Khotbah Jumat Katai Jokowi Kenapa Dibiarkan kumparanNEWS",
@@ -28,9 +38,16 @@ class NewsServiceSpec extends AnyWordSpec with Matchers {
       "https://mothership.sg/2021/01/gamestop-hedge-fund-shorting-explainer/",
       "https://www.channelnewsasia.com/singapore/bukit-merah-polyclinic-covid19-vaccine-lower-dose-singhealth-2265136"
     )
+    val expectedAQI = s"""kondisi udara saat ini:
+                      |Jakarta (AQI 30 🍀)
+                      |Bekasi (AQI 80 😎)
+                      |Depok (AQI 130 😰)
+                      |Singapore (AQI 180 😷)""".stripMargin
+    
     val result = newsService.run
-    result.map(_.title) shouldBe expectedTitles
-    result.map(_.url) shouldBe expectedUrl
+    result._1.map(_.title) shouldBe expectedTitles
+    result._1.map(_.url) shouldBe expectedUrl
+    result._2 shouldBe expectedAQI
   }
 
 }
