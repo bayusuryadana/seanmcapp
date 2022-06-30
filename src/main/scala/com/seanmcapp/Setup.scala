@@ -5,7 +5,8 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpHeader, StatusCod
 import akka.http.scaladsl.server
 import akka.http.scaladsl.server.Directives
 import com.seanmcapp.external._
-import com.seanmcapp.repository.instagram.AccountGroupType
+import com.seanmcapp.repository.instagram.AccountGroupTypes
+import com.seanmcapp.util.ChatIdTypes
 import io.circe.syntax._
 
 import scala.concurrent.duration._
@@ -34,7 +35,15 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     }),
     get(path( "api" / "instagram" / "push" / Remaining) { session =>
       val sessionOpt = if (session == "null") None else Some(session)
-      complete(instagramService.fetch(AccountGroupType.Stalker, sessionOpt).map(_.asJson.encode))
+      val postsF = instagramService.fetchPosts(AccountGroupTypes.Stalker, ChatIdTypes.Group, sessionOpt)
+      val storiesF = instagramService.fetchStories(AccountGroupTypes.Stalker, ChatIdTypes.Group, sessionOpt)
+      val result = for {
+        posts <- postsF
+        stories <- storiesF
+      } yield {
+        posts ++ stories
+      }
+      complete(result.map(_.asJson.encode))
     }),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
     //get(path( "api" / "tweet" )(complete(twitterService.run.map(_.asJson.encode)))),
@@ -123,7 +132,8 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(nCovService, "0 0 20 * * ?"),
     new Scheduler(dsdaJakartaService, "0 0 0 * * ?"),
     new Scheduler(cbcService, "0 0 10 * * ?"),
-    new Scheduler(instagramService, "0 0 * * * ?"),
+    new Scheduler(stalkerService, "0 0 * * * ?"),
+    new Scheduler(specialStalkerService, "0 20 * * * ?"),
     new Scheduler(newsService, "0 0 6 * * ?"),
     new Scheduler(cacheCleanerService, "0 0 0 * * ?"),
     //new Scheduler(twitterService, "0 0 * * * ?"),

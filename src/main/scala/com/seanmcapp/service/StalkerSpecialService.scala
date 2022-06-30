@@ -2,8 +2,8 @@ package com.seanmcapp.service
 
 import com.seanmcapp.external.{InstagramClient, TelegramClient, TelegramResponse}
 import com.seanmcapp.repository.CacheRepo
-import com.seanmcapp.repository.instagram.{AccountGroupType, AccountRepo}
-import com.seanmcapp.util.ChatIdType
+import com.seanmcapp.repository.instagram.{AccountGroupTypes, AccountRepo}
+import com.seanmcapp.util.ChatIdTypes
 
 import scala.concurrent.Future
 
@@ -11,6 +11,6 @@ import scala.concurrent.Future
 class StalkerSpecialService(instagramClient: InstagramClient, telegramClient: TelegramClient, cacheRepo: CacheRepo, accountRepo: AccountRepo)
   extends InstagramService(instagramClient, telegramClient, cacheRepo, accountRepo) with ScheduledTask {
 
-  override def run(): Future[Seq[TelegramResponse]] = fetchPosts(AccountGroupType.StalkerSpecial, ChatIdType.Personal)
+  override def run(): Future[Seq[TelegramResponse]] = fetchPosts(AccountGroupTypes.StalkerSpecial, ChatIdTypes.Personal)
   
 }

@@ -90,7 +90,7 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, fileRepo: Fil
 
   private def process(sessionId: String, photos: Seq[Photo]): Future[Seq[Option[Int]]] = {
     val idsSet = photos.map(_.id).toSet
-    val accountsF = accountRepo.getAll(AccountGroupType.CBC)
+    val accountsF = accountRepo.getAll(AccountGroupTypes.CBC)
     
     val result = for {
       accounts <- accountsF

@@ -1,8 +1,8 @@
 package com.seanmcapp.service
 
 import com.seanmcapp.external.{InstagramClient, InstagramNode, InstagramStoryResponse, InstagramStoryVideoResource, TelegramClient, TelegramResponse}
-import com.seanmcapp.repository.instagram.{Account, AccountGroupType, AccountRepo}
-import com.seanmcapp.repository.{Cache, CacheRepo, FeatureType}
+import com.seanmcapp.repository.instagram.{Account, AccountGroupType, AccountGroupTypes, AccountRepo}
+import com.seanmcapp.repository.{Cache, CacheRepo, FeatureTypes}
 import com.seanmcapp.util.ChatIdType
 import org.joda.time.DateTime
 
@@ -17,7 +17,7 @@ case class InstagramPostChild(isVideo: Boolean, sourceURL: String)
 class InstagramService(instagramClient: InstagramClient, telegramClient: TelegramClient, cacheRepo: CacheRepo, accountRepo: AccountRepo) {
   
   def fetchPosts(fetchAccountType: AccountGroupType, chatIdType: ChatIdType, sessionIdOpt: Option[String] = None): Future[Seq[TelegramResponse]] = {
-    val sessionId = if (fetchAccountType != AccountGroupType.StalkerSpecial)
+    val sessionId = if (fetchAccountType != AccountGroupTypes.StalkerSpecial)
       sessionIdOpt.getOrElse(instagramClient.postLogin())
     else ""
     val accountsF = accountRepo.getAll(fetchAccountType)
@@ -27,7 +27,7 @@ class InstagramService(instagramClient: InstagramClient, telegramClient: Telegra
     } yield {
       val accountsResponses = accounts.map { account =>
         val postsF = Future(instagramClient.getAllPosts(account.id, None, sessionId, true))
-        val postCacheF = cacheRepo.get(FeatureType.InstaPost.i, account.id)
+        val postCacheF = cacheRepo.get(FeatureTypes.InstaPost.i, account.id)
         for {
           posts <- postsF
           postCache <- postCacheF
@@ -49,7 +49,7 @@ class InstagramService(instagramClient: InstagramClient, telegramClient: Telegra
     } yield {
       val accountsResponses = accounts.map { account =>
         val storiesF = Future(instagramClient.getStories(account.id, sessionId))
-        val storyCacheF = cacheRepo.get(FeatureType.InstaStory.i, account.id)
+        val storyCacheF = cacheRepo.get(FeatureTypes.InstaStory.i, account.id)
         for {
           stories <- storiesF
           storyCache <- storyCacheF
@@ -78,7 +78,7 @@ class InstagramService(instagramClient: InstagramClient, telegramClient: Telegra
     
     Await.result(
       cacheRepo.set(
-        Cache(FeatureType.InstaPost.i, account.id, createCacheValue(postCache, newPosts.map(_.id).toSet), None)
+        Cache(FeatureTypes.InstaPost.i, account.id, createCacheValue(postCache, newPosts.map(_.id).toSet), None)
       ), Duration(10, TimeUnit.SECONDS)
     )
     
@@ -107,7 +107,7 @@ class InstagramService(instagramClient: InstagramClient, telegramClient: Telegra
     Await.result(
       cacheRepo.set(
         Cache(
-          FeatureType.InstaStory.i, 
+          FeatureTypes.InstaStory.i, 
           account.id, 
           createCacheValue(storyCache, newStories.map(_.id).toSet),
           Some(new DateTime().plusHours(24).getMillis / 1000)

@@ -1,7 +1,7 @@
 package com.seanmcapp.service
 
 import com.seanmcapp.external.{TelegramClient, TweetObject, TwitterClient}
-import com.seanmcapp.repository.{Cache, CacheRepo}
+import com.seanmcapp.repository.{Cache, CacheRepo, FeatureTypes}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -51,9 +51,9 @@ class TwitterService(twitterClient: TwitterClient, cacheRepo: CacheRepo, telegra
     }
 
     // delete and add cache
-    cacheRepo.delete(s"$prefix$id")
+    cacheRepo.delete(FeatureTypes.Tweet.i, s"$prefix$id")
     Thread.sleep(1000)
-    cacheRepo.set(Cache(s"$prefix$id", response.map(_.id).foldLeft("")((res, s) => s"$res,$s"), None))
+    cacheRepo.set(Cache(FeatureTypes.TwitLiked.i, s"$prefix$id", response.map(_.id).foldLeft("")((res, s) => s"$res,$s"), None))
 
     response
   }

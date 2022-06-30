@@ -67,19 +67,17 @@ object CacheRepoImpl extends TableQuery(new CacheInfo(_)) with CacheRepo with DB
 }
 
 sealed abstract class FeatureType(val i: String) extends EnumEntry with Serializable {
-  override def hashCode: String = i
   override def equals(obj: Any): Boolean = obj match {
     case a: FeatureType => a.i == i
     case _ => false
   }
-  def this() = this(hashCode)
 }
 
-object FeatureType extends Enum[FeatureType] {
+object FeatureTypes extends Enum[FeatureType] {
   override def values: immutable.IndexedSeq[FeatureType] = findValues
   val fields = values.map(x => (x.i, x)).toMap
 
-  lazy val getType: String => FeatureType = fields.getOrElse(_, FeatureType.Unknown)
+  lazy val getType: String => FeatureType = fields.getOrElse(_, FeatureTypes.Unknown)
 
   def apply(value: String): FeatureType = fields.getOrElse(value, Unknown)
 

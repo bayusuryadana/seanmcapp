@@ -10,7 +10,7 @@ import scala.concurrent.Future
 case class Account(id: String, alias: String, groupType: AccountGroupType)
 
 object AccountUtil {
-  def apply(a:(String, String, Int)) = Account(a._1, a._2, AccountGroupType.apply(a._3))
+  def apply(a:(String, String, Int)) = Account(a._1, a._2, AccountGroupTypes.apply(a._3))
   def unapply(a: Account) = Some((a.id, a.alias, a.groupType.i))
 }
 
@@ -43,11 +43,11 @@ sealed abstract class AccountGroupType(val i: Int) extends EnumEntry with Serial
   def this() = this(hashCode)
 }
 
-object AccountGroupType extends Enum[AccountGroupType] {
+object AccountGroupTypes extends Enum[AccountGroupType] {
   override def values: immutable.IndexedSeq[AccountGroupType] = findValues
   val fields = values.map(x => (x.i, x)).toMap
 
-  lazy val getType: Int => AccountGroupType = fields.getOrElse(_, AccountGroupType.Unknown)
+  lazy val getType: Int => AccountGroupType = fields.getOrElse(_, AccountGroupTypes.Unknown)
 
   def apply(value: Int): AccountGroupType = fields.getOrElse(value, Unknown)
 
