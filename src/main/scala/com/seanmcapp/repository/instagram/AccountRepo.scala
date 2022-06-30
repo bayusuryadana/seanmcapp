@@ -53,7 +53,8 @@ object AccountGroupType extends Enum[AccountGroupType] {
 
   case object Deactivated extends AccountGroupType(-1)
   case object Unknown extends AccountGroupType(0)
-  case object Stalker extends AccountGroupType(1)
-  case object StalkerSpecial extends AccountGroupType(2)
-  case object CBC extends AccountGroupType(3)
+  
+  case object Stalker extends AccountGroupType(1) // to Group, required login
+  case object StalkerSpecial extends AccountGroupType(2) // to Personal, no login required
+  case object CBC extends AccountGroupType(3) // to DB, required login
 }

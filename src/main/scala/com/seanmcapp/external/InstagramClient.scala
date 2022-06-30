@@ -1,42 +1,53 @@
 package com.seanmcapp.external
 
 import com.seanmcapp.InstagramConf
+import com.seanmcapp.util.MemoryCache
 import io.circe.syntax._
 import org.joda.time.DateTime
+import scalacache.Cache
+import scalacache.memoization.memoizeSync
+import scalacache.modes.sync._
+
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
 case class InstagramStoryRequestParameter(reel_ids: Seq[String], precomposed_overlay: Boolean)
 
-class InstagramClient(http: HttpRequestClient) {
+class InstagramClient(http: HttpRequestClient) extends MemoryCache {
 
   val instagramConf = InstagramConf()
+  implicit val sessionCache: Cache[String] = createCache[String]
+  private val duration: FiniteDuration = Duration(365, TimeUnit.DAYS)
 
   def postLogin(): String = {
-    val initUrl = s"https://www.instagram.com/accounts/login/"
-    val initResponse = http.sendGetRequest(initUrl)
-    val r = "\"csrf_token\":\"(.*?)\"".r
-    val csrfString = s"{${r.findFirstIn(initResponse).getOrElse(throw new Exception("Token not found"))}}"
-    val csrfToken = decode[InstagramCsrfToken](csrfString)
+    memoizeSync(Some(duration)) {
+      val initUrl = s"https://www.instagram.com/accounts/login/"
+      val initResponse = http.sendGetRequest(initUrl)
+      val r = "\"csrf_token\":\"(.*?)\"".r
+      val csrfString = s"{${r.findFirstIn(initResponse).getOrElse(throw new Exception("Token not found"))}}"
+      val csrfToken = decode[InstagramCsrfToken](csrfString)
 
-    val url = "https://www.instagram.com/accounts/login/ajax/"
-    val time = DateTime.now.getMillis / 1000
-    val postForm = Map(
-      "username" -> instagramConf.username,
-      "enc_password" -> s"#PWD_INSTAGRAM_BROWSER:0:$time:${instagramConf.password}",
-      "queryParams" -> "{}",
-      "optIntoOneTap" -> "false"
-    ).toSeq
-    val headers = HeaderMap(Map(
-      "user-agent" -> "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36",
-      "x-requested-with" -> "XMLHttpRequest",
-      "referer" -> "https://www.instagram.com/accounts/login/",
-      "x-csrftoken" -> csrfToken.csrf_token
-    ))
-    val response = http.sendRequest(url, postForm = Some(postForm), headers = Some(headers))
-    val cookie = response.headers.getOrElse("Set-Cookie", throw new Exception("Cookie not found")).reduce(_ + _)
-    val regex = "sessionid=(.*?);".r
-    val session = regex.findFirstIn(cookie).getOrElse(throw new Exception("Cookie not found"))
+      val url = "https://www.instagram.com/accounts/login/ajax/"
+      val time = DateTime.now.getMillis / 1000
+      val postForm = Map(
+        "username" -> instagramConf.username,
+        "enc_password" -> s"#PWD_INSTAGRAM_BROWSER:0:$time:${instagramConf.password}",
+        "queryParams" -> "{}",
+        "optIntoOneTap" -> "false"
+      ).toSeq
+      val headers = HeaderMap(Map(
+        "user-agent" -> "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36",
+        "x-requested-with" -> "XMLHttpRequest",
+        "referer" -> "https://www.instagram.com/accounts/login/",
+        "x-csrftoken" -> csrfToken.csrf_token
+      ))
+      val response = http.sendRequest(url, postForm = Some(postForm), headers = Some(headers))
+      val cookie = response.headers.getOrElse("Set-Cookie", throw new Exception("Cookie not found")).reduce(_ + _)
+      val regex = "sessionid=(.*?);".r
+      val session = regex.findFirstIn(cookie).getOrElse(throw new Exception("Cookie not found"))
 
-    session.stripPrefix("sessionid=").stripSuffix(";")
+      session.stripPrefix("sessionid=").stripSuffix(";")
+    }
   }
 
   def getAccountResponse(accountId: String): InstagramAccountResponse = {
