@@ -20,6 +20,8 @@ class CacheInfo(tag: Tag) extends Table[Cache](tag, "caches") {
 }
 
 trait CacheRepo {
+  
+  def getAll(): Future[Seq[Cache]]
 
   def get(feature: String, accountId: String): Future[Set[String]]
 
@@ -30,6 +32,8 @@ trait CacheRepo {
 }
 
 object CacheRepoImpl extends TableQuery(new CacheInfo(_)) with CacheRepo with DBComponent {
+
+  def getAll(): Future[Seq[Cache]] = run(this.result)
 
   def get(feature: String, accountId: String): Future[Set[String]] = {
     run(this.filter(r => r.feature === feature && r.accountId === accountId).result.headOption).map { resF =>

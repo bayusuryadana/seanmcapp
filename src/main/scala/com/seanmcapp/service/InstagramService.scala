@@ -17,14 +17,16 @@ case class InstagramPostChild(isVideo: Boolean, sourceURL: String)
 class InstagramService(instagramClient: InstagramClient, telegramClient: TelegramClient, cacheRepo: CacheRepo, accountRepo: AccountRepo) {
   
   def fetchPosts(fetchAccountType: AccountGroupType, chatIdType: ChatIdType, sessionIdOpt: Option[String] = None): Future[Seq[TelegramResponse]] = {
-    val sessionId = sessionIdOpt.getOrElse(instagramClient.postLogin())
+    val sessionId = if (fetchAccountType != AccountGroupType.StalkerSpecial)
+      sessionIdOpt.getOrElse(instagramClient.postLogin())
+    else ""
     val accountsF = accountRepo.getAll(fetchAccountType)
 
     val resultF = for {
       accounts <- accountsF
     } yield {
       val accountsResponses = accounts.map { account =>
-        val postsF = Future(instagramClient.getAllPosts(account.id, None, sessionId))
+        val postsF = Future(instagramClient.getAllPosts(account.id, None, sessionId, true))
         val postCacheF = cacheRepo.get(FeatureType.InstaPost.i, account.id)
         for {
           posts <- postsF
