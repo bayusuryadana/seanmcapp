@@ -82,7 +82,8 @@ CREATE TABLE wallets (
 );
 
 CREATE TABLE caches (
-    key character varying(128) NOT NULL PRIMARY KEY,
+    feature character varying(128) NOT NULL PRIMARY KEY,
+    account_id bigint NOT NULL PRIMARY KEY,
     value character varying(40000) NOT NULL,
     expiry integer
 );

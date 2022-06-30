@@ -32,7 +32,7 @@ class TwitterService(twitterClient: TwitterClient, cacheRepo: CacheRepo, telegra
   }
 
   private def processData(cache: Seq[Cache], name: String, id: String, prefix: String): List[TweetObject] = {
-    val filteredCache = cache.filter(_.key.contains(s"$prefix$id")).flatMap(_.value.split(",")).toSet
+    val filteredCache = cache.filter(_.feature.contains(s"$prefix$id")).flatMap(_.value.split(",")).toSet
     val (action, response) = prefix match {
       case s if s == tweetPrefix =>
         ("Tweet", twitterClient.getTweets(id).data)

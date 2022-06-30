@@ -12,7 +12,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 
-class StalkerServiceSpec extends AnyWordSpec with Matchers {
+class InstagramServiceSpec extends AnyWordSpec with Matchers {
   
   "run" in {
     val telegramClient = Mockito.mock(classOf[TelegramClient])
@@ -24,7 +24,7 @@ class StalkerServiceSpec extends AnyWordSpec with Matchers {
     val accounts = Seq(Account("123","a",true,AccountGroupType.Lantai5))
     when(accountRepo.getAll()).thenReturn(Future.successful(accounts))
 
-    val stalkerService = new StalkerService(instagramClient, telegramClient, CacheRepoMock, accountRepo)
+    val stalkerService = new InstagramService(instagramClient, telegramClient, CacheRepoMock, accountRepo)
     Await.result(stalkerService.run(), Duration.Inf)
     verify(instagramClient, times(1)).getStories(any(), any())
     verify(instagramClient, times(1)).getAllPosts(any(), any(), any())
@@ -53,7 +53,7 @@ class StalkerServiceSpec extends AnyWordSpec with Matchers {
     val accountRepo = mock(classOf[AccountRepo])
     val accounts = Seq(Account("123","a",true,AccountGroupType.Lantai5))
     when(accountRepo.getAll()).thenReturn(Future.successful(accounts))
-    val stalkerService = new StalkerService(instagramClient, telegramClient, CacheRepoMock, accountRepo)
+    val stalkerService = new InstagramService(instagramClient, telegramClient, CacheRepoMock, accountRepo)
     stalkerService.processStory(Set.empty[String], instagramStoryResponse, "name")
     verify(telegramClient, times(1)).sendPhotoWithFileUpload(any(), any(), any())
     verify(telegramClient, times(1)).sendVideoWithFileUpload(any(), any(), any())
@@ -113,7 +113,7 @@ class StalkerServiceSpec extends AnyWordSpec with Matchers {
     val accountRepo = mock(classOf[AccountRepo])
     val accounts = Seq(Account("123","a",true,AccountGroupType.Lantai5))
     when(accountRepo.getAll()).thenReturn(Future.successful(accounts))
-    val stalkerService = new StalkerService(instagramClient, telegramClient, CacheRepoMock, accountRepo)
+    val stalkerService = new InstagramService(instagramClient, telegramClient, CacheRepoMock, accountRepo)
     stalkerService.processPost(Set.empty[String], instagramNodes, "id", "name")
     verify(telegramClient, times(3)).sendPhotoWithFileUpload(any(), any(), any())
     verify(telegramClient, times(1)).sendVideoWithFileUpload(any(), any(), any())

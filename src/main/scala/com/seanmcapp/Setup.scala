@@ -34,7 +34,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     }),
     get(path( "api" / "instagram" / "push" / Remaining) { session =>
       val sessionOpt = if (session == "null") None else Some(session)
-      complete(stalkerService.fetch(AccountGroupType.Normal, sessionOpt).map(_.asJson.encode))
+      complete(instagramService.fetch(AccountGroupType.Stalker, sessionOpt).map(_.asJson.encode))
     }),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
     //get(path( "api" / "tweet" )(complete(twitterService.run.map(_.asJson.encode)))),
@@ -123,7 +123,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(nCovService, "0 0 20 * * ?"),
     new Scheduler(dsdaJakartaService, "0 0 0 * * ?"),
     new Scheduler(cbcService, "0 0 10 * * ?"),
-    new Scheduler(stalkerService, "0 0 * * * ?"),
+    new Scheduler(instagramService, "0 0 * * * ?"),
     new Scheduler(newsService, "0 0 6 * * ?"),
     new Scheduler(cacheCleanerService, "0 0 0 * * ?"),
     //new Scheduler(twitterService, "0 0 * * * ?"),

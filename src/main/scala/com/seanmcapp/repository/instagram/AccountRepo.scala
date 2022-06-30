@@ -24,13 +24,13 @@ class AccountInfo (tag: Tag) extends Table[Account](tag, "accounts") {
 
 trait AccountRepo {
 
-  def getAll(): Future[Seq[Account]]
+  def getAll(groupType: AccountGroupType): Future[Seq[Account]]
 
 }
 
 object AccountRepoImpl extends TableQuery(new AccountInfo(_)) with AccountRepo with DBComponent {
 
-  def getAll(): Future[Seq[Account]] = run(this.result)
+  def getAll(groupType: AccountGroupType): Future[Seq[Account]] = run(this.filter(_.groupType === groupType.i).result)
 
 }
 
@@ -53,7 +53,7 @@ object AccountGroupType extends Enum[AccountGroupType] {
 
   case object Deactivated extends AccountGroupType(-1)
   case object Unknown extends AccountGroupType(0)
-  case object Normal extends AccountGroupType(1)
-  case object Special extends AccountGroupType(2)
+  case object Stalker extends AccountGroupType(1)
+  case object StalkerSpecial extends AccountGroupType(2)
   case object CBC extends AccountGroupType(3)
 }
