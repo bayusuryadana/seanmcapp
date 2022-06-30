@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.repository.instagram.Photo
+import com.seanmcapp.repository.instagram.{AccountRepo, Photo}
 import com.seanmcapp.repository.{CustomerRepoMock, FileRepo, PhotoRepoMock}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
@@ -21,9 +21,10 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
   }.toMap
   when(cbcClient.getRecommendation).thenReturn(responseMock)
   val fileRepoMock = mock(classOf[FileRepo])
+  val accountRepoMock = mock(classOf[AccountRepo])
   val instagramClient = mock(classOf[InstagramClient])
-  val cbcService = new CBCService(PhotoRepoMock, CustomerRepoMock, fileRepoMock, cbcClient, instagramClient) {
-    override val accountList = Map("ugmcantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r)
+  val cbcService = new CBCService(PhotoRepoMock, CustomerRepoMock, fileRepoMock, accountRepoMock, cbcClient, instagramClient) {
+    override val regexMapping = Map("ugmcantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r)
     override def savingToStorage(filteredPhotos: Seq[Photo]): Seq[Photo] = filteredPhotos
   }
 
@@ -54,7 +55,7 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
   }
 
   "should return number of image that have been successfully fetched" in {
-    when(instagramClient.getAccountResponse(any())).thenReturn(InstagramAccountResponse("profilePage_262582140"))
+    //when(instagramClient.getAccountResponse(any())).thenReturn(InstagramAccountResponse("profilePage_262582140"))
     when(instagramClient.postLogin()).thenReturn("")
     val photoMock = List(
       InstagramNode(

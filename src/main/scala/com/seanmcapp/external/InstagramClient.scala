@@ -50,11 +50,11 @@ class InstagramClient(http: HttpRequestClient) extends MemoryCache {
     }
   }
 
-  def getAccountResponse(accountId: String): InstagramAccountResponse = {
-    val url = s"https://www.instagram.com/$accountId/?__a=1"
-    val httpResponse = http.sendGetRequest(url)
-    decode[InstagramAccountResponse](httpResponse)
-  }
+//  def getAccountResponse(accountId: String): InstagramAccountResponse = {
+//    val url = s"https://www.instagram.com/$accountId/?__a=1"
+//    val httpResponse = http.sendGetRequest(url)
+//    decode[InstagramAccountResponse](httpResponse)
+//  }
 
   def getAllPosts(userId: String, endCursor: Option[String], sessionId: String, isFirstPageOnly: Boolean = false): Seq[InstagramNode] = {
     val instagramResponse = {
