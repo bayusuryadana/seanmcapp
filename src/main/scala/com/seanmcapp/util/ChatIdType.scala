@@ -21,6 +21,6 @@ object ChatIdTypes extends Enum[ChatIdType] {
   def apply(value: Long): ChatIdType = fields.getOrElse(value, Unknown)
 
   case object Unknown extends ChatIdType(0L)
-  case object Personal extends ChatIdType(1L)
+  case object Personal extends ChatIdType(274852283L)
   case object Group extends ChatIdType(-1001359004262L)
 }

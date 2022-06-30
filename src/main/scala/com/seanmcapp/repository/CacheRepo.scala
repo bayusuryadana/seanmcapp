@@ -38,7 +38,7 @@ object CacheRepoImpl extends TableQuery(new CacheInfo(_)) with CacheRepo with DB
   def get(feature: String, accountId: String): Future[Set[String]] = {
     run(this.filter(r => r.feature === feature && r.accountId === accountId).result.headOption).map { resF =>
       resF.map(res => res.value.split(",").toSet).getOrElse {
-        println(s"s[ERROR] cache is empty for feature: $feature and account_id: $accountId")
+        println(s"[ERROR] cache is empty for feature: $feature and account_id: $accountId")
         Set.empty[String]
       }
     }

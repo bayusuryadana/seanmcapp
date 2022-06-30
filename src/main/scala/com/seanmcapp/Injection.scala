@@ -47,7 +47,7 @@ trait Injection {
   val hadithService = new HadithService(hadithClient)
   
   val instagramClient = new InstagramClient(httpClient)
-  val instagramService = new InstagramService(instagramClient, telegramClient, cacheRepo, accountRepo)
+  //val instagramService = new InstagramService(instagramClient, telegramClient, cacheRepo, accountRepo)
 
   val nCovClient = new NCovClient(httpClient)
   val nCovService = new NCovService(nCovClient, telegramClient)

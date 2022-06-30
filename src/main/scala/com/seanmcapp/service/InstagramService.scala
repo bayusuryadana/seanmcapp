@@ -32,6 +32,7 @@ class InstagramService(instagramClient: InstagramClient, telegramClient: Telegra
           posts <- postsF
           postCache <- postCacheF
         } yield {
+          println(s"${account.alias}\n${posts.length}")
           processPost(chatIdType, postCache, posts, account)
         }
       }
@@ -48,6 +49,7 @@ class InstagramService(instagramClient: InstagramClient, telegramClient: Telegra
       accounts <- accountsF
     } yield {
       val accountsResponses = accounts.map { account =>
+        println(sessionId)
         val storiesF = Future(instagramClient.getStories(account.id, sessionId))
         val storyCacheF = cacheRepo.get(FeatureTypes.InstaStory.i, account.id)
         for {
@@ -64,21 +66,22 @@ class InstagramService(instagramClient: InstagramClient, telegramClient: Telegra
   }
 
   private[service] def processPost(chatIdType: ChatIdType, postCache: Set[String], posts: Seq[InstagramNode], account: Account): Seq[TelegramResponse] = {
-    val newPosts = posts.map(convert).filterNot(p => postCache.contains(p.id))
-    val results = newPosts.flatMap { post =>
-      val allMedia = post.media.map { media =>
-        if (media.isVideo)
-          telegramClient.sendVideoWithFileUpload(chatIdType.i, data = telegramClient.getDataByteFromUrl(media.sourceURL))
-        else
-          telegramClient.sendPhotoWithFileUpload(chatIdType.i, data = telegramClient.getDataByteFromUrl(media.sourceURL))
-      }
-      telegramClient.sendMessage(chatIdType.i, s"POST - ${account.alias}\n\n${post.caption}")
-      allMedia
+    val newPosts = posts.map(convert)
+    val results = newPosts.filterNot(p => postCache.contains(p.id)).flatMap { post =>
+//      val allMedia = post.media.map { media =>
+//        if (media.isVideo)
+//          telegramClient.sendVideoWithFileUpload(chatIdType.i, data = telegramClient.getDataByteFromUrl(media.sourceURL))
+//        else
+//          telegramClient.sendPhotoWithFileUpload(chatIdType.i, data = telegramClient.getDataByteFromUrl(media.sourceURL))
+//      }
+//      telegramClient.sendMessage(chatIdType.i, s"POST - ${account.alias}\n\n${post.caption}")
+//      allMedia
+      Seq.empty[TelegramResponse]
     }
     
     Await.result(
       cacheRepo.set(
-        Cache(FeatureTypes.InstaPost.i, account.id, createCacheValue(postCache, newPosts.map(_.id).toSet), None)
+        Cache(FeatureTypes.InstaPost.i, account.id, createCacheValue(newPosts.map(_.id).toSet, Set.empty[String]), None)
       ), Duration(10, TimeUnit.SECONDS)
     )
     
