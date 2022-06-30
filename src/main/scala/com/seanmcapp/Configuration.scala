@@ -64,7 +64,15 @@ object StorageConf extends Configuration[StorageConf]("aws") {
 }
 
 case class TelegramConf(endpoint: String, botname: String)
-object TelegramConf extends Configuration[TelegramConf]("telegram") {
+object TelegramConf extends Configuration[TelegramConf]("telegram.bot-1") {
+  override def buildConfig(c: Config): TelegramConf = {
+    TelegramConf(
+      Try(c.getString("bot-endpoint")).getOrElse(""),
+      Try(c.getString("bot-name")).getOrElse("")
+    )
+  }
+}
+object TelegramConf2 extends Configuration[TelegramConf]("telegram.bot-2") {
   override def buildConfig(c: Config): TelegramConf = {
     TelegramConf(
       Try(c.getString("bot-endpoint")).getOrElse(""),

@@ -7,20 +7,19 @@ import enumeratum.{Enum, EnumEntry}
 import scala.collection.immutable
 import scala.concurrent.Future
 
-case class Account(id: String, alias: String, isPrivate: Boolean, groupType: AccountGroupType)
+case class Account(id: String, alias: String, groupType: AccountGroupType)
 
 object AccountUtil {
-  def apply(a:(String, String, Boolean, Int)) = Account(a._1, a._2, a._3, AccountGroupType.apply(a._4))
-  def unapply(a: Account) = Some((a.id, a.alias, a.isPrivate, a.groupType.i))
+  def apply(a:(String, String, Int)) = Account(a._1, a._2, AccountGroupType.apply(a._3))
+  def unapply(a: Account) = Some((a.id, a.alias, a.groupType.i))
 }
 
 class AccountInfo (tag: Tag) extends Table[Account](tag, "accounts") {
   val id = column[String]("id", O.PrimaryKey)
   val alias = column[String]("alias")
-  val isPrivate = column[Boolean]("is_private")
   val groupType = column[Int]("group_type")
 
-  def * = (id, alias, isPrivate, groupType) <> (AccountUtil.apply, AccountUtil.unapply)
+  def * = (id, alias, groupType) <> (AccountUtil.apply, AccountUtil.unapply)
 }
 
 trait AccountRepo {
@@ -52,7 +51,9 @@ object AccountGroupType extends Enum[AccountGroupType] {
 
   def apply(value: Int): AccountGroupType = fields.getOrElse(value, Unknown)
 
+  case object Deactivated extends AccountGroupType(-1)
   case object Unknown extends AccountGroupType(0)
-  case object Lantai5 extends AccountGroupType(1)
+  case object Normal extends AccountGroupType(1)
   case object Special extends AccountGroupType(2)
+  case object CBC extends AccountGroupType(3)
 }

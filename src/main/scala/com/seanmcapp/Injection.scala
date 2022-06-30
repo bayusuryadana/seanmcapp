@@ -25,6 +25,7 @@ trait Injection {
 
   val httpClient: HttpRequestClient = HttpRequestClientImpl
   val telegramClient = new TelegramClient(httpClient)
+  val telegramClient2 = new TelegramClient2(httpClient)
 
   val airVisualClient = new AirVisualClient(httpClient)
   val airVisualService = new AirVisualService(airVisualClient, telegramClient)
@@ -46,7 +47,7 @@ trait Injection {
   val hadithService = new HadithService(hadithClient)
   
   val instagramClient = new InstagramClient(httpClient)
-  val stalkerService = new StalkerService(instagramClient, telegramClient, cacheRepo, accountRepo)
+  val stalkerService = new StalkerService(instagramClient, telegramClient, telegramClient2, cacheRepo, accountRepo)
 
   val nCovClient = new NCovClient(httpClient)
   val nCovService = new NCovService(nCovClient, telegramClient)

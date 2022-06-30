@@ -1,7 +1,7 @@
 package com.seanmcapp.service
 
 import com.seanmcapp.external.{InstagramClient, InstagramNode, InstagramStoryResponse, InstagramStoryVideoResource, TelegramClient, TelegramResponse}
-import com.seanmcapp.repository.instagram.AccountRepo
+import com.seanmcapp.repository.instagram.{AccountGroupType, AccountRepo}
 import com.seanmcapp.repository.{Cache, CacheRepo}
 import org.joda.time.DateTime
 
@@ -11,14 +11,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 case class InstagramPost(id: String, caption: String, media: Seq[InstagramPostChild])
 case class InstagramPostChild(isVideo: Boolean, sourceURL: String)
 
-class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramClient, cacheRepo: CacheRepo, accountRepo: AccountRepo) extends ScheduledTask {
+class StalkerService(instagramClient: InstagramClient, telegramClient: TelegramClient, telegramClient2: TelegramClient, cacheRepo: CacheRepo, accountRepo: AccountRepo) extends ScheduledTask {
   
   val chatId = -1001359004262L
-  val privateId = 1
 
-  override def run(): Future[Seq[TelegramResponse]] = fetch()
+  override def run(): Future[Seq[TelegramResponse]] = fetch(AccountGroupType.Normal)
 
-  def fetch(sessionIdOpt: Option[String] = None): Future[Seq[TelegramResponse]] = {
+  def fetch(fetchAccountType: AccountGroupType, sessionIdOpt: Option[String] = None): Future[Seq[TelegramResponse]] = {
+    if (fetchAccountType == AccountGroupType.Normal) {}
     val sessionId = sessionIdOpt.getOrElse(instagramClient.postLogin())
     val cacheF = cacheRepo.getAll()
     val accountsF = accountRepo.getAll()

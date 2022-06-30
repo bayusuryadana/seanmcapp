@@ -15,7 +15,6 @@ CREATE TABLE customers (
 CREATE TABLE accounts (
     id bigint NOT NULL,
     alias character varying(100) NOT NULL,
-    is_private boolean NOT NULL,
     group_type int NOT NULL
 );
 

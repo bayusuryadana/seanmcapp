@@ -25,11 +25,11 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, fileRepo: Fil
       * bidadari_ub	  257
       *
       * STILL UPDATING (total: 6165 @ 06-05-2021)
-      * ugmcantik	    980
+      * *ugmcantik	    980
       * cantik.its	  396
-      * unpad.geulis	1510
-      * undip.cantik	1038
-      * uicantikreal	296
+      * *unpad.geulis	1510
+      * *undip.cantik	1038
+      * *uicantikreal	296
       * unj.cantik	  509
       */
 

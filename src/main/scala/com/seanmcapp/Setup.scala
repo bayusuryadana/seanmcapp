@@ -5,6 +5,7 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpHeader, StatusCod
 import akka.http.scaladsl.server
 import akka.http.scaladsl.server.Directives
 import com.seanmcapp.external._
+import com.seanmcapp.repository.instagram.AccountGroupType
 import io.circe.syntax._
 
 import scala.concurrent.duration._
@@ -28,12 +29,12 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
 
     /////////// API ///////////
     get(path( "api" / "instagram" / "pull" / Remaining) { session =>
-      if (session == "null") complete(cbcService.startFetching().map(_.asJson.encode))
-      else complete(cbcService.startFetching(Some(session)).map(_.asJson.encode))
+      val sessionOpt = if (session == "null") None else Some(session)
+      complete(cbcService.startFetching(sessionOpt).map(_.asJson.encode))
     }),
     get(path( "api" / "instagram" / "push" / Remaining) { session =>
-      if (session == "null") complete(stalkerService.fetch().map(_.asJson.encode))
-      else complete(stalkerService.fetch(Some(session)).map(_.asJson.encode))
+      val sessionOpt = if (session == "null") None else Some(session)
+      complete(stalkerService.fetch(AccountGroupType.Normal, sessionOpt).map(_.asJson.encode))
     }),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
     //get(path( "api" / "tweet" )(complete(twitterService.run.map(_.asJson.encode)))),
