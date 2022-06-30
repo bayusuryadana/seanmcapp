@@ -2,7 +2,8 @@ package com.seanmcapp.service
 
 import com.seanmcapp.external._
 import com.seanmcapp.repository.CacheRepoMock
-import com.seanmcapp.repository.instagram.{Account, AccountGroupType, AccountRepo}
+import com.seanmcapp.repository.instagram.{Account, AccountGroupType, AccountGroupTypes, AccountRepo}
+import com.seanmcapp.util.ChatIdTypes
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.{mock, times, verify, when}
@@ -13,22 +14,6 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 
 class InstagramServiceSpec extends AnyWordSpec with Matchers {
-  
-  "run" in {
-    val telegramClient = Mockito.mock(classOf[TelegramClient])
-    val instagramClient = mock(classOf[InstagramClient])
-    when(instagramClient.postLogin()).thenReturn("")
-    when(instagramClient.getStories(any(), any())).thenReturn(InstagramStoryResponse(InstagramStoryData(Nil)))
-    when(instagramClient.getAllPosts(any(), any(), any())).thenReturn(Nil)
-    val accountRepo = mock(classOf[AccountRepo])
-    val accounts = Seq(Account("123","a",true,AccountGroupType.Lantai5))
-    when(accountRepo.getAll()).thenReturn(Future.successful(accounts))
-
-    val stalkerService = new InstagramService(instagramClient, telegramClient, CacheRepoMock, accountRepo)
-    Await.result(stalkerService.run(), Duration.Inf)
-    verify(instagramClient, times(1)).getStories(any(), any())
-    verify(instagramClient, times(1)).getAllPosts(any(), any(), any())
-  }
 
   "process story" in {
     val telegramClient = Mockito.mock(classOf[TelegramClient])
@@ -51,10 +36,11 @@ class InstagramServiceSpec extends AnyWordSpec with Matchers {
       ))
     )
     val accountRepo = mock(classOf[AccountRepo])
-    val accounts = Seq(Account("123","a",true,AccountGroupType.Lantai5))
-    when(accountRepo.getAll()).thenReturn(Future.successful(accounts))
+    val account = Account("123","a",AccountGroupTypes.Stalker)
+    val accounts = Seq(account)
+    when(accountRepo.getAll(any())).thenReturn(Future.successful(accounts))
     val stalkerService = new InstagramService(instagramClient, telegramClient, CacheRepoMock, accountRepo)
-    stalkerService.processStory(Set.empty[String], instagramStoryResponse, "name")
+    stalkerService.processStory(ChatIdTypes.Personal, Set.empty[String], instagramStoryResponse, account)
     verify(telegramClient, times(1)).sendPhotoWithFileUpload(any(), any(), any())
     verify(telegramClient, times(1)).sendVideoWithFileUpload(any(), any(), any())
   }
@@ -111,10 +97,11 @@ class InstagramServiceSpec extends AnyWordSpec with Matchers {
       )
     )
     val accountRepo = mock(classOf[AccountRepo])
-    val accounts = Seq(Account("123","a",true,AccountGroupType.Lantai5))
-    when(accountRepo.getAll()).thenReturn(Future.successful(accounts))
+    val account = Account("123","a",AccountGroupTypes.Stalker)
+    val accounts = Seq(account)
+    when(accountRepo.getAll(any())).thenReturn(Future.successful(accounts))
     val stalkerService = new InstagramService(instagramClient, telegramClient, CacheRepoMock, accountRepo)
-    stalkerService.processPost(Set.empty[String], instagramNodes, "id", "name")
+    stalkerService.processPost(ChatIdTypes.Personal, Set.empty[String], instagramNodes, account)
     verify(telegramClient, times(3)).sendPhotoWithFileUpload(any(), any(), any())
     verify(telegramClient, times(1)).sendVideoWithFileUpload(any(), any(), any())
   }

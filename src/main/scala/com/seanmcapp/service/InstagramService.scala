@@ -32,7 +32,7 @@ class InstagramService(instagramClient: InstagramClient, telegramClient: Telegra
           posts <- postsF
           postCache <- postCacheF
         } yield {
-          processPost(chatIdType, postCache, posts, account.id, account)
+          processPost(chatIdType, postCache, posts, account)
         }
       }
       Future.sequence(accountsResponses).map(_.flatten)
@@ -63,7 +63,7 @@ class InstagramService(instagramClient: InstagramClient, telegramClient: Telegra
     resultF.flatten
   }
 
-  private[service] def processPost(chatIdType: ChatIdType, postCache: Set[String], posts: Seq[InstagramNode], id: String, account: Account): Seq[TelegramResponse] = {
+  private[service] def processPost(chatIdType: ChatIdType, postCache: Set[String], posts: Seq[InstagramNode], account: Account): Seq[TelegramResponse] = {
     val newPosts = posts.map(convert).filterNot(p => postCache.contains(p.id))
     val results = newPosts.flatMap { post =>
       val allMedia = post.media.map { media =>
