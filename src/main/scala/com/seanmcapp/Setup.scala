@@ -35,8 +35,8 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     }),
     get(path( "api" / "instagram" / "pull" / Remaining) { session =>
       val sessionOpt = if (session == "null") None else Some(session)
-      val postsF = stalkerService.fetchPosts(AccountGroupTypes.Stalker, ChatIdTypes.Group, sessionOpt)
-      val storiesF = stalkerService.fetchStories(AccountGroupTypes.Stalker, ChatIdTypes.Group, sessionOpt)
+      val postsF = stalkerService.fetchPosts(AccountGroupTypes.Stalker, ChatIdTypes.Personal, sessionOpt)
+      val storiesF = stalkerService.fetchStories(AccountGroupTypes.Stalker, ChatIdTypes.Personal, sessionOpt)
       val result = for {
         posts <- postsF
         stories <- storiesF
