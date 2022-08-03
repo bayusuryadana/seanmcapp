@@ -42,25 +42,21 @@ class InstagramClient(http: HttpRequestClient) extends MemoryCache {
         "x-csrftoken" -> csrfToken.csrf_token
       ))
       val response = http.sendRequest(url, postForm = Some(postForm), headers = Some(headers))
-      val cookie = response.headers.getOrElse("Set-Cookie", throw new Exception("Cookie not found")).reduce(_ + _)
-      val regex = "sessionid=(.*?);".r
-      val session = regex.findFirstIn(cookie).getOrElse(throw new Exception("Cookie not found"))
-
-      session.stripPrefix("sessionid=").stripSuffix(";")
+      val setCookie = response.headers.getOrElse("Set-Cookie", throw new Exception("Cookie not found")).reduce(_ + _)
+      val cookies = Seq("csrftoken", "ds_user_id", "ig_did", "mid", "rur", "sessionid").foldLeft("") { (a, key) =>
+        val regex = (key + "=(.*?);").r
+        a + s"${regex.findFirstIn(setCookie).getOrElse(throw new Exception(s"Cookie $key not found"))} "
+      }
+      cookies
     }
   }
 
-//  def getAccountResponse(accountId: String): InstagramAccountResponse = {
-//    val url = s"https://www.instagram.com/$accountId/?__a=1"
-//    val httpResponse = http.sendGetRequest(url)
-//    decode[InstagramAccountResponse](httpResponse)
-//  }
-
   def getAllPosts(userId: String, endCursor: Option[String], sessionId: String, isFirstPageOnly: Boolean = false): Seq[InstagramNode] = {
     val instagramResponse = {
-      val numberOfBatch = 50
+      val numberOfBatch = 9
       val params = InstagramRequestParameter(userId, numberOfBatch, endCursor).asJson.encode
       val url = s"https://www.instagram.com/graphql/query/?query_hash=18a7b935ab438c4514b1f742d8fa07a7&variables=$params"
+      println(url)
       val headers = getHeaders(sessionId)
       val httpResponse = http.sendGetRequest(url, headers = headers)
       decode[InstagramResponse](httpResponse)
@@ -84,6 +80,9 @@ class InstagramClient(http: HttpRequestClient) extends MemoryCache {
   }
   
   private def getHeaders(sessionId: String): Option[HeaderMap] = 
-    Some(HeaderMap(Map("cookie" -> s"sessionid=$sessionId")))
+    Some(HeaderMap(Map(
+      "host" -> "www.instagram.com",
+      "cookie" -> s"sessionid=$sessionId"
+    )))
 
 }

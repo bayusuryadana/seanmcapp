@@ -29,19 +29,19 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     }),
 
     /////////// API ///////////
-    get(path( "api" / "instagram" / "pull" / Remaining) { session =>
+    get(path( "api" / "instagram" / "push" / Remaining) { session =>
       val sessionOpt = if (session == "null") None else Some(session)
       complete(cbcService.startFetching(sessionOpt).map(_.asJson.encode))
     }),
-    get(path( "api" / "instagram" / "push" / Remaining) { session =>
+    get(path( "api" / "instagram" / "pull" / Remaining) { session =>
       val sessionOpt = if (session == "null") None else Some(session)
-      //val postsF = stalkerService.fetchPosts(AccountGroupTypes.Stalker, ChatIdTypes.Personal, sessionOpt)
-      val storiesF = stalkerService.fetchStories(AccountGroupTypes.Stalker, ChatIdTypes.Personal, sessionOpt)
+      val postsF = stalkerService.fetchPosts(AccountGroupTypes.Stalker, ChatIdTypes.Group, sessionOpt)
+      val storiesF = stalkerService.fetchStories(AccountGroupTypes.Stalker, ChatIdTypes.Group, sessionOpt)
       val result = for {
-      //  posts <- postsF
+        posts <- postsF
         stories <- storiesF
       } yield {
-        stories
+        posts ++ stories
       }
       complete(result.map(_.asJson.encode))
     }),
@@ -135,8 +135,8 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(airVisualService, "0 0 17 * * ?"),
     new Scheduler(nCovService, "0 0 20 * * ?"),
     new Scheduler(dsdaJakartaService, "0 0 0 * * ?"),
-//    new Scheduler(cbcService, "0 0 10 * * ?"),
-//    new Scheduler(stalkerService, "0 0 * * * ?"),
+    new Scheduler(cbcService, "0 0 10 * * ?"),
+    new Scheduler(stalkerService, "0 0 * * * ?"),
 //    new Scheduler(specialStalkerService, "0 20 * * * ?"),
     new Scheduler(newsService, "0 0 6 * * ?"),
     new Scheduler(cacheCleanerService, "0 0 0 * * ?"),

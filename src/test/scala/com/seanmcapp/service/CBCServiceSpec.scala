@@ -56,7 +56,6 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
   }
 
   "should return number of image that have been successfully fetched" in {
-    //when(instagramClient.getAccountResponse(any())).thenReturn(InstagramAccountResponse("profilePage_262582140"))
     when(instagramClient.postLogin()).thenReturn("")
     when(accountRepoMock.getAll(any())).thenReturn(Future.successful(Seq(Account("262582140", "ugmcantik", AccountGroupTypes.CBC))))
     val photoMock = List(

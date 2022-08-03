@@ -22,15 +22,6 @@ class InstagramClientSpec extends AnyWordSpec with Matchers {
     response shouldEqual "session"
   }
 
-//  "getAccountResponse" in {
-//    val accountId = "262582140"
-//    val fetchResponse = Source.fromResource("instagram/init_response.json").mkString
-//    when(http.sendGetRequest(any(), any())).thenReturn(fetchResponse)
-//    val response = instagramClient.getAccountResponse(accountId)
-//    val expected = InstagramAccountResponse("profilePage_262582140")
-//    response shouldBe expected
-//  }
-
   "getAllPost" in {
     val fetchResponse = Source.fromResource("instagram/fetch_response.json").mkString
     when(http.sendGetRequest(any(), any())).thenReturn(fetchResponse)
