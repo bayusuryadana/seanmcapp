@@ -112,14 +112,14 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
 
   ).reduce{ (a,b) => a~b }
 
-  private def getHeader(key: String): HttpHeader => Option[String] = {
-    (httpHeader: HttpHeader) => {
-      HttpHeader.unapply(httpHeader) match {
-        case Some((k, v)) if k == key => Some(v)
-        case _ => None
-      }
-    }
-  }
+//  private def getHeader(key: String): HttpHeader => Option[String] = {
+//    (httpHeader: HttpHeader) => {
+//      HttpHeader.unapply(httpHeader) match {
+//        case Some((k, v)) if k == key => Some(v)
+//        case _ => None
+//      }
+//    }
+//  }
 
   val scheduleList: List[Scheduler] = List(
     /**
@@ -137,10 +137,10 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(dsdaJakartaService, "0 0 0 * * ?"),
     new Scheduler(cbcService, "0 0 10 * * ?"),
     new Scheduler(stalkerService, "0 0 * * * ?"),
-//    new Scheduler(specialStalkerService, "0 20 * * * ?"),
+    new Scheduler(specialStalkerService, "0 20 * * * ?"),
     new Scheduler(newsService, "0 0 6 * * ?"),
     new Scheduler(cacheCleanerService, "0 0 0 * * ?"),
-    //new Scheduler(twitterService, "0 0 * * * ?"),
+//    new Scheduler(twitterService, "0 0 * * * ?"),
   )
 
 }

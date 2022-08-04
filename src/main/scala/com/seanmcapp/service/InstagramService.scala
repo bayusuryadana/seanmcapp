@@ -17,52 +17,58 @@ case class InstagramPostChild(isVideo: Boolean, sourceURL: String)
 class InstagramService(instagramClient: InstagramClient, telegramClient: TelegramClient, cacheRepo: CacheRepo, accountRepo: AccountRepo) {
   
   def fetchPosts(fetchAccountType: AccountGroupType, chatIdType: ChatIdType, sessionIdOpt: Option[String] = None): Future[Seq[TelegramResponse]] = {
-    val sessionId = if (fetchAccountType != AccountGroupTypes.StalkerSpecial)
-      sessionIdOpt.getOrElse(instagramClient.postLogin())
-    else ""
+    val sessionId = getSession(sessionIdOpt)
     val accountsF = accountRepo.getAll(fetchAccountType)
     println(s"sessionId: $sessionId")
     
-    val resultF = for {
-      accounts <- accountsF
-    } yield {
-      val accountsResponses = accounts.map { account =>
-        val postsF = Future(instagramClient.getAllPosts(account.id, None, sessionId, true))
-        val postCacheF = cacheRepo.get(FeatureTypes.InstaPost.i, account.id)
-        for {
-          posts <- postsF
-          postCache <- postCacheF
-        } yield {
-          processPost(chatIdType, postCache, posts, account)
+    if (sessionId.nonEmpty) {
+      val resultF = for {
+        accounts <- accountsF
+      } yield {
+        val accountsResponses = accounts.map { account =>
+          val postsF = Future(instagramClient.getAllPosts(account.id, None, sessionId, true))
+          val postCacheF = cacheRepo.get(FeatureTypes.InstaPost.i, account.id)
+          for {
+            posts <- postsF
+            postCache <- postCacheF
+          } yield {
+            processPost(chatIdType, postCache, posts, account)
+          }
         }
+        Future.sequence(accountsResponses).map(_.flatten)
       }
-      Future.sequence(accountsResponses).map(_.flatten)
+      resultF.flatten
+    } else {
+      Future.successful(Seq.empty[TelegramResponse])
     }
-    resultF.flatten
   }
   
   def fetchStories(fetchAccountType: AccountGroupType, chatIdType: ChatIdType, sessionIdOpt: Option[String] = None): Future[Seq[TelegramResponse]] = {
-    val sessionId = sessionIdOpt.getOrElse(instagramClient.postLogin())
+    val sessionId = getSession(sessionIdOpt)
     val accountsF = accountRepo.getAll(fetchAccountType)
     println(s"sessionId: $sessionId")
     
-    val resultF = for {
-      accounts <- accountsF
-    } yield {
-      val accountsResponses = accounts.map { account =>
-        val storiesF = Future(instagramClient.getStories(account.id, sessionId))
-        val storyCacheF = cacheRepo.get(FeatureTypes.InstaStory.i, account.id)
-        for {
-          stories <- storiesF
-          storyCache <- storyCacheF
-        } yield {
-          processStory(chatIdType, storyCache, stories, account)
+    if (sessionId.nonEmpty) {
+      val resultF = for {
+        accounts <- accountsF
+      } yield {
+        val accountsResponses = accounts.map { account =>
+          val storiesF = Future(instagramClient.getStories(account.id, sessionId))
+          val storyCacheF = cacheRepo.getMultiple(FeatureTypes.InstaStory.i, account.id)
+          for {
+            stories <- storiesF
+            storyCache <- storyCacheF
+          } yield {
+            processStory(chatIdType, storyCache, stories, account)
+          }
         }
+        Future.sequence(accountsResponses).map(_.flatten)
       }
-      Future.sequence(accountsResponses).map(_.flatten)
-    }
 
-    resultF.flatten
+      resultF.flatten
+    } else {
+      Future.successful(Seq.empty[TelegramResponse])
+    }
   }
 
   private[service] def processPost(chatIdType: ChatIdType, postCache: Set[String], posts: Seq[InstagramNode], account: Account): Seq[TelegramResponse] = {
@@ -78,10 +84,9 @@ class InstagramService(instagramClient: InstagramClient, telegramClient: Telegra
       allMedia
     }
     
+    val cache = Cache(FeatureTypes.InstaPost.i, account.id, newPosts.map(_.id).foldLeft("")((res, i) => s"$res,$i"), None)
     Await.result(
-      cacheRepo.set(
-        Cache(FeatureTypes.InstaPost.i, account.id, createCacheValue(newPosts.map(_.id).toSet, Set.empty[String]), None)
-      ), Duration(10, TimeUnit.SECONDS)
+      if (postCache.nonEmpty) cacheRepo.set(cache) else cacheRepo.insert(Seq(cache)), Duration(3, TimeUnit.SECONDS)
     )
     
     results
@@ -106,22 +111,15 @@ class InstagramService(instagramClient: InstagramClient, telegramClient: Telegra
       }
     }
     
-    Await.result(
-      cacheRepo.set(
-        Cache(
-          FeatureTypes.InstaStory.i, 
-          account.id, 
-          createCacheValue(storyCache, newStories.map(_.id).toSet),
-          Some(new DateTime().plusHours(24).getMillis / 1000)
-        )
-      ), Duration(10, TimeUnit.SECONDS))
+    val caches = newStories.map { s =>
+      Cache(FeatureTypes.InstaStory.i, account.id, s.id, Some(new DateTime().plusHours(24).getMillis / 1000))
+    }
+    Await.result(cacheRepo.insert(caches), Duration(10, TimeUnit.SECONDS))
 
     telegramResponses
   }
   
-  private def createCacheValue(oldCache: Set[String], newCache: Set[String]): String =
-    (oldCache ++ newCache).foldLeft("")((res, i) => s"$res,$i")
-    
+  private def getSession(sessionIdOpt: Option[String]): String = sessionIdOpt.getOrElse(instagramClient.postLogin())
 
   private def convert(node: InstagramNode): InstagramPost = {
     val id = node.id

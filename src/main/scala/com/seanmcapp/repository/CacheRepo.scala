@@ -25,6 +25,10 @@ trait CacheRepo {
 
   def get(feature: String, accountId: String): Future[Set[String]]
 
+  def getMultiple(feature: String, accountId: String): Future[Set[String]]
+
+  def insert(cache: Seq[Cache]): Future[Seq[Int]]
+
   def set(cache: Cache): Future[Int]
 
   def delete(feature: String, accountId: String): Future[Int]
@@ -43,22 +47,33 @@ object CacheRepoImpl extends TableQuery(new CacheInfo(_)) with CacheRepo with DB
       }
     }
   }
+  
+  def getMultiple(feature: String, accountId: String): Future[Set[String]] = {
+    run(this.filter(r => r.feature === feature && r.accountId === accountId).result).map { resF =>
+      resF.map(_.value).toSet
+    }
+  }
+  
+  //INSERT (not yet used)
+  def insert(cache: Seq[Cache]): Future[Seq[Int]] = {
+    println(s"Saving: $cache")
+    run((this ++= cache).asTry).map {
+      case Failure(ex) =>
+        ex.printStackTrace()
+        throw new Exception("Failed to insert cache")
+      case Success(values) => values.toSeq
+    }
+  }
 
+  // UPDATE
   def set(cache: Cache): Future[Int] = {
-      // try insert first
-      run((this += cache).asTry).flatMap {
-        case Failure(ex) => // TODO: need better checking to do upsert
-          // else try update
-          ex.printStackTrace()
-          run((this.filter(r => r.feature === cache.feature && r.accountId === cache.accountId).update(cache)).asTry).map {
-            case Failure(ex2) =>
-              ex2.printStackTrace()
-              throw new Exception("Failed to insert/update cache")
-            case Success(value) => value
-          }
-        case Success(value) =>
-          Future.successful(value)
-      }
+    println(s"Updating: $cache")
+    run((this.filter(r => r.feature === cache.feature && r.accountId === cache.accountId).update(cache)).asTry).map {
+      case Failure(ex) =>
+        ex.printStackTrace()
+        throw new Exception("Failed to update cache")
+      case Success(value) => value
+    }
   }
 
   def delete(feature: String, accountId: String): Future[Int] = run(this

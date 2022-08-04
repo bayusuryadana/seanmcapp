@@ -51,6 +51,7 @@ class TwitterService(twitterClient: TwitterClient, cacheRepo: CacheRepo, telegra
     }
 
     // delete and add cache
+    // TODO: cacheRepo.set now only update, have to change the logic here
     cacheRepo.delete(FeatureTypes.Tweet.i, s"$prefix$id")
     Thread.sleep(1000)
     cacheRepo.set(Cache(FeatureTypes.TwitLiked.i, s"$prefix$id", response.map(_.id).foldLeft("")((res, s) => s"$res,$s"), None))
