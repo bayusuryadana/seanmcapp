@@ -31,7 +31,7 @@ trait CacheRepo {
 
   def set(cache: Cache): Future[Int]
 
-  def delete(feature: String, accountId: String): Future[Int]
+  def delete(feature: String, value: String): Future[Int]
 
 }
 
@@ -76,8 +76,8 @@ object CacheRepoImpl extends TableQuery(new CacheInfo(_)) with CacheRepo with DB
     }
   }
 
-  def delete(feature: String, accountId: String): Future[Int] = run(this
-    .filter(r => r.feature === feature && r.accountId === accountId).delete)
+  def delete(feature: String, value: String): Future[Int] = run(this
+    .filter(r => r.feature === feature && r.value === value).delete)
 
 }
 

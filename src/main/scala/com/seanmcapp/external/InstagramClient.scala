@@ -82,7 +82,7 @@ class InstagramClient(http: HttpRequestClient) extends MemoryCache {
   private def getHeaders(sessionId: String): Option[HeaderMap] = 
     Some(HeaderMap(Map(
       "host" -> "www.instagram.com",
-      "cookie" -> s"sessionid=$sessionId"
+      "cookie" -> s"$sessionId"
     )))
 
 }

@@ -20,6 +20,6 @@ object CacheRepoMock extends CacheRepo {
 
   def set(cache: Cache): Future[Int] = Future.successful(1)
 
-  def delete(feature: String, accountId: String): Future[Int] = Future.successful(1)
+  def delete(feature: String, value: String): Future[Int] = Future.successful(1)
 
 }
