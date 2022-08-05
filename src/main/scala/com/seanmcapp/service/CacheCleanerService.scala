@@ -5,6 +5,7 @@ import org.joda.time.DateTime
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+// $COVERAGE-OFF$
 class CacheCleanerService(cacheRepo: CacheRepo) extends ScheduledTask {
 
   def run: Any = {

@@ -81,6 +81,7 @@ object CacheRepoImpl extends TableQuery(new CacheInfo(_)) with CacheRepo with DB
 
 }
 
+// $COVERAGE-OFF$
 sealed abstract class FeatureType(val i: String) extends EnumEntry with Serializable {
   override def equals(obj: Any): Boolean = obj match {
     case a: FeatureType => a.i == i

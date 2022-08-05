@@ -34,6 +34,7 @@ object AccountRepoImpl extends TableQuery(new AccountInfo(_)) with AccountRepo w
 
 }
 
+// $COVERAGE-OFF$
 sealed abstract class AccountGroupType(val i: Int) extends EnumEntry with Serializable {
   override def hashCode: Int = i
   override def equals(obj: Any): Boolean = obj match {

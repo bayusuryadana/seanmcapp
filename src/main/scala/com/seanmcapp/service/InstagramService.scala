@@ -15,7 +15,8 @@ case class InstagramPost(id: String, caption: String, media: Seq[InstagramPostCh
 case class InstagramPostChild(isVideo: Boolean, sourceURL: String)
 
 class InstagramService(instagramClient: InstagramClient, telegramClient: TelegramClient, cacheRepo: CacheRepo, accountRepo: AccountRepo) {
-  
+
+  // $COVERAGE-OFF$
   def fetchPosts(fetchAccountType: AccountGroupType, chatIdType: ChatIdType, sessionIdOpt: Option[String] = None): Future[Seq[TelegramResponse]] = {
     val sessionId = getSession(sessionIdOpt)
     val accountsF = accountRepo.getAll(fetchAccountType)
@@ -70,6 +71,7 @@ class InstagramService(instagramClient: InstagramClient, telegramClient: Telegra
       Future.successful(Seq.empty[TelegramResponse])
     }
   }
+  // $COVERAGE-ON$
 
   private[service] def processPost(chatIdType: ChatIdType, postCache: Set[String], posts: Seq[InstagramNode], account: Account): Seq[TelegramResponse] = {
     val newPosts = posts.map(convert)
