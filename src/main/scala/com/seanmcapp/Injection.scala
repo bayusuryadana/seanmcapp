@@ -21,9 +21,11 @@ trait Injection {
   val walletRepo: WalletRepo = WalletRepoImpl
   val walletRepoDemo: WalletRepo = WalletRepoDemo
   val cacheRepo: CacheRepo = CacheRepoImpl
+  val accountRepo: AccountRepo = AccountRepoImpl
 
   val httpClient: HttpRequestClient = HttpRequestClientImpl
   val telegramClient = new TelegramClient(httpClient)
+  val telegramClient2 = new TelegramClient2(httpClient)
 
   val airVisualClient = new AirVisualClient(httpClient)
   val airVisualService = new AirVisualService(airVisualClient, telegramClient)
@@ -33,7 +35,7 @@ trait Injection {
   val broadcastService = new BroadcastService(telegramClient)
 
   val cbcClient = new CBCClient(httpClient)
-  val cbcService = new CBCService(photoRepo, customerRepo, fileRepo, cbcClient, instagramClient)
+  val cbcService = new CBCService(photoRepo, customerRepo, fileRepo, accountRepo, cbcClient, instagramClient)
 
   val dotaClient = new DotaClient(httpClient)
   val dotaService = new DotaService(playerRepo, heroRepo, heroAttributeRepo, dotaClient)
@@ -45,13 +47,15 @@ trait Injection {
   val hadithService = new HadithService(hadithClient)
   
   val instagramClient = new InstagramClient(httpClient)
-  val stalkerService = new StalkerService(instagramClient, telegramClient, cacheRepo)
 
   val nCovClient = new NCovClient(httpClient)
   val nCovService = new NCovService(nCovClient, telegramClient)
 
   val newsClient = new NewsClient(httpClient)
   val newsService = new NewsService(newsClient, telegramClient)
+  
+  val stalkerService = new StalkerService(instagramClient, telegramClient, cacheRepo, accountRepo)
+  val specialStalkerService = new StalkerSpecialService(instagramClient, telegramClient2, cacheRepo, accountRepo)
 
   val walletService = new WalletService(walletRepo, walletRepoDemo)
 

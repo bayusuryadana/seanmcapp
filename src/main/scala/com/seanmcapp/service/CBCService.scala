@@ -13,32 +13,33 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.matching.Regex
 
-class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, fileRepo: FileRepo, cbcClient: CBCClient,
-                 instagramClient: InstagramClient) extends MemoryCache with ScheduledTask {
+class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, fileRepo: FileRepo, accountRepo: AccountRepo,
+                 cbcClient: CBCClient, instagramClient: InstagramClient) extends MemoryCache with ScheduledTask {
 
   implicit val lastPhotoCache: Cache[Long] = createCache[Long]
 
-  private[service] val accountList = Map(
-    /** DISCONTINUED
-      * ui.cantik	    662
-      * ub.cantik	    517
-      * bidadari_ub	  257
-      *
-      * STILL UPDATING (total: 6165 @ 06-05-2021)
-      * ugmcantik	    980
-      * cantik.its	  396
-      * unpad.geulis	1510
-      * undip.cantik	1038
-      * uicantikreal	296
-      * unj.cantik	  509
-      */
-
-    // existing
+  /** STILL UPDATING (total: 6165 @ 06-05-2021)
+    * ugmcantik	    980
+    * cantik.its	  396
+    * unpad.geulis	1510
+    * undip.cantik	1038
+    * uicantikreal	296
+    * unj.cantik	  509
+    * uicantikid    ???
+    * 
+    * DISCONTINUED
+    * ui.cantik	    662
+    * ub.cantik	    517
+    * bidadari_ub	  257
+    */
+  
+  private[service] val regexMapping = Map(
     "ugmcantik"    -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
     "undip.cantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
     "unpad.geulis" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r,
     "unj.cantik"   -> "[\\w ]+, [A-Z]+ \\d\\d\\d\\d\\.".r,
     "cantik.its"   -> ".+".r,
+    //"uicantikid"   -> ".+".r, -- haven't checking all their posts yet
   )
 
   def cbcFlow(userId: Long, userFullName: String, `type`: String): Future[Option[Photo]] = {
@@ -89,27 +90,32 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, fileRepo: Fil
 
   private def process(sessionId: String, photos: Seq[Photo]): Future[Seq[Option[Int]]] = {
     val idsSet = photos.map(_.id).toSet
-    val sequenceResult = accountList.toSeq.map { item =>
-      val account = item._1
-      val id = instagramClient.getAccountResponse(account).logging_page_id.replace("profilePage_", "")
-      println(s"fetching: $account with id $id")
-      val fetchedPhotos = instagramClient.getAllPosts(id, None, sessionId).map(node => convert(node, account))
-      println(s"fetched: ${fetchedPhotos.size}")
-      val unFetchedPhotos = fetchedPhotos.filterNot(photo => idsSet.contains(photo.id))
-      println(s"non-exists: ${unFetchedPhotos.size}")
-      val filteredPhotos = unFetchedPhotos.collect(filteringNonRelatedImage(item._2))
-      println(s"filtered by rule: ${filteredPhotos.size}")
-      val savedPhotos = savingToStorage(filteredPhotos)
-      println(s"saved photos to storage: ${savedPhotos.size}")
-      val result = photoRepo.insert(savedPhotos).map { res =>
-        println(s"saved photos to database: ${res.getOrElse(-1)}")
-        res
+    val accountsF = accountRepo.getAll(AccountGroupTypes.CBC)
+    
+    val result = for {
+      accounts <- accountsF
+    } yield {
+      val sequenceResult = accounts.map { account =>
+        val fetchedPhotos = instagramClient.getAllPosts(account.id, None, sessionId).map(node => convert(node, account.alias))
+        println(s"fetched: ${fetchedPhotos.size}")
+        val unFetchedPhotos = fetchedPhotos.filterNot(photo => idsSet.contains(photo.id))
+        println(s"non-exists: ${unFetchedPhotos.size}")
+        val accountRegex = regexMapping.getOrElse(account.alias, throw new Exception("regex mapping not found"))
+        val filteredPhotos = unFetchedPhotos.collect(filteringNonRelatedImage(accountRegex))
+        println(s"filtered by rule: ${filteredPhotos.size}")
+        val savedPhotos = savingToStorage(filteredPhotos)
+        println(s"saved photos to storage: ${savedPhotos.size}")
+        val result = photoRepo.insert(savedPhotos).map { res =>
+          println(s"saved photos to database: ${res.getOrElse(-1)}")
+          res
+        }
+        result
       }
-      result
+      Future.sequence(sequenceResult)
     }
 
     println(s"fetching finished")
-    Future.sequence(sequenceResult)
+    result.flatten
   }
 
   private[service] def savingToStorage(filteredPhotos: Seq[Photo]): Seq[Photo] = {

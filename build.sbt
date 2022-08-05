@@ -64,6 +64,8 @@ libraryDependencies ++= Seq(
   // session
   "com.softwaremill.akka-http-session" %% "core" % "0.5.11",
 
+  // enum
+  "com.beachape" %% "enumeratum" % "1.7.0",
 )
 
 coverageExcludedPackages :=

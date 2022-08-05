@@ -5,6 +5,8 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpHeader, StatusCod
 import akka.http.scaladsl.server
 import akka.http.scaladsl.server.Directives
 import com.seanmcapp.external._
+import com.seanmcapp.repository.instagram.AccountGroupTypes
+import com.seanmcapp.util.ChatIdTypes
 import io.circe.syntax._
 
 import scala.concurrent.duration._
@@ -27,13 +29,25 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     }),
 
     /////////// API ///////////
-    get(path( "api" / "instagram" / "pull" / Remaining) { session =>
-      if (session == "null") complete(cbcService.startFetching().map(_.asJson.encode))
-      else complete(cbcService.startFetching(Some(session)).map(_.asJson.encode))
-    }),
     get(path( "api" / "instagram" / "push" / Remaining) { session =>
-      if (session == "null") complete(stalkerService.fetch().map(_.asJson.encode))
-      else complete(stalkerService.fetch(Some(session)).map(_.asJson.encode))
+      val sessionOpt = if (session == "null") None else Some(session)
+      complete(cbcService.startFetching(sessionOpt).map(_.asJson.encode))
+    }),
+    get(path( "api" / "instagram" / "pull" / Remaining) { session =>
+      val sessionOpt = if (session == "null") None else Some(session)
+      val postsF = stalkerService.fetchPosts(AccountGroupTypes.Stalker, ChatIdTypes.Personal, sessionOpt)
+      val storiesF = stalkerService.fetchStories(AccountGroupTypes.Stalker, ChatIdTypes.Personal, sessionOpt)
+      val result = for {
+        posts <- postsF
+        stories <- storiesF
+      } yield {
+        posts ++ stories
+      }
+      complete(result.map(_.asJson.encode))
+    }),
+    get(path( "api" / "instagram" / "special" / Remaining) { session =>
+      val sessionOpt = if (session == "null") None else Some(session)
+      complete(stalkerService.fetchPosts(AccountGroupTypes.StalkerSpecial, ChatIdTypes.Personal, sessionOpt).map(_.asJson.encode))
     }),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
     //get(path( "api" / "tweet" )(complete(twitterService.run.map(_.asJson.encode)))),
@@ -98,14 +112,14 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
 
   ).reduce{ (a,b) => a~b }
 
-  private def getHeader(key: String): HttpHeader => Option[String] = {
-    (httpHeader: HttpHeader) => {
-      HttpHeader.unapply(httpHeader) match {
-        case Some((k, v)) if k == key => Some(v)
-        case _ => None
-      }
-    }
-  }
+//  private def getHeader(key: String): HttpHeader => Option[String] = {
+//    (httpHeader: HttpHeader) => {
+//      HttpHeader.unapply(httpHeader) match {
+//        case Some((k, v)) if k == key => Some(v)
+//        case _ => None
+//      }
+//    }
+//  }
 
   val scheduleList: List[Scheduler] = List(
     /**
@@ -123,9 +137,10 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(dsdaJakartaService, "0 0 0 * * ?"),
     new Scheduler(cbcService, "0 0 10 * * ?"),
     new Scheduler(stalkerService, "0 0 * * * ?"),
+    new Scheduler(specialStalkerService, "0 20 * * * ?"),
     new Scheduler(newsService, "0 0 6 * * ?"),
     new Scheduler(cacheCleanerService, "0 0 0 * * ?"),
-    //new Scheduler(twitterService, "0 0 * * * ?"),
+//    new Scheduler(twitterService, "0 0 * * * ?"),
   )
 
 }

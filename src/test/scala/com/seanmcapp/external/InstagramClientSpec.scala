@@ -16,19 +16,11 @@ class InstagramClientSpec extends AnyWordSpec with Matchers {
 
   "postLogin" in {
     when(http.sendGetRequest(any(), any())).thenReturn("\"csrf_token\":\"token\"")
-    val httpResponse = HttpResponse[String]("", 200, Map("Set-Cookie" -> Vector("sessionid=session;")))
+    val cookie = Seq("csrftoken", "ds_user_id", "ig_did", "mid", "rur", "sessionid").foldLeft("") { (a, c) => s"$a$c=$c; " }
+    val httpResponse = HttpResponse[String]("", 200, Map("Set-Cookie" -> Vector(cookie)))
     when(http.sendRequest(any(), any(), any(), any(), any(), any())).thenReturn(httpResponse)
     val response = instagramClient.postLogin()
-    response shouldEqual "session"
-  }
-
-  "getAccountResponse" in {
-    val accountId = "262582140"
-    val fetchResponse = Source.fromResource("instagram/init_response.json").mkString
-    when(http.sendGetRequest(any(), any())).thenReturn(fetchResponse)
-    val response = instagramClient.getAccountResponse(accountId)
-    val expected = InstagramAccountResponse("profilePage_262582140")
-    response shouldBe expected
+    response shouldEqual "csrftoken=csrftoken; ds_user_id=ds_user_id; ig_did=ig_did; mid=mid; rur=rur; sessionid=sessionid; "
   }
 
   "getAllPost" in {

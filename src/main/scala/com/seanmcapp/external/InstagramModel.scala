@@ -4,8 +4,6 @@ package com.seanmcapp.external
 ////////// ad-hoc
 case class InstagramCsrfToken(csrf_token: String)
 
-case class InstagramAccountResponse(logging_page_id: String)
-
 case class InstagramRequestParameter(id: String, first: Int, after: Option[String])
 
 ////////// Instagram Post

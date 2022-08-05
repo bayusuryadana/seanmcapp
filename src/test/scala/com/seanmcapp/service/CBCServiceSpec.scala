@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.repository.instagram.Photo
+import com.seanmcapp.repository.instagram.{Account, AccountGroupTypes, AccountRepo, Photo}
 import com.seanmcapp.repository.{CustomerRepoMock, FileRepo, PhotoRepoMock}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
@@ -8,6 +8,7 @@ import org.mockito.Mockito.{mock, when}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 
+import scala.concurrent.Future
 import scala.io.Source
 
 class CBCServiceSpec extends AsyncWordSpec with Matchers {
@@ -21,9 +22,10 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
   }.toMap
   when(cbcClient.getRecommendation).thenReturn(responseMock)
   val fileRepoMock = mock(classOf[FileRepo])
+  val accountRepoMock = mock(classOf[AccountRepo])
   val instagramClient = mock(classOf[InstagramClient])
-  val cbcService = new CBCService(PhotoRepoMock, CustomerRepoMock, fileRepoMock, cbcClient, instagramClient) {
-    override val accountList = Map("ugmcantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r)
+  val cbcService = new CBCService(PhotoRepoMock, CustomerRepoMock, fileRepoMock, accountRepoMock, cbcClient, instagramClient) {
+    override val regexMapping = Map("ugmcantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r)
     override def savingToStorage(filteredPhotos: Seq[Photo]): Seq[Photo] = filteredPhotos
   }
 
@@ -54,8 +56,8 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
   }
 
   "should return number of image that have been successfully fetched" in {
-    when(instagramClient.getAccountResponse(any())).thenReturn(InstagramAccountResponse("profilePage_262582140"))
     when(instagramClient.postLogin()).thenReturn("")
+    when(accountRepoMock.getAll(any())).thenReturn(Future.successful(Seq(Account("262582140", "ugmcantik", AccountGroupTypes.CBC))))
     val photoMock = List(
       InstagramNode(
         "2115041543081728221",
@@ -88,7 +90,7 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
         None
       )
     )
-    when(instagramClient.getAllPosts(any(), any(), any())).thenReturn(photoMock)
+    when(instagramClient.getAllPosts(any(), any(), any(), any())).thenReturn(photoMock)
 
     cbcService.run().map { res =>
       res shouldBe Seq(Some(1))

@@ -12,6 +12,12 @@ CREATE TABLE customers (
     count integer DEFAULT 0 NOT NULL
 );
 
+CREATE TABLE accounts (
+    id bigint NOT NULL,
+    alias character varying(100) NOT NULL,
+    group_type int NOT NULL
+);
+
 CREATE TABLE heroes (
     id smallint NOT NULL,
     localized_name character varying(32) NOT NULL,
@@ -76,7 +82,8 @@ CREATE TABLE wallets (
 );
 
 CREATE TABLE caches (
-    key character varying(128) NOT NULL PRIMARY KEY,
+    feature character varying(128) NOT NULL PRIMARY KEY,
+    account_id character varying(20) NOT NULL PRIMARY KEY,
     value character varying(40000) NOT NULL,
     expiry integer
 );

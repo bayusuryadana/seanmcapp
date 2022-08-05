@@ -4,15 +4,22 @@ import scala.concurrent.Future
 
 object CacheRepoMock extends CacheRepo {
 
-  val cacheList: Map[String, String] = Map("key" -> "value")
+  val cacheList: List[Cache] = List(
+    Cache("feature","123", "value", None)
+  )
 
-  def getAll(): Future[Seq[Cache]] = Future.successful(cacheList.toSeq.map { case (k, v) => Cache(k, v, None)})
+  def getAll(): Future[Seq[Cache]] = Future.successful(cacheList)
 
-  def get(key: String): Future[Option[Cache]] =
-    Future.successful(cacheList.get(key).map(value => Cache(key, value, None)))
+  def get(feature: String, accountId: String): Future[Set[String]] =
+    Future.successful(cacheList.find(r => r.feature == feature && r.accountId == accountId).map(_.value).toSet)
+
+  def getMultiple(feature: String, accountId: String): Future[Set[String]] =
+    Future.successful(cacheList.find(r => r.feature == feature && r.accountId == accountId).map(_.value).toSet)
+
+  def insert(cache: Seq[Cache]): Future[Seq[Int]] = Future.successful(Seq(1))
 
   def set(cache: Cache): Future[Int] = Future.successful(1)
 
-  def delete(key: String): Future[Int] = Future.successful(1)
+  def delete(feature: String, value: String): Future[Int] = Future.successful(1)
 
 }
