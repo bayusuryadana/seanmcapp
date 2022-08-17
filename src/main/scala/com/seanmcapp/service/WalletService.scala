@@ -23,14 +23,8 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
   def dashboard(implicit secretKey: String): DashboardView = {
     val wallets = authAndAwait(secretKey, walletRepo.getAll, walletRepoDemo.getAll)
     val numberOfMonths = 6
-
-    def sumAccount(account: String): Int = wallets.collect { case w if w.done && w.account == account => w.amount }.sum
-    val sgd = sumAccount("DBS").formatNumber
-    val idr = sumAccount("BCA").formatNumber
-    val savingAccount = Map(
-      "SGD" -> sgd,
-      "IDR" -> idr
-    )
+    
+    val savingAccount = getSavingAccount(wallets)
 
     // pie data is based on SGD
     val adjWallet = adjustWallet(wallets)
@@ -90,7 +84,9 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
     val SGD = calculateBalance(wallets, requestDate, "DBS")
     val IDR = calculateBalance(wallets, requestDate, "BCA")
 
-    DataView(cmsData, walletResult, SGD, IDR)
+    val savingAccount = getSavingAccount(wallets)
+
+    DataView(cmsData, walletResult, SGD, IDR, savingAccount)
   }
 
   // $COVERAGE-OFF$
@@ -121,6 +117,16 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
       case TEST_KEY => Await.result(tf, Duration.Inf)
       case _ => throw new Exception("Wrong secret key") // TODO: need better handle
     }
+  }
+  
+  def getSavingAccount(wallets: Seq[Wallet]): Map[String, String] = {
+    def sumAccount(account: String): Int = wallets.collect { case w if w.done && w.account == account => w.amount }.sum
+    val sgd = sumAccount("DBS").formatNumber
+    val idr = sumAccount("BCA").formatNumber
+    Map(
+      "SGD" -> sgd,
+      "IDR" -> idr
+    )
   }
 
   implicit class GroupDate(wallets: Seq[Wallet]) {

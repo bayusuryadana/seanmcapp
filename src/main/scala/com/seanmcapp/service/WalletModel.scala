@@ -15,7 +15,7 @@ case class Chart(label: Seq[Int],
                  passive: Map[String, Seq[Int]]
                 )
 
-case class DataView(cmsData: CMSData, wallet: Seq[Wallet], sgdBalance: Balance, idrBalance: Balance)
+case class DataView(cmsData: CMSData, wallet: Seq[Wallet], sgdBalance: Balance, idrBalance: Balance, savingAccount: Map[String, String])
 
 case class CMSData(currentDate: Int, thisMonth: String, thisYear: String, nextDate: String, prevDate: String)
 
