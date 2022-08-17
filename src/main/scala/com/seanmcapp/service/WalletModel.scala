@@ -10,9 +10,7 @@ case class Pie(label: Seq[String], data: Seq[Double])
 
 case class Chart(label: Seq[Int],
                  balance: Map[String, Seq[Int]],
-                 expense: Map[String, Map[String, Seq[Int]]],
-                 invest: Map[String, Seq[Int]],
-                 passive: Map[String, Seq[Int]]
+                 expense: Map[String, Map[String, Seq[Int]]]
                 )
 
 case class DataView(cmsData: CMSData, wallet: Seq[Wallet], sgdBalance: Balance, idrBalance: Balance, savingAccount: Map[String, String])

@@ -49,22 +49,10 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
       }.toMap
     }.toMap
 
-    val investAccounts = Seq("Amartha", "iGrow", "Growpal", "RDN", "Stock")
-    val investChart = investAccounts.map { acct =>
-      acct -> groupedWallet.map(_.collect { case w if w.category == "Funding" && w.name == acct => -w.amount }.sum)
-        .scan(0)(_+_).takeRight(numberOfMonths).toSeq
-    }.toMap
-
-    val passiveChart =
-      investAccounts.map { acct =>
-        acct -> groupedWallet.map(_.collect { case w if w.category == "ROI" && w.name == acct => w.amount }.sum)
-          .takeRight(numberOfMonths).toSeq
-      }.toMap
-
     DashboardView(
       savingAccount,
       Pie(pie._1, pie._2),
-      Chart(monthsLabel, balanceChart, expenseChart, investChart, passiveChart)
+      Chart(monthsLabel, balanceChart, expenseChart)
     )
   }
 
