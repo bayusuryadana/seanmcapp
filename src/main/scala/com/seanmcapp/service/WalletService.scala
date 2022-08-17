@@ -118,7 +118,7 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
   }
 
   implicit class GroupDate(wallets: Seq[Wallet]) {
-    def groupByDate(): SortedMap[Int, Seq[Wallet]] = wallets.filter(_.date <= todayDate.toInt).groupBy(_.date).to(SortedMap)
+    def groupByDate(): SortedMap[Int, Seq[Wallet]] = wallets.filter(_.date <= todayDate).groupBy(_.date).to(SortedMap)
   }
 
   implicit class DoubleHelper(d: Double) {
