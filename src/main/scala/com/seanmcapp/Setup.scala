@@ -127,20 +127,24 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
       * This cron4s expressions go from seconds to day of week in the following order:
       * (Seconds, Minutes, Hour Of Day, Day Of Month, Month, Day Of Week)
       */
+    // warmup
     new Scheduler(warmupDBService, "0 * * * * ?", false),
     new Scheduler(warmupDBService, "*/5 * * * * ?", false),
+    
+    //pre-loading data service
     new Scheduler(dotaService, "0 0 2 * * ?"),
-    new Scheduler(birthdayService, "0 0 6 * * ?"),
-    new Scheduler(airVisualService, "0 0 8 * * ?"),
-    new Scheduler(airVisualService, "0 0 17 * * ?"),
-    new Scheduler(nCovService, "0 0 20 * * ?"),
-    new Scheduler(dsdaJakartaService, "0 0 0 * * ?"),
     new Scheduler(cbcService, "0 0 10 * * ?"),
     new Scheduler(stalkerService, "0 0 * * * ?"),
     new Scheduler(specialStalkerService, "0 20 * * * ?"),
     new Scheduler(newsService, "0 0 6 * * ?"),
     new Scheduler(cacheCleanerService, "0 0 0 * * ?"),
-//    new Scheduler(twitterService, "0 0 * * * ?"),
+    
+    // real-time service
+    new Scheduler(birthdayService, "0 0 6 * * ?"),
+    new Scheduler(newsService, "0 0 8 * * ?"),
+    new Scheduler(dsdaJakartaService, "0 0 0 * * ?"),
+    new Scheduler(stalkerService, "0 0 * * * ?"),
+    //new Scheduler(twitterService, "0 0 * * * ?"),
   )
 
 }

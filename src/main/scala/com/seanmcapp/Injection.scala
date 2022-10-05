@@ -28,11 +28,12 @@ trait Injection {
   val telegramClient2 = new TelegramClient2(httpClient)
 
   val airVisualClient = new AirVisualClient(httpClient)
-  val airVisualService = new AirVisualService(airVisualClient, telegramClient)
 
   val birthdayService = new BirthdayService(peopleRepo, telegramClient)
 
   val broadcastService = new BroadcastService(telegramClient)
+
+  val cacheCleanerService = new CacheCleanerService(cacheRepo)
 
   val cbcClient = new CBCClient(httpClient)
   val cbcService = new CBCService(photoRepo, customerRepo, fileRepo, accountRepo, cbcClient, instagramClient)
@@ -48,11 +49,8 @@ trait Injection {
   
   val instagramClient = new InstagramClient(httpClient)
 
-  val nCovClient = new NCovClient(httpClient)
-  val nCovService = new NCovService(nCovClient, telegramClient)
-
   val newsClient = new NewsClient(httpClient)
-  val newsService = new NewsService(newsClient, telegramClient)
+  val newsService = new NewsService(newsClient, airVisualClient, telegramClient)
   
   val stalkerService = new StalkerService(instagramClient, telegramClient, cacheRepo, accountRepo)
   val specialStalkerService = new StalkerSpecialService(instagramClient, telegramClient2, cacheRepo, accountRepo)
@@ -62,9 +60,7 @@ trait Injection {
   val warmupDBService = new WarmupDBService(peopleRepo)
 
   val telegramWebhookService = new TelegramWebhookService(cbcService, hadithService, telegramClient)
-
-  val cacheCleanerService = new CacheCleanerService(cacheRepo)
-
+  
   val twitterClient = new TwitterClient(httpClient)
   val twitterService = new TwitterService(twitterClient, cacheRepo, telegramClient)
 }
