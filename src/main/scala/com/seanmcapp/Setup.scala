@@ -50,7 +50,6 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
       complete(stalkerService.fetchPosts(AccountGroupTypes.StalkerSpecial, ChatIdTypes.Personal, sessionOpt).map(_.asJson.encode))
     }),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
-    get(path( "api" / "sport" )(complete(sportsService.run.asJson.encode))),
     //get(path( "api" / "tweet" )(complete(twitterService.run.map(_.asJson.encode)))),
 
 //    toStrictEntity(3.seconds) {
@@ -142,7 +141,6 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     
     // real-time service
     new Scheduler(birthdayService, "0 0 6 * * ?"),
-    new Scheduler(sportsService, "0 0 8 * * ?"),
     new Scheduler(newsService, "0 0 8 * * ?"),
     new Scheduler(dsdaJakartaService, "0 0 0 * * ?"),
     new Scheduler(stalkerService, "0 0 * * * ?"),

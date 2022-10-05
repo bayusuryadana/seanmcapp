@@ -60,7 +60,7 @@ case class NewsObject(order: Int, url: String, parser: Document => NewsResult)
 object NewsConstant {
   val mapping = Map(
     "tirto" -> NewsObject(1, "https://tirto.id", tirtoParser),
-    "kumparan" -> NewsObject(2, "https://kumparan.com/trending", kumparanParser),
+//    "kumparan" -> NewsObject(2, "https://kumparan.com/trending", kumparanParser),
     "mothership" -> NewsObject(3, "https://mothership.sg", mothershipParser),
     "cna" -> NewsObject(4, "https://www.channelnewsasia.com/news/singapore", cnaParser),
 //    "reuters" -> NewsObject(5, "https://www.reuters.com", reutersParser),
@@ -76,10 +76,11 @@ object NewsConstant {
   }
 
   private def kumparanParser(d: Document): NewsResult = {
-    val tag = d.selectFirst("div[data-qa-id='news-item']")
+    val tag = d.selectFirst(".Viewweb__StyledView-sc-1ajfkkc-0.fswdpV .LabelLinkweb__StyledLink-sc-fupmuj-0.btFwc")
+    println(tag.text())
     NewsResult(
-      tag.selectFirst("a").text(),
-      s"https://kumparan.com${tag.selectFirst("a").attr("href")}",
+      tag.selectFirst("span").text(),
+      s"https://kumparan.com${tag.attr("href")}",
       Array(0x1f1ee, 0x1f1e9)
     )
   }
@@ -104,8 +105,8 @@ object NewsConstant {
 
   private def tirtoParser(d: Document): NewsResult = {
     // TODO: check whether the title matches 'POPULER', instead of hard code the index 5
-    val tag = d.select(".welcome-title").asScala.toList(5).parent.parent.parent.parent.selectFirst(".mb-3 a")
-    NewsResult(tag.text(), s"${tag.attr("href")}", Array(0x1f1ee, 0x1f1e9))
+    val tag = d.select(".welcome-title").asScala.toList(6).parent.parent.parent.selectFirst(".mb-3 a")
+    NewsResult(tag.text(), s"https://tirto.id${tag.attr("href")}", Array(0x1f1ee, 0x1f1e9))
   }
 
 }

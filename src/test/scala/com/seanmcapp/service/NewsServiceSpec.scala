@@ -27,14 +27,12 @@ class NewsServiceSpec extends AnyWordSpec with Matchers {
     val newsMockResponse = NewsConstant.mapping.keys.map(key => key -> Source.fromResource(s"news/$key.html").mkString).toMap
     when(newsClient.getNews).thenReturn(newsMockResponse)
     val expectedTitles = List(
-      "The Medium Menghadirkan Kengerian Lewat Cara yang Efektif",
-      "KH Said Aqil ke Listyo Sigit: Yang Khotbah Jumat Katai Jokowi Kenapa Dibiarkan kumparanNEWS",
+      "Tragedi Kanjuruhan: Mengapa Hanya Kapolres Malang yang Dicopot?",
       "How Redditors made investors & Wall Street hedge funds lose S$8 billion, explained",
       "117 people given lower dose of COVID-19 vaccine due to error at Bukit Merah Polyclinic"
     )
     val expectedUrl = List(
-      "https://tirto.id/the-medium-menghadirkan-kengerian-lewat-cara-yang-efektif-gkDj",
-      "https://kumparan.com/kumparannews/kh-said-aqil-ke-listyo-sigit-yang-khotbah-jumat-katai-jokowi-kenapa-dibiarkan-1v4EoB66JdO",
+      "https://tirto.id/tragedi-kanjuruhan-mengapa-hanya-kapolres-malang-yang-dicopot-gwXQ?utm_source=Tirtoid&utm_medium=Popular",
       "https://mothership.sg/2021/01/gamestop-hedge-fund-shorting-explainer/",
       "https://www.channelnewsasia.com/singapore/bukit-merah-polyclinic-covid19-vaccine-lower-dose-singhealth-2265136"
     )
