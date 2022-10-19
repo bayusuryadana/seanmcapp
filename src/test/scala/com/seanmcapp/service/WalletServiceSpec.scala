@@ -12,27 +12,28 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers {
 
   val walletService = new WalletService(WalletRepoMock, WalletRepoMock) {
     override val SECRET_KEY = secretKey
+    override lazy val todayDate: Int = 201909
   }
 
   "dashboard should return correct data" in {
     val dashboardView = walletService.dashboard(secretKey)
     dashboardView.savingAccount.get("SGD") shouldBe Some("1,300")
-    dashboardView.chart.expense("SGD") shouldBe Map(
-      "Fashion" -> List(0),
-      "Zakat" -> List(0),
-      "Misc" -> List(0),
-      "Travel" -> List(850),
-      "Rent" -> List(700),
-      "Funding" -> List(0),
-      "Daily" -> List(745),
-      "IT Stuff" -> List(0),
-      "Wellness" -> List(0)
+    dashboardView.chart.ytdExpenses shouldBe Map(
+      "Fashion" -> 0,
+      "Zakat" -> 0,
+      "Misc" -> 0,
+      "Travel" -> 850,
+      "Rent" -> 700,
+      "Funding" -> 0,
+      "Daily" -> 745,
+      "IT Stuff" -> 0,
+      "Wellness" -> 0
     )
   }
 
   "data should return correct data" in {
     val dataView = walletService.data(secretKey, None)
-    dataView.sgdBalance shouldBe Balance("-295", "-295", "-295")
+    dataView.sgdBalance shouldBe Balance("0", "-295", "1,300")
     dataView.idrBalance shouldBe Balance("0","0","0")
   }
 

@@ -47,17 +47,23 @@ let chartOptions = {
   }
 };
 
-function buildChart(chartType, target, label, datasets1, datasets2, segment) {
+function buildChart(chartType, target, label, dataset) {
   let ctx = document.getElementById(target);
 
   let myChartData = new Chart(ctx, {
     type: chartType,
     data: {
       labels: label,
-      datasets: datasets1,
+      datasets: dataset,
     },
     options: chartOptions
   });
+  
+  return myChartData;
+}
+
+function buildMultiSegmentChart(chartType, target, label, datasets1, datasets2, segment) {
+  let myChartData = buildChart(chartType, target, label, datasets1);
 
   $("#"+segment+"-1").click(function() {
     let data = myChartData.config.data;

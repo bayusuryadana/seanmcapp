@@ -5,7 +5,29 @@
 @com.seanmcapp.wallet.html.template("Data") {
     <div class="content">
         <div class="row">
-            <div class="col-md-9">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body ">
+                        <div class="numbers">
+                            <p class="card-category">SGD</p>
+                            <p class="card-title">$ @(data.savingAccount.getOrElse("SGD", ""))</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body ">
+                        <div class="numbers">
+                            <p class="card-category">IDR</p>
+                            <p class="card-title">Rp. @(data.savingAccount.getOrElse("IDR", ""))</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
                 <div class="card">
                     <div class="card-header" style="padding-bottom: 15px;">
                         <div class="row">
@@ -28,7 +50,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="card ">
                     <div class="card-header ">
                         <h5 class="card-title">Summary</h5>
@@ -63,7 +85,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-8">
                 <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
