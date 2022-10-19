@@ -41,8 +41,8 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
         .takeRight(numberOfMonths).toSeq
     }.toMap
 
-    def filterAndConvertWallet(v: Seq[Wallet], cat: String) = {
-      v.collect { case d if d.category == cat => convertCurrencyToSGD(d.amount, d.currency) }
+    def filterAndConvertWallet(v: Seq[Wallet], cat: String): Seq[Int] = {
+      v.collect { case d if d.category == cat => -convertCurrencyToSGD(d.amount, d.currency) }
     }
     
     // expenses chart based in SGD
