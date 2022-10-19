@@ -136,7 +136,6 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(cbcService, "0 0 10 * * ?"),
     new Scheduler(stalkerService, "0 0 * * * ?"),
     new Scheduler(specialStalkerService, "0 20 * * * ?"),
-    new Scheduler(newsService, "0 0 6 * * ?"),
     new Scheduler(cacheCleanerService, "0 0 0 * * ?"),
     
     // real-time service
