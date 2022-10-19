@@ -41,18 +41,22 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
         .takeRight(numberOfMonths).toSeq
     }.toMap
 
+    def filterAndConvertWallet(v: Seq[Wallet], cat: String) = {
+      v.collect { case d if d.category == cat => convertCurrencyToSGD(d.amount, d.currency) }
+    }
+    
     // expenses chart based in SGD
     val lastYearExpenses =
       expenseSet.toSeq.map { cat =>
-        cat -> groupedWallet.collect { case (k, v) if k / 100 == (todayDate / 100) - 1 =>
-          v.collect { case d if d.category == cat => d.amount }
+        cat -> groupedWallet.collect { 
+          case (k, v) if k / 100 == (todayDate / 100) - 1 => filterAndConvertWallet(v, cat)
         }.flatten.sum
       }.toMap
     
     val ytdExpenses = 
       expenseSet.toSeq.map { cat =>
-        cat -> groupedWallet.collect { case (k, v) if k / 100 == todayDate / 100 =>
-          v.collect { case d if d.category == cat => d.amount }
+        cat -> groupedWallet.collect { 
+          case (k, v) if k / 100 == todayDate / 100 => filterAndConvertWallet(v, cat)
         }.flatten.sum
       }.toMap
 
@@ -156,12 +160,16 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
   }
 
   private def adjustWallet(wallets: Seq[Wallet]): Seq[Wallet] = {
-    wallets.map(w => w.copy(amount = w.currency match {
-      case "MYR" => (w.amount / ConversionConstants.MYR).toInt
-      case "THB" => (w.amount / ConversionConstants.THB).toInt
-      case "IDR" => w.amount / ConversionConstants.IDR
-      case _ => w.amount
-    }))
+    wallets.map(w => w.copy(amount = convertCurrencyToSGD(w.amount, w.currency)))
+  }
+  
+  private def convertCurrencyToSGD(amount: Int, currency: String): Int = {
+    currency match {
+      case "MYR" => (amount / ConversionConstants.MYR).toInt
+      case "THB" => (amount / ConversionConstants.THB).toInt
+      case "IDR" => amount / ConversionConstants.IDR
+      case _ => amount
+    }
   }
 
   protected lazy val todayDate: Int = {

@@ -118,15 +118,15 @@
                 let label = [@for(l <- data.chart.label){'@(l)',}];
 
                 let lastYearExpenses = [
-                    buildDataset([@(data.chart.lastYearExpenses("Daily"))], "#7ed6a5", 'Daily'),
-                    buildDataset([@data.chart.lastYearExpenses("Rent"))], "#fcc468", 'Rent'),
-                    buildDataset([@data.chart.lastYearExpenses("Zakat"))], "#4acccd", 'Zakat'),
-                    buildDataset([@data.chart.lastYearExpenses("Travel"))], "#9fd2d6", 'Travel'),
-                    buildDataset([@data.chart.lastYearExpenses("Fashion"))], "#e3e3e3", 'Fashion'),
-                    buildDataset([@data.chart.lastYearExpenses("IT Stuff"))], "#f4c0fc", 'IT Stuff'),
-                    buildDataset([@data.chart.lastYearExpenses("Misc"))], "#ef8157", 'Misc'),
-                    buildDataset([@data.chart.lastYearExpenses("Wellness"))], "#d6cfc6", 'Wellness'),
-                    buildDataset([@data.chart.lastYearExpenses("Funding"))], "#9e9e9e", 'Funding'),
+                    buildDataset([@data.chart.lastYearExpenses("Daily")], "#7ed6a5", 'Daily'),
+                    buildDataset([@data.chart.lastYearExpenses("Rent")], "#fcc468", 'Rent'),
+                    buildDataset([@data.chart.lastYearExpenses("Zakat")], "#4acccd", 'Zakat'),
+                    buildDataset([@data.chart.lastYearExpenses("Travel")], "#9fd2d6", 'Travel'),
+                    buildDataset([@data.chart.lastYearExpenses("Fashion")], "#e3e3e3", 'Fashion'),
+                    buildDataset([@data.chart.lastYearExpenses("IT Stuff")], "#f4c0fc", 'IT Stuff'),
+                    buildDataset([@data.chart.lastYearExpenses("Misc")], "#ef8157", 'Misc'),
+                    buildDataset([@data.chart.lastYearExpenses("Wellness")], "#d6cfc6", 'Wellness'),
+                    buildDataset([@data.chart.lastYearExpenses("Funding")], "#9e9e9e", 'Funding'),
                 ]
                 buildChart("bar", "lastYearExpensesChart", [], lastYearExpenses)
 
