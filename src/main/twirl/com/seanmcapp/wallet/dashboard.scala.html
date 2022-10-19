@@ -39,30 +39,38 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card ">
+                <div class="card card-chart">
                     <div class="card-header">
-                        <h5 class="card-title">Last year expense (%)</h5>
-                        <p class="card-category"></p>
+                        <div class="row">
+                            <div class="col-6">
+                                <h5 class="card-title">Last year expenses</h5>
+                                <p class="card-category"></p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body ">
-                        <canvas id="expensePie"></canvas>
+                    <div class="card-body">
+                        <canvas id="lastYearExpensesChart" width="400" height="100"></canvas>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card ">
+                <div class="card card-chart">
                     <div class="card-header">
-                        <h5 class="card-title">YTD expense (%)</h5>
-                        <p class="card-category"></p>
+                        <div class="row">
+                            <div class="col-6">
+                                <h5 class="card-title">Current expenses</h5>
+                                <p class="card-category"></p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body ">
-                        <canvas id="expensePie"></canvas>
+                    <div class="card-body">
+                        <canvas id="ytdExpensesChart" width="400" height="100"></canvas>
                     </div>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="card card-chart">
                     <div class="card-header">
                         <div class="row">
@@ -95,39 +103,6 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-8">
-                <div class="card card-chart">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="col-6">
-                                <h5 class="card-title">Expenses</h5>
-                                <p class="card-category">Measuring your recent expenses</p>
-                            </div>
-                            <div class="col-6">
-                                <div class="btn-group btn-group-toggle float-right" data-toggle="buttons">
-                                    <label class="btn btn-sm btn-default btn-simple active" id="expense-1">
-                                        <input type="radio" name="options" checked>
-                                        <span class="d-sm-block d-md-block d-lg-block d-xl-block">SGD</span>
-                                        <span class="d-block d-sm-none">
-                                            <i class="tim-icons icon-single-02"></i>
-                                        </span>
-                                    </label>
-                                    <label class="btn btn-sm btn-default btn-simple" id="expense-2">
-                                        <input type="radio" class="d-none d-sm-none" name="options">
-                                        <span class="d-sm-block d-md-block d-lg-block d-xl-block">IDR</span>
-                                        <span class="d-block d-sm-none">
-                                            <i class="tim-icons icon-gift-2"></i>
-                                        </span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="expenseChart" width="400" height="100"></canvas>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -142,33 +117,35 @@
 
                 let label = [@for(l <- data.chart.label){'@(l)',}];
 
-                let expensesSGD = [
-                    buildDataset([@for(i <- data.chart.expense.getExpense("SGD", "Daily")){ @(i), }], "#7ed6a5", 'Daily'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("SGD", "Rent")){ @(i), }], "#fcc468", 'Rent'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("SGD", "Zakat")){ @(i), }], "#4acccd", 'Zakat'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("SGD", "Travel")){ @(i), }], "#9fd2d6", 'Travel'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("SGD", "Fashion")){ @(i), }], "#e3e3e3", 'Fashion'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("SGD", "IT Stuff")){ @(i), }], "#f4c0fc", 'IT Stuff'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("SGD", "Misc")){ @(i), }], "#ef8157", 'Misc'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("SGD", "Wellness")){ @(i), }], "#d6cfc6", 'Wellness'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("SGD", "Funding")){ @(i), }], "#9e9e9e", 'Funding'),
+                let lastYearExpenses = [
+                    buildDataset([@(data.chart.lastYearExpenses("Daily"))], "#7ed6a5", 'Daily'),
+                    buildDataset([@data.chart.lastYearExpenses("Rent"))], "#fcc468", 'Rent'),
+                    buildDataset([@data.chart.lastYearExpenses("Zakat"))], "#4acccd", 'Zakat'),
+                    buildDataset([@data.chart.lastYearExpenses("Travel"))], "#9fd2d6", 'Travel'),
+                    buildDataset([@data.chart.lastYearExpenses("Fashion"))], "#e3e3e3", 'Fashion'),
+                    buildDataset([@data.chart.lastYearExpenses("IT Stuff"))], "#f4c0fc", 'IT Stuff'),
+                    buildDataset([@data.chart.lastYearExpenses("Misc"))], "#ef8157", 'Misc'),
+                    buildDataset([@data.chart.lastYearExpenses("Wellness"))], "#d6cfc6", 'Wellness'),
+                    buildDataset([@data.chart.lastYearExpenses("Funding"))], "#9e9e9e", 'Funding'),
                 ]
-                let expensesIDR = [
-                    buildDataset([@for(i <- data.chart.expense.getExpense("IDR", "Daily")){ @(i), }], '#7ed6a5', 'Daily'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("IDR", "Rent")){ @(i), }], '#fcc468', 'Rent'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("IDR", "Zakat")){ @(i), }], '#4acccd', 'Zakat'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("IDR", "Travel")){ @(i), }], '#9fd2d6', 'Travel'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("IDR", "Fashion")){ @(i), }], '#e3e3e3', 'Fashion'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("IDR", "IT Stuff")){ @(i), }], '#f4c0fc', 'IT Stuff'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("IDR", "Misc")){ @(i), }], '#ef8157', 'Misc'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("IDR", "Wellness")){ @(i), }], '#d6cfc6', 'Wellness'),
-                    buildDataset([@for(i <- data.chart.expense.getExpense("IDR", "Funding")){ @(i), }], '#9e9e9e', 'Funding'),
+                buildChart("bar", "lastYearExpensesChart", [], lastYearExpenses)
+
+                let ytdExpenses = [
+                    buildDataset([@(data.chart.ytdExpenses("Daily"))], '#7ed6a5', 'Daily'),
+                    buildDataset([@(data.chart.ytdExpenses("Rent"))], '#fcc468', 'Rent'),
+                    buildDataset([@(data.chart.ytdExpenses("Zakat"))], '#4acccd', 'Zakat'),
+                    buildDataset([@(data.chart.ytdExpenses("Travel"))], '#9fd2d6', 'Travel'),
+                    buildDataset([@(data.chart.ytdExpenses("Fashion"))], '#e3e3e3', 'Fashion'),
+                    buildDataset([@(data.chart.ytdExpenses("IT Stuff"))], '#f4c0fc', 'IT Stuff'),
+                    buildDataset([@(data.chart.ytdExpenses("Misc"))], '#ef8157', 'Misc'),
+                    buildDataset([@(data.chart.ytdExpenses("Wellness"))], '#d6cfc6', 'Wellness'),
+                    buildDataset([@(data.chart.ytdExpenses("Funding"))], '#9e9e9e', 'Funding'),
                 ]
-                buildChart("bar", "expenseChart", label, expensesSGD, expensesIDR, "expense")
+                buildChart("bar", "ytdExpensesChart", [], ytdExpenses)
 
                 let balanceSGD = [buildDataset([@for(bal <- data.chart.balance.getWithKey("SGD")){ @(bal), }], "#7ed6a5", "SGD")]
                 let balanceIDR = [buildDataset([@for(bal <- data.chart.balance.getWithKey("IDR")){ @(bal), }], "#7ed6a5", "IDR")]
-                buildChart("line", "balanceChart", label, balanceSGD, balanceIDR, "balance");
+                buildMultiSegmentChart("line", "balanceChart", label, balanceSGD, balanceIDR, "balance");
             });
     </script>
 }

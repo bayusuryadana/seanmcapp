@@ -10,10 +10,9 @@ case class Pie(label: Seq[String], data: Seq[Double])
 
 case class Chart(label: Seq[Int],
                  balance: Map[String, Seq[Int]],
-                 expense: Expense
+                 lastYearExpenses: Map[String, Int],
+                 ytdExpenses: Map[String, Int]
                 )
-
-case class Expense(allTime: Map[String, Map[String, Seq[Int]]], lastYear: Map[String, Map[String, Seq[Int]]], ytd: Map[String, Map[String, Seq[Int]]])
 
 case class DataView(cmsData: CMSData, wallet: Seq[Wallet], sgdBalance: Balance, idrBalance: Balance, savingAccount: Map[String, String])
 

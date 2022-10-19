@@ -22,7 +22,6 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
 
   def dashboard(implicit secretKey: String): DashboardView = {
     val wallets = authAndAwait(secretKey, walletRepo.getAll, walletRepoDemo.getAll)
-    val numberOfMonths = 6
     
     val savingAccount = getSavingAccount(wallets)
 
@@ -33,26 +32,34 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
     val totalIncome = adjWallet.filter(w => w.done && activeIncomeSet.contains(w.category)).map(_.amount).sum.toDouble
     val pie = pieMap.map(i => (i._1, (i._2 / totalIncome * 100).round2Digits())).unzip
 
+    val numberOfMonths = 12
     val monthsLabel = wallets.groupByDate().keys.takeRight(numberOfMonths).toSeq
     val currencies = Seq("SGD", "IDR")
-
-    val groupedWallet = wallets.groupByDate().values
+    val groupedWallet = wallets.groupByDate()
     val balanceChart = currencies.map { c =>
-      c -> groupedWallet.map(_.collect { case w if w.currency == c => w.amount}.sum).scan(0)(_+_)
+      c -> groupedWallet.values.map(_.collect { case w if w.currency == c => w.amount}.sum).scan(0)(_+_)
         .takeRight(numberOfMonths).toSeq
     }.toMap
 
-    val expenseChart = currencies.map { c =>
-      c -> expenseSet.toSeq.map { cat =>
-        cat -> groupedWallet.map(_.collect { case w if w.currency == c && w.category == cat => -w.amount}.sum)
-            .takeRight(numberOfMonths).toSeq
+    // expenses chart based in SGD
+    val lastYearExpenses =
+      expenseSet.toSeq.map { cat =>
+        cat -> groupedWallet.collect { case (k, v) if k / 100 == (todayDate / 100) - 1 =>
+          v.collect { case d if d.category == cat => d.amount }
+        }.flatten.sum
       }.toMap
-    }.toMap
+    
+    val ytdExpenses = 
+      expenseSet.toSeq.map { cat =>
+        cat -> groupedWallet.collect { case (k, v) if k / 100 == todayDate / 100 =>
+          v.collect { case d if d.category == cat => d.amount }
+        }.flatten.sum
+      }.toMap
 
     DashboardView(
       savingAccount,
       Pie(pie._1, pie._2),
-      Chart(monthsLabel, balanceChart, expenseChart)
+      Chart(monthsLabel, balanceChart, lastYearExpenses, ytdExpenses)
     )
   }
 
@@ -149,21 +156,10 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
   }
 
   private def adjustWallet(wallets: Seq[Wallet]): Seq[Wallet] = {
-    /**
-      * this const to be divided to SGD
-      * 1 MYR = 7.6011 THB
-      * 1 SGD = 23.5 THB
-      * 1 SGD = 3.0916 MYR
-      * 1 SGD = 10,290 IDR
-      */
-    val MYR = 3.0916
-    val THB	= 23.5
-    val IDR =	10290
-
     wallets.map(w => w.copy(amount = w.currency match {
-      case "MYR" => (w.amount / MYR).toInt
-      case "THB" => (w.amount / THB).toInt
-      case "IDR" => w.amount / IDR
+      case "MYR" => (w.amount / ConversionConstants.MYR).toInt
+      case "THB" => (w.amount / ConversionConstants.THB).toInt
+      case "IDR" => w.amount / ConversionConstants.IDR
       case _ => w.amount
     }))
   }
@@ -196,4 +192,17 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
     }
   }
 
+}
+
+object ConversionConstants {
+  /**
+    * this const to be divided to SGD
+    * 1 MYR = 7.6011 THB
+    * 1 SGD = 23.5 THB
+    * 1 SGD = 3.0916 MYR
+    * 1 SGD = 10,290 IDR
+    */
+  val MYR = 3.0916
+  val THB	= 23.5
+  val IDR =	10290
 }
