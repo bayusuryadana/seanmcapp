@@ -14,7 +14,7 @@ jobs:
     steps:
       -
         name: build docker
-        run: sbt "docker:publish"
+        run: sbt docker:publish
 #      -
 #        name: Set up QEMU
 #        uses: docker/setup-qemu-action@v2
