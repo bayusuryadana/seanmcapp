@@ -91,7 +91,7 @@ javaOptions in IntegrationTest += "-Dconfig.resource=application-local.conf"
 
 mainClass in Compile := Some("com.seanmcapp.Boot")
 dockerBaseImage := "openjdk:jre-alpine"
-dockerRepository := Some("registry.hub.docker.com/seanmcrayz/seanmcapp")
+dockerRepository := Some("seanmcapp")
 
 enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
