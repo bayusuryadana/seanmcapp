@@ -24,7 +24,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: ./target/docker/stage
+          context: .
           push: true
           tags: seanmcrayz/seanmcapp:latest
           
