@@ -1,4 +1,5 @@
-FROM openjdk:jre-alpine
+ARG OPENJDK_TAG=11.0.13
+FROM openjdk:${OPENJDK_TAG}
 ARG SBT_VERSION=1.6.2
 
 # prevent this error: java.lang.IllegalStateException: cannot run sbt from root directory without -Dsbt.rootdir=true; see sbt/sbt#1458
