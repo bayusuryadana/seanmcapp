@@ -90,7 +90,6 @@ mainClass in Compile := Some("com.seanmcapp.Boot")
   *  run: docker run --env-file=.env -p 9000:9000 seanmcapp
   */
 
-mappings in Docker := mappings.value
 dockerBaseImage := "openjdk:jre-alpine"
 dockerRepository := Some("seanmcrayz")
 

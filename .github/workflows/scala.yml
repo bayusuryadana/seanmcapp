@@ -12,10 +12,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Compile
-        run: sbt compile
-      - name: Stage
-        run: sbt docker:stage
+      - name: Compile and stage
+        run: sbt compile stage
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
