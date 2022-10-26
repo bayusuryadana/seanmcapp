@@ -82,6 +82,7 @@ fork in IntegrationTest := true
 configs(IntegrationTest)
 Defaults.itSettings
 javaOptions in IntegrationTest += "-Dconfig.resource=application-local.conf"
+mainClass in Compile := Some("com.seanmcapp.Boot")
 
 /**
   *  DOCKER
@@ -89,7 +90,7 @@ javaOptions in IntegrationTest += "-Dconfig.resource=application-local.conf"
   *  run: docker run --env-file=.env -p 9000:9000 seanmcapp
   */
 
-mainClass in Compile := Some("com.seanmcapp.Boot")
+mappings in Docker := mappings.value
 dockerBaseImage := "openjdk:jre-alpine"
 dockerRepository := Some("seanmcrayz")
 
