@@ -3,7 +3,6 @@ version := "latest"
 scalaVersion := "2.13.1"
 
 resolvers += Resolver.JCenterRepository
-
 libraryDependencies ++= Seq(
   // framework
   "com.typesafe.akka" %% "akka-http" % "10.1.11",
@@ -90,10 +89,9 @@ mainClass in Compile := Some("com.seanmcapp.Boot")
   *  run: docker run --env-file=.env -p 9000:9000 seanmcapp
   */
 
+packageName in Docker := packageName.value
+version in Docker := version.value
 dockerBaseImage := "openjdk:jre-alpine"
 dockerRepository := Some("docker.pkg.github.com/bsuryadana")
 
-enablePlugins(JavaAppPackaging)
-enablePlugins(DockerPlugin)
-enablePlugins(AshScriptPlugin)
-enablePlugins(SbtTwirl)
+enablePlugins(JavaAppPackaging, DockerPlugin, AshScriptPlugin, SbtTwirl)
