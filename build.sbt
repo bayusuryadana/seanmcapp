@@ -89,10 +89,7 @@ mainClass in Compile := Some("com.seanmcapp.Boot")
   *  run: docker run --env-file=.env -p 9000:9000 seanmcapp
   */
 
-packageName in Docker := packageName.value
-version in Docker := version.value
 dockerBaseImage := "openjdk:jre-alpine"
-dockerRepository := Some("docker.pkg.github.com/bayusuryadana")
-dockerAlias := dockerAlias.value.withTag(Some("latest"))
+dockerRepository := Some("docker.pkg.github.com/bayusuryadana/seanmcapp")
 
 enablePlugins(JavaAppPackaging, DockerPlugin, AshScriptPlugin, SbtTwirl)
