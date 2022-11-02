@@ -91,7 +91,7 @@ mainClass in Compile := Some("com.seanmcapp.Boot")
   */
 
 dockerBaseImage := "openjdk:jre-alpine"
-dockerRepository := Some("docker.pkg.github.com/bsuryadana/seanmcapp")
+dockerRepository := Some("docker.pkg.github.com/bsuryadana")
 
 enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
