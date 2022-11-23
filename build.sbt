@@ -89,7 +89,7 @@ mainClass in Compile := Some("com.seanmcapp.Boot")
   *  publish: sbt docker:publishLocal
   *  run: docker run --env-file=.env -p 9000:9000 seanmcapp
   */
-
+mainClass in Compile := Some("com.seanmcapp.Boot")
 dockerBaseImage := "openjdk:jre-alpine"
 dockerRepository := Some("docker.pkg.github.com/bayusuryadana/seanmcapp")
 
