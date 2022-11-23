@@ -1,6 +1,7 @@
 name := "seanmcapp"
 version := "latest"
 scalaVersion := "2.13.1"
+maintainer := "seanmcrayz@yahoo.com"
 
 resolvers += Resolver.JCenterRepository
 libraryDependencies ++= Seq(
