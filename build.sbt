@@ -1,9 +1,9 @@
 name := "seanmcapp"
 version := "latest"
 scalaVersion := "2.13.1"
+maintainer := "seanmcrayz@yahoo.com"
 
 resolvers += Resolver.JCenterRepository
-
 libraryDependencies ++= Seq(
   // framework
   "com.typesafe.akka" %% "akka-http" % "10.1.11",
@@ -82,18 +82,15 @@ fork in IntegrationTest := true
 configs(IntegrationTest)
 Defaults.itSettings
 javaOptions in IntegrationTest += "-Dconfig.resource=application-local.conf"
+mainClass in Compile := Some("com.seanmcapp.Boot")
 
 /**
-  *  DOCKERIZE
+  *  DOCKER
   *  publish: sbt docker:publishLocal
   *  run: docker run --env-file=.env -p 9000:9000 seanmcapp
   */
-
 mainClass in Compile := Some("com.seanmcapp.Boot")
 dockerBaseImage := "openjdk:jre-alpine"
-dockerRepository := Some("seanmcrayz")
+dockerRepository := Some("docker.pkg.github.com/bayusuryadana/seanmcapp")
 
-enablePlugins(JavaAppPackaging)
-enablePlugins(DockerPlugin)
-enablePlugins(AshScriptPlugin)
-enablePlugins(SbtTwirl)
+enablePlugins(JavaAppPackaging, DockerPlugin, AshScriptPlugin, SbtTwirl)

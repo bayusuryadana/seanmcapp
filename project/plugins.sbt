@@ -1,5 +1,5 @@
 // Docker
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.3.25")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.4")
 
 // .env extractor
 addSbtPlugin("au.com.onegeek" %% "sbt-dotenv" % "2.0.117")
