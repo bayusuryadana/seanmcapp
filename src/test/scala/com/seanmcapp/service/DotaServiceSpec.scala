@@ -9,7 +9,9 @@ import org.scalatest.wordspec.AsyncWordSpec
 class DotaServiceSpec extends AsyncWordSpec with Matchers {
 
   val dotaClient = new DotaClientMock
-  val dotaService = new DotaService(PlayerRepoMock, HeroRepoMock, HeroAttributeRepoMock, dotaClient)
+  val dotaService = new DotaService(PlayerRepoMock, HeroRepoMock, HeroAttributeRepoMock, dotaClient) {
+    override private[service] def getLast7Days = 1500000000
+  }
 
   "should fetch correct response and transform response properly - Home endpoint" in {
     dotaService.getHomePageData.map { res =>

@@ -2,6 +2,7 @@ package com.seanmcapp.service
 
 import com.seanmcapp.external.{DotaClient, MatchResponse, PlayerResponse}
 import com.seanmcapp.repository.dota._
+import org.joda.time.DateTime
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -71,7 +72,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
       }.sortBy(_.hero.id)
       
       val aggregateMatchInfos = players.flatMap { player =>
-        dotaClient.getMatches(player).map(matches => (player, matches))
+        dotaClient.getMatches(player).filter(_.start_time >= getLast7Days).map(matches => (player, matches))
       }.groupBy(_._2.match_id).map { matchRow =>
         (matchRow._2.head._2, matchRow._2.map(_._1)) // `.head` won't exception due to from `.groupBy`
       }.toSeq
@@ -79,6 +80,8 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
       HomePageResponse(playersInfo, heroesInfo, aggregateMatchInfos)
     }
   }
+  
+  private[service] def getLast7Days: Long = DateTime.now().minusDays(7).getMillis
 
   private def toWinSummary(matchViewList: Seq[MatchResponse]): WinSummary = {
     val games = matchViewList.size
