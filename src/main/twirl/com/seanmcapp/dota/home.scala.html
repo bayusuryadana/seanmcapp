@@ -6,15 +6,60 @@
     <div class="container">
         <div class="row">
             <div class="cell-12">
-                <ul class="navigation-bar" data-role="tabs" data-expand="true" data-on-tab="onTab(a)">
-                    <li><a href="#_players"><h2>Players</h2></a></li>
-                    <li><a href="#_heroes"><h2>Heroes</h2></a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div class="cell-12">
-                <div class="row player-container" id="_players">
+                <div class="row">
+                    <!-- HEROES TAB -->
+                    <div class="cell-12 cell-lg-6 cell-xxl-3">
+                        <div class="row">
+                            <div class="cell-12">
+                                <select data-role="select" onchange="showInfo(this.value)">
+                                    <option selected value="0"></option>
+                                    @for(hero <- data.heroes) {
+                                        <option value="@(hero.hero.id)">@(hero.hero.localizedName)</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="social-box" id="hero-detail">
+                            <div class="header" id="hero-detail-header">
+                                <div class="row">
+                                    <div class="cell-8">
+                                        <div id="hero-detail-title" class="title"></div>
+                                        <div id="hero-detail-secondary" class="subtitle"></div>
+                                    </div>
+                                    <div class="cell-4">
+                                        <img src="" id="hero-detail-image">
+                                    </div>
+                                </div>
+                                <ul class="skills" id="hero-detail-skills">
+                                    <li>
+                                        <div class="text-bold fg-red" id="str-stats"></div>
+                                    </li>
+                                    <li>
+                                        <div class="text-bold fg-green" id="agi-stats"></div>
+                                    </li>
+                                    <li>
+                                        <div class="text-bold fg-blue" id="int-stats"></div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <ul class="skills top-player-row"></ul>
+                            <div id="hero-detail-lore"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- AGGREGATED MATCHES -->
+                    <div class="cell-12 cell-lg-6 cell--xxl-9">
+                        <div class="row">
+                            <div class="cell-12">
+                                @for(matchInfo <- data.aggregateMatchInfos) {
+                                    @(matchInfo._1.match_id) @(matchInfo._1.start_time) @(matchInfo._1.getWinStatus) : @for(player <- matchInfo._2) { @(player.personaName), } &nbsp;
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row player-container">
                     <!-- Player list -->
                     @for(player <- data.players) {
                         <div class="cell-12 cell-lg-6 cell-xxl-3">
@@ -90,49 +135,6 @@
                             </div>
                         </div>
                     }
-                </div>
-
-                <!-- HERO TAB -->
-                <div class="row" id="_heroes">
-                    <div class="cell-12 cell-lg-6 cell-xxl-3">
-                        <div class="row">
-                            <div class="cell-12">
-                                <select data-role="select" onchange="showInfo(this.value)">
-                                    <option selected value="0"></option>
-                                    @for(hero <- data.heroes) {
-                                        <option value="@(hero.hero.id)">@(hero.hero.localizedName)</option>
-                                    }
-                                </select>
-                            </div>
-                        </div>
-                        <div class="social-box" id="hero-detail">
-                            <div class="header" id="hero-detail-header">
-                                <div class="row">
-                                    <div class="cell-8">
-                                        <div id="hero-detail-title" class="title"></div>
-                                        <div id="hero-detail-secondary" class="subtitle"></div>
-                                    </div>
-                                    <div class="cell-4">
-                                        <img src="" id="hero-detail-image">
-                                    </div>
-                                </div>
-                                <ul class="skills" id="hero-detail-skills">
-                                    <li>
-                                        <div class="text-bold fg-red" id="str-stats"></div>
-                                    </li>
-                                    <li>
-                                        <div class="text-bold fg-green" id="agi-stats"></div>
-                                    </li>
-                                    <li>
-                                        <div class="text-bold fg-blue" id="int-stats"></div>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <ul class="skills top-player-row"></ul>
-                            <div id="hero-detail-lore"></div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
