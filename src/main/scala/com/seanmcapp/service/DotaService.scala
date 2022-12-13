@@ -12,7 +12,7 @@ case class PlayerInfo(player:Player, winSummary: WinSummary, matches: Seq[MatchR
 
 case class HeroInfo(hero: Hero, heroAttribute: HeroAttribute, topPlayer: Seq[(Player, WinSummary)])
 
-case class HomePageResponse(players: Seq[PlayerInfo], heroes: Seq[HeroInfo])
+case class HomePageResponse(players: Seq[PlayerInfo], heroes: Seq[HeroInfo], aggregateMatchInfos: Seq[(MatchResponse, Seq[Player])])
 
 class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: HeroAttributeRepo,
                   dotaClient: DotaClient) extends ScheduledTask {
@@ -69,8 +69,14 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
         }.sortBy(-_._2.rating.getOrElse(0.0)).take(3)
         HeroInfo(hero, heroAttributesMap.getOrElse(hero.id, HeroAttribute.dummy(hero.id)), topPlayer)
       }.sortBy(_.hero.id)
+      
+      val aggregateMatchInfos = players.flatMap { player =>
+        dotaClient.getMatches(player).map(matches => (player, matches))
+      }.groupBy(_._2.match_id).map { matchRow =>
+        (matchRow._2.head._2, matchRow._2.map(_._1)) // `.head` won't exception due to from `.groupBy`
+      }.toSeq
 
-      HomePageResponse(playersInfo, heroesInfo)
+      HomePageResponse(playersInfo, heroesInfo, aggregateMatchInfos)
     }
   }
 

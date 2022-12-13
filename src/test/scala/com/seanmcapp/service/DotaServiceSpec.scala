@@ -62,8 +62,21 @@ class DotaServiceSpec extends AsyncWordSpec with Matchers {
           )
         )
       )
+      
+      val aggregateMatchInfos = List(
+        (MatchResponse(4827077503L, 1, true, 2095, 22, 18, 1560129450, 7, 5, 12), List(
+          Player(137382742, "Rahmat Rasyidi Hakim", "https://someurl", "kill", Some(45))
+        )), 
+        (MatchResponse(4824100132L, 132, false, 2230, 22, 18, 1560047832, 3, 4, 24), List(
+          Player(137382742, "Rahmat Rasyidi Hakim", "https://someurl", "kill", Some(45)), 
+          Player(105742997, "Bayu Suryadana", "https://someurl", "SeanmcrayZ", Some(35))
+        )), 
+        (MatchResponse(4829477839L, 130, true, 1272, 22, 26, 1560212867, 5, 5, 2), List(
+          Player(105742997, "Bayu Suryadana", "https://someurl", "SeanmcrayZ", Some(35))
+        ))
+      )
 
-      val expected = HomePageResponse(playerInfos, heroInfos)
+      val expected = HomePageResponse(playerInfos, heroInfos, aggregateMatchInfos)
       res shouldBe expected
     }
   }
