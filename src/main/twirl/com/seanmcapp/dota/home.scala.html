@@ -63,7 +63,7 @@
                                             @for(player <- matchInfo._2) {
                                                 <td>@(player.personaName)</td>
                                             }
-                                            @if(matchInfo._2.length < 5) { <td colspan="@(5-matchInfo._2.length)"></td>
+                                            @if(matchInfo._2.length < 5) { <td colspan="@(5-matchInfo._2.length)"></td> }
                                         </tr>
                                     }
                                     </tbody>
