@@ -81,7 +81,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
     }
   }
   
-  private[service] def getLast7Days: Long = DateTime.now().minusDays(7).getMillis / 1000
+  private[service] def getLast7Days: Long = DateTime.now().minusDays(3).getMillis / 1000
 
   private def toWinSummary(matchViewList: Seq[MatchResponse]): WinSummary = {
     val games = matchViewList.size

@@ -8,7 +8,7 @@
             <div class="cell-12">
                 <div class="row match-container" >
                     <!-- HEROES TAB -->
-                    <div class="cell-12 cell-lg-6 cell-xxl-3">
+                    <div class="cell-12 cell-lg-4 cell-xxl-3">
                         <div class="row">
                             <div class="cell-12">
                                 <select data-role="select" onchange="showInfo(this.value)">
@@ -49,12 +49,25 @@
                     </div>
                     
                     <!-- AGGREGATED MATCHES -->
-                    <div class="cell-12 cell-lg-6 cell--xxl-9">
+                    <div class="cell-12 cell-lg-8 cell--xxl-9">
                         <div class="row">
                             <div class="cell-12">
-                                @for(matchInfo <- data.aggregateMatchInfos) {
-                                    @(matchInfo._1.match_id) @(matchInfo._1.start_time) @(matchInfo._1.getWinStatus) : @for(player <- matchInfo._2) { @(player.personaName), } &nbsp;
-                                }
+                                <table class="table">
+                                    <tbody>
+                                    @for(matchInfo <- data.aggregateMatchInfos) {
+                                        <tr>
+                                            <td>@(matchInfo._1.match_id)</td>
+                                            <td>@(matchInfo._1.start_time)</td>
+                                            <td>@(matchInfo._1.getWinStatus)</td>
+                                            <td></td>
+                                            @for(player <- matchInfo._2) {
+                                                <td>@(player.personaName)</td>
+                                            }
+                                            @if(matchInfo._2.length < 5) { <td colspan="@(5-matchInfo._2.length)"></td>
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
