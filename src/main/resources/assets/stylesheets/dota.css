@@ -25,6 +25,10 @@ body {
     }
 }
 
+.match-container {
+    min-height: 250px;
+}
+
 .player-container[style*='display: block'] {
     display: flex !important;
 }
