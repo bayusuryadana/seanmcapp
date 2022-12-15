@@ -77,19 +77,19 @@ coverageExcludedPackages :=
 coverageMinimum := 90
 coverageFailOnMinimum := true
 
-Test / fork := true
-IntegrationTest / fork := true
+fork in Test := true
+fork in IntegrationTest := true
 configs(IntegrationTest)
 Defaults.itSettings
-IntegrationTest / javaOptions += "-Dconfig.resource=application-local.conf"
-Compile / mainClass := Some("com.seanmcapp.Boot")
+javaOptions in IntegrationTest += "-Dconfig.resource=application-local.conf"
+mainClass in Compile := Some("com.seanmcapp.Boot")
 
 /**
   *  DOCKER
   *  publish: sbt docker:publishLocal
   *  run: docker run --env-file=.env -p 9000:9000 seanmcapp
   */
-Compile / mainClass := Some("com.seanmcapp.Boot")
+mainClass in Compile := Some("com.seanmcapp.Boot")
 dockerBaseImage := "openjdk:jre-alpine"
 dockerRepository := Some("docker.pkg.github.com/bayusuryadana/seanmcapp")
 
