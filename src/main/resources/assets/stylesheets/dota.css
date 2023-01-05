@@ -25,6 +25,16 @@ body {
     }
 }
 
+.agg-match {
+    color: white !important;
+    text-align: center !important;
+}
+
+.agg-match-players {
+    height: 30px;
+    width: 30px;
+}
+
 .match-container {
     min-height: 250px;
 }
