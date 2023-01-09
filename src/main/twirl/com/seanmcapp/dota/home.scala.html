@@ -6,101 +6,16 @@
     <div class="container">
         <div class="row">
             <div class="cell-12">
-                <ul class="navigation-bar" data-role="tabs" data-expand="true" data-on-tab="onTab(a)">
-                    <li><a href="#_players"><h2>Players</h2></a></li>
-                    <li><a href="#_heroes"><h2>Heroes</h2></a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div class="cell-12">
-                <div class="row player-container" id="_players">
-                    <!-- Player list -->
-                    @for(player <- data.players) {
-                        <div class="cell-12 cell-lg-6 cell-xxl-3">
-                            <!-- Player info -->
-                            <div class="social-box">
-                                <div class="header">
-                                    <img src="@(player.player.avatarFull)" class="avatar">
-                                    <div class="row">
-                                        <div class="cell-10">
-                                            <div class="title">@(player.player.personaName)</div>
-                                            <div class="subtitle">@(player.player.realName)</div>
-                                        </div>
-                                        <div class="cell-2">
-                                            <span><img class="player-img" src="@(rankImageBaseUrl+"rank_icon_"+(player.player.rankTier.getOrElse(0) / 10) + ".png")"></span>
-                                            @if((player.player.rankTier.getOrElse(0) / 10) > 0) {
-                                                <span><img class="player-img" src="@(rankImageBaseUrl+"rank_star_"+(player.player.rankTier.getOrElse(0) % 10) + ".png")"></span>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                                <ul class="skills">
-                                    <li>
-                                        <div class="text-bold">WIN</div>
-                                        <div class="text-bold fg-green">@(player.winSummary.win)</div>
-                                    </li>
-                                    <li>
-                                        <div class="text-bold">LOSE</div>
-                                        <div class="text-bold fg-red">@(player.winSummary.games - player.winSummary.win)</div>
-                                    </li>
-                                    <li>
-                                        <div class="text-bold">WIN RATE</div>
-                                        <div class="text-bold fg-blue">@((player.winSummary.percentage * 100).toInt)%</div>
-                                    </li>
-                                </ul>
-
-                                <!-- Top hero -->
-                                <div class="row skills top-hero-row">
-                                    @for(hero <- player.topHero) {
-                                        <div class="cell-4">
-                                            <img class="top-hero-img" src="@(imageBaseUrl + hero._1.image)">
-                                            <div class="text-center">@(hero._2.win) - @(hero._2.games - hero._2.win)</div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-
-                            <!-- Recent matches -->
-                            <div class="skill-box">
-                                <ul class="skills">
-                                    <li>
-                                        <div class="row">
-                                            <div class="cell-2 text-center text-medium">Hero</div>
-                                            <div class="cell-2 text-center text-medium">KDA</div>
-                                            <div class="cell-4 text-center text-medium">Start time</div>
-                                            <div class="cell-2 text-center text-medium">Duration</div>
-                                            <div class="cell-2 text-center text-medium">Result</div>
-                                        </div>
-                                    </li>
-                                    @for(m <- player.matches) {
-                                        <li>
-                                            <div class="row">
-                                                <div class="cell-2 text-center">
-                                                    <img class="recent-hero-img" src="@(imageBaseUrl+data.heroImageMap.getOrElse(m.hero_id, ""))">
-                                                </div>
-                                                <div class="cell-2 text-center va-center-manual">@(m.getKDA)</div>
-                                                <div class="cell-4 text-center va-center-manual" id="@(player.player.id+"-"+m.match_id)"></div>
-                                                <div class="cell-2 text-center va-center-manual">@(m.getDuration)</div>
-                                                <div class="cell-2 text-center text-bold va-center-manual @(m.getCssResult)">@(m.getResult)</div>
-                                            </div>
-                                        </li>
-                                    }
-                                </ul>
-                            </div>
-                        </div>
-                    }
-                </div>
-
-                <!-- HERO TAB -->
-                <div class="row" id="_heroes">
-                    <div class="cell-12 cell-lg-6 cell-xxl-3">
+                <div class="row match-container" >
+                    <!-- HEROES TAB -->
+                    <div class="cell-12 cell-lg-4 cell-xxl-3">
                         <div class="row">
                             <div class="cell-12">
+                                <h2>Heroes</h2>
                                 <select data-role="select" onchange="showInfo(this.value)">
                                     <option selected value="0"></option>
                                     @for(hero <- data.heroes) {
-                                        <option value="@(hero.hero.id)">@(hero.hero.localizedName)</option>
+                                        <option @if(hero.hero.id == 1) { @("selected") } value="@(hero.hero.id)">@(hero.hero.localizedName)</option>
                                     }
                                 </select>
                             </div>
@@ -133,16 +48,140 @@
                             <div id="hero-detail-lore"></div>
                         </div>
                     </div>
+                    
+                    <!-- RECENT MATCHES -->
+                    <div class="cell-12 cell-lg-8 cell-xxl-6">
+                        <div class="row">
+                            <div class="cell-12">
+                                <h2>Recent Matches</h2>
+                                <table class="table subcompact">
+                                    <thead>
+                                        <tr>
+                                            <td class="agg-match">Id</td>
+                                            <td class="agg-match">Start Time</td>
+                                            <td class="agg-match">Result</td>
+                                            <td class="agg-match" colspan="@(data.aggregateMatchInfos.maxBy(_._2.length)._2.size)">Players</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    @for(matchInfo <- data.aggregateMatchInfos) {
+                                        <tr>
+                                            <td class="text-center"><a href="https://www.dotabuff.com/matches/@(matchInfo._1.match_id)">@(matchInfo._1.match_id)</a></td>
+                                            <td class="text-center" id="aggMatch-@(matchInfo._1.match_id)">@(matchInfo._1.start_time)</td>
+                                            <td class="@(matchInfo._1.getCssResult) text-center">@(matchInfo._1.getWinStatus)</td>
+                                            @for(player <- matchInfo._2) {
+                                                <td class="text-center">
+                                                    <div class="img-container agg-match-players"><img src="@(player.avatarFull)"></div>
+                                                </td>
+                                            }
+                                            @if(matchInfo._2.length < 5) { <td colspan="@(5-matchInfo._2.length)"></td> }
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row player-container">
+                    <!-- Player list -->
+                    <div class="cell-12">
+                        <h2>Players</h2>
+                        <div class="row">
+                        @for(player <- data.players) {
+                            <div class="cell-12 cell-lg-6 cell-xxl-3">
+                                <!-- Player info -->
+                                <div class="social-box">
+                                    <div class="header">
+                                        <img src="@(player.player.avatarFull)" class="avatar">
+                                        <div class="row">
+                                            <div class="cell-10">
+                                                <div class="title">@(player.player.personaName)</div>
+                                                <div class="subtitle">@(player.player.realName)</div>
+                                            </div>
+                                            <div class="cell-2">
+                                                <span><img class="player-img" src="@(rankImageBaseUrl+"rank_icon_"+(player.player.rankTier.getOrElse(0) / 10) + ".png")"></span>
+                                                @if((player.player.rankTier.getOrElse(0) / 10) > 0) {
+                                                    <span><img class="player-img" src="@(rankImageBaseUrl+"rank_star_"+(player.player.rankTier.getOrElse(0) % 10) + ".png")"></span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <ul class="skills">
+                                        <li>
+                                            <div class="text-bold">WIN</div>
+                                            <div class="text-bold fg-green">@(player.winSummary.win)</div>
+                                        </li>
+                                        <li>
+                                            <div class="text-bold">LOSE</div>
+                                            <div class="text-bold fg-red">@(player.winSummary.games - player.winSummary.win)</div>
+                                        </li>
+                                        <li>
+                                            <div class="text-bold">WIN RATE</div>
+                                            <div class="text-bold fg-blue">@((player.winSummary.percentage * 100).toInt)%</div>
+                                        </li>
+                                    </ul>
+    
+                                    <!-- Top hero -->
+                                    <div class="row skills top-hero-row">
+                                        @for(hero <- player.topHero) {
+                                            <div class="cell-4">
+                                                <img class="top-hero-img" src="@(imageBaseUrl + hero._1.image)">
+                                                <div class="text-center">@(hero._2.win) - @(hero._2.games - hero._2.win)</div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+    
+                                <!-- Recent matches -->
+                                <div class="skill-box">
+                                    <ul class="skills">
+                                        <li>
+                                            <div class="row">
+                                                <div class="cell-2 text-center text-medium">Hero</div>
+                                                <div class="cell-2 text-center text-medium">KDA</div>
+                                                <div class="cell-4 text-center text-medium">Start time</div>
+                                                <div class="cell-2 text-center text-medium">Duration</div>
+                                                <div class="cell-2 text-center text-medium">Result</div>
+                                            </div>
+                                        </li>
+                                        @for(m <- player.matches) {
+                                            <li>
+                                                <div class="row">
+                                                    <div class="cell-2 text-center">
+                                                        <img class="recent-hero-img" src="@(imageBaseUrl+data.heroImageMap.getOrElse(m.hero_id, ""))">
+                                                    </div>
+                                                    <div class="cell-2 text-center va-center-manual">@(m.getKDA)</div>
+                                                    <div class="cell-4 text-center va-center-manual" id="@(player.player.id+"-"+m.match_id)"></div>
+                                                    <div class="cell-2 text-center va-center-manual">@(m.getDuration)</div>
+                                                    <div class="cell-2 text-center text-bold va-center-manual @(m.getCssResult)">@(m.getResult)</div>
+                                                </div>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        }
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     <script>
+        function convertMoment(id, start_time) {
+            document.getElementById(id).innerHTML = moment(start_time, "X").fromNow();
+            document.getElementById(id).title = moment(start_time, "X").format("MMMM Do YYYY, h:mm:ss a");
+        }
+        
         @for(player <- data.players) {
             @for(m <- player.matches) {
-                document.getElementById('@(player.player.id+"-"+m.match_id)').innerHTML = moment('@(m.start_time)', "X").fromNow();
-                document.getElementById('@(player.player.id+"-"+m.match_id)').title = moment('@(m.start_time)', "X").format("MMMM Do YYYY, h:mm:ss a");
+                convertMoment('@(player.player.id+"-"+m.match_id)', @(m.start_time))
             }
+        }
+        
+        @for(matchInfo <- data.aggregateMatchInfos) {
+            convertMoment('aggMatch-'+@(matchInfo._1.match_id), @(matchInfo._1.start_time))
         }
 
         let heroMap = []
@@ -202,11 +241,6 @@
                 }, "")
                 $('#hero-detail-lore').html(lore);
             }
-        }
-
-        function onTab(a) {
-          let id = a.innerHTML.match(/_[a-z]+/)[0];
-          if (id === "_heroes") $('#_heroes').css('display','flex');
         }
     </script>
 }
