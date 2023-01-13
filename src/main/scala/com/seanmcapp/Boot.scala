@@ -3,6 +3,8 @@ package com.seanmcapp
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
+import akka.http.scaladsl.server.Directives._
+import com.seanmcapp.util.APIExceptionHandler
 
 import scala.concurrent.Future
 import scala.util.Try
@@ -27,7 +29,11 @@ object Boot extends App with CORSHandler {
     system.registerOnTermination(runningJob.map(_.cancel()))
 
     println(s"Server is started on port $port")
-    Http().bindAndHandle(corsHandler(setup.route), "0.0.0.0", port)
+    Http().bindAndHandle(
+      corsHandler(handleExceptions(APIExceptionHandler.apply()){ setup.route }), 
+      "0.0.0.0", 
+      port
+    )
   }
 
   def stop(bindingFut: Future[ServerBinding]): Unit = {

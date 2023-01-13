@@ -67,7 +67,7 @@ object HeroAttributeRepoImpl extends TableQuery(new HeroAttributeInfo(_)) with H
   def insertOrUpdate(attributes: Seq[HeroAttribute]): Seq[Future[Int]] = attributes.map { attribute =>
     // try insert first
     run((this += attribute).asTry).flatMap {
-      case Failure(ex) =>
+      case Failure(_) =>
         // else try update
         run(this.filter(_.id === attribute.id).update(attribute))
       case Success(value) =>

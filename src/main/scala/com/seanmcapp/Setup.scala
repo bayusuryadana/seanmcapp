@@ -1,7 +1,7 @@
 package com.seanmcapp
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpHeader, StatusCodes}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import akka.http.scaladsl.server
 import akka.http.scaladsl.server.Directives
 import com.seanmcapp.external._
@@ -9,7 +9,6 @@ import com.seanmcapp.repository.instagram.AccountGroupTypes
 import com.seanmcapp.util.ChatIdTypes
 import io.circe.syntax._
 
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
@@ -52,33 +51,26 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
     //get(path( "api" / "tweet" )(complete(twitterService.run.map(_.asJson.encode)))),
 
-//    toStrictEntity(3.seconds) {
-//      post((path("broadcast") & headerValue(getHeader("secretkey")) & fileUpload("photo") & formFieldMap) {
-//        case (secretKey, (_, byteSource), formFields) =>
-//          println(s"Receive broadcast with formFields: $formFields")
-//          complete(broadcastService.broadcastWithPhoto(byteSource, formFields)(system, secretKey).map(_.asJson.encode))
-//      })
-//    },
-
     /////////// WEB ///////////
     get(path("dota")(complete(dotaService.home.map(HttpEntity(utf8, _))))),
 
     pathPrefix("wallet") {
       post {
-        (pathPrefix("do_login") & formField(Symbol("secretKey"))) { body =>
-          if (walletService.login(body)) {
-            setSession(body)(_.redirect("/wallet", StatusCodes.Found))
+        (pathPrefix("do_login") & formField(Symbol("secretKey"))) { secret =>
+          if (walletService.login(secret)) {
+            setSession(secret)(_.redirect("/wallet", StatusCodes.Found))
           } else {
             redirect("/wallet/login", StatusCodes.SeeOther)
           }
         } ~ validateSession { session => formFieldMap { fields =>
           pathPrefix( "data" / "create") {
-            val date = fields.get("date").map(_.toInt).getOrElse(throw new Exception("date not found"))
-            walletService.create(session, date, fields)
+            val date = walletService.create(session, fields)
             redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
           } ~ pathPrefix( "data" / "update") {
-            val date = fields.get("date").map(_.toInt).getOrElse(throw new Exception("date not found"))
-            walletService.update(session, date, fields)
+            val date = walletService.update(session, fields)
+            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
+          } ~ pathPrefix("data" / "delete") { 
+            val date = walletService.delete(session, fields)
             redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
           }
         }}
@@ -91,9 +83,6 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
           pathEndOrSingleSlash {
             val dashboardView = walletService.dashboard(session)
             _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.dashboard(dashboardView).body))
-          } ~ (pathPrefix("data" / "delete") & parameters("id", "date")) { (id, date) =>
-            walletService.delete(session, id.toInt)
-            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
           } ~ (pathPrefix("data") & parameters(Symbol("date").?)) { date =>
             val dataView = walletService.data(session, date.flatMap(d => Try(d.toInt).toOption))
             _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.data(dataView).body))

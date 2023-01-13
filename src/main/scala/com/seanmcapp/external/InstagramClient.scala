@@ -24,7 +24,7 @@ class InstagramClient(http: HttpRequestClient) extends MemoryCache {
       val initUrl = s"https://www.instagram.com/accounts/login/"
       val initResponse = http.sendGetRequest(initUrl)
       val r = "\"csrf_token\":\"(.*?)\"".r
-      val csrfString = s"{${r.findFirstIn(initResponse).getOrElse(throw new Exception("Token not found"))}}"
+      val csrfString = s"{${r.findFirstIn(initResponse).getOrElse(throw new Exception("csrf_token not found"))}}"
       val csrfToken = decode[InstagramCsrfToken](csrfString)
 
       val url = "https://www.instagram.com/accounts/login/ajax/"
@@ -42,10 +42,10 @@ class InstagramClient(http: HttpRequestClient) extends MemoryCache {
         "x-csrftoken" -> csrfToken.csrf_token
       ))
       val response = http.sendRequest(url, postForm = Some(postForm), headers = Some(headers))
-      val setCookie = response.headers.getOrElse("Set-Cookie", throw new Exception("Cookie not found")).reduce(_ + _)
+      val setCookie = response.headers.getOrElse("Set-Cookie", throw new Exception("Set-Cookie not found")).reduce(_ + _)
       val cookies = Seq("csrftoken", "ds_user_id", "ig_did", "mid", "rur", "sessionid").foldLeft("") { (a, key) =>
         val regex = (key + "=(.*?);").r
-        a + s"${regex.findFirstIn(setCookie).getOrElse(throw new Exception(s"Cookie $key not found"))} "
+        a + s"${regex.findFirstIn(setCookie).getOrElse(throw new Exception(s"Cookie with key: $key, not found"))} "
       }
       cookies
     }
@@ -56,7 +56,6 @@ class InstagramClient(http: HttpRequestClient) extends MemoryCache {
       val numberOfBatch = 9
       val params = InstagramRequestParameter(userId, numberOfBatch, endCursor).asJson.encode
       val url = s"https://www.instagram.com/graphql/query/?query_hash=18a7b935ab438c4514b1f742d8fa07a7&variables=$params"
-      println(url)
       val headers = getHeaders(sessionId)
       val httpResponse = http.sendGetRequest(url, headers = headers)
       decode[InstagramResponse](httpResponse)

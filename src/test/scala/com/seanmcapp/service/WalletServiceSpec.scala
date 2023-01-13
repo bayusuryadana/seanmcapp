@@ -10,7 +10,7 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers {
 
   private val secretKey = "team-secret"
 
-  val walletService = new WalletService(WalletRepoMock, WalletRepoMock) {
+  val walletService = new WalletService(WalletRepoMock) {
     override val SECRET_KEY = secretKey
     override lazy val todayDate: Int = 201909
   }
@@ -44,8 +44,8 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers {
   }
 
   "parseInput should return correct wallet (done)" in {
-    val date = 202101
     val fields = Map(
+      "date" -> "202101",
       "id" -> "1",
       "name" -> "Condo rent",
       "category" -> "Rent",
@@ -56,12 +56,12 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers {
     )
 
     val expected = Wallet(1, 202101, "Condo rent", "Rent", "SGD", 1000, true, "DBS")
-    walletService.parseInput(date, fields) shouldBe expected
+    walletService.parseInput(fields) shouldBe expected
   }
 
   "parseInput should return correct wallet" in {
-    val date = 202101
     val fields = Map(
+      "date" -> "202101",
       "id" -> "1",
       "name" -> "Condo rent",
       "category" -> "Rent",
@@ -71,7 +71,7 @@ class WalletServiceSpec extends AsyncWordSpec with Matchers {
     )
 
     val expected = Wallet(1, 202101, "Condo rent", "Rent", "SGD", 1000, false, "DBS")
-    walletService.parseInput(date, fields) shouldBe expected
+    walletService.parseInput(fields) shouldBe expected
   }
 
 }

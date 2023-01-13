@@ -130,4 +130,11 @@ object WalletRepoDemo extends WalletRepo with MemoryCache {
     }
   }
 }
+
+object WalletRepoNoOps extends WalletRepo {
+  override def getAll: Future[Seq[Wallet]] = Future.successful(Seq.empty[Wallet])
+  override def insert(wallet: Wallet): Future[Int] = Future.successful(0)
+  override def update(wallet: Wallet): Future[Int] = Future.successful(0)
+  override def delete(id: Int): Future[Int] = Future.successful(0)
+}
 // $COVERAGE-ON$

@@ -11,7 +11,6 @@ import scalacache.modes.sync._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.matching.Regex
 
 class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, fileRepo: FileRepo, accountRepo: AccountRepo,
                  cbcClient: CBCClient, instagramClient: InstagramClient) extends MemoryCache with ScheduledTask {
@@ -53,17 +52,16 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, fileRepo: Fil
             photoRepo.get(photoId)
           }
         }.getOrElse(Future.successful(None))
-      case _ => throw new Exception("flow type not recognized")
+      case _ => Future.successful(None)
     }
 
     for {
-      customerOpt <- customerRepo.get(userId)
       photoOpt <- photoF
+      customerOpt <- customerRepo.get(userId)
     } yield {
       photoOpt.map { photo =>
         // Tracking customer
         customerOpt match {
-          // TODO: test which one and one of them should being called
           case Some(customer) => customerRepo.update(Customer(userId, userFullName, customer.count + 1))
           case None => customerRepo.insert(Customer(userId, userFullName, 1))
         }
@@ -100,8 +98,9 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, fileRepo: Fil
         println(s"fetched: ${fetchedPhotos.size}")
         val unFetchedPhotos = fetchedPhotos.filterNot(photo => idsSet.contains(photo.id))
         println(s"non-exists: ${unFetchedPhotos.size}")
-        val accountRegex = regexMapping.getOrElse(account.alias, throw new Exception("regex mapping not found"))
-        val filteredPhotos = unFetchedPhotos.collect(filteringNonRelatedImage(accountRegex))
+        val filteredPhotos = unFetchedPhotos
+          .map(p => (regexMapping.get(account.alias).flatMap(_.findFirstIn(p.caption)), p))
+          .collect { case (Some(caption), p) => p.copy(caption = caption.take(100))}
         println(s"filtered by rule: ${filteredPhotos.size}")
         val savedPhotos = savingToStorage(filteredPhotos)
         println(s"saved photos to storage: ${savedPhotos.size}")
@@ -123,17 +122,6 @@ class CBCService(photoRepo: PhotoRepo, customerRepo: CustomerRepo, fileRepo: Fil
       val inputStream = new URL(photo.thumbnailSrc).openStream
       fileRepo.put(photo.id  + ".jpg", inputStream).map(_ => photo)
     }
-  }
-
-  private def filteringNonRelatedImage(regex: Regex) = new PartialFunction[Photo, Photo] {
-
-    def apply(photo: Photo): Photo = {
-      val caption = regex.findFirstIn(photo.caption).getOrElse(throw new Exception("caption suddenly not found"))
-      photo.copy(caption = caption.take(100))
-    }
-
-    override def isDefinedAt(photo: Photo): Boolean = regex.findFirstIn(photo.caption).isDefined
-
   }
 
   private def convert(node: InstagramNode, account: String): Photo =

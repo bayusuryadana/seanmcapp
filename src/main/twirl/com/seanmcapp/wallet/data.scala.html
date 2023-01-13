@@ -131,7 +131,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalTitle">Add item</h5>
+                        <h5 class="modal-title" id="modalTitle"></h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -210,10 +210,14 @@
                     <div class="modal-header">
                         <h5 class="modal-title" id="modalTitle">Are you sure want to delete this item?</h5>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="doDelete()">Delete</button>
-                    </div>
+                    <form id="delete-form" name="delete-form" method="post" action="/wallet/data/delete">
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <input type="hidden" name="date" value="@(data.cmsData.currentDate)">
+                            <input type="hidden" name="id" id="id-delete-form" value=0>
+                            <input type="submit" class="btn btn-danger" value="delete">
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -221,12 +225,13 @@
 
     <script src="/assets/wallet/javascripts/data.js" type="text/javascript"></script>
     <script>
-        // update functions
         function setSubmitButton(isCreate) {
             if (isCreate) {
+                document.getElementById("modalTitle").innerHTML = "Add item"
                 document.getElementById("submit-form").setAttribute("value","create")
                 document.getElementById("modal-form").setAttribute("action","/wallet/data/create")
             } else {
+                document.getElementById("modalTitle").innerHTML = "Update item"
                 document.getElementById("submit-form").setAttribute("value","update")
                 document.getElementById("modal-form").setAttribute("action","/wallet/data/update")
             }
@@ -246,14 +251,8 @@
             setSubmitButton(false);
         }
 
-        // delete functions
-        var idToBeDeleted = 0;
         function toDelete(id) {
-            idToBeDeleted = id;
-        }
-        function doDelete() {
-            let urlString = '/wallet/data/delete?id=' + idToBeDeleted + '&date=@(data.cmsData.currentDate)';
-            location.href = urlString;
+            document.getElementById("id-delete-form").setAttribute("value", id);
         }
     </script>
 }

@@ -4,7 +4,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c80ce1baef8543eaaa730e45b3cc6c02)](https://www.codacy.com/app/bayusuryadana/seanmcapp?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=bayusuryadana/seanmcapp&amp;utm_campaign=Badge_Grade)
 
 ## Feature
-- API: telegram webhook & broadcast interface
+- API: telegram webhook
 - Web: Dota & Wallet app
 - Scheduler: AirVisual, Birthday, DotaMetadata, DsdaJakarta, Instagram, Instastory, News, Twitter
 
@@ -36,6 +36,6 @@ run `sbt -Dconfig.resource=application-local.conf run`. It might not perfectly w
 ### Remote debugging
 run `sbt -jvm-debug 5005 run`
 
-## Closing
+## Contact
 feel free to contact me at bayusuryadana@gmail.com  
 happy coding ^^

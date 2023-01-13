@@ -5,7 +5,6 @@ import slick.jdbc.PostgresProfile.api._
 
 import scala.collection.immutable
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 case class Cache(feature: String, accountId: String, value: String, expiry: Option[Long])
@@ -42,7 +41,7 @@ object CacheRepoImpl extends TableQuery(new CacheInfo(_)) with CacheRepo with DB
   def get(feature: String, accountId: String): Future[Set[String]] = {
     run(this.filter(r => r.feature === feature && r.accountId === accountId).result.headOption).map { resF =>
       resF.map(res => res.value.split(",").toSet).getOrElse {
-        println(s"[ERROR] cache is empty for feature: $feature and account_id: $accountId")
+        println(s"[INFO] cache is empty for feature: $feature and account_id: $accountId")
         Set.empty[String]
       }
     }
@@ -54,26 +53,11 @@ object CacheRepoImpl extends TableQuery(new CacheInfo(_)) with CacheRepo with DB
     }
   }
   
-  //INSERT (not yet used)
-  def insert(cache: Seq[Cache]): Future[Seq[Int]] = {
-    println(s"Saving: $cache")
-    run((this ++= cache).asTry).map {
-      case Failure(ex) =>
-        ex.printStackTrace()
-        throw new Exception("Failed to insert cache")
-      case Success(values) => values.toSeq
-    }
-  }
+  def insert(cache: Seq[Cache]): Future[Seq[Int]] = run(this ++= cache).map(_.toSeq)
+  
 
-  // UPDATE
   def set(cache: Cache): Future[Int] = {
-    println(s"Updating: $cache")
-    run((this.filter(r => r.feature === cache.feature && r.accountId === cache.accountId).update(cache)).asTry).map {
-      case Failure(ex) =>
-        ex.printStackTrace()
-        throw new Exception("Failed to update cache")
-      case Success(value) => value
-    }
+    run(this.filter(r => r.feature === cache.feature && r.accountId === cache.accountId).update(cache))
   }
 
   def delete(feature: String, value: String): Future[Int] = run(this
