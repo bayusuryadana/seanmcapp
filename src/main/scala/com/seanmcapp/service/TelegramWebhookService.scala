@@ -1,8 +1,10 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.TelegramConf
+import akka.http.scaladsl.model.StatusCode
+import akka.http.scaladsl.model.StatusCodes.OK
 import com.seanmcapp.external.{TelegramClient, TelegramResponse, TelegramUpdate}
 import com.seanmcapp.repository.instagram.Photo
+import com.seanmcapp.util.ExceptionHandler
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -33,12 +35,10 @@ class TelegramWebhookService(CBCService: CBCService, hadithService: HadithServic
             val telegramRes = telegramClient.sendMessage(chatId, hadith)
             Future.successful(Some(telegramRes))
           case _ =>
-            println("[ERROR] Command not recognized: " + command)
-            Future.successful(None)
+            throw new TelegramWebhookException(s"Command not recognized: $command")
         }
       case _ =>
-        println("[ERROR] No entities (command) found")
-        Future.successful(None)
+        throw new TelegramWebhookException("No entities (command) found")
     }
   }
 
@@ -47,4 +47,8 @@ class TelegramWebhookService(CBCService: CBCService, hadithService: HadithServic
     telegramClient.sendPhoto(chatId, CBCService.getPhotoUrl(photo.id), caption)
   }
 
+}
+
+class TelegramWebhookException(message: String) extends ExceptionHandler(new Exception(message)) {
+  override val responseCode: StatusCode = OK
 }

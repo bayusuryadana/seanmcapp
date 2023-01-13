@@ -19,7 +19,6 @@ trait Injection {
   val heroAttributeRepo: HeroAttributeRepo = HeroAttributeRepoImpl
   val fileRepo: FileRepo = FileRepoImpl
   val walletRepo: WalletRepo = WalletRepoImpl
-  val walletRepoDemo: WalletRepo = WalletRepoDemo
   val cacheRepo: CacheRepo = CacheRepoImpl
   val accountRepo: AccountRepo = AccountRepoImpl
 
@@ -55,7 +54,7 @@ trait Injection {
   val stalkerService = new StalkerService(instagramClient, telegramClient, cacheRepo, accountRepo)
   val specialStalkerService = new StalkerSpecialService(instagramClient, telegramClient2, cacheRepo, accountRepo)
 
-  val walletService = new WalletService(walletRepo, walletRepoDemo)
+  val walletService = new WalletService(walletRepo)
 
   val warmupDBService = new WarmupDBService(peopleRepo)
 

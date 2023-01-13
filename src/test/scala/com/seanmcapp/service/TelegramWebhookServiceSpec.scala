@@ -85,8 +85,8 @@ class TelegramWebhookServiceSpec extends AsyncWordSpec with Matchers {
     val telegramUpdate = Mockito.mock(classOf[TelegramUpdate])
     val telegramMessage = TelegramMessage(TelegramUser(1, false, "Bayu", None, None), TelegramChat(1, "type", None, None), None, None)
     when(telegramUpdate.message).thenReturn(Some(telegramMessage))
-    telegramWebookService.receive(telegramUpdate).map { response =>
-      response shouldBe None
+    assertThrows[TelegramWebhookException] {
+      telegramWebookService.receive(telegramUpdate)
     }
   }
 
@@ -95,8 +95,8 @@ class TelegramWebhookServiceSpec extends AsyncWordSpec with Matchers {
     val telegramMessageEntity = TelegramMessageEntity("type", 1, 3)
     val telegramMessage = TelegramMessage(TelegramUser(1, false, "Bayu", None, None), TelegramChat(1, "type", None, None), Some("/wow"), Some(Seq(telegramMessageEntity)))
     when(telegramUpdate.message).thenReturn(Some(telegramMessage))
-    telegramWebookService.receive(telegramUpdate).map { response =>
-      response shouldBe None
+    assertThrows[TelegramWebhookException] {
+      telegramWebookService.receive(telegramUpdate) 
     }
   }
 

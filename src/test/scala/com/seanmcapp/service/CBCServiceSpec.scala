@@ -1,10 +1,10 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.repository.instagram.{Account, AccountGroupTypes, AccountRepo, Photo}
-import com.seanmcapp.repository.{CustomerRepoMock, FileRepo, PhotoRepoMock}
+import com.seanmcapp.repository.instagram.{Account, AccountGroupTypes, AccountRepo, Customer, CustomerRepo, Photo}
+import com.seanmcapp.repository.{FileRepo, PhotoRepoMock}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito.{mock, when}
+import org.mockito.Mockito.{mock, times, verify, when}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 
@@ -15,6 +15,9 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
 
   import com.seanmcapp.external._
 
+  val userId = 274852283
+  val userFullName = "Yukihira Soma"
+
   val cbcClient = Mockito.mock(classOf[CBCClient])
   val responseMock = Source.fromResource("instagram/knn.csv").getLines().map { line =>
     val items = line.split(",")
@@ -24,23 +27,27 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
   val fileRepoMock = mock(classOf[FileRepo])
   val accountRepoMock = mock(classOf[AccountRepo])
   val instagramClient = mock(classOf[InstagramClient])
-  val cbcService = new CBCService(PhotoRepoMock, CustomerRepoMock, fileRepoMock, accountRepoMock, cbcClient, instagramClient) {
+  val customerRepo = mock(classOf[CustomerRepo])
+  when(customerRepo.insert(any())).thenReturn(Future.successful(1))
+  when(customerRepo.update(any())).thenReturn(Future.successful(1))
+  val cbcService = new CBCService(PhotoRepoMock, customerRepo, fileRepoMock, accountRepoMock, cbcClient, instagramClient) {
     override val regexMapping = Map("ugmcantik" -> "[\\w ]+\\. [\\w]+ \\d\\d\\d\\d".r)
     override def savingToStorage(filteredPhotos: Seq[Photo]): Seq[Photo] = filteredPhotos
   }
 
-  val userId = 274852283
-  val userFullName = "Yukihira Soma"
-
   "should return a random photos - cbc" in {
+    when(customerRepo.get(any())).thenReturn(Future.successful(None))
     cbcService.cbcFlow(userId, userFullName, "cbc").map { response =>
+      verify(customerRepo, times(1)).insert(any())
       response shouldNot be(None)
     }
   }
 
   "should return a recommendation photos based on recommendation csv file - recommendation" in {
     // this test will be based on the last fetched photo in previous test above, please keep in mind
+    when(customerRepo.get(any())).thenReturn(Future.successful(Some(Customer(userId, userFullName, 1))))
     cbcService.cbcFlow(userId, userFullName, "recommendation").map { response =>
+      verify(customerRepo, times(1)).update(any())
       response shouldNot be(None)
       val res = response.getOrElse(cancel("response is not defined"))
       res.id shouldEqual 884893623514815734L
@@ -50,8 +57,8 @@ class CBCServiceSpec extends AsyncWordSpec with Matchers {
   }
 
   "should throw an exception if command is not valid" in {
-    assertThrows[Exception] {
-      cbcService.cbcFlow(1, "name", "wow")
+    cbcService.cbcFlow(userId, userFullName, "wow").map { response =>
+      response shouldEqual None
     }
   }
 

@@ -1,15 +1,15 @@
 package com.seanmcapp
 
 import java.util.concurrent.TimeUnit
-
 import akka.actor.{ActorSystem, Cancellable}
 import com.seanmcapp.service.ScheduledTask
+import com.seanmcapp.util.ExceptionHandler
 import cron4s._
 import cron4s.lib.joda._
 import org.joda.time.{DateTime, DateTimeZone}
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.duration.Duration
 
 // $COVERAGE-OFF$
 class Scheduler(scheduledTask: ScheduledTask, cronString: String, isRepeat: Boolean = true)
@@ -23,13 +23,17 @@ class Scheduler(scheduledTask: ScheduledTask, cronString: String, isRepeat: Bool
   def start: Cancellable = {
     val nextSchedule = Cron(cronString).toOption.flatMap(_.next(now).map { target =>
       Duration(target.getMillis - now.getMillis, TimeUnit.MILLISECONDS)
-    }).getOrElse(throw new Exception("invalid while getting cron schedule"))
+    }).getOrElse(throw new Exception("Invalid cron schedule format"))
 
     scheduler.scheduleOnce(nextSchedule)(this.run)
   }
 
   override def run: Unit = {
-    scheduledTask.run
+    try {
+      scheduledTask.run
+    } catch {
+      case e: Exception => new ExceptionHandler(e).doPrint()
+    }
     if (isRepeat) start
   }
 

@@ -4,9 +4,7 @@ import scalaj.http.{HttpResponse, MultiPart}
 
 class HttpRequestClientMock(responseMap: Map[String, String]) extends HttpRequestClient {
 
-  override def sendGetRequest(url: String, headers: Option[HeaderMap] = None): String = {
-    responseMap.getOrElse(url, "")
-  }
+  override def sendGetRequest(url: String, headers: Option[HeaderMap] = None): String = responseMap.getOrElse(url, "")
 
   override def sendRequest(url: String,
                            params: Option[ParamMap] = None,

@@ -1,7 +1,10 @@
 package com.seanmcapp.external
 
 import com.seanmcapp.HttpConf
-import scalaj.http.{BaseHttp, HttpOptions, HttpRequest, HttpResponse, MultiPart}
+import com.seanmcapp.util.ExceptionHandler
+import io.circe.generic.AutoDerivation
+import scalaj.http.{BaseHttp, HttpOptions, HttpRequest, HttpResponse, MultiPart, StringBodyConnectFunc}
+import io.circe.syntax._
 
 import scala.util.{Failure, Success, Try}
 
@@ -22,13 +25,8 @@ trait HttpRequestClient {
 
 object HttpRequestClientImpl extends HttpRequestClient {
 
-  def sendGetRequest(url: String, headers: Option[HeaderMap] = None): String = {
-    val httpRequest = Http(url).add(headers)
-    Try(httpRequest.asString.throwError.body) match {
-      case Success(res) => res
-      case Failure(e) => throw new Exception(s"Failed to get request: $url", e)
-    }
-  }
+  def sendGetRequest(url: String, headers: Option[HeaderMap] = None): String =
+    Http(url).add(headers).send().body
 
   def sendRequest(url: String,
                   params: Option[ParamMap] = None,
@@ -37,14 +35,10 @@ object HttpRequestClientImpl extends HttpRequestClient {
                   multiPart: Option[MultiPart] = None,
                   postForm: Option[Seq[(String, String)]] = None
                  ): HttpResponse[String] = {
-    val httpRequest = Http(url).add(params).add(postData).add(headers).add(multiPart).add(postForm)
-    Try(httpRequest.asString.throwError) match {
-      case Success(res) => res
-      case Failure(e) => throw new Exception(s"Failed to send request: $httpRequest", e)
-    }
+    Http(url).add(params).add(postData).add(headers).add(multiPart).add(postForm).send()
   }
 
-  implicit class HttpRequestUtil(httpRequest: HttpRequest) {
+  implicit class HttpRequestUtil(httpRequest: HttpRequest) extends AutoDerivation {
     def add(input: Option[_]): HttpRequest = {
       input match {
         case Some(param: ParamMap) => httpRequest.params(param.params)
@@ -53,6 +47,13 @@ object HttpRequestClientImpl extends HttpRequestClient {
         case Some(postForm: Seq[(String, String)]) => httpRequest.postForm(postForm)
         case Some(multiPart: MultiPart) => httpRequest.postMulti(multiPart)
         case _ => httpRequest
+      }
+    }
+
+    def send(): HttpResponse[String] = {
+      Try(httpRequest.asString.throwError) match {
+        case Success(res) => res
+        case Failure(e) => throw new HttpRequestClientException(httpRequest, e)
       }
     }
   }
@@ -70,5 +71,22 @@ object Http extends BaseHttp {
       HttpOptions.followRedirects(httpConf.followRedirects)
     )
     super.apply(url).options(httpOptions)
+  }
+}
+
+class HttpRequestClientException(httpRequest: HttpRequest, t: Throwable) extends ExceptionHandler(t) {
+  override val processedMessage: String = {
+    val data = httpRequest.connectFunc match {
+      case sb: StringBodyConnectFunc => sb.data
+      case _ => ""
+    }
+    
+    s"""${this.getMessage}
+       |destination-url: ${httpRequest.url}
+       |method: ${httpRequest.method}
+       |data: $data
+       |params: ${httpRequest.params.toMap.asJson.toString()}
+       |headers: ${httpRequest.headers.toMap.asJson.toString()}
+       |""".stripMargin
   }
 }

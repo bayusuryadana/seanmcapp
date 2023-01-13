@@ -1,18 +1,18 @@
 package com.seanmcapp.service
 
 import java.util.Calendar
-
 import com.seanmcapp.WalletConf
-import com.seanmcapp.repository.seanmcwallet.{Wallet, WalletRepo}
+import com.seanmcapp.repository.seanmcwallet.{Wallet, WalletRepo, WalletRepoDemo, WalletRepoNoOps}
 import com.seanmcapp.service.WalletUtils._
 
 import scala.collection.SortedMap
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class WalletOutput(code: Int, message: Option[String], row: Option[Int], response: Seq[Wallet])
 
-class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
+class WalletService(walletRepo: WalletRepo) {
 
   private val activeIncomeSet = Set("Salary", "Bonus")
   private val expenseSet = Set("Daily", "Rent", "Zakat", "Travel", "Fashion", "IT Stuff", "Misc", "Wellness", "Funding")
@@ -21,7 +21,7 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
   private val TEST_KEY = "test"
 
   def dashboard(implicit secretKey: String): DashboardView = {
-    val wallets = authAndAwait(secretKey, walletRepo.getAll, walletRepoDemo.getAll)
+    val wallets = authAndAwait(secretKey, (r: WalletRepo) => { r.getAll })
     
     val savingAccount = getSavingAccount(wallets)
 
@@ -68,7 +68,7 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
   }
 
   def data(secretKey: String, date: Option[Int]): DataView = {
-    val wallets = authAndAwait(secretKey, walletRepo.getAll, walletRepoDemo.getAll)
+    val wallets = authAndAwait(secretKey, (r: WalletRepo) => { r.getAll })
 
     val requestDate = date.getOrElse(todayDate)
     val nextDate = (requestDate+1).adjustDate.toString
@@ -91,31 +91,33 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
   // $COVERAGE-OFF$
   def login(secretKey: String): Boolean = secretKey == SECRET_KEY || secretKey == TEST_KEY
 
-  def create(secretKey: String, date: Int, fields: Map[String, String]): Int = {
-    val wallet = parseInput(date, fields)
+  def create(secretKey: String, fields: Map[String, String]): Int = {
+    val wallet = parseInput(fields)
     println(s"[WALLET][CREATE] ${wallet.toJsonString()}")
-    authAndAwait(secretKey, walletRepo.insert(wallet), walletRepoDemo.insert(wallet))
+    authAndAwait(secretKey, (r: WalletRepo) => { r.insert(wallet).map(_ => wallet.date) })
   }
 
-  def update(secretKey: String, date: Int, fields: Map[String, String]): Int = {
-    val wallet = parseInput(date, fields)
-    if (wallet.id == 0) throw new Exception("id not found")
+  def update(secretKey: String, fields: Map[String, String]): Int = {
+    val wallet = parseInput(fields)
     println(s"[WALLET][UPDATE] ${wallet.toJsonString()}")
-    authAndAwait(secretKey, walletRepo.update(wallet), walletRepoDemo.update(wallet))
+    authAndAwait(secretKey, (r: WalletRepo) => { r.update(wallet).map(_ => wallet.date) })
   }
 
-  def delete(secretKey: String, id: Int): Int = {
+  def delete(secretKey: String, fields: Map[String, String]): Int = {
+    val id = fields.getField("id").tryToInt
+    val date = fields.getField("date").tryToInt
     println(s"[WALLET][DELETE] $id")
-    authAndAwait(secretKey, walletRepo.delete(id), walletRepoDemo.delete(id))
+    authAndAwait(secretKey, (r: WalletRepo) => { r.delete(id).map(_ => date) })
   }
   // $COVERAGE-ON$
 
-  private def authAndAwait[T](secretKey: String, f: Future[T], tf: Future[T]): T = {
-    secretKey match {
-      case SECRET_KEY => Await.result(f, Duration.Inf)
-      case TEST_KEY => Await.result(tf, Duration.Inf)
-      case _ => throw new Exception("Wrong secret key") // TODO: need better handle
+  private def authAndAwait[T](secretKey: String, f: WalletRepo => Future[T]): T = {
+    val wr = secretKey match {
+      case SECRET_KEY => walletRepo
+      case TEST_KEY => WalletRepoDemo
+      case _ => WalletRepoNoOps
     }
+    Await.result(f(wr), Duration.Inf)
   }
   
   def getSavingAccount(wallets: Seq[Wallet]): Map[String, String] = {
@@ -136,17 +138,25 @@ class WalletService(walletRepo: WalletRepo, walletRepoDemo: WalletRepo) {
     def round2Digits(): Double = BigDecimal(d).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
   }
 
-  private[service] def parseInput(date: Int, fields: Map[String, String]): Wallet = {
-    val id = fields.get("id").map(_.toInt).getOrElse(0)
-    val name = fields.getOrElse("name", throw new Exception("name not found"))
-    val category = fields.getOrElse("category", throw new Exception("category not found"))
-    val currency = fields.getOrElse("currency", throw new Exception("currency not found"))
-    val amount = fields.get("amount").map(_.toInt).getOrElse(throw new Exception("amount not found"))
-    val done = fields.get("done") match {
-      case Some(s) if s == "on" => true
-      case _ => false
-    }
-    val account = fields.getOrElse("account", throw new Exception("account not found"))
+  implicit class StringHelper(s: String) {
+    def tryToInt: Int = s.toIntOption.getOrElse(throw new Exception(s"$s cannot be parsed to Int"))
+  }
+  
+  implicit class PostFormFieldsHelper(fields: Map[String, String]) {
+    def getField(key: String): String = fields.getOrElse(key, throw new Exception(s"$key not found"))
+  }
+
+  private[service] def parseInput(fields: Map[String, String]): Wallet = {
+    
+    val date = fields.getField("date").tryToInt
+
+    val id = fields.getField("id").tryToInt
+    val name = fields.getField("name")
+    val category = fields.getField("category")
+    val currency = fields.getField("currency")
+    val amount = fields.getField("amount").tryToInt
+    val done = fields.get("done").contains("on")
+    val account = fields.getField("account")
 
     Wallet(id, date, name, category, currency, amount, done, account)
   }
