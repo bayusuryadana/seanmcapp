@@ -1,11 +1,21 @@
 package com.seanmcapp
 
+
 import com.seanmcapp.util.ExceptionHandler
-import io.circe.{Decoder, Json, Printer}
+import io.circe.{Decoder, Json, Printer, parser}
 import io.circe.generic.AutoDerivation
-import io.circe.parser
 
 // $COVERAGE-OFF$
+object JsonSerde {
+  import io.circe._, io.circe.generic.semiauto._
+  import com.seanmcapp.repository.seanmcmamen.City
+  import com.seanmcapp.repository.seanmcmamen.Diner
+  implicit val citiesDecoder: Decoder[City] = deriveDecoder
+  implicit val citiesEncoder: Encoder[City] = deriveEncoder
+  implicit val dinerDecoder: Decoder[Diner] = deriveDecoder
+  implicit val dinerEncoder: Encoder[Diner] = deriveEncoder
+}
+
 package object external extends AutoDerivation {
 
   implicit def decode[T: Decoder](input: String): T = {

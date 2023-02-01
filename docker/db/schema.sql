@@ -87,3 +87,14 @@ CREATE TABLE caches (
     value character varying(40000) NOT NULL,
     expiry integer
 );
+
+CREATE TABLE diners (
+    id SERIAL,
+    name character varying(100) NOT NULL,
+    description character varying(1000),
+    address character varying(100) NOT NULL,
+    city_id integer NOT NULL,
+    latitude float NOT NULL,
+    longitude float NOT NULL,
+    youtube_url character varying(2048) NOT NULL
+)
