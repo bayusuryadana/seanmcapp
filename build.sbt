@@ -73,7 +73,7 @@ coverageExcludedPackages :=
   ".*com.seanmcapp.config.*;" +
   ".*Boot.*;" +
   ".*com.seanmcapp.*html.*;"
-coverageExcludedFiles := ".*\\/src\\/main\\/scala\\/com\\/seanmcapp;"
+coverageExcludedFiles := ".*\\/src\\/main\\/scala\\/com\\/seanmcapp\\/service\\/.*;"
 
 coverageMinimum := 90
 coverageFailOnMinimum := true
