@@ -88,7 +88,7 @@ CREATE TABLE caches (
     expiry integer
 );
 
-CREATE TABLE diners (
+CREATE TABLE stalls (
     id SERIAL,
     name character varying(100) NOT NULL,
     description character varying(1000),
@@ -97,4 +97,4 @@ CREATE TABLE diners (
     latitude float NOT NULL,
     longitude float NOT NULL,
     youtube_url character varying(2048) NOT NULL
-)
+);
