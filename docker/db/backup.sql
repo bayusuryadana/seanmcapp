@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 11.4
--- Dumped by pg_dump version 14.2
+-- Dumped by pg_dump version 14.6 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -154,6 +154,46 @@ CREATE TABLE public.players (
 ALTER TABLE public.players OWNER TO postgres;
 
 --
+-- Name: stalls; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.stalls (
+    id integer NOT NULL,
+    name character varying(100) NOT NULL,
+    description character varying(1000),
+    address character varying(100) NOT NULL,
+    city_id integer NOT NULL,
+    latitude double precision NOT NULL,
+    longitude double precision NOT NULL,
+    youtube_url character varying(2048) NOT NULL
+);
+
+
+ALTER TABLE public.stalls OWNER TO postgres;
+
+--
+-- Name: stalls_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.stalls_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.stalls_id_seq OWNER TO postgres;
+
+--
+-- Name: stalls_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.stalls_id_seq OWNED BY public.stalls.id;
+
+
+--
 -- Name: stocks; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -206,6 +246,13 @@ ALTER TABLE public.wallets_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.wallets_id_seq OWNED BY public.wallets.id;
+
+
+--
+-- Name: stalls id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.stalls ALTER COLUMN id SET DEFAULT nextval('public.stalls_id_seq'::regclass);
 
 
 --
@@ -593,6 +640,18 @@ COPY public.players (id, realname, avatarfull, personaname, rank_tier) FROM stdi
 
 
 --
+-- Data for Name: stalls; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.stalls (id, name, description, address, city_id, latitude, longitude, youtube_url) FROM stdin;
+1	Ayam Suharti	Rumah makan jual ayam goreng kremes	Jl. Kapten tendean No.23, Jakarta Selatan	1	-6.23000000000000043	106.670000000000002	https://youtube.com
+2	Rm. Sederhana	Masakan bundo ajo	Jl. Balai Pustaka No.1, Jakarta Timur	1	-6.23000000000000043	106.670000000000002	https://youtube.com
+3	Warteg Bahari	Masakan mahasiswa sehari-hari	Jl. Desa Putra No.5 Jakarta Barat	2	-8.23000000000000043	110.670000000000002	https://youtube.com
+4	Sate Madura Pak Kumis	Gue punya ayam nih. Bakar rumah lu yuk	Jl. Mendoan selatan No.46 Jakarta Utara	2	-8.23000000000000043	110.670000000000002	https://youtube.com
+\.
+
+
+--
 -- Data for Name: stocks; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -612,6 +671,13 @@ PGAS	172	1163	1200	2400
 
 COPY public.wallets (id, date, name, category, currency, amount, done, account) FROM stdin;
 \.
+
+
+--
+-- Name: stalls_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.stalls_id_seq', 1, false);
 
 
 --
