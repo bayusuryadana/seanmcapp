@@ -1,23 +1,23 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.repository.seanmcmamen.{Cities, Diner, DinerRepo}
+import com.seanmcapp.repository.seanmcmamen.{Cities, Stall, StallRepo}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class MamenService(dinerRepo: DinerRepo) {
+class MamenService(stallRepo: StallRepo) {
   
-  def searchByNameOrDescription(searchTerm: String): Future[Seq[Diner]] = {
-    dinerRepo.getAll.map(_.filter { diner =>
+  def searchByNameOrDescription(searchTerm: String): Future[Seq[Stall]] = {
+    stallRepo.getAll.map(_.filter { stall =>
       val r = searchTerm.r
-      r.findFirstIn(diner.name).isDefined || r.findFirstIn(diner.description).isDefined
+      r.findFirstIn(stall.name).isDefined || r.findFirstIn(stall.description).isDefined
     })
   }
   
-  def searchByCity(cityId: Int): Future[Seq[Diner]] = dinerRepo.getAll.map(_.filter(_.cityId == Cities.apply(cityId)))
+  def searchByCity(cityId: Int): Future[Seq[Stall]] = stallRepo.getAll.map(_.filter(_.cityId == Cities.apply(cityId)))
   
-  def searchByGeo(lat: Double, long: Double, length: Double): Future[Seq[Diner]] = dinerRepo.getAll.map(_.filter { diner =>
-    diner.latitude <= lat + length && diner.latitude >= lat - length && diner.longitude <= long + length && diner.longitude >= long - length
+  def searchByGeo(lat: Double, long: Double, length: Double): Future[Seq[Stall]] = stallRepo.getAll.map(_.filter { stall =>
+    stall.latitude <= lat + length && stall.latitude >= lat - length && stall.longitude <= long + length && stall.longitude >= long - length
   })
   
 }

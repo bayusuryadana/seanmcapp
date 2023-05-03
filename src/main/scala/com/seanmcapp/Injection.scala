@@ -5,7 +5,7 @@ import com.seanmcapp.repository.{CacheRepo, CacheRepoImpl, FileRepo, FileRepoImp
 import com.seanmcapp.repository.birthday.{PeopleRepo, PeopleRepoImpl}
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
-import com.seanmcapp.repository.seanmcmamen.{DinerRepo, DinerRepoImpl}
+import com.seanmcapp.repository.seanmcmamen.{StallRepo, StallRepoImpl}
 import com.seanmcapp.repository.seanmcwallet.{WalletRepo, WalletRepoImpl}
 import com.seanmcapp.service._
 
@@ -22,7 +22,7 @@ trait Injection {
   val walletRepo: WalletRepo = WalletRepoImpl
   val cacheRepo: CacheRepo = CacheRepoImpl
   val accountRepo: AccountRepo = AccountRepoImpl
-  val dinerRepo: DinerRepo = DinerRepoImpl
+  val stallRepo: StallRepo = StallRepoImpl
 
   val httpClient: HttpRequestClient = HttpRequestClientImpl
   val telegramClient = new TelegramClient(httpClient)
@@ -35,7 +35,7 @@ trait Injection {
   val cbcClient = new CBCClient(httpClient)
   val cbcService = new CBCService(photoRepo, customerRepo, fileRepo, accountRepo, cbcClient, instagramClient)
   
-  val mamenService = new MamenService(dinerRepo)
+  val mamenService = new MamenService(stallRepo)
 
   val dotaClient = new DotaClient(httpClient)
   val dotaService = new DotaService(playerRepo, heroRepo, heroAttributeRepo, dotaClient)

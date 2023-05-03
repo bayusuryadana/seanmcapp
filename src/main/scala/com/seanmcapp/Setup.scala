@@ -15,7 +15,7 @@ import scala.util.Try
 class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection with Session {
   
   import JsonSerde.citiesEncoder
-  import JsonSerde.dinerEncoder
+  import JsonSerde.stallEncoder
 
   private val utf8 = ContentTypes.`text/html(UTF-8)`
 

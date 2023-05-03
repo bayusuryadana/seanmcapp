@@ -9,11 +9,11 @@ import io.circe.generic.AutoDerivation
 object JsonSerde {
   import io.circe._, io.circe.generic.semiauto._
   import com.seanmcapp.repository.seanmcmamen.City
-  import com.seanmcapp.repository.seanmcmamen.Diner
+  import com.seanmcapp.repository.seanmcmamen.Stall
   implicit val citiesDecoder: Decoder[City] = deriveDecoder
   implicit val citiesEncoder: Encoder[City] = deriveEncoder
-  implicit val dinerDecoder: Decoder[Diner] = deriveDecoder
-  implicit val dinerEncoder: Encoder[Diner] = deriveEncoder
+  implicit val stallDecoder: Decoder[Stall] = deriveDecoder
+  implicit val stallEncoder: Encoder[Stall] = deriveEncoder
 }
 
 package object external extends AutoDerivation {
