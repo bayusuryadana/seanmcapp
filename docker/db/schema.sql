@@ -96,5 +96,6 @@ CREATE TABLE stalls (
     city_id integer NOT NULL,
     latitude float NOT NULL,
     longitude float NOT NULL,
-    youtube_url character varying(2048) NOT NULL
+    youtube_url character varying(2048) NOT NULL,
+    gmaps_url character varying(2048) NOT NULL
 );

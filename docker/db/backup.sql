@@ -165,7 +165,8 @@ CREATE TABLE public.stalls (
     city_id integer NOT NULL,
     latitude double precision NOT NULL,
     longitude double precision NOT NULL,
-    youtube_url character varying(2048) NOT NULL
+    youtube_url character varying(2048) NOT NULL,
+    gmaps_url character varying(2048) NOT NULL
 );
 
 
@@ -643,11 +644,11 @@ COPY public.players (id, realname, avatarfull, personaname, rank_tier) FROM stdi
 -- Data for Name: stalls; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.stalls (id, name, description, address, city_id, latitude, longitude, youtube_url) FROM stdin;
-1	Ayam Suharti	Rumah makan jual ayam goreng kremes	Jl. Kapten tendean No.23, Jakarta Selatan	1	-6.23000000000000043	106.670000000000002	https://youtube.com
-2	Rm. Sederhana	Masakan bundo ajo	Jl. Balai Pustaka No.1, Jakarta Timur	1	-6.23000000000000043	106.670000000000002	https://youtube.com
-3	Warteg Bahari	Masakan mahasiswa sehari-hari	Jl. Desa Putra No.5 Jakarta Barat	2	-8.23000000000000043	110.670000000000002	https://youtube.com
-4	Sate Madura Pak Kumis	Gue punya ayam nih. Bakar rumah lu yuk	Jl. Mendoan selatan No.46 Jakarta Utara	2	-8.23000000000000043	110.670000000000002	https://youtube.com
+COPY public.stalls (id, name, description, address, city_id, latitude, longitude, youtube_url, gmaps_url) FROM stdin;
+1	Ayam Suharti	Rumah makan jual ayam goreng kremes	Jl. Kapten tendean No.23, Jakarta Selatan	1	-6.23000000000000043	106.670000000000002	https://youtube.com	https://goo.gl/maps/dxcXghzHrhn96AZy6
+2	Rm. Sederhana	Masakan bundo ajo	Jl. Balai Pustaka No.1, Jakarta Timur	1	-6.23000000000000043	106.670000000000002	https://youtube.com	https://goo.gl/maps/dxcXghzHrhn96AZy6
+3	Warteg Bahari	Masakan mahasiswa sehari-hari	Jl. Desa Putra No.5 Jakarta Barat	2	-8.23000000000000043	110.670000000000002	https://youtube.com	https://goo.gl/maps/dxcXghzHrhn96AZy6
+4	Sate Madura Pak Kumis	Gue punya ayam nih. Bakar rumah lu yuk	Jl. Mendoan selatan No.46 Jakarta Utara	2	-8.23000000000000043	110.670000000000002	https://youtube.com	https://goo.gl/maps/dxcXghzHrhn96AZy6
 \.
 
 

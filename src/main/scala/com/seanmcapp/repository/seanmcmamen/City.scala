@@ -4,6 +4,7 @@ import enumeratum.{Enum, EnumEntry}
 
 import scala.collection.immutable
 
+// $COVERAGE-OFF$
 sealed abstract class City(val i: Int) extends EnumEntry with Serializable {
   override def hashCode: Int = i
   override def equals(obj: Any): Boolean = obj match {
