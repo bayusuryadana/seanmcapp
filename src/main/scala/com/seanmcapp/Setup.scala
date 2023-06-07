@@ -103,6 +103,8 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
         }
       }
     },
+    
+    get(pathPrefix("mamen")(complete(HttpEntity(utf8, com.seanmcapp.mamen.html.home().body)))),
 
     (get & pathPrefix("assets" / Remaining)){ resourcePath =>
       getFromResource(s"assets/$resourcePath")
