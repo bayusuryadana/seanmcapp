@@ -7,7 +7,7 @@ import scala.concurrent.Future
 
 class MamenService(stallRepo: StallRepo) {
   
-  def searchByNameOrDescription(searchTerm: String): Future[Seq[Stall]] = {
+  def searchByName(searchTerm: String): Future[Seq[Stall]] = {
     stallRepo.getAll.map(_.filter(stall => searchTerm.r.findFirstIn(stall.name).isDefined))
   }
   

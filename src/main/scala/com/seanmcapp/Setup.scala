@@ -51,8 +51,8 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
 //      complete(stalkerService.fetchPosts(AccountGroupTypes.StalkerSpecial, ChatIdTypes.Personal, sessionOpt).map(_.asJson.encode))
 //    }), 
 //    get(path( "api" / "tweet" )(complete(twitterService.run.map(_.asJson.encode)))),
-    get(path("api" / "mamen" / "text" / Remaining) { text =>
-      complete(mamenService.searchByNameOrDescription(text).map(_.asJson.encode))
+    get(path( "api" / "mamen" / "text" / Remaining) { text =>
+      complete(mamenService.searchByName(text).map(_.asJson.encode))
     }),
     get(path("api" / "mamen" / "city" / Remaining) { cityId =>
       complete(mamenService.searchByCity(cityId.toInt).map(_.asJson.encode))

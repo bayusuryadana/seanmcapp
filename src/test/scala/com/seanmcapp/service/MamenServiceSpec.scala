@@ -22,7 +22,7 @@ class MamenServiceSpec extends AsyncWordSpec with Matchers {
   val mamenService = new MamenService(stallRepo)
   
   "searchByNameOrDescription should return correct result" in {
-    mamenService.searchByNameOrDescription("Masakan").map(_.length shouldBe 2)
+    mamenService.searchByName("Warteg").map(_.length shouldBe 1)
   }
 
   "searchByCity should return correct result" in {
