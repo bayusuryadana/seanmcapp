@@ -91,11 +91,11 @@ CREATE TABLE caches (
 CREATE TABLE stalls (
     id SERIAL,
     name character varying(100) NOT NULL,
-    description character varying(1000),
-    address character varying(100) NOT NULL,
+    plus_code character varying(1000) NOT NULL,
     city_id integer NOT NULL,
-    latitude float NOT NULL,
-    longitude float NOT NULL,
     youtube_url character varying(2048) NOT NULL,
-    gmaps_url character varying(2048) NOT NULL
+    gmaps_url character varying(2048) NOT NULL,
+    latitude float,
+    longitude float,
+    place_id character varying(200)
 );

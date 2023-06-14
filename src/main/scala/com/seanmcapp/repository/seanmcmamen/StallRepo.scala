@@ -5,25 +5,25 @@ import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.Future
 
-case class Stall(id: Int, name: String, description: String, address: String, cityId: City, latitude: Double, longitude: Double, youtubeUrl: String, gmapsUrl: String)
+case class Stall(id: Int, name: String, placeCode: String, cityId: City, youtubeUrl: String, gmapsUrl: String, latitude: Option[Double], longitude: Option[Double], placeId: Option[String])
 
 object StallUtil {
-  def apply(a: (Int, String, String, String, Int, Double, Double, String, String)) = Stall(a._1, a._2, a._3, a._4, Cities.apply(a._5), a._6, a._7, a._8, a._9)
-  def unapply(a: Stall) = Some(a.id, a.name, a.description, a.address, a.cityId.i, a.latitude, a.longitude, a.youtubeUrl, a.gmapsUrl)
+  def apply(a: (Int, String, String, Int, String, String, Double, Double, String)) = Stall(a._1, a._2, a._3, Cities.apply(a._4), a._5, a._6, Option(a._7), Option(a._8), Option(a._9))
+  def unapply(a: Stall) = Some(a.id, a.name, a.placeCode, a.cityId.i, a.youtubeUrl, a.gmapsUrl, a.latitude, a.longitude, a.placeId)
 }
 
 class DinerInfo(tag: Tag) extends Table[Stall](tag, "stalls") {
   val id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   val name = column[String]("name")
-  val description = column[String]("description")
-  val address = column[String]("address")
+  val plusCode = column[String]("plus_code")
   val cityId = column[Int]("city_id")
-  val latitude = column[Double]("latitude")
-  val longitude = column[Double]("longitude")
   val youtubeUrl = column[String]("youtube_url")
   val gmapsUrl = column[String]("gmaps_url")
+  val latitude = column[Double]("latitude")
+  val longitude = column[Double]("longitude")
+  val placeId = column[String]("place_id")
   
-  def * = (id, name, description, address, cityId, latitude, longitude, youtubeUrl, gmapsUrl) <> (StallUtil.apply, StallUtil.unapply)
+  def * = (id, name, plusCode, cityId, youtubeUrl, gmapsUrl, latitude, longitude, placeId) <> (StallUtil.apply, StallUtil.unapply)
 }
 
 trait StallRepo {
