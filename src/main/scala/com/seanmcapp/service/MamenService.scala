@@ -8,16 +8,19 @@ import scala.concurrent.Future
 class MamenService(stallRepo: StallRepo) {
   
   def searchByNameOrDescription(searchTerm: String): Future[Seq[Stall]] = {
-    stallRepo.getAll.map(_.filter { stall =>
-      val r = searchTerm.r
-      r.findFirstIn(stall.name).isDefined || r.findFirstIn(stall.description).isDefined
-    })
+    stallRepo.getAll.map(_.filter(stall => searchTerm.r.findFirstIn(stall.name).isDefined))
   }
   
   def searchByCity(cityId: Int): Future[Seq[Stall]] = stallRepo.getAll.map(_.filter(_.cityId == Cities.apply(cityId)))
   
-  def searchByGeo(lat: Double, long: Double, length: Double): Future[Seq[Stall]] = stallRepo.getAll.map(_.filter { stall =>
-    stall.latitude <= lat + length && stall.latitude >= lat - length && stall.longitude <= long + length && stall.longitude >= long - length
-  })
+  def searchByGeo(lat: Double, long: Double, length: Double): Future[Seq[Stall]] = {
+    stallRepo.getAll.map(_.filter { stall =>
+      if (stall.latitude.isEmpty || stall.longitude.isEmpty) 
+        false 
+      else
+        stall.latitude.get <= lat + length && stall.latitude.get >= lat - length && 
+          stall.longitude.get <= long + length && stall.longitude.get >= long - length
+    })
+  }
   
 }
