@@ -50,11 +50,11 @@
                     </div>
                     
                     <!-- RECENT MATCHES -->
-                    <div class="cell-12 cell-lg-8 cell-xxl-6">
+                    <div class="cell-12 cell-lg-8 cell-xxl-9">
                         <div class="row">
                             <div class="cell-12">
                                 <h2>Recent Matches</h2>
-                                <table class="table subcompact">
+                                <table class="table subcompact stripped">
                                     <thead>
                                         <tr>
                                             <td class="agg-match">Id</td>
@@ -66,7 +66,7 @@
                                     <tbody>
                                     @for(matchInfo <- data.aggregateMatchInfos) {
                                         <tr>
-                                            <td class="text-center"><a href="https://www.dotabuff.com/matches/@(matchInfo._1.match_id)">@(matchInfo._1.match_id)</a></td>
+                                            <td class="text-center"><a href="https://www.dotabuff.com/matches/@(matchInfo._1.match_id)" style="color: white;">@(matchInfo._1.match_id)</a></td>
                                             <td class="text-center" id="aggMatch-@(matchInfo._1.match_id)">@(matchInfo._1.start_time)</td>
                                             <td class="@(matchInfo._1.getCssResult) text-center">@(matchInfo._1.getWinStatus)</td>
                                             @for(player <- matchInfo._2) {
@@ -118,7 +118,7 @@
                                         </li>
                                         <li>
                                             <div class="text-bold">WIN RATE</div>
-                                            <div class="text-bold fg-blue">@((player.winSummary.percentage * 100).toInt)%</div>
+                                            <div class="text-bold fg-blue">@(player.winSummary.percentage)%</div>
                                         </li>
                                     </ul>
     
@@ -191,7 +191,6 @@
                     "name":"@(hero.hero.localizedName)",
                     "image":"@(imageBaseUrl + hero.hero.image)",
                     "primary":"@(hero.hero.primaryAttr)",
-                    "primaryColor":"@(hero.hero.getPrimaryColor)",
                     "attackType":"@(hero.hero.attackType)",
                     "roles":"@(hero.hero.getRoles)",
                     "stats": {
@@ -224,6 +223,7 @@
                 if (heroMap[id].hero.primary === "str") $('#hero-detail-image').css('border', "3px solid #ce352c")
                 else if (heroMap[id].hero.primary === "agi") $('#hero-detail-image').css('border', "3px solid #60a917")
                 else if (heroMap[id].hero.primary === "int") $('#hero-detail-image').css('border', "3px solid #00aff0")
+                else if (heroMap[id].hero.primary === "all") $('#hero-detail-image').css('border', "3px solid #a206d1")
                 $('#hero-detail-secondary').text(heroMap[id].hero.attackType + " - " + heroMap[id].hero.roles);
                 $('#str-stats').text(heroMap[id].hero.stats.str);
                 $('#agi-stats').text(heroMap[id].hero.stats.agi);
