@@ -16,30 +16,6 @@ abstract class Configuration[T](prefix: String) {
 
 }
 
-case class AirvisualConf(key: String)
-object AirvisualConf extends Configuration[AirvisualConf]("airvisual") {
-  override def buildConfig(c: Config): AirvisualConf = {
-    AirvisualConf(Try(c.getString("api-key")).getOrElse(""))
-  }
-}
-
-case class AmarthaConf(username: String, password: String)
-object AmarthaConf extends Configuration[AmarthaConf]("amartha") {
-  override def buildConfig(c: Config): AmarthaConf = {
-    AmarthaConf(
-      Try(c.getString("username")).getOrElse(""),
-      Try(c.getString("password")).getOrElse("")
-    )
-  }
-}
-
-case class BroadcastConf(secretKey: String)
-object BroadcastConf extends Configuration[BroadcastConf]("broadcast") {
-  override def buildConfig(c: Config): BroadcastConf = {
-    BroadcastConf(Try(c.getString("secret-key")).getOrElse(""))
-  }
-}
-
 case class HttpConf(connTimeout: Int, readTimeout: Int, followRedirects: Boolean)
 object HttpConf extends Configuration[HttpConf]("http") {
   override def buildConfig(c: Config): HttpConf = {
@@ -88,12 +64,13 @@ object WalletConf extends Configuration[WalletConf]("wallet") {
   }
 }
 
-case class InstagramConf(username: String, password: String)
+case class InstagramConf(username: String, password: String, endpoint: Option[String])
 object InstagramConf extends Configuration[InstagramConf]("instagram") {
   override def buildConfig(c: Config): InstagramConf = {
     InstagramConf(
       Try(c.getString("username")).getOrElse(""),
-      Try(c.getString("password")).getOrElse("")
+      Try(c.getString("password")).getOrElse(""),
+      Try(c.getString("endpoint")).toOption
     )
   }
 }
@@ -105,10 +82,13 @@ object DiscordConf extends Configuration[DiscordConf]("discord") {
   }
 }
 
-case class HadithConf(key: String)
+case class HadithConf(endpoint: Option[String], key: String)
 object HadithConf extends Configuration[HadithConf]("hadith") {
   override def buildConfig(c: Config): HadithConf = {
-    HadithConf(Try(c.getString("api-key")).getOrElse(""))
+    HadithConf(
+      Try(c.getString("endpoint")).toOption,
+      Try(c.getString("api-key")).getOrElse("")
+    )
   }
 }
 

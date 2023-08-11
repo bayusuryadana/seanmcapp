@@ -10,8 +10,8 @@ case class HadithDataResponse(collection: String, bookNumber: String, chapterId:
 
 class HadithClient(http: HttpRequestClient) {
 
-  private val url = "https://api.sunnah.com/v1/hadiths/random"
   private val config = HadithConf()
+  private val url = config.endpoint.getOrElse("https://api.sunnah.com/v1/hadiths/random")
   private val headers = HeaderMap(Map("x-api-key" -> config.key))
 
   def random: HadithDataResponse = {
