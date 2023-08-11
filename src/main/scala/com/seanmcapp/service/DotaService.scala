@@ -86,7 +86,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
   private def toWinSummary(matchViewList: Seq[MatchResponse]): WinSummary = {
     val games = matchViewList.size
     val win = matchViewList.count(_.getWinStatus == "Win")
-    val percentage = (win.toDouble / games * 10000).toInt / 100.0
+    val percentage = if (games > 0) win.toDouble / games else 0.0
     WinSummary(win, games, percentage, None)
   }
 

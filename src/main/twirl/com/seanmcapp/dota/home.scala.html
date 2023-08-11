@@ -118,7 +118,7 @@
                                         </li>
                                         <li>
                                             <div class="text-bold">WIN RATE</div>
-                                            <div class="text-bold fg-blue">@(player.winSummary.percentage)%</div>
+                                            <div class="text-bold fg-blue">@((player.winSummary.percentage * 10000).toInt / 100.0)%</div>
                                         </li>
                                     </ul>
     
