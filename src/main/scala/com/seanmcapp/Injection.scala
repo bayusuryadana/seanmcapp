@@ -27,9 +27,7 @@ trait Injection {
   val telegramClient2 = new TelegramClient2(httpClient)
 
   val birthdayService = new BirthdayService(peopleRepo, telegramClient)
-
-  val broadcastService = new BroadcastService(telegramClient)
-
+  
   val cacheCleanerService = new CacheCleanerService(cacheRepo)
 
   val cbcClient = new CBCClient(httpClient)
