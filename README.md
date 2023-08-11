@@ -6,7 +6,7 @@
 ## Feature
 - API: telegram webhook
 - Web: Dota & Wallet app
-- Scheduler: AirVisual, Birthday, DotaMetadata, DsdaJakarta, Instagram, Instastory, News, Twitter
+- Scheduler: Birthday, DotaMetadata, News, (broken: Instagram, Instastory, Twitter)
 
 ## Prerequisites
 1. Scala & SBT (automatically installed if you use intellij IDEA)
