@@ -5,7 +5,6 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import akka.http.scaladsl.server
 import akka.http.scaladsl.server.Directives
 import com.seanmcapp.external._
-import com.seanmcapp.repository.instagram.AccountGroupTypes
 import com.seanmcapp.util.ChatIdTypes
 import io.circe.syntax._
 
@@ -48,9 +47,9 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
 //      val sessionOpt = if (session == "null") None else Some(session)
 //      complete(stalkerService.fetchPosts(AccountGroupTypes.StalkerSpecial, ChatIdTypes.Personal, sessionOpt).map(_.asJson.encode))
 //    }),
-    get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
     //get(path( "api" / "tweet" )(complete(twitterService.run.map(_.asJson.encode)))),
-
+    get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
+    get(path("api" / "news")(complete(newsService.process(ChatIdTypes.Personal).asJson.encode))),
     /////////// WEB ///////////
     get(path("dota")(complete(dotaService.home.map(HttpEntity(utf8, _))))),
 

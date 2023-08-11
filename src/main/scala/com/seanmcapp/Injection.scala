@@ -5,7 +5,7 @@ import com.seanmcapp.repository.{CacheRepo, CacheRepoImpl, FileRepo, FileRepoImp
 import com.seanmcapp.repository.birthday.{PeopleRepo, PeopleRepoImpl}
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
-import com.seanmcapp.repository.seanmcwallet.{WalletRepo, WalletRepoDemo, WalletRepoImpl}
+import com.seanmcapp.repository.seanmcwallet.{WalletRepo, WalletRepoImpl}
 import com.seanmcapp.service._
 
 // $COVERAGE-OFF$
@@ -43,8 +43,7 @@ trait Injection {
   
   val instagramClient = new InstagramClient(httpClient)
 
-  val newsClient = new NewsClient(httpClient)
-  val newsService = new NewsService(newsClient, telegramClient)
+  val newsService = new NewsService(httpClient, telegramClient)
   
   val stalkerService = new StalkerService(instagramClient, telegramClient, cacheRepo, accountRepo)
   val specialStalkerService = new StalkerSpecialService(instagramClient, telegramClient2, cacheRepo, accountRepo)
