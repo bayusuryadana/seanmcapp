@@ -48,9 +48,6 @@ libraryDependencies ++= Seq(
   // image storage
   "io.minio" % "minio" % "6.0.13",
 
-  // xml
-  "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
-
   // discord bot
   "net.katsstuff" %% "ackcord" % "0.17.1",
 

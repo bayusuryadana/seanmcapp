@@ -7,13 +7,6 @@ import com.seanmcapp.service.HomePageResponse
 object DotaWebUtil {
   
   implicit class HeroObject(hero: Hero) {
-    def getPrimaryColor: String = {
-      hero.primaryAttr match {
-        case "str" => "fg-red"
-        case "agi" => "fg-green"
-        case "int" => "fg-blue"
-      }
-    }
 
     def getRoles: String = hero.roles.split(",").map(_ + ", ").mkString.stripSuffix(", ")
 

@@ -75,7 +75,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
         dotaClient.getMatches(player).filter(_.start_time >= getLastXDays(2)).map(matches => (player, matches))
       }.groupBy(_._2.match_id).map { matchRow =>
         (matchRow._2.head._2, matchRow._2.map(_._1)) // `.head` won't exception due to from `.groupBy`
-      }.toSeq.sortBy(-_._1.start_time)
+      }.toSeq.sortBy(-_._1.start_time).take(10)
 
       HomePageResponse(playersInfo, heroesInfo, aggregateMatchInfos)
     }
@@ -86,7 +86,7 @@ class DotaService(playerRepo: PlayerRepo, heroRepo: HeroRepo, heroAttrRepo: Hero
   private def toWinSummary(matchViewList: Seq[MatchResponse]): WinSummary = {
     val games = matchViewList.size
     val win = matchViewList.count(_.getWinStatus == "Win")
-    val percentage = (win.toDouble / games * 100).toInt / 100.0
+    val percentage = if (games > 0) win.toDouble / games else 0.0
     WinSummary(win, games, percentage, None)
   }
 

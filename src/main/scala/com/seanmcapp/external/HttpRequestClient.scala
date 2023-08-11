@@ -53,7 +53,9 @@ object HttpRequestClientImpl extends HttpRequestClient {
     def send(): HttpResponse[String] = {
       Try(httpRequest.asString.throwError) match {
         case Success(res) => res
-        case Failure(e) => throw new HttpRequestClientException(httpRequest, e)
+        case Failure(e) =>
+          println(s"[ERROR] ${e.getMessage}")
+          throw new HttpRequestClientException(httpRequest, e)
       }
     }
   }

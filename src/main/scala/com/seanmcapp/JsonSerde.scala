@@ -11,7 +11,9 @@ package object external extends AutoDerivation {
   implicit def decode[T: Decoder](input: String): T = {
     parser.decode[T](input) match {
       case Right(res) => res
-      case Left(e) => throw new SerdeException(input, e)
+      case Left(e) =>
+        println(s"[ERROR] parse failed. ${e.getMessage}")
+        throw new SerdeException(input, e)
     }
   }
 
