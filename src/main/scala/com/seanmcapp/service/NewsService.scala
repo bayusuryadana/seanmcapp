@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.external.{AirVisualClient, NewsClient, TelegramClient}
+import com.seanmcapp.external.{NewsClient, TelegramClient}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
@@ -9,14 +9,9 @@ import scala.util.Try
 
 case class NewsResult(title: String, url: String, flag: Array[Int])
 
-class NewsService(newsClient: NewsClient, airVisualClient: AirVisualClient, telegramClient: TelegramClient) extends ScheduledTask {
-
-  private val AirGood = Array(0x1F340)
-  private val AirModerate = Array(0x1F60E)
-  private val AirSensitive = Array(0x1F630)
-  private val AirUnhealthy = Array(0x1F637)
+class NewsService(newsClient: NewsClient, telegramClient: TelegramClient) extends ScheduledTask {
   
-  override def run: (List[NewsResult], String) = {
+  override def run: List[NewsResult] = {
     // news
     val newsResponses = newsClient.getNews
     val newsResults = newsResponses.toList.flatMap { case (key, response) =>
@@ -24,33 +19,13 @@ class NewsService(newsClient: NewsClient, airVisualClient: AirVisualClient, tele
       Try(newsObject.parser(Jsoup.parse(response))).toOption.map(res => (newsObject.order, res))
     }.sortBy(_._1).map(_._2)
 
-    // AQI
-    val cityResults = airVisualClient.getCityResults
-    val aqiMessage = cityResults.foldLeft("kondisi udara saat ini:") { (res, row) =>
-      val city = row._1
-      val aqius = row._2
-      val appendString = "\n" + city.city + " (AQI " + aqius + " " + getEmojiFromAqi(aqius) + ")"
-      res + appendString
-    }
-
     val newsInitMessage = s"Awali harimu dengan berita ${new String(Array(0x1f4f0),0,1)} dari **Seanmctoday** by @seanmcbot\n\n"
     val newsMessage = newsResults.zipWithIndex.foldLeft(newsInitMessage) { (message, res) =>
       message + s"${res._2+1}. [${res._1.title}](${res._1.url}) ${new String(res._1.flag, 0, res._1.flag.length)}\n\n"
     }
     
-    val combinedMessage = newsMessage + "\n\n" + aqiMessage
-    telegramClient.sendMessage(-1001359004262L, combinedMessage)
-
-    (newsResults, aqiMessage)
-  }
-
-  private def getEmojiFromAqi(aqi: Int): String = {
-    aqi match {
-      case _ if aqi <= 50 => new String(AirGood, 0, AirGood.length)
-      case _ if aqi > 50 & aqi <= 100 => new String(AirModerate, 0, AirModerate.length)
-      case _ if aqi > 100 & aqi <= 150 => new String(AirSensitive, 0, AirSensitive.length)
-      case _ if aqi > 150 => new String(AirUnhealthy, 0, AirUnhealthy.length)
-    }
+    telegramClient.sendMessage(-1001359004262L, newsMessage)
+    newsResults
   }
 
 }

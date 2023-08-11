@@ -26,8 +26,6 @@ trait Injection {
   val telegramClient = new TelegramClient(httpClient)
   val telegramClient2 = new TelegramClient2(httpClient)
 
-  val airVisualClient = new AirVisualClient(httpClient)
-
   val birthdayService = new BirthdayService(peopleRepo, telegramClient)
 
   val broadcastService = new BroadcastService(telegramClient)
@@ -40,16 +38,13 @@ trait Injection {
   val dotaClient = new DotaClient(httpClient)
   val dotaService = new DotaService(playerRepo, heroRepo, heroAttributeRepo, dotaClient)
 
-  val dsdaJakartaClient = new DsdaJakartaClient(httpClient)
-  val dsdaJakartaService = new DsdaJakartaService(dsdaJakartaClient, telegramClient)
-
   val hadithClient = new HadithClient(httpClient)
   val hadithService = new HadithService(hadithClient)
   
   val instagramClient = new InstagramClient(httpClient)
 
   val newsClient = new NewsClient(httpClient)
-  val newsService = new NewsService(newsClient, airVisualClient, telegramClient)
+  val newsService = new NewsService(newsClient, telegramClient)
   
   val stalkerService = new StalkerService(instagramClient, telegramClient, cacheRepo, accountRepo)
   val specialStalkerService = new StalkerSpecialService(instagramClient, telegramClient2, cacheRepo, accountRepo)

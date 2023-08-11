@@ -28,26 +28,26 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     }),
 
     /////////// API ///////////
-    get(path( "api" / "instagram" / "push" / Remaining) { session =>
-      val sessionOpt = if (session == "null") None else Some(session)
-      complete(cbcService.startFetching(sessionOpt).map(_.asJson.encode))
-    }),
-    get(path( "api" / "instagram" / "pull" / Remaining) { session =>
-      val sessionOpt = if (session == "null") None else Some(session)
-      val postsF = stalkerService.fetchPosts(AccountGroupTypes.Stalker, ChatIdTypes.Personal, sessionOpt)
-      val storiesF = stalkerService.fetchStories(AccountGroupTypes.Stalker, ChatIdTypes.Personal, sessionOpt)
-      val result = for {
-        posts <- postsF
-        stories <- storiesF
-      } yield {
-        posts ++ stories
-      }
-      complete(result.map(_.asJson.encode))
-    }),
-    get(path( "api" / "instagram" / "special" / Remaining) { session =>
-      val sessionOpt = if (session == "null") None else Some(session)
-      complete(stalkerService.fetchPosts(AccountGroupTypes.StalkerSpecial, ChatIdTypes.Personal, sessionOpt).map(_.asJson.encode))
-    }),
+//    get(path( "api" / "instagram" / "push" / Remaining) { session =>
+//      val sessionOpt = if (session == "null") None else Some(session)
+//      complete(cbcService.startFetching(sessionOpt).map(_.asJson.encode))
+//    }),
+//    get(path( "api" / "instagram" / "pull" / Remaining) { session =>
+//      val sessionOpt = if (session == "null") None else Some(session)
+//      val postsF = stalkerService.fetchPosts(AccountGroupTypes.Stalker, ChatIdTypes.Personal, sessionOpt)
+//      val storiesF = stalkerService.fetchStories(AccountGroupTypes.Stalker, ChatIdTypes.Personal, sessionOpt)
+//      val result = for {
+//        posts <- postsF
+//        stories <- storiesF
+//      } yield {
+//        posts ++ stories
+//      }
+//      complete(result.map(_.asJson.encode))
+//    }),
+//    get(path( "api" / "instagram" / "special" / Remaining) { session =>
+//      val sessionOpt = if (session == "null") None else Some(session)
+//      complete(stalkerService.fetchPosts(AccountGroupTypes.StalkerSpecial, ChatIdTypes.Personal, sessionOpt).map(_.asJson.encode))
+//    }),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
     //get(path( "api" / "tweet" )(complete(twitterService.run.map(_.asJson.encode)))),
 
@@ -101,15 +101,6 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
 
   ).reduce{ (a,b) => a~b }
 
-//  private def getHeader(key: String): HttpHeader => Option[String] = {
-//    (httpHeader: HttpHeader) => {
-//      HttpHeader.unapply(httpHeader) match {
-//        case Some((k, v)) if k == key => Some(v)
-//        case _ => None
-//      }
-//    }
-//  }
-
   val scheduleList: List[Scheduler] = List(
     /**
       * this is not using normal cron convention format.
@@ -122,17 +113,15 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     
     //pre-loading data service
     new Scheduler(dotaService, "0 0 2 * * ?"),
-    new Scheduler(cbcService, "0 0 10 * * ?"),
-    new Scheduler(stalkerService, "0 0 * * * ?"),
-    new Scheduler(specialStalkerService, "0 20 * * * ?"),
-    new Scheduler(cacheCleanerService, "0 0 0 * * ?"),
+//    new Scheduler(cbcService, "0 0 10 * * ?"),
     
     // real-time service
     new Scheduler(birthdayService, "0 0 6 * * ?"),
     new Scheduler(newsService, "0 0 8 * * ?"),
-    new Scheduler(dsdaJakartaService, "0 0 0 * * ?"),
-    new Scheduler(stalkerService, "0 0 * * * ?"),
-    //new Scheduler(twitterService, "0 0 * * * ?"),
+//    new Scheduler(twitterService, "0 0 * * * ?"),
+//    new Scheduler(stalkerService, "0 0 * * * ?"),
+//    new Scheduler(specialStalkerService, "0 20 * * * ?"),
+//    new Scheduler(cacheCleanerService, "0 0 0 * * ?"),
   )
 
 }
