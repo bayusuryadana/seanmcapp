@@ -117,11 +117,20 @@ CREATE TABLE stocks (
     -----------------------------
     eip_best_buy integer,
     eip_rating character varying(3),
-    eip_risks character varying(10),
-    -----------------------------
+    eip_risks character varying(10)
+);
+
+CREATE TABLE stock_portfolios (
+    id character varying(4) NOT NULL PRIMARY KEY,
+    current_price integer,
     emp_avg_price integer,
     emp_current_lot integer,
     -----------------------------
     my_avg_price integer,
     my_current_lot integer
-)
+);
+
+CREATE TABLE configurations (
+    key character varying(8) NOT NULL PRIMARY KEY,
+    value character varying(128) NOT NULL
+);

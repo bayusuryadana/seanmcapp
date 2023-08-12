@@ -4,6 +4,7 @@ import com.seanmcapp.repository.DBComponent
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 // $COVERAGE-OFF$
@@ -24,13 +25,7 @@ case class Stock(
   ///////////////////////////
   eipBestBuy: Option[Int],
   eipRating: Option[String],
-  eipRisks: Option[String],
-  ///////////////////////////
-  empAvgPrice: Option[Int],
-  empCurrentLot: Option[Int],
-  ///////////////////////////
-  myAvgPrice: Option[Int],
-  myCurrentLot: Option[Int]
+  eipRisks: Option[String]
 )
 // $COVERAGE-ON$
 
@@ -51,39 +46,40 @@ class StockInfo(tag: Tag) extends Table[Stock](tag, "stocks") {
   val eipBestBuy = column[Option[Int]]("eip_best_buy")
   val eipRating = column[Option[String]]("eip_rating")
   val eipRisks = column[Option[String]]("eip_risks")
-  val empAvgPrice = column[Option[Int]]("emp_avg_price")
-  val empCurrentLot = column[Option[Int]]("emp_current_lot")
-  val myAvgPrice = column[Option[Int]]("my_avg_price")
-  val myCurrentLot = column[Option[Int]]("my_current_lot")
 
   def * = (id, currentPrice, PER, PBV, ROE, shares, liability, equity, netProfitCurrentYear,
-    netProfitPrevYear, EPS, marketCap, profitChange, eipBestBuy, eipRating, eipRisks, empAvgPrice, empCurrentLot,
-    myAvgPrice, myCurrentLot) <> (Stock.tupled, Stock.unapply)
+    netProfitPrevYear, EPS, marketCap, profitChange, eipBestBuy, eipRating, eipRisks) <> (Stock.tupled, Stock.unapply)
 }
 
 trait StockRepo {
-  // insert bulk dari EIP
+
+  def getAll(): Future[Seq[Stock]]
+
   def insert(stocks: Seq[Stock]): Future[Option[Int]]
 
-  // update account / EMP
-  def update(stock: Stock): Future[Int]
-
-  // update bulk untuk price harian
-  def update(stocks: Seq[Stock]): Future[Option[Int]]
-
-  //
-  def getAll(): Future[Seq[Stock]]
+  def update(stocks: Seq[Stock]): Future[Seq[Int]]
 
 }
 
 object StockRepoImpl extends TableQuery(new StockInfo(_)) with StockRepo with DBComponent {
 
-  def insert(stocks: Seq[Stock]): Future[Option[Int]] = ???
-
-  def update(stock: Stock): Future[Int] = run(this.filter(_.id === stock.id).update(stock))
-
-  def update(stocks: Seq[Stock]): Future[Option[Int]] = ???
-
   def getAll(): Future[Seq[Stock]] = run(this.result)
+
+  def insert(stocks: Seq[Stock]): Future[Option[Int]] = {
+    run(this.delete).flatMap { _ =>
+      run((this ++= stocks).asTry).map {
+        case Failure(ex) => throw new Exception(ex.getMessage)
+        case Success(value) => value
+      }
+    }
+  }
+
+  // can be change to single call only, depends on price API response
+  def update(stocks: Seq[Stock]): Future[Seq[Int]] = {
+    val updates = stocks.map { stock =>
+      run(this.filter(_.id === stock.id).update(stock))
+    }
+    Future.sequence(updates)
+  }
 
 }
