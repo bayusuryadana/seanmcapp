@@ -13,9 +13,6 @@ import scala.util.Try
 
 // $COVERAGE-OFF$
 class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection with Session {
-  
-  import JsonSerde.citiesEncoder
-  import JsonSerde.stallEncoder
 
   private val utf8 = ContentTypes.`text/html(UTF-8)`
 
@@ -51,14 +48,8 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
 //      complete(stalkerService.fetchPosts(AccountGroupTypes.StalkerSpecial, ChatIdTypes.Personal, sessionOpt).map(_.asJson.encode))
 //    }), 
 //    get(path( "api" / "tweet" )(complete(twitterService.run.map(_.asJson.encode)))),
-    get(path( "api" / "mamen" / "text" / Remaining) { text =>
-      complete(mamenService.searchByName(text).map(_.asJson.encode))
-    }),
-    get(path("api" / "mamen" / "city" / Remaining) { cityId =>
-      complete(mamenService.searchByCity(cityId.toInt).map(_.asJson.encode))
-    }),
-    get((path("api" / "mamen" / "geo") & parameters(Symbol("lat").?) & parameters(Symbol("long").?) & parameters(Symbol("len").?)) { (lat, lon, len) =>
-      complete(mamenService.searchByGeo(lat.get.toInt, lon.get.toInt, len.get.toInt).map(_.asJson.encode))
+    post((path( "api" / "mamen") & entity(as[String])) { request =>
+      complete(mamenService.search(decode[MamenRequest](request)).map(_.asJson.encode))
     }),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
     get(path("api" / "news")(complete(newsService.process(ChatIdTypes.Personal).asJson.encode))),

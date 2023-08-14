@@ -18,11 +18,11 @@ object Cities extends Enum[City] {
   override def values: immutable.IndexedSeq[City] = findValues
   val fields = values.map(x => (x.i, x)).toMap
 
-  lazy val getType: Int => City = fields.getOrElse(_, Cities.Unknown)
+  lazy val getType: Int => City = fields.getOrElse(_, Cities.Unmapped)
 
-  def apply(value: Int): City = fields.getOrElse(value, Unknown)
+  def apply(value: Int): City = fields.getOrElse(value, Unmapped)
 
-  case object Unknown extends City(0)
+  case object Unmapped extends City(0)
 
   case object Jakarta extends City(1) 
   case object Surabaya extends City(2) 

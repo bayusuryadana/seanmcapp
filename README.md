@@ -5,7 +5,7 @@
 
 ## Feature
 - API: telegram webhook
-- Web: Dota & Wallet app
+- Web: Mamen, Dota, Wallet app
 - Scheduler: Birthday, DotaMetadata, News, (broken: Instagram, Instastory, Twitter)
 
 ## Prerequisites
