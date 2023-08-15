@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.external.{GeoFilter, MamenFilter, MamenRequest}
+import com.seanmcapp.external.{GeoFilter, LatLng, MamenFilter, MamenRequest}
 import com.seanmcapp.repository.seanmcmamen.{Cities, Stall, StallRepo}
 import org.mockito.Mockito
 import org.mockito.Mockito.when
@@ -34,7 +34,7 @@ class MamenServiceSpec extends AsyncWordSpec with Matchers {
   }
 
   "search by geolocation should return correct result" in {
-    val request = MamenRequest(MamenFilter(geo = Some(GeoFilter(-6.23, 110.67, 2))))
+    val request = MamenRequest(MamenFilter(geo = Some(GeoFilter(LatLng(-4.23, 112.67), LatLng(-8.23, 108.67)))))
     mamenService.search(request).map(_.length shouldBe 2)
   }
 

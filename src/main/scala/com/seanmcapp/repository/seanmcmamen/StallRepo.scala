@@ -1,9 +1,16 @@
 package com.seanmcapp.repository.seanmcmamen
 
 import com.seanmcapp.repository.DBComponent
+import com.seanmcapp.util.MemoryCache
+import scalacache.Cache
+import scalacache.memoization.memoizeF
+import scalacache.modes.scalaFuture._
 import slick.jdbc.PostgresProfile.api._
 
+import java.util.concurrent.TimeUnit
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
 case class Stall(id: Int, name: String, placeCode: String, cityId: City, gmapsUrl: String, youtubeUrl: String,
                  latitude: Option[Double], longitude: Option[Double], placeId: Option[String])
@@ -37,8 +44,15 @@ trait StallRepo {
 
 }
 
-object StallRepoImpl extends TableQuery(new StallInfo(_)) with StallRepo with DBComponent {
+object StallRepoImpl extends TableQuery(new StallInfo(_)) with StallRepo with MemoryCache with DBComponent {
+
+  implicit val stallCache: Cache[Seq[Stall]] = createCache[Seq[Stall]]
+  private val duration: FiniteDuration = Duration(24, TimeUnit.HOURS)
   
-  override def getAll: Future[Seq[Stall]] = run(this.result)
+  override def getAll: Future[Seq[Stall]] = {
+    memoizeF(Some(duration)) {
+      run(this.result)
+    }
+  }
 
 }

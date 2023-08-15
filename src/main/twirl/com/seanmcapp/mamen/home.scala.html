@@ -1,40 +1,150 @@
 @()
 
-<!DOCTYPE html>
-<html lang="id">
-    <head>
-        <title>Makan dimana tot?</title>
-        <link rel="stylesheet" media="screen" href="/assets/stylesheets/mamen.css">
-    </head>
-    <body>
-        <p>Wih mamen!</p>
-        <select id="search-type-selector" onchange="onSearchTypeChangeEvent()">
-            <option value="0">name or description</option>
-            <option value="1">city</option>
-            <option value="2">geolocation</option>
-        </select>
-        
-        <div id="dynamic-search-box">
-            <input id="name-search" class="search" type="text">
-            <select id="city-search" class="search" hidden>
-                <option value="1">Jakarta</option>
-                <option value="2">Surabaya</option>
-                <option value="3">Medan</option>
+@com.seanmcapp.mamen.html.template() {
+<div class="container" id="map-container">
+    <div class="row" id="map-row">
+        <div class="cell-12">
+            <p>Wih mamen!</p>
+            <div id="bounds"></div>
+            <div id="map"></div>
+            <!--select id="search-type-selector" onchange="onSearchTypeChangeEvent()">
+                <option value="0">name or description</option>
+                <option value="1">city</option>
+                <option value="2">geolocation</option>
             </select>
-            <div id="geo-search" class="search" hidden>
-                <input id="lat" type="number" placeholder="lat">
-                <input id="lon" type="number" placeholder="lon">
-                <input id="len" type="number" placeholder="len">
-            </div>
-        </div>
-        
-        <script src="/assets/javascripts/mamen.js" type="text/javascript"></script>
-        <script>
+
+            <div-- id="dynamic-search-box">
+                <input id="name-search" class="search" type="text">
+                <select id="city-search" class="search" hidden>
+                    <option value="1">Jakarta</option>
+                    <option value="2">Surabaya</option>
+                    <option value="3">Medan</option>
+                </select>
+                <div id="geo-search" class="search" hidden>
+                    <input id="lat" type="number" placeholder="lat">
+                    <input id="lon" type="number" placeholder="lon">
+                    <input id="len" type="number" placeholder="len">
+                </div>
+            </div-->
+            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3GbL9RhsifWaFD4We_PCDT2A2iDvprCE&callback=initGeolocation&v=weekly" async defer>
+            </script>
+            <script>
                 function onSearchTypeChangeEvent() {
                     const e = document.getElementById("name-search");
                     const value = e.options[e.selectedIndex].value;
                     console.log(value);
                 }
-        </script>
-    </body>
-</html>
+
+                function initMap(myLatLng) {
+
+                    const map = new google.maps.Map(document.getElementById("map"), {
+                        zoom: 16.25,
+                        center: myLatLng,
+                    });
+
+                    const sg = new google.maps.Marker({
+                        position: myLatLng,
+                        map,
+                    });
+
+                    const other = new google.maps.Marker({
+                        position: {lat: 1.3182736, lng: 103.8821146},
+                        map,
+                    });
+
+                    const contentString =
+                        '<p><b>Nasi Ulam Pak Bayu</b></p>' +
+                        '<p><a href="https://goo.gl/maps/so6CG24w84h3Pgvm6">Gmaps</a></p>' +
+                        '<p><a href="https://youtu.be/vG5E5pT-gnc">Youtube</a></p>'
+                    const infowindow = new google.maps.InfoWindow({
+                        content: contentString,
+                    });
+
+                    const otherinfowindow = new google.maps.InfoWindow({
+                        content: "other content",
+                    });
+
+                    sg.addListener("click", () => {
+                        infowindow.close();
+                        otherinfowindow.close();
+                        infowindow.open({
+                          anchor: sg,
+                          map
+                        });
+                      });
+
+                    other.addListener("click", () => {
+                        infowindow.close();
+                        otherinfowindow.close();
+                        otherinfowindow.open({
+                          anchor: other,
+                          map
+                        });
+                      });
+
+                    google.maps.event.addListener(map, "click", function(event) {
+                        infowindow.close();
+                        otherinfowindow.close();
+                    });
+
+                    google.maps.event.addListener(map, "idle", function() {
+                        document.getElementById("bounds").innerHTML =
+                            "NE = {" + map.getBounds().getNorthEast().lat() + ", " + map.getBounds().getNorthEast().lng() + "}\n" +
+                            "SW = {" + map.getBounds().getSouthWest().lat() + ", " + map.getBounds().getSouthWest().lng() + "}\n"
+
+                        const nw = {
+                            lat: map.getBounds().getNorthEast().lat(),
+                            lng: map.getBounds().getNorthEast().lng()
+                        }
+                        const se = {
+                            lat: map.getBounds().getSouthWest().lat(),
+                            lng: map.getBounds().getSouthWest().lng()
+                        }
+                        const response = getJisoo(nw, se);
+                        console.log(response);
+                    });
+                }
+
+                function initGeolocation() {
+                    if(navigator.geolocation) {
+                        return navigator.geolocation.getCurrentPosition( success, fail );
+                    } else {
+                        return fail;
+                    }
+                }
+
+                function success(position) {
+                    initMap({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    });
+                }
+
+                function fail() {
+                    // default to center jakarta
+                    initMap({
+                        lat: -6.2297401,
+                        lng: 106.7469455
+                    });
+                }
+
+                async function getJisoo(nw, se) {
+                    const response = await fetch('http://localhost:8000/api/mamen', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': '*/*',
+                        },
+                        body: JSON.stringify({filter: {geo: {nw: nw, se: se}}}),
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(data)
+                    });
+                    return response;
+                }
+                window.initGeolocation = initGeolocation;
+            </script>
+        </div>
+    </div>
+</div>
+}
