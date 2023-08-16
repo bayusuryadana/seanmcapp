@@ -96,6 +96,5 @@ CREATE TABLE stalls (
     youtube_url character varying(2048) NOT NULL,
     gmaps_url character varying(2048) NOT NULL,
     latitude float,
-    longitude float,
-    place_id character varying(200)
+    longitude float
 );

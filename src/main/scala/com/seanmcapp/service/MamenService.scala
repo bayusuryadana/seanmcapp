@@ -1,12 +1,24 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.external.{GeoFilter, MamenRequest}
+import com.seanmcapp.external.{GeoFilter, GoogleClient, MamenRequest}
 import com.seanmcapp.repository.seanmcmamen.{Cities, Stall, StallRepo}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class MamenService(stallRepo: StallRepo) {
+class MamenService(stallRepo: StallRepo, googleClient: GoogleClient) {
+  
+  def fetch(): Future[Seq[Int]] = {
+    for {
+      stalls <- stallRepo.getAll
+      filteredStalls = stalls.filter(stall => stall.latitude.isEmpty || stall.longitude.isEmpty)
+      fetchedStalls = filteredStalls.map { stall =>
+        val (lat, lng) = googleClient.fetchLatLng(stall.plusCode)
+        stall.copy(latitude = lat, longitude = lng)
+      }
+      updatedStalls <- stallRepo.update(fetchedStalls)
+    } yield updatedStalls
+  }
 
   def search(request: MamenRequest): Future[Seq[Stall]] = {
     for {

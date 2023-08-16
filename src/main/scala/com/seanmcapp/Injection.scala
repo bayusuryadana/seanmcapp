@@ -35,7 +35,8 @@ trait Injection {
   val cbcClient = new CBCClient(httpClient)
   val cbcService = new CBCService(photoRepo, customerRepo, fileRepo, accountRepo, cbcClient, instagramClient)
   
-  val mamenService = new MamenService(stallRepo)
+  val googleClient = new GoogleClient(httpClient)
+  val mamenService = new MamenService(stallRepo, googleClient)
 
   val dotaClient = new DotaClient(httpClient)
   val dotaService = new DotaService(playerRepo, heroRepo, heroAttributeRepo, dotaClient)

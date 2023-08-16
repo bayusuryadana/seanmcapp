@@ -51,6 +51,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     post((path( "api" / "mamen") & entity(as[String])) { request =>
       complete(mamenService.search(decode[MamenRequest](request)).map(_.asJson.encode))
     }),
+    get(path( "api" / "mamen" )(complete(mamenService.fetch().map(_.asJson.encode)))),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
     get(path("api" / "news")(complete(newsService.process(ChatIdTypes.Personal).asJson.encode))),
     /////////// WEB ///////////

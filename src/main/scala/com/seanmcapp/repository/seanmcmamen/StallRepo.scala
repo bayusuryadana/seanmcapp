@@ -12,14 +12,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
-case class Stall(id: Int, name: String, placeCode: String, cityId: City, gmapsUrl: String, youtubeUrl: String,
-                 latitude: Option[Double], longitude: Option[Double], placeId: Option[String])
+case class Stall(id: Int, name: String, plusCode: String, cityId: City, gmapsUrl: String, youtubeUrl: String,
+                 latitude: Option[Double], longitude: Option[Double])
 
 object StallUtil {
-  def apply(a: (Int, String, String, Int, String, String, Option[Double], Option[Double], Option[String])) =
-    Stall(a._1, a._2, a._3, Cities.apply(a._4), a._5, a._6, a._7, a._8, a._9)
+  def apply(a: (Int, String, String, Int, String, String, Option[Double], Option[Double])) =
+    Stall(a._1, a._2, a._3, Cities.apply(a._4), a._5, a._6, a._7, a._8)
   def unapply(a: Stall) =
-    Some(a.id, a.name, a.placeCode, a.cityId.i, a.gmapsUrl, a.youtubeUrl, a.latitude, a.longitude, a.placeId)
+    Some(a.id, a.name, a.plusCode, a.cityId.i, a.gmapsUrl, a.youtubeUrl, a.latitude, a.longitude)
 }
 
 class StallInfo(tag: Tag) extends Table[Stall](tag, "stalls") {
@@ -31,16 +31,16 @@ class StallInfo(tag: Tag) extends Table[Stall](tag, "stalls") {
   val youtubeUrl = column[String]("youtube_url")
   val latitude = column[Option[Double]]("latitude")
   val longitude = column[Option[Double]]("longitude")
-  val placeId = column[Option[String]]("place_id")
 
   def * =
-    (id, name, plusCode, cityId, gmapsUrl, youtubeUrl, latitude, longitude, placeId) <>
-      (StallUtil.apply, StallUtil.unapply)
+    (id, name, plusCode, cityId, gmapsUrl, youtubeUrl, latitude, longitude) <> (StallUtil.apply, StallUtil.unapply)
 }
 
 trait StallRepo {
 
   def getAll: Future[Seq[Stall]]
+  
+  def update(stall: Seq[Stall]): Future[Seq[Int]]
 
 }
 
@@ -53,6 +53,13 @@ object StallRepoImpl extends TableQuery(new StallInfo(_)) with StallRepo with Me
     memoizeF(Some(duration)) {
       run(this.result)
     }
+  }
+  
+  override def update(stalls: Seq[Stall]): Future[Seq[Int]] = {
+    val updates = stalls.map { stall =>
+      run(this.filter(_.id === stall.id).update(stall))
+    }
+    Future.sequence(updates)
   }
 
 }

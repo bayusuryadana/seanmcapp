@@ -103,3 +103,10 @@ object TwitterConf extends Configuration[TwitterConf]("twitter") {
     )
   }
 }
+
+case class GoogleConf(key: String)
+object GoogleConf extends Configuration[GoogleConf]("google") {
+  override def buildConfig(c: Config): GoogleConf = {
+    GoogleConf(Try(c.getString("key")).getOrElse(""))
+  }
+}
