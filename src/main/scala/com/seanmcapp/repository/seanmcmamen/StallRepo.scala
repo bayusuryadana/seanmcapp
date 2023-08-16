@@ -12,6 +12,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
+//$COVERAGE-OFF$
 case class Stall(id: Int, name: String, plusCode: String, cityId: City, gmapsUrl: String, youtubeUrl: String,
                  latitude: Option[Double], longitude: Option[Double])
 
