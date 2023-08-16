@@ -93,17 +93,14 @@ function placeMarkersAndInfoWindows(stalls) {
 function initGeolocation() {
     if(navigator.geolocation) {
         navigator.geolocation.getCurrentPosition( (position) => {
-            console.log(position.coords.latitude + ' ' + position.coords.longitude);
-            // initMap({
-            //     lat: position.coords.latitude,
-            //     lng: position.coords.longitude
-            // });
+            map.setCenter({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            });
         }, () => {
-            console.log('failed');
-            // initMap(defaultLatLng);
+            alert('Failed to get your location.')
         });
     } else {
-        console.log('not available');
-        // initMap(defaultLatLng);
+        alert('Geolocation is not available.')
     }
 }
