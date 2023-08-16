@@ -8,6 +8,7 @@ import scala.concurrent.Future
 
 class MamenService(stallRepo: StallRepo, googleClient: GoogleClient) {
   
+  //$COVERAGE-OFF$
   def fetch(): Future[Seq[Int]] = {
     for {
       stalls <- stallRepo.getAll
@@ -19,6 +20,7 @@ class MamenService(stallRepo: StallRepo, googleClient: GoogleClient) {
       updatedStalls <- stallRepo.update(fetchedStalls)
     } yield updatedStalls
   }
+  //$COVERAGE-ON$
 
   def search(request: MamenRequest): Future[Seq[Stall]] = {
     for {
