@@ -9,3 +9,6 @@ project
 /.settings
 docker/storage/.minio.sys
 /RUNNING_PID
+/.bloop
+/.metals
+/.vscode

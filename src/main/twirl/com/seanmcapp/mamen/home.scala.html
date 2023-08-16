@@ -1,0 +1,45 @@
+@import com.seanmcapp.GoogleConf
+@()
+
+@com.seanmcapp.mamen.html.template() {
+<div class="container" id="map-container">
+    <div class="row" id="map-row">
+        <div class="cell-12">
+            <div class="row">
+                <div class="cell-12">
+                    <button class="button primary" onclick="initGeolocation()">Use my location</button>
+                </div>
+            </div>
+            <!--select id="search-type-selector" onchange="onSearchTypeChangeEvent()">
+                <option value="0">name or description</option>
+                <option value="1">city</option>
+                <option value="2">geolocation</option>
+            </select>
+
+            <div-- id="dynamic-search-box">
+                <input id="name-search" class="search" type="text">
+                <select id="city-search" class="search" hidden>
+                    <option value="1">Jakarta</option>
+                    <option value="2">Surabaya</option>
+                    <option value="3">Medan</option>
+                </select>
+                <div id="geo-search" class="search" hidden>
+                    <input id="lat" type="number" placeholder="lat">
+                    <input id="lon" type="number" placeholder="lon">
+                    <input id="len" type="number" placeholder="len">
+                </div>
+            </div-->
+            <div id="map"></div>
+            <script src="https://maps.googleapis.com/maps/api/js?key=@(GoogleConf.apply().key)&callback=initMap&v=weekly" async defer>
+            </script>
+            <script>
+                // function onSearchTypeChangeEvent() {
+                //     const e = document.getElementById("name-search");
+                //     const value = e.options[e.selectedIndex].value;
+                //     console.log(value);
+                // }
+            </script>
+        </div>
+    </div>
+</div>
+}

@@ -1,9 +1,9 @@
 package com.seanmcapp
 
+
 import com.seanmcapp.util.ExceptionHandler
-import io.circe.{Decoder, Json, Printer}
+import io.circe.{Decoder, Json, Printer, parser}
 import io.circe.generic.AutoDerivation
-import io.circe.parser
 
 // $COVERAGE-OFF$
 package object external extends AutoDerivation {

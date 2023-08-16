@@ -46,8 +46,12 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
 //    get(path( "api" / "instagram" / "special" / Remaining) { session =>
 //      val sessionOpt = if (session == "null") None else Some(session)
 //      complete(stalkerService.fetchPosts(AccountGroupTypes.StalkerSpecial, ChatIdTypes.Personal, sessionOpt).map(_.asJson.encode))
-//    }),
-    //get(path( "api" / "tweet" )(complete(twitterService.run.map(_.asJson.encode)))),
+//    }), 
+//    get(path( "api" / "tweet" )(complete(twitterService.run.map(_.asJson.encode)))),
+    post((path( "api" / "mamen") & entity(as[String])) { request =>
+      complete(mamenService.search(decode[MamenRequest](request)).map(_.asJson.encode))
+    }),
+    get(path( "api" / "mamen" )(complete(mamenService.fetch().map(_.asJson.encode)))),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
     get(path("api" / "news")(complete(newsService.process(ChatIdTypes.Personal).asJson.encode))),
     /////////// WEB ///////////
@@ -91,6 +95,8 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
         }
       }
     },
+    
+    get(pathPrefix("mamen")(complete(HttpEntity(utf8, com.seanmcapp.mamen.html.home().body)))),
 
     (get & pathPrefix("assets" / Remaining)){ resourcePath =>
       getFromResource(s"assets/$resourcePath")

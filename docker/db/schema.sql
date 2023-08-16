@@ -87,3 +87,14 @@ CREATE TABLE caches (
     value character varying(40000) NOT NULL,
     expiry integer
 );
+
+CREATE TABLE stalls (
+    id SERIAL,
+    name character varying(100) NOT NULL,
+    plus_code character varying(1000) NOT NULL,
+    city_id integer NOT NULL,
+    youtube_url character varying(2048) NOT NULL,
+    gmaps_url character varying(2048) NOT NULL,
+    latitude float,
+    longitude float
+);
