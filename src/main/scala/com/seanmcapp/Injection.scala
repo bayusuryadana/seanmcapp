@@ -50,6 +50,9 @@ trait Injection {
   
   val stalkerService = new StalkerService(instagramClient, telegramClient, cacheRepo, accountRepo)
   val specialStalkerService = new StalkerSpecialService(instagramClient, telegramClient2, cacheRepo, accountRepo)
+  
+  val stockClient = new StockClient(httpClient)
+  val stockService = new StockService(stockClient)
 
   val walletService = new WalletService(walletRepo)
 

@@ -54,6 +54,9 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     get(path( "api" / "mamen" )(complete(mamenService.fetch().map(_.asJson.encode)))),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
     get(path("api" / "news")(complete(newsService.process(ChatIdTypes.Personal).asJson.encode))),
+    get(path("api" / "stock" / Remaining){ stockCode =>
+      complete(stockService.fetch(stockCode).asJson.encode)
+    }),
     /////////// WEB ///////////
     get(path("dota")(complete(dotaService.home.map(HttpEntity(utf8, _))))),
 
