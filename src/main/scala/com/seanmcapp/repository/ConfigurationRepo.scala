@@ -19,7 +19,7 @@ trait ConfigurationRepo {
 
 }
 
-object ConfigurationImpl extends TableQuery(new ConfigurationInfo(_)) with ConfigurationRepo with DBComponent {
+object ConfigurationRepoImpl extends TableQuery(new ConfigurationInfo(_)) with ConfigurationRepo with DBComponent {
 
   def get(key: String): Future[Option[ConfigurationData]] = run(this.filter(_.key === key).result.headOption)
 

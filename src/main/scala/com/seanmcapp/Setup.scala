@@ -54,7 +54,8 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     get(path( "api" / "mamen" )(complete(mamenService.fetch().map(_.asJson.encode)))),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
     get(path("api" / "news")(complete(newsService.process(ChatIdTypes.Personal).asJson.encode))),
-    get(path("api" / "stock" / "refresh")(complete(stockService.refresh().map(_.asJson.encode)))),
+//    get(path("api" / "stock" / "refresh")(complete(stockService.refresh().map(_.asJson.encode)))),
+    get(path("api" / "stock" / "refresh" / "price")(complete(stockService.refreshPrice().map(_.asJson.encode)))),
     /////////// WEB ///////////
     get(path("dota")(complete(dotaService.home.map(HttpEntity(utf8, _))))),
 
@@ -90,6 +91,9 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
           } ~ (pathPrefix("data") & parameters(Symbol("date").?)) { date =>
             val dataView = walletService.data(session, date.flatMap(d => Try(d.toInt).toOption))
             _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.data(dataView).body))
+          } ~ pathPrefix("stock") {
+            val stockView = walletService.stock(session)
+            _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.stock(stockView).body))
           } ~ pathPrefix("do_logout") {
             invalidateSession(_.redirect("/wallet/login", StatusCodes.Found))
           }
@@ -124,7 +128,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     // real-time service
     new Scheduler(birthdayService, "0 0 6 * * ?"),
     new Scheduler(newsService, "0 0 8 * * ?"),
-    new Scheduler(stockService, "0 */5 9-12 * * 1-5"),
+//    new Scheduler(stockService, "0 */5 9-12 * * 1-5"),
     
 //    new Scheduler(twitterService, "0 0 * * * ?"),
 //    new Scheduler(stalkerService, "0 0 * * * ?"),

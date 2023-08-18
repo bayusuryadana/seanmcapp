@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 case class Stock(
   id: String,
   currentPrice: Int,
-  shares: Double,
+  share: Double,
   liability: Int,
   equity: Int,
   netProfitCurrentYear: Int,
@@ -22,12 +22,26 @@ case class Stock(
   eipRisks: Option[String]
 ) {
   def PER(q: Int): Double = currentPrice / EPS / q
-  val PBV: Double = marketCap.toDouble / equity
+  def PBV: Double = marketCap.toDouble / equity
   val DER: Double = liability.toDouble / equity
   def ROE(q: Int): Double = netProfitCurrentYear.toDouble / equity * 100 * q
-  val EPS: Double = netProfitCurrentYear / shares
-  val marketCap: Int = (shares * currentPrice).toInt
+  val EPS: Double = netProfitCurrentYear / share
+  val marketCap: Int = (share * currentPrice).toInt
   val profitChange: Double = (netProfitCurrentYear.toDouble / netProfitPrevYear - 1) * 100
+  
+  def getColour(): String = {
+    eipBestBuy match {
+      case Some(number) => 
+        if (currentPrice <= number) "table-success" else "table-primary"
+      case _ => ""
+    }
+  }
+  
+  def getBestBuy(): String =
+    eipBestBuy match {
+      case Some(number) => number.toString
+      case _ => "-"
+    }
 }
 // $COVERAGE-ON$
 

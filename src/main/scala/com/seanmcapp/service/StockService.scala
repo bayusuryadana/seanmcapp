@@ -9,17 +9,20 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.io.Source
 
 class StockService(stockRepo:StockRepo, stockClient: StockClient) extends ScheduledTask {
-  override def run(): Future[Seq[Int]] = {
+  override def run(): Future[Seq[Int]] = refreshPrice()
+  
+  def refreshPrice(): Future[Seq[Int]] = {
     val result = for {
       stocks <- stockRepo.getAll()
     } yield {
-      val updatedStocks = stocks.map { stock =>
+      val updatedStocks = stocks.zipWithIndex.map { case (stock, i) =>
         Thread.sleep(1000)
+        println(s"$i ${stock.id}")
         stockRepo.update(stock.copy(currentPrice = stockClient.fetchCurrentPrice(stock.id)))
       }
       Future.sequence(updatedStocks)
     }
-    
+
     result.flatten
   }
   

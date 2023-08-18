@@ -2,7 +2,9 @@ package com.seanmcapp.service
 
 import java.util.Calendar
 import com.seanmcapp.WalletConf
-import com.seanmcapp.repository.seanmcwallet.{Wallet, WalletRepo, WalletRepoDemo, WalletRepoNoOps}
+import com.seanmcapp.repository.ConfigurationRepo
+import com.seanmcapp.repository.seanmcstock.StockRepo
+import com.seanmcapp.repository.seanmcwallet.{Wallet, WalletRepo, WalletRepoDemo}
 import com.seanmcapp.service.WalletUtils._
 
 import scala.collection.SortedMap
@@ -12,13 +14,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 case class WalletOutput(code: Int, message: Option[String], row: Option[Int], response: Seq[Wallet])
 
-class WalletService(walletRepo: WalletRepo) {
+class WalletService(walletRepo: WalletRepo, stockRepo: StockRepo, configurationRepo: ConfigurationRepo) {
 
   private val activeIncomeSet = Set("Salary", "Bonus")
   private val expenseSet = Set("Daily", "Rent", "Zakat", "Travel", "Fashion", "IT Stuff", "Misc", "Wellness", "Funding")
 
   private[service] val SECRET_KEY = WalletConf().secretKey
   private val TEST_KEY = "test"
+
+  private lazy val q = Await.result(configurationRepo.get("STCKQ"), Duration(3, "second")).map(_.value.toInt)
+    .getOrElse(throw new Exception(s"wallet-quarter not found"))
 
   def dashboard(implicit secretKey: String): DashboardView = {
     val wallets = authAndAwait(secretKey, (r: WalletRepo) => { r.getAll })
@@ -87,6 +92,13 @@ class WalletService(walletRepo: WalletRepo) {
 
     DataView(cmsData, walletResult, SGD, IDR, savingAccount)
   }
+  
+  def stock(implicit secretKey: String): StockView = {
+    val stocks = if (secretKey == SECRET_KEY) {
+      Await.result(stockRepo.getAll(), Duration.Inf)
+    } else Seq.empty
+    StockView(q, stocks)
+  }
 
   // $COVERAGE-OFF$
   def login(secretKey: String): Boolean = secretKey == SECRET_KEY || secretKey == TEST_KEY
@@ -115,7 +127,7 @@ class WalletService(walletRepo: WalletRepo) {
     val wr = secretKey match {
       case SECRET_KEY => walletRepo
       case TEST_KEY => WalletRepoDemo
-      case _ => WalletRepoNoOps
+      case _ => throw new Exception("wrong password.")
     }
     Await.result(f(wr), Duration.Inf)
   }

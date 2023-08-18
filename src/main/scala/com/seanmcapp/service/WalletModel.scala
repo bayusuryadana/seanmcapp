@@ -1,5 +1,6 @@
 package com.seanmcapp.service
 
+import com.seanmcapp.repository.seanmcstock.Stock
 import com.seanmcapp.repository.seanmcwallet.Wallet
 
 case class DashboardView(savingAccount: Map[String, String], // [currency, amount]
@@ -19,3 +20,4 @@ case class DataView(cmsData: CMSData, wallet: Seq[Wallet], sgdBalance: Balance, 
 case class CMSData(currentDate: Int, thisMonth: String, thisYear: String, nextDate: String, prevDate: String)
 
 case class Balance(beginning: String, plannedEnding: String, realEnding: String)
+case class StockView(quarter: Int, stocks: Seq[Stock])
