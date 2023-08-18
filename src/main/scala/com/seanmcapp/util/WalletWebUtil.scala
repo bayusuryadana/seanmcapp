@@ -6,4 +6,8 @@ object WalletWebUtil {
       data.getOrElse(key, Seq.empty[Int])
     }
   }
+
+  implicit class DoubleHelper(d: Double) {
+    def round2(): Double = "%.2f".format(d).toDouble
+  }
 }

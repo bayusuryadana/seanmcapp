@@ -98,3 +98,32 @@ CREATE TABLE stalls (
     latitude float,
     longitude float
 );
+
+CREATE TABLE stocks (
+    id character varying(4) NOT NULL PRIMARY KEY,
+    current_price integer,
+    share float NOT NULL,
+    liability integer NOT NULL,
+    equity integer NOT NULL,
+    net_profit_current_year integer NOT NULL,
+    net_profit_previous_year integer NOT NULL,
+    -----------------------------
+    eip_best_buy integer,
+    eip_rating character varying(3),
+    eip_risks character varying(10)
+);
+
+CREATE TABLE stock_portfolios (
+    id character varying(4) NOT NULL PRIMARY KEY,
+    current_price integer,
+    emp_avg_price integer,
+    emp_current_lot integer,
+    -----------------------------
+    my_avg_price integer,
+    my_current_lot integer
+);
+
+CREATE TABLE configurations (
+    key character varying(8) NOT NULL PRIMARY KEY,
+    value character varying(128) NOT NULL
+);

@@ -1,11 +1,12 @@
 package com.seanmcapp
 
 import com.seanmcapp.external._
-import com.seanmcapp.repository.{CacheRepo, CacheRepoImpl, FileRepo, FileRepoImpl}
+import com.seanmcapp.repository.{CacheRepo, CacheRepoImpl, ConfigurationRepo, ConfigurationRepoImpl, FileRepo, FileRepoImpl}
 import com.seanmcapp.repository.birthday.{PeopleRepo, PeopleRepoImpl}
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
 import com.seanmcapp.repository.seanmcmamen.{StallRepo, StallRepoImpl}
+import com.seanmcapp.repository.seanmcstock.{StockRepo, StockRepoImpl}
 import com.seanmcapp.repository.seanmcwallet.{WalletRepo, WalletRepoImpl}
 import com.seanmcapp.service._
 
@@ -23,6 +24,8 @@ trait Injection {
   val cacheRepo: CacheRepo = CacheRepoImpl
   val accountRepo: AccountRepo = AccountRepoImpl
   val stallRepo: StallRepo = StallRepoImpl
+  val stockRepo: StockRepo = StockRepoImpl
+  val configurationRepo: ConfigurationRepo = ConfigurationRepoImpl
 
   val httpClient: HttpRequestClient = HttpRequestClientImpl
   val telegramClient = new TelegramClient(httpClient)
@@ -50,8 +53,11 @@ trait Injection {
   
   val stalkerService = new StalkerService(instagramClient, telegramClient, cacheRepo, accountRepo)
   val specialStalkerService = new StalkerSpecialService(instagramClient, telegramClient2, cacheRepo, accountRepo)
+  
+  val stockClient = new StockClient(httpClient)
+  val stockService = new StockService(stockRepo, stockClient)
 
-  val walletService = new WalletService(walletRepo)
+  val walletService = new WalletService(walletRepo, stockRepo, configurationRepo)
 
   val warmupDBService = new WarmupDBService(peopleRepo)
 
