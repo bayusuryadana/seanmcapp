@@ -11,44 +11,40 @@ import scala.concurrent.ExecutionContext.Implicits.global
 case class Stock(
   id: String,
   currentPrice: Int,
-  PER: Double,
-  PBV: Double,
-  ROE: Double,
   shares: Double,
   liability: Int,
   equity: Int,
   netProfitCurrentYear: Int,
   netProfitPrevYear: Int,
-  EPS: Double,
-  marketCap: Int,
-  profitChange: Double,
   ///////////////////////////
   eipBestBuy: Option[Int],
   eipRating: Option[String],
   eipRisks: Option[String]
-)
+) {
+  def PER(q: Int): Double = currentPrice / EPS / q
+  val PBV: Double = marketCap.toDouble / equity
+  val DER: Double = liability.toDouble / equity
+  def ROE(q: Int): Double = netProfitCurrentYear.toDouble / equity * 100 * q
+  val EPS: Double = netProfitCurrentYear / shares
+  val marketCap: Int = (shares * currentPrice).toInt
+  val profitChange: Double = (netProfitCurrentYear.toDouble / netProfitPrevYear - 1) * 100
+}
 // $COVERAGE-ON$
 
 class StockInfo(tag: Tag) extends Table[Stock](tag, "stocks") {
   val id = column[String]("id", O.PrimaryKey)
   val currentPrice = column[Int]("current_price")
-  val PER = column[Double]("PER")
-  val PBV = column[Double]("PBV")
-  val ROE = column[Double]("ROE")
-  val shares = column[Double]("shares")
+  val share = column[Double]("share")
   val liability = column[Int]("liability")
   val equity = column[Int]("equity")
   val netProfitCurrentYear = column[Int]("net_profit_current_year")
-  val netProfitPrevYear = column[Int]("net_profit_prev_year")
-  val EPS = column[Double]("EPS")
-  val marketCap = column[Int]("market_cap")
-  val profitChange = column[Double]("profit_change")
+  val netProfitPrevYear = column[Int]("net_profit_previous_year")
   val eipBestBuy = column[Option[Int]]("eip_best_buy")
   val eipRating = column[Option[String]]("eip_rating")
   val eipRisks = column[Option[String]]("eip_risks")
 
-  def * = (id, currentPrice, PER, PBV, ROE, shares, liability, equity, netProfitCurrentYear,
-    netProfitPrevYear, EPS, marketCap, profitChange, eipBestBuy, eipRating, eipRisks) <> (Stock.tupled, Stock.unapply)
+  def * = (id, currentPrice, share, liability, equity, netProfitCurrentYear, netProfitPrevYear, 
+    eipBestBuy, eipRating, eipRisks) <> (Stock.tupled, Stock.unapply)
 }
 
 trait StockRepo {
@@ -57,7 +53,7 @@ trait StockRepo {
 
   def insert(stocks: Seq[Stock]): Future[Option[Int]]
 
-  def update(stocks: Seq[Stock]): Future[Seq[Int]]
+  def update(stock: Stock): Future[Int]
 
 }
 
@@ -75,11 +71,8 @@ object StockRepoImpl extends TableQuery(new StockInfo(_)) with StockRepo with DB
   }
 
   // can be change to single call only, depends on price API response
-  def update(stocks: Seq[Stock]): Future[Seq[Int]] = {
-    val updates = stocks.map { stock =>
+  def update(stock: Stock): Future[Int] = {
       run(this.filter(_.id === stock.id).update(stock))
-    }
-    Future.sequence(updates)
   }
 
 }

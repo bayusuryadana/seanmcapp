@@ -54,9 +54,7 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     get(path( "api" / "mamen" )(complete(mamenService.fetch().map(_.asJson.encode)))),
     get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
     get(path("api" / "news")(complete(newsService.process(ChatIdTypes.Personal).asJson.encode))),
-    get(path("api" / "stock" / Remaining){ stockCode =>
-      complete(stockService.fetch(stockCode).asJson.encode)
-    }),
+    get(path("api" / "stock" / "refresh")(complete(stockService.refresh().map(_.asJson.encode)))),
     /////////// WEB ///////////
     get(path("dota")(complete(dotaService.home.map(HttpEntity(utf8, _))))),
 
@@ -126,6 +124,8 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     // real-time service
     new Scheduler(birthdayService, "0 0 6 * * ?"),
     new Scheduler(newsService, "0 0 8 * * ?"),
+    new Scheduler(stockService, "0 */5 9-12 * * 1-5"),
+    
 //    new Scheduler(twitterService, "0 0 * * * ?"),
 //    new Scheduler(stalkerService, "0 0 * * * ?"),
 //    new Scheduler(specialStalkerService, "0 20 * * * ?"),

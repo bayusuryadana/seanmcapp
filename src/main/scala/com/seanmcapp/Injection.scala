@@ -6,6 +6,7 @@ import com.seanmcapp.repository.birthday.{PeopleRepo, PeopleRepoImpl}
 import com.seanmcapp.repository.dota._
 import com.seanmcapp.repository.instagram._
 import com.seanmcapp.repository.seanmcmamen.{StallRepo, StallRepoImpl}
+import com.seanmcapp.repository.seanmcstock.{StockRepo, StockRepoImpl}
 import com.seanmcapp.repository.seanmcwallet.{WalletRepo, WalletRepoImpl}
 import com.seanmcapp.service._
 
@@ -23,6 +24,7 @@ trait Injection {
   val cacheRepo: CacheRepo = CacheRepoImpl
   val accountRepo: AccountRepo = AccountRepoImpl
   val stallRepo: StallRepo = StallRepoImpl
+  val stockRepo: StockRepo = StockRepoImpl
 
   val httpClient: HttpRequestClient = HttpRequestClientImpl
   val telegramClient = new TelegramClient(httpClient)
@@ -52,7 +54,7 @@ trait Injection {
   val specialStalkerService = new StalkerSpecialService(instagramClient, telegramClient2, cacheRepo, accountRepo)
   
   val stockClient = new StockClient(httpClient)
-  val stockService = new StockService(stockClient)
+  val stockService = new StockService(stockRepo, stockClient)
 
   val walletService = new WalletService(walletRepo)
 

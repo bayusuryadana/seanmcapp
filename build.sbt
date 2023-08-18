@@ -63,6 +63,9 @@ libraryDependencies ++= Seq(
 
   // enum
   "com.beachape" %% "enumeratum" % "1.7.0",
+  
+  // split csv
+  "com.github.tototoshi" %% "scala-csv" % "1.3.10",
 )
 
 coverageExcludedPackages :=
