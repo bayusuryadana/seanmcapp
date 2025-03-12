@@ -16,6 +16,6 @@ object DBComponent {
 
   private val config = DatabaseConfig.forConfig[JdbcProfile]("database")
 
-  val db = config.db
+  private val db = config.db
 
 }

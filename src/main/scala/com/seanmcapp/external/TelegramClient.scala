@@ -2,7 +2,7 @@ package com.seanmcapp.external
 
 import java.net.{URL, URLEncoder}
 
-import com.seanmcapp.{TelegramConf, TelegramConf2}
+import com.seanmcapp.TelegramConf
 import scalaj.http.MultiPart
 
 // $COVERAGE-OFF$
@@ -51,10 +51,6 @@ class TelegramClient(http: HttpRequestClient) {
     val inputStream = new URL(url).openStream
     LazyList.continually(inputStream.read).takeWhile(_ != -1).map(_.toByte).toArray
   }
-}
-
-class TelegramClient2(http: HttpRequestClient) extends TelegramClient(http) {
-  override val telegramConf: TelegramConf = TelegramConf2()
 }
 
 // Telegram common

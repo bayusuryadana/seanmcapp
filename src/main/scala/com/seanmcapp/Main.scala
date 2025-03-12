@@ -6,17 +6,16 @@ import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
 import com.seanmcapp.util.APIExceptionHandler
 
-import scala.concurrent.Future
-import scala.util.Try
+import scala.concurrent.{ExecutionContextExecutor, Future}
 
-object Boot extends App with CORSHandler {
+object Main extends App with CORSHandler {
 
-  implicit val system = ActorSystem("seanmcapp")
-  implicit val _ec = system.dispatcher
+  implicit val system: ActorSystem = ActorSystem("seanmcapp")
+  implicit val _ec: ExecutionContextExecutor = system.dispatcher
 
-  lazy val setup = new Setup
+  private lazy val setup = new Setup
 
-  val serverBinding = start(Try(System.getenv("PORT").toInt).toOption.getOrElse(8000))
+  private val serverBinding = start(8080)
 
   scala.sys.addShutdownHook {
     stop(serverBinding)
@@ -29,14 +28,12 @@ object Boot extends App with CORSHandler {
     system.registerOnTermination(runningJob.map(_.cancel()))
 
     println(s"Server is started on port $port")
-    Http().bindAndHandle(
-      corsHandler(handleExceptions(APIExceptionHandler.apply()){ setup.route }), 
-      "0.0.0.0", 
-      port
+    Http().newServerAt("0.0.0.0", port).bind(
+      corsHandler(handleExceptions(APIExceptionHandler.apply()){ setup.route })
     )
   }
 
-  def stop(bindingFut: Future[ServerBinding]): Unit = {
+  private def stop(bindingFut: Future[ServerBinding]): Unit = {
     bindingFut.flatMap(_.unbind()).onComplete { _ =>
       println("Shutting down..")
       system.terminate()

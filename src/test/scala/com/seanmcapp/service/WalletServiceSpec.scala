@@ -1,8 +1,7 @@
 package com.seanmcapp.service
 
 import com.seanmcapp.repository.WalletRepoMock
-import com.seanmcapp.repository.seanmcwallet.Wallet
-import org.mockito.Mockito
+import com.seanmcapp.repository.Wallet
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 

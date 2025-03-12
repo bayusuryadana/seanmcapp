@@ -1,68 +1,59 @@
 name := "seanmcapp"
 version := "latest"
-scalaVersion := "2.13.1"
+scalaVersion := "2.13.16"
 maintainer := "seanmcrayz@yahoo.com"
 
 resolvers += Resolver.JCenterRepository
 libraryDependencies ++= Seq(
   // framework
-  "com.typesafe.akka" %% "akka-http" % "10.1.11",
-  "com.typesafe.akka" %% "akka-stream" % "2.6.3",
+  "com.typesafe.akka" %% "akka-http" % "10.5.3",
+  "com.typesafe.akka" %% "akka-stream" % "2.8.7",
 
   // testkit
-  "com.typesafe.akka" %% "akka-http-testkit" % "10.1.11" % Test,
-  "com.typesafe.akka" %% "akka-stream-testkit" % "2.6.3" % Test,
+  "com.typesafe.akka" %% "akka-http-testkit" % "10.5.3" % Test,
+  "com.typesafe.akka" %% "akka-stream-testkit" % "2.8.7" % Test,
 
   // parallel collection
-  "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0",
+//  "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4",
 
-  // json serializer
-  "io.circe" %% "circe-core" % "0.13.0",
-  "io.circe" %% "circe-generic" % "0.13.0",
-  "io.circe" %% "circe-parser" % "0.13.0",
+  // json serializer*
+  "io.circe" %% "circe-core" % "0.14.9",
+  "io.circe" %% "circe-generic" % "0.14.10",
+  "io.circe" %% "circe-parser" % "0.14.10",
 
-  // http builder
+  // http builder*
   "org.scalaj" %% "scalaj-http" % "2.4.2",
 
   // ORM
-  "com.typesafe.slick" %% "slick" % "3.3.2",
-  "com.typesafe.slick" %% "slick-hikaricp" % "3.3.2",
-  "org.slf4j" % "slf4j-nop" % "1.7.30",
+  "com.typesafe.slick" %% "slick" % "3.5.2",
+  "com.typesafe.slick" %% "slick-hikaricp" % "3.5.2",
+  "org.slf4j" % "slf4j-nop" % "2.0.16",
 
   // postgresql
-  "org.postgresql" % "postgresql" % "42.2.5",
+  "org.postgresql" % "postgresql" % "42.7.4",
 
   // scalatest
-  "org.scalatest" %% "scalatest" % "3.1.1" % "test,it",
+  "org.scalatest" %% "scalatest" % "3.2.19" % "test,it",
 
   // mockito
-  "org.mockito" % "mockito-core" % "3.3.0" % Test,
+  "org.mockito" % "mockito-core" % "5.14.2" % Test,
 
   // joda time
-  "joda-time" % "joda-time" % "2.10.5",
-  "org.joda"  % "joda-convert" % "2.2.1",
+  "joda-time" % "joda-time" % "2.13.0",
+  "org.joda"  % "joda-convert" % "2.2.3",
 
   // caching
   "com.github.cb372" %% "scalacache-guava" % "0.28.0",
 
-  // image storage
-  "io.minio" % "minio" % "6.0.13",
-
-  // discord bot
-  "net.katsstuff" %% "ackcord" % "0.17.1",
-
   // cron
-  "com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.6.1",
-  "com.github.alonsodomin.cron4s" %% "cron4s-joda" % "0.6.1",
+  "com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.7.0",
+  "com.github.alonsodomin.cron4s" %% "cron4s-joda" % "0.7.0",
 
   // jsoup (Java HTML parser)
-  "org.jsoup" % "jsoup" % "1.13.1",
-
-  // session
-  "com.softwaremill.akka-http-session" %% "core" % "0.5.11",
+  "org.jsoup" % "jsoup" % "1.18.1",
 
   // enum
-  "com.beachape" %% "enumeratum" % "1.7.0",
+  "com.beachape" %% "enumeratum" % "1.7.5",
 )
 
 coverageExcludedPackages :=
@@ -79,7 +70,7 @@ fork in IntegrationTest := true
 configs(IntegrationTest)
 Defaults.itSettings
 javaOptions in IntegrationTest += "-Dconfig.resource=application-local.conf"
-mainClass in Compile := Some("com.seanmcapp.Boot")
+mainClass in Compile := Some("com.seanmcapp.Main")
 
 /**
   *  DOCKER

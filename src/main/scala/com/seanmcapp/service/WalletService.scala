@@ -2,7 +2,7 @@ package com.seanmcapp.service
 
 import java.util.Calendar
 import com.seanmcapp.WalletConf
-import com.seanmcapp.repository.seanmcwallet.{Wallet, WalletRepo, WalletRepoDemo, WalletRepoNoOps}
+import com.seanmcapp.repository.{Wallet, WalletRepo, WalletRepoDemo}
 import com.seanmcapp.service.WalletUtils._
 
 import scala.collection.SortedMap
@@ -93,13 +93,13 @@ class WalletService(walletRepo: WalletRepo) {
 
   def create(secretKey: String, fields: Map[String, String]): Int = {
     val wallet = parseInput(fields)
-    println(s"[WALLET][CREATE] ${wallet.toJsonString()}")
+    println(s"[WALLET][CREATE] ${wallet.toJsonString}")
     authAndAwait(secretKey, (r: WalletRepo) => { r.insert(wallet).map(_ => wallet.date) })
   }
 
   def update(secretKey: String, fields: Map[String, String]): Int = {
     val wallet = parseInput(fields)
-    println(s"[WALLET][UPDATE] ${wallet.toJsonString()}")
+    println(s"[WALLET][UPDATE] ${wallet.toJsonString}")
     authAndAwait(secretKey, (r: WalletRepo) => { r.update(wallet).map(_ => wallet.date) })
   }
 
@@ -115,12 +115,12 @@ class WalletService(walletRepo: WalletRepo) {
     val wr = secretKey match {
       case SECRET_KEY => walletRepo
       case TEST_KEY => WalletRepoDemo
-      case _ => WalletRepoNoOps
+      case _ => throw new Exception("wrong password.")
     }
     Await.result(f(wr), Duration.Inf)
   }
   
-  def getSavingAccount(wallets: Seq[Wallet]): Map[String, String] = {
+  private def getSavingAccount(wallets: Seq[Wallet]): Map[String, String] = {
     def sumAccount(account: String): Int = wallets.collect { case w if w.done && w.account == account => w.amount }.sum
     val sgd = sumAccount("DBS").formatNumber
     val idr = sumAccount("BCA").formatNumber

@@ -1,26 +1,17 @@
 package com.seanmcapp.service
 
 import com.seanmcapp.external.{TelegramChat, TelegramMessage, TelegramMessageEntity, TelegramUpdate, TelegramUser, decode}
-import com.seanmcapp.repository.instagram.Photo
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 
-import scala.concurrent.Future
 import scala.io.Source
 
 class TelegramWebhookServiceSpec extends AsyncWordSpec with Matchers {
 
-  val cbcService = Mockito.mock(classOf[CBCService])
-  when(cbcService.getPhotoUrl(any())).thenReturn("")
-  val photo = Photo(1, "http://", 1407772083, "caption", "account")
-  when(cbcService.cbcFlow(any(), any(), any())).thenReturn(Future.successful(Some(photo)))
-  val hadithService = Mockito.mock(classOf[HadithService])
-  when(hadithService.random).thenReturn("some hadith")
   val telegramClient = new TelegramWebhookTelegramClientMock
-  val telegramWebookService = new TelegramWebhookService(cbcService, hadithService, telegramClient)
+  val telegramWebookService = new TelegramWebhookService(telegramClient)
 
   "should return any random photos using private chat type input - cbc" in {
     val chatId = 274852283L

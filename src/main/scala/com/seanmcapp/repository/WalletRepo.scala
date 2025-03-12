@@ -1,8 +1,6 @@
-package com.seanmcapp.repository.seanmcwallet
+package com.seanmcapp.repository
 
 import java.util.concurrent.TimeUnit
-
-import com.seanmcapp.repository.DBComponent
 import com.seanmcapp.service.WalletUtils._
 import com.seanmcapp.util.MemoryCache
 import io.circe.syntax._
@@ -21,7 +19,7 @@ import scala.concurrent.duration.{Duration, FiniteDuration}
 
 // $COVERAGE-OFF$
 case class Wallet(id: Int, date: Int, name: String, category: String, currency: String, amount: Int, done: Boolean, account: String) {
-  def toJsonString(): String = this.asJson.printWith(Printer.noSpacesSortKeys)
+  def toJsonString: String = this.asJson.printWith(Printer.noSpacesSortKeys)
 }
 // $COVERAGE-ON$
 
@@ -130,11 +128,3 @@ object WalletRepoDemo extends WalletRepo with MemoryCache {
     }
   }
 }
-
-object WalletRepoNoOps extends WalletRepo {
-  override def getAll: Future[Seq[Wallet]] = Future.successful(Seq.empty[Wallet])
-  override def insert(wallet: Wallet): Future[Int] = Future.successful(0)
-  override def update(wallet: Wallet): Future[Int] = Future.successful(0)
-  override def delete(id: Int): Future[Int] = Future.successful(0)
-}
-// $COVERAGE-ON$
