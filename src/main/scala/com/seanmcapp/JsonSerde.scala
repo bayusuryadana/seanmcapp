@@ -5,6 +5,8 @@ import com.seanmcapp.util.ExceptionHandler
 import io.circe.{Decoder, Json, Printer, parser}
 import io.circe.generic.AutoDerivation
 
+import scala.language.implicitConversions
+
 // $COVERAGE-OFF$
 package object external extends AutoDerivation {
 
@@ -21,7 +23,7 @@ package object external extends AutoDerivation {
     def encode: String = json.printWith(Printer.noSpacesSortKeys)
   }
   
-  class SerdeException(input: String, t: Throwable) extends ExceptionHandler(t) {
+  private class SerdeException(input: String, t: Throwable) extends ExceptionHandler(t) {
     override val processedMessage: String = {
       s"""${this.getMessage}
          |input: $input

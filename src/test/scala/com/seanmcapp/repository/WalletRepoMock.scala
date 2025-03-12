@@ -1,7 +1,5 @@
 package com.seanmcapp.repository
 
-import com.seanmcapp.repository.seanmcwallet.{Wallet, WalletRepo}
-
 import scala.concurrent.Future
 
 object WalletRepoMock extends WalletRepo {

@@ -8,18 +8,6 @@ services:
     ports:
       - "5432:5432"
 
-  storage:
-    image: minio/minio
-    ports:
-      - "9999:9000"
-    volumes:
-      - ./docker/storage:/data
-    environment:
-      MINIO_ACCESS_KEY: admin
-      MINIO_SECRET_KEY: password
-    command:
-      --compat server /data
-
   mc:
     image: minio/mc
     depends_on:

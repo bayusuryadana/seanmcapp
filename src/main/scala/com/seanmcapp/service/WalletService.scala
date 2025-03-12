@@ -2,9 +2,7 @@ package com.seanmcapp.service
 
 import java.util.Calendar
 import com.seanmcapp.WalletConf
-import com.seanmcapp.repository.ConfigurationRepo
-import com.seanmcapp.repository.seanmcstock.StockRepo
-import com.seanmcapp.repository.seanmcwallet.{Wallet, WalletRepo, WalletRepoDemo}
+import com.seanmcapp.repository.{Wallet, WalletRepo, WalletRepoDemo}
 import com.seanmcapp.service.WalletUtils._
 
 import scala.collection.SortedMap
@@ -14,16 +12,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 case class WalletOutput(code: Int, message: Option[String], row: Option[Int], response: Seq[Wallet])
 
-class WalletService(walletRepo: WalletRepo, stockRepo: StockRepo, configurationRepo: ConfigurationRepo) {
+class WalletService(walletRepo: WalletRepo) {
 
   private val activeIncomeSet = Set("Salary", "Bonus")
   private val expenseSet = Set("Daily", "Rent", "Zakat", "Travel", "Fashion", "IT Stuff", "Misc", "Wellness", "Funding")
 
   private[service] val SECRET_KEY = WalletConf().secretKey
   private val TEST_KEY = "test"
-
-  private lazy val q = Await.result(configurationRepo.get("STCKQ"), Duration(3, "second")).map(_.value.toInt)
-    .getOrElse(throw new Exception(s"wallet-quarter not found"))
 
   def dashboard(implicit secretKey: String): DashboardView = {
     val wallets = authAndAwait(secretKey, (r: WalletRepo) => { r.getAll })
@@ -92,26 +87,19 @@ class WalletService(walletRepo: WalletRepo, stockRepo: StockRepo, configurationR
 
     DataView(cmsData, walletResult, SGD, IDR, savingAccount)
   }
-  
-  def stock(implicit secretKey: String): StockView = {
-    val stocks = if (secretKey == SECRET_KEY) {
-      Await.result(stockRepo.getAll(), Duration.Inf)
-    } else Seq.empty
-    StockView(q, stocks)
-  }
 
   // $COVERAGE-OFF$
   def login(secretKey: String): Boolean = secretKey == SECRET_KEY || secretKey == TEST_KEY
 
   def create(secretKey: String, fields: Map[String, String]): Int = {
     val wallet = parseInput(fields)
-    println(s"[WALLET][CREATE] ${wallet.toJsonString()}")
+    println(s"[WALLET][CREATE] ${wallet.toJsonString}")
     authAndAwait(secretKey, (r: WalletRepo) => { r.insert(wallet).map(_ => wallet.date) })
   }
 
   def update(secretKey: String, fields: Map[String, String]): Int = {
     val wallet = parseInput(fields)
-    println(s"[WALLET][UPDATE] ${wallet.toJsonString()}")
+    println(s"[WALLET][UPDATE] ${wallet.toJsonString}")
     authAndAwait(secretKey, (r: WalletRepo) => { r.update(wallet).map(_ => wallet.date) })
   }
 
@@ -132,7 +120,7 @@ class WalletService(walletRepo: WalletRepo, stockRepo: StockRepo, configurationR
     Await.result(f(wr), Duration.Inf)
   }
   
-  def getSavingAccount(wallets: Seq[Wallet]): Map[String, String] = {
+  private def getSavingAccount(wallets: Seq[Wallet]): Map[String, String] = {
     def sumAccount(account: String): Int = wallets.collect { case w if w.done && w.account == account => w.amount }.sum
     val sgd = sumAccount("DBS").formatNumber
     val idr = sumAccount("BCA").formatNumber

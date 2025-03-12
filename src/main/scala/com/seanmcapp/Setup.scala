@@ -12,11 +12,9 @@ import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 // $COVERAGE-OFF$
-class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection with Session {
+class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection {
 
   private val utf8 = ContentTypes.`text/html(UTF-8)`
-
-  val discord = new DiscordClient(cbcService, hadithService).run()
 
   val route: server.Route = List(
 
@@ -27,87 +25,55 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     }),
 
     /////////// API ///////////
-//    get(path( "api" / "instagram" / "push" / Remaining) { session =>
-//      val sessionOpt = if (session == "null") None else Some(session)
-//      complete(cbcService.startFetching(sessionOpt).map(_.asJson.encode))
-//    }),
-//    get(path( "api" / "instagram" / "pull" / Remaining) { session =>
-//      val sessionOpt = if (session == "null") None else Some(session)
-//      val postsF = stalkerService.fetchPosts(AccountGroupTypes.Stalker, ChatIdTypes.Personal, sessionOpt)
-//      val storiesF = stalkerService.fetchStories(AccountGroupTypes.Stalker, ChatIdTypes.Personal, sessionOpt)
-//      val result = for {
-//        posts <- postsF
-//        stories <- storiesF
-//      } yield {
-//        posts ++ stories
-//      }
-//      complete(result.map(_.asJson.encode))
-//    }),
-//    get(path( "api" / "instagram" / "special" / Remaining) { session =>
-//      val sessionOpt = if (session == "null") None else Some(session)
-//      complete(stalkerService.fetchPosts(AccountGroupTypes.StalkerSpecial, ChatIdTypes.Personal, sessionOpt).map(_.asJson.encode))
-//    }), 
-//    get(path( "api" / "tweet" )(complete(twitterService.run.map(_.asJson.encode)))),
-    post((path( "api" / "mamen") & entity(as[String])) { request =>
-      complete(mamenService.search(decode[MamenRequest](request)).map(_.asJson.encode))
-    }),
-    get(path( "api" / "mamen" )(complete(mamenService.fetch().map(_.asJson.encode)))),
-    get(path( "api" / "metadota" )(complete(dotaService.run.map(_.asJson.encode)))),
-    get(path("api" / "news")(complete(newsService.process(ChatIdTypes.Personal).asJson.encode))),
-//    get(path("api" / "stock" / "refresh")(complete(stockService.refresh().map(_.asJson.encode)))),
-    get(path("api" / "stock" / "refresh" / "price")(complete(stockService.refreshPrice().map(_.asJson.encode)))),
-    /////////// WEB ///////////
-    get(path("dota")(complete(dotaService.home.map(HttpEntity(utf8, _))))),
 
-    pathPrefix("wallet") {
-      post {
-        (pathPrefix("do_login") & formField(Symbol("secretKey"))) { secret =>
-          if (walletService.login(secret)) {
-            setSession(secret)(_.redirect("/wallet", StatusCodes.Found))
-          } else {
-            redirect("/wallet/login", StatusCodes.SeeOther)
-          }
-        } ~ validateSession { session => formFieldMap { fields =>
-          pathPrefix( "data" / "create") {
-            val date = walletService.create(session, fields)
-            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
-          } ~ pathPrefix( "data" / "update") {
-            val date = walletService.update(session, fields)
-            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
-          } ~ pathPrefix("data" / "delete") { 
-            val date = walletService.delete(session, fields)
-            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
-          }
-        }}
-      } ~
-      get {
-        pathPrefix("login") {
-          complete(HttpEntity(utf8, com.seanmcapp.wallet.html.login().body))
-        } ~
-        validateSession { session =>
-          pathEndOrSingleSlash {
-            val dashboardView = walletService.dashboard(session)
-            _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.dashboard(dashboardView).body))
-          } ~ (pathPrefix("data") & parameters(Symbol("date").?)) { date =>
-            val dataView = walletService.data(session, date.flatMap(d => Try(d.toInt).toOption))
-            _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.data(dataView).body))
-          } ~ pathPrefix("stock") {
-            val stockView = walletService.stock(session)
-            _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.stock(stockView).body))
-          } ~ pathPrefix("do_logout") {
-            invalidateSession(_.redirect("/wallet/login", StatusCodes.Found))
-          }
-        }
-      }
-    },
-    
-    get(pathPrefix("mamen")(complete(HttpEntity(utf8, com.seanmcapp.mamen.html.home().body)))),
+    /////////// WEB ///////////
+//    pathPrefix("wallet") {
+//      post {
+//        (pathPrefix("do_login") & formField(Symbol("secretKey"))) { secret =>
+//          if (walletService.login(secret)) {
+//            setSession(secret)(_.redirect("/wallet", StatusCodes.Found))
+//          } else {
+//            redirect("/wallet/login", StatusCodes.SeeOther)
+//          }
+//        } ~ validateSession { session => formFieldMap { fields =>
+//          pathPrefix( "data" / "create") {
+//            val date = walletService.create(session, fields)
+//            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
+//          } ~ pathPrefix( "data" / "update") {
+//            val date = walletService.update(session, fields)
+//            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
+//          } ~ pathPrefix("data" / "delete") {
+//            val date = walletService.delete(session, fields)
+//            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
+//          }
+//        }}
+//      } ~
+//      get {
+//        pathPrefix("login") {
+//          complete(HttpEntity(utf8, com.seanmcapp.wallet.html.login().body))
+//        } ~
+//        validateSession { session =>
+//          pathEndOrSingleSlash {
+//            val dashboardView = walletService.dashboard(session)
+//            _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.dashboard(dashboardView).body))
+//          } ~ (pathPrefix("data") & parameters(Symbol("date").?)) { date =>
+//            val dataView = walletService.data(session, date.flatMap(d => Try(d.toInt).toOption))
+//            _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.data(dataView).body))
+//          } ~ pathPrefix("stock") {
+//            val stockView = walletService.stock(session)
+//            _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.stock(stockView).body))
+//          } ~ pathPrefix("do_logout") {
+//            invalidateSession(_.redirect("/wallet/login", StatusCodes.Found))
+//          }
+//        }
+//      }
+//    },
 
     (get & pathPrefix("assets" / Remaining)){ resourcePath =>
       getFromResource(s"assets/$resourcePath")
     },
 
-    get(path("")(complete(HttpEntity(utf8, com.seanmcapp.html.index().body))))
+    get(path("")(complete("Konnichiwa sobat damemek !!!")))
 
   ).reduce{ (a,b) => a~b }
 
@@ -121,19 +87,9 @@ class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directiv
     new Scheduler(warmupDBService, "0 * * * * ?", false),
     new Scheduler(warmupDBService, "*/5 * * * * ?", false),
     
-    //pre-loading data service
-    new Scheduler(dotaService, "0 0 2 * * ?"),
-//    new Scheduler(cbcService, "0 0 10 * * ?"),
-    
     // real-time service
     new Scheduler(birthdayService, "0 0 6 * * ?"),
     new Scheduler(newsService, "0 0 8 * * ?"),
-//    new Scheduler(stockService, "0 */5 9-12 * * 1-5"),
-    
-//    new Scheduler(twitterService, "0 0 * * * ?"),
-//    new Scheduler(stalkerService, "0 0 * * * ?"),
-//    new Scheduler(specialStalkerService, "0 20 * * * ?"),
-//    new Scheduler(cacheCleanerService, "0 0 0 * * ?"),
   )
 
 }

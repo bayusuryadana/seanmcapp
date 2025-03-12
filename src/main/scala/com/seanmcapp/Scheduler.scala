@@ -17,7 +17,7 @@ class Scheduler(scheduledTask: ScheduledTask, cronString: String, isRepeat: Bool
 
   private[seanmcapp] val ICT = "+07:00"
   protected def now: DateTime = new DateTime().toDateTime(DateTimeZone.forID(ICT))
-  protected val scheduler = system.scheduler
+  private val scheduler = system.scheduler
   private implicit val _ec: ExecutionContext = system.dispatcher
 
   def start: Cancellable = {
