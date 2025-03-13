@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
 object Main extends App with CORSHandler {
 
   implicit val system: ActorSystem = ActorSystem("seanmcapp")
-  implicit val _ec: ExecutionContextExecutor = system.dispatcher
+  implicit val ec: ExecutionContextExecutor = system.dispatcher
 
   private lazy val setup = new Setup
 

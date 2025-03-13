@@ -1,31 +1,22 @@
-package com.seanmcapp.repository.birthday
+package com.seanmcapp.repository
 
-import com.seanmcapp.repository.DBComponent
-import slick.jdbc.PostgresProfile.api._
+import anorm.{Macro, RowParser, SqlStringInterpolation}
 
 import scala.concurrent.Future
 
 case class People(id: Int, name: String, day: Int, month: Int)
 
-class PeopleInfo(tag: Tag) extends Table[People](tag, "people") {
-  val id = column[Int]("id", O.PrimaryKey)
-  val name = column[String]("name")
-  val day = column[Int]("day")
-  val month = column[Int]("month")
-
-  def * = (id, name, day, month) <> (People.tupled, People.unapply)
-}
-
 trait PeopleRepo {
-
   def get(day: Int, month: Int): Future[Seq[People]]
-
 }
 
-object PeopleRepoImpl extends TableQuery(new PeopleInfo(_)) with PeopleRepo with DBComponent {
+class PeopleRepoImpl(client: DatabaseClient) extends PeopleRepo {
+
+  val parser: RowParser[People] = Macro.namedParser[People]
 
   def get(day: Int, month: Int): Future[Seq[People]] = {
-    run(this.filter(o => o.day === day && o.month === month).result)
+    client.withConnection { implicit conn =>
+      SQL"SELECT name FROM users".as(parser.*)
+    }
   }
-
 }

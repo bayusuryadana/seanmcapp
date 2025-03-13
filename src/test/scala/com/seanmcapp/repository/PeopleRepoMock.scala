@@ -1,6 +1,6 @@
 package com.seanmcapp.repository
 
-import com.seanmcapp.repository.birthday.{People, PeopleRepo}
+import com.seanmcapp.repository.{People, PeopleRepo}
 
 import scala.concurrent.Future
 

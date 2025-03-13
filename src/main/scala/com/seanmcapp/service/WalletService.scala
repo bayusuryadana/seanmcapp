@@ -2,7 +2,7 @@ package com.seanmcapp.service
 
 import java.util.Calendar
 import com.seanmcapp.WalletConf
-import com.seanmcapp.repository.{Wallet, WalletRepo, WalletRepoDemo}
+import com.seanmcapp.repository.{Wallet, WalletRepo}
 import com.seanmcapp.service.WalletUtils._
 
 import scala.collection.SortedMap
@@ -10,15 +10,12 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class WalletOutput(code: Int, message: Option[String], row: Option[Int], response: Seq[Wallet])
-
 class WalletService(walletRepo: WalletRepo) {
 
   private val activeIncomeSet = Set("Salary", "Bonus")
   private val expenseSet = Set("Daily", "Rent", "Zakat", "Travel", "Fashion", "IT Stuff", "Misc", "Wellness", "Funding")
 
   private[service] val SECRET_KEY = WalletConf().secretKey
-  private val TEST_KEY = "test"
 
   def dashboard(implicit secretKey: String): DashboardView = {
     val wallets = authAndAwait(secretKey, (r: WalletRepo) => { r.getAll })
@@ -89,17 +86,17 @@ class WalletService(walletRepo: WalletRepo) {
   }
 
   // $COVERAGE-OFF$
-  def login(secretKey: String): Boolean = secretKey == SECRET_KEY || secretKey == TEST_KEY
+  def login(secretKey: String): Boolean = secretKey == SECRET_KEY
 
   def create(secretKey: String, fields: Map[String, String]): Int = {
     val wallet = parseInput(fields)
-    println(s"[WALLET][CREATE] ${wallet.toJsonString}")
+    println(s"[WALLET][CREATE] ${wallet}")
     authAndAwait(secretKey, (r: WalletRepo) => { r.insert(wallet).map(_ => wallet.date) })
   }
 
   def update(secretKey: String, fields: Map[String, String]): Int = {
     val wallet = parseInput(fields)
-    println(s"[WALLET][UPDATE] ${wallet.toJsonString}")
+    println(s"[WALLET][UPDATE] ${wallet}")
     authAndAwait(secretKey, (r: WalletRepo) => { r.update(wallet).map(_ => wallet.date) })
   }
 
@@ -114,7 +111,6 @@ class WalletService(walletRepo: WalletRepo) {
   private def authAndAwait[T](secretKey: String, f: WalletRepo => Future[T]): T = {
     val wr = secretKey match {
       case SECRET_KEY => walletRepo
-      case TEST_KEY => WalletRepoDemo
       case _ => throw new Exception("wrong password.")
     }
     Await.result(f(wr), Duration.Inf)

@@ -16,6 +16,19 @@ abstract class Configuration[T](prefix: String) {
 
 }
 
+case class DatabaseConf(name: String, host: String, user: String, pass: String)
+object DatabaseConf extends Configuration[DatabaseConf]("database") {
+  override def buildConfig(c: Config): DatabaseConf = {
+    // if there is no variable env created, will fallback to local setup
+    DatabaseConf(
+      Try(c.getString("name")).getOrElse("postgres"),
+      Try(c.getString("host")).getOrElse("localhost"),
+      Try(c.getString("user")).getOrElse("postgres"),
+      Try(c.getString("pass")).getOrElse("password")
+    )
+  }
+}
+
 case class HttpConf(connTimeout: Int, readTimeout: Int, followRedirects: Boolean)
 object HttpConf extends Configuration[HttpConf]("http") {
   override def buildConfig(c: Config): HttpConf = {

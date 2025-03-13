@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.repository.birthday.PeopleRepo
+import com.seanmcapp.repository.PeopleRepo
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration

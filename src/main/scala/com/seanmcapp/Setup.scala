@@ -5,6 +5,8 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import akka.http.scaladsl.server
 import akka.http.scaladsl.server.Directives
 import com.seanmcapp.external._
+import com.seanmcapp.repository.{DatabaseClient, PeopleRepo, PeopleRepoImpl, WalletRepo, WalletRepoImpl}
+import com.seanmcapp.service.{BirthdayService, NewsService, TelegramWebhookService, WarmupDBService}
 import com.seanmcapp.util.ChatIdTypes
 import io.circe.syntax._
 
@@ -12,70 +14,49 @@ import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 // $COVERAGE-OFF$
-class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives with Injection {
+class Setup(implicit system: ActorSystem, ec: ExecutionContext) extends Directives {
 
-  private val utf8 = ContentTypes.`text/html(UTF-8)`
+  private val databaseClient: DatabaseClient = new DatabaseClient
+  private val httpClient: HttpRequestClient = HttpRequestClientImpl
+  private val telegramClient = new TelegramClient(httpClient)
 
-  val route: server.Route = List(
+  private val peopleRepo: PeopleRepo = new PeopleRepoImpl(databaseClient)
+  private val walletRepo: WalletRepo = new WalletRepoImpl(databaseClient)
 
-    /////////// WEBHOOK ///////////
-    post((path("webhook") & entity(as[String])) { payload =>
-      val telegramUpdate = decode[TelegramUpdate](payload)
-      complete(telegramWebhookService.receive(telegramUpdate).map(_.map(_.asJson.encode)))
-    }),
+  private val birthdayService = new BirthdayService(peopleRepo, telegramClient)
+  private val newsService = new NewsService(httpClient, telegramClient)
+  private val warmupDBService = new WarmupDBService(peopleRepo)
+  private val telegramWebhookService = new TelegramWebhookService(telegramClient)
 
-    /////////// API ///////////
+//  private val utf8 = ContentTypes.`text/html(UTF-8)`
 
-    /////////// WEB ///////////
-//    pathPrefix("wallet") {
-//      post {
-//        (pathPrefix("do_login") & formField(Symbol("secretKey"))) { secret =>
-//          if (walletService.login(secret)) {
-//            setSession(secret)(_.redirect("/wallet", StatusCodes.Found))
-//          } else {
-//            redirect("/wallet/login", StatusCodes.SeeOther)
-//          }
-//        } ~ validateSession { session => formFieldMap { fields =>
-//          pathPrefix( "data" / "create") {
-//            val date = walletService.create(session, fields)
-//            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
-//          } ~ pathPrefix( "data" / "update") {
-//            val date = walletService.update(session, fields)
-//            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
-//          } ~ pathPrefix("data" / "delete") {
-//            val date = walletService.delete(session, fields)
-//            redirect(s"/wallet/data?date=$date", StatusCodes.SeeOther)
-//          }
-//        }}
-//      } ~
-//      get {
-//        pathPrefix("login") {
-//          complete(HttpEntity(utf8, com.seanmcapp.wallet.html.login().body))
-//        } ~
-//        validateSession { session =>
-//          pathEndOrSingleSlash {
-//            val dashboardView = walletService.dashboard(session)
-//            _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.dashboard(dashboardView).body))
-//          } ~ (pathPrefix("data") & parameters(Symbol("date").?)) { date =>
-//            val dataView = walletService.data(session, date.flatMap(d => Try(d.toInt).toOption))
-//            _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.data(dataView).body))
-//          } ~ pathPrefix("stock") {
-//            val stockView = walletService.stock(session)
-//            _.complete(HttpEntity(utf8, com.seanmcapp.wallet.html.stock(stockView).body))
-//          } ~ pathPrefix("do_logout") {
-//            invalidateSession(_.redirect("/wallet/login", StatusCodes.Found))
-//          }
-//        }
-//      }
-//    },
-
-    (get & pathPrefix("assets" / Remaining)){ resourcePath =>
-      getFromResource(s"assets/$resourcePath")
-    },
-
-    get(path("")(complete("Konnichiwa sobat damemek !!!")))
-
-  ).reduce{ (a,b) => a~b }
+  val route: server.Route =
+    pathPrefix("api") {
+      post {
+        (path("webhook") & entity(as[String])) { payload =>
+          val telegramUpdate = decode[TelegramUpdate](payload)
+          complete(telegramWebhookService.receive(telegramUpdate).map(_.map(_.asJson.encode)))
+        } ~
+          (pathPrefix("login") & entity(as[String]) ) { payload =>
+            complete(payload)
+          } ~
+          (pathPrefix("create") & entity(as[String]) ) { payload =>
+            complete(payload)
+          } ~
+          (pathPrefix("update") & entity(as[String]) ) { payload =>
+            complete(payload)
+          } ~
+          (pathPrefix("delete") & entity(as[String]) ) { payload =>
+            complete(payload)
+          }
+      } ~
+        get {
+          (pathPrefix("dashboard") & entity(as[String]) ) { payload =>
+            complete(payload)
+          }
+        }
+    } ~
+      get(path("")(complete("Konnichiwa sobat damemek !!!"))) // will serve UI here
 
   val scheduleList: List[Scheduler] = List(
     /**

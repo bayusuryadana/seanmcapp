@@ -29,6 +29,9 @@ libraryDependencies ++= Seq(
   "com.typesafe.slick" %% "slick-hikaricp" % "3.5.2",
   "org.slf4j" % "slf4j-nop" % "2.0.16",
 
+  "org.playframework.anorm" %% "anorm" % "2.7.0",
+  "com.zaxxer" % "HikariCP" % "5.1.0",
+
   // postgresql
   "org.postgresql" % "postgresql" % "42.7.4",
 
@@ -69,7 +72,7 @@ fork in Test := true
 fork in IntegrationTest := true
 configs(IntegrationTest)
 Defaults.itSettings
-javaOptions in IntegrationTest += "-Dconfig.resource=application-local.conf"
+javaOptions in IntegrationTest += "-Dconfig.resource=application.conf"
 mainClass in Compile := Some("com.seanmcapp.Main")
 
 /**

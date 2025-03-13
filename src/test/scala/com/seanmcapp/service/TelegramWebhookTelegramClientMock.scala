@@ -10,7 +10,7 @@ import scala.io.Source
 
 class TelegramWebhookTelegramClientMock extends TelegramClient(Mockito.mock(classOf[HttpRequestClient])) {
 
-  override val telegramConf = TelegramConf("endpoint", "@seanmcbot")
+  override val telegramConf: TelegramConf = TelegramConf("endpoint", "@seanmcbot")
 
   override def sendPhoto(chatId: Long, photoUrl: String, caption: String): TelegramResponse = {
     val sanitizedText = URLEncoder.encode(caption, "utf-8")
