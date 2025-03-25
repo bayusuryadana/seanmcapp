@@ -1,8 +1,8 @@
 package com.seanmcapp.service
 
-import akka.http.scaladsl.model.StatusCode
-import akka.http.scaladsl.model.StatusCodes.OK
-import com.seanmcapp.external.{TelegramClient, TelegramResponse, TelegramUpdate}
+import org.apache.pekko.http.scaladsl.model.StatusCode
+import org.apache.pekko.http.scaladsl.model.StatusCodes.OK
+import com.seanmcapp.client.{TelegramClient, TelegramResponse, TelegramUpdate}
 import com.seanmcapp.util.ExceptionHandler
 
 import scala.concurrent.Future

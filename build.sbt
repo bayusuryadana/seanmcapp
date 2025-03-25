@@ -6,15 +6,18 @@ maintainer := "seanmcrayz@yahoo.com"
 resolvers += Resolver.JCenterRepository
 libraryDependencies ++= Seq(
   // framework
-  "com.typesafe.akka" %% "akka-http" % "10.5.3",
-  "com.typesafe.akka" %% "akka-stream" % "2.8.7",
+  "org.apache.pekko" %% "pekko-http" % "1.1.0",
+  "org.apache.pekko" %% "pekko-stream" % "1.1.3",
 
-  // testkit
-  "com.typesafe.akka" %% "akka-http-testkit" % "10.5.3" % Test,
-  "com.typesafe.akka" %% "akka-stream-testkit" % "2.8.7" % Test,
+//  // testkit
+//  "com.typesafe.akka" %% "akka-http-testkit" % "10.5.3" % Test,
+//  "com.typesafe.akka" %% "akka-stream-testkit" % "2.8.7" % Test,
 
   // parallel collection
 //  "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4",
+
+  // JWT Token
+  "com.auth0" % "java-jwt" % "4.4.0",
 
   // json serializer*
   "io.circe" %% "circe-core" % "0.14.9",
@@ -62,7 +65,7 @@ libraryDependencies ++= Seq(
 coverageExcludedPackages :=
   ".*com.seanmcapp.util.*;" +
   ".*com.seanmcapp.config.*;" +
-  ".*Boot.*;" +
+  ".*Main.*;" +
   ".*com.seanmcapp.*html.*;"
 
 coverageMinimum := 90
@@ -73,15 +76,14 @@ fork in IntegrationTest := true
 configs(IntegrationTest)
 Defaults.itSettings
 javaOptions in IntegrationTest += "-Dconfig.resource=application.conf"
-mainClass in Compile := Some("com.seanmcapp.Main")
 
 /**
   *  DOCKER
   *  publish: sbt docker:publishLocal
   *  run: docker run --env-file=.env -p 9000:9000 seanmcapp
   */
-mainClass in Compile := Some("com.seanmcapp.Boot")
+mainClass in Compile := Some("com.seanmcapp.Main")
 dockerBaseImage := "openjdk:jre-alpine"
 dockerRepository := Some("docker.pkg.github.com/bayusuryadana/seanmcapp")
 
-enablePlugins(JavaAppPackaging, DockerPlugin, AshScriptPlugin, SbtTwirl)
+enablePlugins(JavaAppPackaging, DockerPlugin, AshScriptPlugin, SbtTwirl, SbtDotenv)

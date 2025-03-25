@@ -1,6 +1,6 @@
 package com.seanmcapp.repository
 
-import com.seanmcapp.DatabaseConf
+import com.seanmcapp.util.DatabaseConf
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 
 import java.sql.Connection

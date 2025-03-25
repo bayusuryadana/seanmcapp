@@ -16,7 +16,7 @@ class PeopleRepoImpl(client: DatabaseClient) extends PeopleRepo {
 
   def get(day: Int, month: Int): Future[Seq[People]] = {
     client.withConnection { implicit conn =>
-      SQL"SELECT name FROM users".as(parser.*)
+      SQL"SELECT * FROM people".as(parser.*)
     }
   }
 }

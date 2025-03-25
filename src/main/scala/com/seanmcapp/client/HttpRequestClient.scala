@@ -1,6 +1,6 @@
-package com.seanmcapp.external
+package com.seanmcapp.client
 
-import com.seanmcapp.HttpConf
+import com.seanmcapp.util.HttpConf
 import com.seanmcapp.util.ExceptionHandler
 import io.circe.generic.AutoDerivation
 import scalaj.http.{BaseHttp, HttpOptions, HttpRequest, HttpResponse, MultiPart, StringBodyConnectFunc}
@@ -64,7 +64,7 @@ object HttpRequestClientImpl extends HttpRequestClient {
 
 object Http extends BaseHttp {
 
-  private[external] val httpConf = HttpConf()
+  private[client] val httpConf = HttpConf()
 
   override def apply(url: String): HttpRequest = {
     val httpOptions = Seq(

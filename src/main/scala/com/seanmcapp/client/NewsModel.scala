@@ -1,6 +1,6 @@
-package com.seanmcapp.external
+package com.seanmcapp.client
 
-import com.seanmcapp.external.NewsObject.{NewsTitle, NewsUrl}
+import NewsObject.{NewsTitle, NewsUrl}
 import io.circe.{Json, Encoder => CirceEncoder}
 import org.jsoup.nodes.Document
 

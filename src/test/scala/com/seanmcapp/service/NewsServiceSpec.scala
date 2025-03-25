@@ -1,7 +1,7 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.external.NewsObject.{NewsTitle, NewsUrl}
-import com.seanmcapp.external.{CNA, HttpRequestClient, Mothership, NewsObject, TelegramClient, Tirtol}
+import com.seanmcapp.client.{CNA, HttpRequestClient, Mothership, NewsObject, TelegramClient, Tirtol}
+import com.seanmcapp.client.NewsObject.{NewsTitle, NewsUrl}
 import org.jsoup.nodes.Document
 import org.mockito.Mockito
 import org.mockito.Mockito.when

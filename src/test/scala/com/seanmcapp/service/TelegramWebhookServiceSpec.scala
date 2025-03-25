@@ -1,6 +1,7 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.external.{TelegramChat, TelegramMessage, TelegramMessageEntity, TelegramUpdate, TelegramUser, decode}
+import com.seanmcapp.client.{TelegramChat, TelegramMessage, TelegramMessageEntity, TelegramUpdate, TelegramUser}
+import com.seanmcapp.client.decode
 import org.mockito.Mockito
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers

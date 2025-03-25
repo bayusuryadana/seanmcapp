@@ -1,5 +1,6 @@
 package com.seanmcapp.external
 
+import com.seanmcapp.client.{HeaderMap, HttpRequestClient, ParamMap}
 import scalaj.http.{HttpResponse, MultiPart}
 
 class HttpRequestClientMock(responseMap: Map[String, String]) extends HttpRequestClient {

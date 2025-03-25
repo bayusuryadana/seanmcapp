@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.external.{CNA, Detik, HttpRequestClient, Kumparan, Mothership, NewsResult, Reuters, TelegramClient, Tirtol}
+import com.seanmcapp.client.{CNA, Detik, HttpRequestClient, Kumparan, Mothership, NewsResult, Reuters, TelegramClient, Tirtol}
 import com.seanmcapp.util.{ChatIdType, ChatIdTypes}
 import org.jsoup.Jsoup
 

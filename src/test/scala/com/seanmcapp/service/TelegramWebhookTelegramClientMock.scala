@@ -1,9 +1,8 @@
 package com.seanmcapp.service
 
 import java.net.URLEncoder
-
-import com.seanmcapp.TelegramConf
-import com.seanmcapp.external._
+import com.seanmcapp.util.TelegramConf
+import com.seanmcapp.client._
 import org.mockito.Mockito
 
 import scala.io.Source

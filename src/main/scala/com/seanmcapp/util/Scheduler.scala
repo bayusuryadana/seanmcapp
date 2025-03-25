@@ -1,13 +1,12 @@
-package com.seanmcapp
+package com.seanmcapp.util
 
-import java.util.concurrent.TimeUnit
-import akka.actor.{ActorSystem, Cancellable}
 import com.seanmcapp.service.ScheduledTask
-import com.seanmcapp.util.ExceptionHandler
 import cron4s._
 import cron4s.lib.joda._
+import org.apache.pekko.actor.{ActorSystem, Cancellable}
 import org.joda.time.{DateTime, DateTimeZone}
 
+import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration
 
@@ -25,10 +24,10 @@ class Scheduler(scheduledTask: ScheduledTask, cronString: String, isRepeat: Bool
       Duration(target.getMillis - now.getMillis, TimeUnit.MILLISECONDS)
     }).getOrElse(throw new Exception("Invalid cron schedule format"))
 
-    scheduler.scheduleOnce(nextSchedule)(this.run)
+    scheduler.scheduleOnce(nextSchedule)(this.run())
   }
 
-  override def run: Unit = {
+  override def run(): Unit = {
     try {
       scheduledTask.run
     } catch {

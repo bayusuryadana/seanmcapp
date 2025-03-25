@@ -1,7 +1,7 @@
 package com.seanmcapp.service
 
 import java.util.Calendar
-import com.seanmcapp.WalletConf
+import com.seanmcapp.util.AppsConf
 import com.seanmcapp.repository.{Wallet, WalletRepo}
 import com.seanmcapp.service.WalletUtils._
 
@@ -15,7 +15,7 @@ class WalletService(walletRepo: WalletRepo) {
   private val activeIncomeSet = Set("Salary", "Bonus")
   private val expenseSet = Set("Daily", "Rent", "Zakat", "Travel", "Fashion", "IT Stuff", "Misc", "Wellness", "Funding")
 
-  private[service] val SECRET_KEY = WalletConf().secretKey
+  private[service] val SECRET_KEY = AppsConf().secretKey
 
   def dashboard(implicit secretKey: String): DashboardView = {
     val wallets = authAndAwait(secretKey, (r: WalletRepo) => { r.getAll })

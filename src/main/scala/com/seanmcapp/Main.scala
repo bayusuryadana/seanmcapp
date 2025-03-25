@@ -1,10 +1,10 @@
 package com.seanmcapp
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.Http.ServerBinding
-import akka.http.scaladsl.server.Directives._
-import com.seanmcapp.util.APIExceptionHandler
+import com.seanmcapp.util.{APIExceptionHandler, CORSHandler}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.Http.ServerBinding
+import org.apache.pekko.http.scaladsl.server.Directives.handleExceptions
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
@@ -12,8 +12,6 @@ object Main extends App with CORSHandler {
 
   implicit val system: ActorSystem = ActorSystem("seanmcapp")
   implicit val ec: ExecutionContextExecutor = system.dispatcher
-
-  private lazy val setup = new Setup
 
   private val serverBinding = start(8080)
 
@@ -23,13 +21,14 @@ object Main extends App with CORSHandler {
   }
 
   def start(port: Int): Future[ServerBinding] = {
+    val (route, scheduleList) = new Bootstrap().init()
     println(s"running schedule job")
-    val runningJob = setup.scheduleList.map(_.start)
+    val runningJob = scheduleList.map(_.start)
     system.registerOnTermination(runningJob.map(_.cancel()))
 
     println(s"Server is started on port $port")
     Http().newServerAt("0.0.0.0", port).bind(
-      corsHandler(handleExceptions(APIExceptionHandler.apply()){ setup.route })
+      corsHandler(handleExceptions(APIExceptionHandler.apply()){ route })
     )
   }
 

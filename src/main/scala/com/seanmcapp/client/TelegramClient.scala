@@ -1,8 +1,8 @@
-package com.seanmcapp.external
+package com.seanmcapp.client
 
 import java.net.{URL, URLEncoder}
 
-import com.seanmcapp.TelegramConf
+import com.seanmcapp.util.TelegramConf
 import scalaj.http.MultiPart
 
 // $COVERAGE-OFF$

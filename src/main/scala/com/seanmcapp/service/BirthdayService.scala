@@ -1,6 +1,6 @@
 package com.seanmcapp.service
 
-import com.seanmcapp.external.TelegramClient
+import com.seanmcapp.client.TelegramClient
 import com.seanmcapp.repository.{People, PeopleRepo}
 
 import scala.concurrent.ExecutionContext.Implicits.global

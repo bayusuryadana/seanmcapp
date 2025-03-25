@@ -8,7 +8,7 @@ import io.circe.generic.AutoDerivation
 import scala.language.implicitConversions
 
 // $COVERAGE-OFF$
-package object external extends AutoDerivation {
+package object client extends AutoDerivation {
 
   implicit def decode[T: Decoder](input: String): T = {
     parser.decode[T](input) match {

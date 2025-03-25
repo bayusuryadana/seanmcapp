@@ -1,9 +1,9 @@
 package com.seanmcapp.util
 
-import akka.http.scaladsl.model._
-import StatusCodes._
-import akka.http.scaladsl.server._
-import Directives._
+import org.apache.pekko.http.scaladsl.model.{HttpResponse, StatusCode}
+import org.apache.pekko.http.scaladsl.model.StatusCodes.InternalServerError
+import org.apache.pekko.http.scaladsl.server.Directives.{complete, extractUri}
+import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
 
 class ExceptionHandler(t: Throwable) extends Exception(t) {
   
