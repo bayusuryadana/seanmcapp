@@ -6,10 +6,11 @@ import com.seanmcapp.service.{BirthdayService, NewsService, TelegramWebhookServi
 import com.seanmcapp.util.{JwtUtil, Scheduler}
 import io.circe.syntax._
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import org.apache.pekko.http.scaladsl.server
 import org.apache.pekko.http.scaladsl.server.{Directive0, Directives, Route}
 
+import java.nio.file.{Files, Paths}
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
 // $COVERAGE-OFF$
@@ -30,6 +31,8 @@ class Bootstrap(implicit system: ActorSystem, ec: ExecutionContext) extends Dire
 //  private val utf8 = ContentTypes.`text/html(UTF-8)`
 
   private val authorizationString = "Authorization"
+  private val frontEndPath = ""
+
   private val route: server.Route =
     pathPrefix("api") {
       post {
@@ -70,6 +73,15 @@ class Bootstrap(implicit system: ActorSystem, ec: ExecutionContext) extends Dire
       }
     } ~ {
       get(path("")(complete("Konnichiwa sobat damemek !!!"))) // will serve UI here
+    } ~ {
+      get(path(Remaining) { path =>
+        val filePath = Paths.get(s"$frontEndPath/$path")
+        if (Files.exists(filePath)) {
+          complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, Files.readString(filePath)))
+        } else {
+          complete(StatusCodes.NotFound) //TODO: not found page
+        }
+      })
     }
 
   private def authenticate: Directive0 =

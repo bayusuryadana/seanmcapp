@@ -12,3 +12,4 @@ docker/storage/.minio.sys
 /.bloop
 /.metals
 /.vscode
+node_modules
