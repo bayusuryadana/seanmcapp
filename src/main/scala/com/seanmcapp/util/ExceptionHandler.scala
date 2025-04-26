@@ -2,6 +2,7 @@ package com.seanmcapp.util
 
 import org.apache.pekko.http.scaladsl.model.{HttpResponse, StatusCode}
 import org.apache.pekko.http.scaladsl.model.StatusCodes.InternalServerError
+import org.apache.pekko.http.scaladsl.server
 import org.apache.pekko.http.scaladsl.server.Directives.{complete, extractUri}
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
 
@@ -32,7 +33,7 @@ class ExceptionHandler(t: Throwable) extends Exception(t) {
 
 object APIExceptionHandler {
   
-  def apply() = {
+  def apply(): server.ExceptionHandler = {
     ExceptionHandler {
       case eh: ExceptionHandler => eh.doPrintAndComplete()
       case e: Exception => new ExceptionHandler(e).doPrintAndComplete()

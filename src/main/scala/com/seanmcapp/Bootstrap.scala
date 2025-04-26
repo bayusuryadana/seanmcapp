@@ -2,7 +2,7 @@ package com.seanmcapp
 
 import com.seanmcapp.client._
 import com.seanmcapp.repository.{DatabaseClient, PeopleRepo, PeopleRepoImpl, WalletRepo, WalletRepoImpl}
-import com.seanmcapp.service.{BirthdayService, NewsService, TelegramWebhookService, WarmupDBService}
+import com.seanmcapp.service.{BirthdayService, NewsService, TelegramWebhookService, WalletService, WarmupDBService}
 import com.seanmcapp.util.{JwtUtil, Scheduler}
 import io.circe.syntax._
 import org.apache.pekko.actor.ActorSystem
@@ -11,7 +11,7 @@ import org.apache.pekko.http.scaladsl.server
 import org.apache.pekko.http.scaladsl.server.{Directive0, Directives, Route}
 
 import java.nio.file.{Files, Paths}
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
+import scala.concurrent.ExecutionContext
 
 // $COVERAGE-OFF$
 class Bootstrap(implicit system: ActorSystem, ec: ExecutionContext) extends Directives {
@@ -23,6 +23,7 @@ class Bootstrap(implicit system: ActorSystem, ec: ExecutionContext) extends Dire
   private val peopleRepo: PeopleRepo = new PeopleRepoImpl(databaseClient)
   private val walletRepo: WalletRepo = new WalletRepoImpl(databaseClient)
 
+  private val walletService: WalletService = new WalletService(walletRepo)
   private val birthdayService = new BirthdayService(peopleRepo, telegramClient)
   private val newsService = new NewsService(httpClient, telegramClient)
   private val warmupDBService = new WarmupDBService(peopleRepo)
@@ -40,32 +41,42 @@ class Bootstrap(implicit system: ActorSystem, ec: ExecutionContext) extends Dire
           val telegramUpdate = decode[TelegramUpdate](payload)
           complete(telegramWebhookService.receive(telegramUpdate).map(_.map(_.asJson.encode)))
         } ~ {
-          (pathPrefix("create") & entity(as[String])) { payload =>
-            complete(payload)
-          }
-        } ~ {
-          (pathPrefix("update") & entity(as[String])) { payload =>
-            complete(payload)
-          }
-        } ~ {
-          (pathPrefix("delete") & entity(as[String])) { payload =>
-            complete(payload)
+          pathPrefix("wallet") {
+            authenticate {
+              {
+                (pathPrefix("create") & entity(as[String])) { payload =>
+                  complete(payload)
+                }
+              } ~ {
+                (pathPrefix("update") & entity(as[String])) { payload =>
+                  complete(payload)
+                }
+              } ~ {
+                (pathPrefix("delete") & entity(as[String])) { payload =>
+                  complete(payload)
+                }
+              }
+            }
           }
         }
       } ~ {
-        get {
-          {
-            pathPrefix("login" / Segment) { password =>
-              val token = JwtUtil.createToken(password)
-              token match {
-                case Some(s) => complete(s)
-                case None    => complete(StatusCodes.Unauthorized, "Invalid password")
+        pathPrefix("wallet") {
+          get {
+            {
+              pathPrefix("login" / Segment) { password =>
+                val token = JwtUtil.createToken(password)
+                token match {
+                  case Some(s) => complete(s)
+                  case None => complete(StatusCodes.Unauthorized, "Invalid password")
+                }
               }
-            }
-          } ~ {
-            authenticate {
-              pathPrefix("dashboard") {
-                complete("masuk neeh kontol")
+            } ~ {
+              authenticate {
+                pathPrefix("dashboard") {
+                  parameter("date".as[Int]) { date =>
+                    complete(walletService.dashboard(date).map(_.asJson.encode))
+                  }
+                }
               }
             }
           }

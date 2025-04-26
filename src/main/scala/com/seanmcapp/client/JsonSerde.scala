@@ -20,7 +20,7 @@ package object client extends AutoDerivation {
   }
 
   implicit class Encoder(json: Json) {
-    def encode: String = json.printWith(Printer.noSpacesSortKeys)
+    def encode: String = json.printWith(Printer.spaces4)
   }
   
   private class SerdeException(input: String, t: Throwable) extends ExceptionHandler(t) {
