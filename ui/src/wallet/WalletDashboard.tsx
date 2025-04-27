@@ -6,7 +6,6 @@ import { WalletPlanned, WalletDetail, WalletDashboardData, WalletAlert } from ".
 import { WalletModal } from "./Modal"
 import axios from "axios"
 import { useContext, useEffect, useState } from "react"
-import { SeanmcappResponse } from "../common"
 import { UserContext, UserContextType } from "./UserContext"
 
 export const WalletDashboard = () => {

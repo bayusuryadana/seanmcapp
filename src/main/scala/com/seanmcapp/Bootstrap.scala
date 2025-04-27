@@ -30,10 +30,21 @@ class Bootstrap(implicit system: ActorSystem, ec: ExecutionContext) extends Dire
   private val warmupDBService = new WarmupDBService(peopleRepo)
   private val telegramWebhookService = new TelegramWebhookService(telegramClient)
 
-//  private val utf8 = ContentTypes.`text/html(UTF-8)`
-
   private val authorizationString = "Authorization"
-  private val frontEndPath = ""
+  private val frontEndPath = Paths.get("ui/.build")
+
+  private val indexHTML = HttpEntity(ContentTypes.`text/html(UTF-8)`, Files.readString(frontEndPath.resolve("index.html")))
+  private val frontEndRoute = {
+    get(pathSingleSlash {
+      complete(indexHTML)
+    })
+  } ~ pathPrefix("static") {
+    getFromDirectory(frontEndPath.resolve("static").toString)
+  } ~ pathPrefix(".*") {
+    get {
+      complete(indexHTML)
+    }
+  }
 
   private val route: server.Route =
     pathPrefix("api") {
@@ -85,18 +96,7 @@ class Bootstrap(implicit system: ActorSystem, ec: ExecutionContext) extends Dire
           }
         }
       }
-    } ~ {
-      get(path("")(complete("Konnichiwa sobat damemek !!!"))) // will serve UI here
-    } ~ {
-      get(path(Remaining) { path =>
-        val filePath = Paths.get(s"$frontEndPath/$path")
-        if (Files.exists(filePath)) {
-          complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, Files.readString(filePath)))
-        } else {
-          complete(StatusCodes.NotFound) //TODO: not found page
-        }
-      })
-    }
+    } ~ frontEndRoute
 
   private def authenticate: Directive0 =
     headerValueByName(authorizationString).flatMap { token =>
