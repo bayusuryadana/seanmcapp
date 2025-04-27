@@ -1,6 +1,7 @@
 package com.seanmcapp
 
 import com.seanmcapp.client._
+import com.seanmcapp.model.DashboardWallet
 import com.seanmcapp.repository.{DatabaseClient, PeopleRepo, PeopleRepoImpl, WalletRepo, WalletRepoImpl}
 import com.seanmcapp.service.{BirthdayService, NewsService, TelegramWebhookService, WalletService, WarmupDBService}
 import com.seanmcapp.util.{JwtUtil, Scheduler}
@@ -45,15 +46,13 @@ class Bootstrap(implicit system: ActorSystem, ec: ExecutionContext) extends Dire
             authenticate {
               {
                 (pathPrefix("create") & entity(as[String])) { payload =>
-                  complete(payload)
+                  val dashboardWallet = decode[DashboardWallet](payload)
+                  complete(walletService.create(dashboardWallet).map(_.toString))
                 }
               } ~ {
                 (pathPrefix("update") & entity(as[String])) { payload =>
-                  complete(payload)
-                }
-              } ~ {
-                (pathPrefix("delete") & entity(as[String])) { payload =>
-                  complete(payload)
+                  val dashboardWallet = decode[DashboardWallet](payload)
+                  complete(walletService.update(dashboardWallet).map(_.toString))
                 }
               }
             }
@@ -75,6 +74,10 @@ class Bootstrap(implicit system: ActorSystem, ec: ExecutionContext) extends Dire
                 pathPrefix("dashboard") {
                   parameter("date".as[Int]) { date =>
                     complete(walletService.dashboard(date).map(_.asJson.encode))
+                  }
+                } ~ {
+                  pathPrefix("delete" / Segment) { id =>
+                    complete(walletService.delete(id.toInt).map(_.toString))
                   }
                 }
               }

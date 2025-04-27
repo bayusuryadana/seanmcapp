@@ -48,4 +48,16 @@ class WalletService(walletRepo: WalletRepo) {
     }
   }
 
+  def create(wallet: DashboardWallet): Future[Int] = {
+    val walletRecord = (Wallet.apply _).tupled(DashboardWallet.unapply(wallet).get)
+    walletRepo.insert(walletRecord)
+  }
+
+  def update(wallet: DashboardWallet): Future[Int] = {
+    val walletRecord = (Wallet.apply _).tupled(DashboardWallet.unapply(wallet).get)
+    walletRepo.update(walletRecord)
+  }
+
+  def delete(id: Int): Future[Int] = walletRepo.delete(id)
+
 }
