@@ -40,10 +40,8 @@ class Bootstrap(implicit system: ActorSystem, ec: ExecutionContext) extends Dire
     })
   } ~ pathPrefix("static") {
     getFromDirectory(frontEndPath.resolve("static").toString)
-  } ~ pathPrefix(".*") {
-    get {
-      complete(indexHTML)
-    }
+  } ~ get {
+    complete(indexHTML)
   }
 
   private val route: server.Route =

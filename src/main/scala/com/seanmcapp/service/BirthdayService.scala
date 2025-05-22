@@ -17,13 +17,13 @@ class BirthdayService(peopleRepo: PeopleRepo, telegramClient: TelegramClient) ex
       people1 <- peopleRepo.get(tmr.getDayOfMonth, tmr.getMonthOfYear)
       people7 <- peopleRepo.get(nextWeek.getDayOfMonth, nextWeek.getMonthOfYear)
     } yield {
-      people.foreach { p => sendMessage(p, 0) }
-      people1.foreach { p => sendMessage(p, 1) }
-      people7.foreach { p => sendMessage(p, 7) }
+      people.foreach { p => sendBirthdayMessageReminder(p, 0) }
+      people1.foreach { p => sendBirthdayMessageReminder(p, 1) }
+      people7.foreach { p => sendBirthdayMessageReminder(p, 7) }
     }
   }
 
-  private def sendMessage(person: People, numOfDays: Int): Unit = {
+  private def sendBirthdayMessageReminder(person: People, numOfDays: Int): Unit = {
     val dayWord = numOfDays match {
       case 0 => "Today"
       case 1 => "Tomorrow"

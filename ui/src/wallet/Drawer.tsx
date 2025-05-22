@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import { drawerWidth } from './constant';
 import { Toolbar, IconButton, Divider, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import BarChartIcon from '@mui/icons-material/BarChart';
+// import BarChartIcon from '@mui/icons-material/BarChart';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useNavigate } from 'react-router-dom';
 
@@ -57,12 +57,14 @@ export const WalletDrawer = (props: WalletDrawerProps) => {
             </ListItemIcon>
             <ListItemText primary="Dashboard" />
         </ListItemButton>
+        {/*
         <ListItemButton onClick={() => navigate('/wallet/porto')}>
             <ListItemIcon>
                 <BarChartIcon />
             </ListItemIcon>
             <ListItemText primary="Portofolio" />
         </ListItemButton>
+        */}
       </List>
     </Drawer>
   )

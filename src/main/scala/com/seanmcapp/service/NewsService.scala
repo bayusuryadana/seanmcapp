@@ -1,7 +1,7 @@
 package com.seanmcapp.service
 
 import com.seanmcapp.client.{CNA, Detik, HttpRequestClient, Kumparan, Mothership, NewsResult, Reuters, TelegramClient, Tirtol}
-import com.seanmcapp.util.{ChatIdType, ChatIdTypes}
+import com.seanmcapp.util.ChatIdTypes
 import org.jsoup.Jsoup
 
 import scala.util.Try
@@ -10,9 +10,7 @@ class NewsService(httpClient: HttpRequestClient, telegramClient: TelegramClient)
 
   private[service] val newsList = List(Detik, Tirtol, Kumparan, Mothership, CNA, Reuters)
 
-  override def run: List[NewsResult] = process(ChatIdTypes.Group)
-
-  def process(chatIdType: ChatIdType): List[NewsResult] = {
+  override def run: List[NewsResult] = {
     val newsResults = newsList.flatMap { newsObject =>
       val newsResultEither = for {
         response <- Try(httpClient.sendGetRequest(newsObject.url)).toEither
@@ -33,7 +31,7 @@ class NewsService(httpClient: HttpRequestClient, telegramClient: TelegramClient)
       message + s"${new String(res.newsObject.flag, 0, res.newsObject.flag.length)} ${res.newsObject.name} - [${res.title}](${res.url})\n\n"
     }
     
-    telegramClient.sendMessage(chatIdType.i, newsMessage)
+    telegramClient.sendMessage(ChatIdTypes.Group.i, newsMessage)
     newsResults
   }
 }
